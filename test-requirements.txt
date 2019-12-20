@@ -1,5 +1,7 @@
 requests>=2.22.0,<3
-six>=1.12.0,<2
+cryptos>=1.36,<2
+chainside-btcpy>=0.6.4,<1
+mnemonic>=0.19,<1
 pytest==5.0.1
 pytest-cov==2.7.1
 pytest-console-scripts==0.1.9
