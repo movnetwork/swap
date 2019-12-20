@@ -1,0 +1,14 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+requests = ">=2.22.0,<3"
+six = ">=1.12.0,<2"
+
+[packages]
+pyshuttle = {editable = true,path = "."}
+
+[requires]
+python_version = "3.8"
