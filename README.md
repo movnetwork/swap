@@ -1,11 +1,20 @@
-## PYSHUTTLE
-CROSS-CHAIN ATOMIC SWAPS BETWEEN THE NETWORKS OF TWO BLOCKCHAIN CRYPTOCURRENCIES.
+## PyShuttle
+Cross-chain atomic swaps between the networks of two cryptocurrencies.
 
-## VERSION
-vO.1.0 - [BYTOM](https://github.com/bytom/bytom) & [BITCOIN](https://github.com/bitcoin/bitcoin)
+## Version
+* v0.1.0
+    * The first proper release
+    * ADDED: [Bytom](https://github.com/bytom/bytom) & [Bitcoin](https://github.com/bitcoin/bitcoin) cryptocurrencies.
+* v0.0.1
+    * Work in progress
 
-## AUTHOR
-[MEHERET TESFAYE](https://github.com/meherett)
+## Meta
 
-## LICENSE
+Meheret Tesfaye – [@meherett](https://github.com/meherett) – meherett@zoho.com
+
+Distributed under the AGPLv3+ license. See ``LICENSE`` for more information.
+
+[https://github.com/meherett/pyshuttle](LICENSE)
+
+## License
 [AGPLv3+](LICENSE)
