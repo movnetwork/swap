@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as _requirements:
 
 setup(
     name="pyshuttle",
-    version="0.1.0",
+    version="0.0.1",
     description="Cross-chain atomic swaps between the networks of two cryptocurrencies.",
     long_description=long_description,
     long_description_content_type="text/markdown",
