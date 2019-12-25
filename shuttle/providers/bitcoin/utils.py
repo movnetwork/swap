@@ -24,6 +24,26 @@ def double_sha256(data):
     return hashlib.sha256(hashlib.sha256(data).digest()).digest()
 
 
+# Transaction fee calculator
+def fee_calculator(tx_input=2, tx_output=4):
+    # 576 input 1 output 1
+    # 678 input 1 output 2
+    # 780 input 1 output 3
+    # 882 input 1 output 4
+
+    # 1020 input 2 output 1
+    # 1122 input 2 output 2
+    # 1224 input 2 output 3
+    # 1326 input 2 output 4
+
+    # 444 input
+    # 102 output
+
+    tx_input = ((tx_input - 1) * 444) + 576
+    tx_output = ((tx_output - 1) * 102)
+    return tx_input + tx_output
+
+
 # Setting expiration to script
 def expiration_to_script(expiration):
     if isinstance(expiration, int):
