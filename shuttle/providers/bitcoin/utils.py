@@ -25,23 +25,11 @@ def double_sha256(data):
 
 
 # Transaction fee calculator
-def fee_calculator(tx_input=2, tx_output=4):
-    # 576 input 1 output 1
-    # 678 input 1 output 2
-    # 780 input 1 output 3
-    # 882 input 1 output 4
-
-    # 1020 input 2 output 1
-    # 1122 input 2 output 2
-    # 1224 input 2 output 3
-    # 1326 input 2 output 4
-
-    # 444 input
-    # 102 output
-
-    tx_input = ((tx_input - 1) * 444) + 576
-    tx_output = ((tx_output - 1) * 102)
-    return tx_input + tx_output
+def fee_calculator(transaction_input=1, transaction_output=1):
+    # 444 input 102 output
+    transaction_input = ((transaction_input - 1) * 444) + 576
+    transaction_output = ((transaction_output - 1) * 102)
+    return transaction_input + transaction_output
 
 
 # Setting expiration to script
@@ -56,14 +44,13 @@ def expiration_to_script(expiration):
 
 # Creating script from address
 def script_from_address(address, testnet=True):
-    if isinstance(address, str) and cryptos.Bitcoin(testnet=testnet).is_address(address):
-        load_address = Address.from_string(address)
-        get_type = load_address.get_type()
-        if str(get_type) == "p2pkh":
-            return P2pkhScript(load_address)
-        elif str(get_type) == "p2sh":
-            return P2shScript(load_address)
-    raise TypeError("Address must be string format!")
+    assert is_address(address, testnet), "Invalid %s address!"
+    load_address = Address.from_string(address)
+    get_type = load_address.get_type()
+    if str(get_type) == "p2pkh":
+        return P2pkhScript(load_address)
+    elif str(get_type) == "p2sh":
+        return P2shScript(load_address)
 
 
 # Creating script from address

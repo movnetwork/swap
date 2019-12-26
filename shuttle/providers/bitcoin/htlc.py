@@ -40,7 +40,7 @@ class HTLC:
             bytecode = Script.compile(opcode)
             self.script = ScriptBuilder.identify(bytecode)
             return self
-        raise TypeError("Bytecode must be string format!")
+        raise TypeError("OP_Code must be string format!")
 
     # Hash time lock contract form bytecode
     def from_bytecode(self, bytecode):

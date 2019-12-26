@@ -22,7 +22,7 @@ def get_balance(address, network="testnet", timeout=5):
 
 
 # Get unspent transaction by address
-def get_unspent_transactions(address, network="testnet", include_script=True, limit=50, timeout=5):
+def get_unspent_transactions(address, network="testnet", include_script=True, limit=50, timeout=15):
     assert is_address(address), "Invalid address!"
     _include_script = "true" if include_script else "false"
     parameter = dict(limit=limit, unspentOnly="true",
@@ -32,21 +32,21 @@ def get_unspent_transactions(address, network="testnet", include_script=True, li
     return response["txrefs"] if "txrefs" in response else []
 
 
-# Getting decode transaction by transaction row
+# Getting decode transaction by transaction raw
 def decoded_transaction_raw(transaction_raw, network="testnet", timeout=5):
     if isinstance(transaction_raw, str):
         parameter = dict(token=bitcoin[network]["blockcypher"]["token"])
         tx = json.dumps(dict(tx=transaction_raw))
         return requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/decode",
                              data=tx, params=parameter, headers=headers, timeout=timeout).json()
-    raise TypeError("Transaction row must be string format!")
+    raise TypeError("Transaction raw must be string format!")
 
 
-# Getting push transaction by transaction row
+# Getting push transaction by transaction raw
 def push_transaction_raw(transaction_raw, network="testnet", timeout=5):
     if isinstance(transaction_raw, str):
         parameter = dict(token=bitcoin[network]["blockcypher"]["token"])
         tx = json.dumps(dict(tx=transaction_raw))
         return requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/push",
                              data=tx, params=parameter, headers=headers, timeout=timeout).json()
-    raise TypeError("Transaction row must be string format!")
+    raise TypeError("Transaction raw must be string format!")
