@@ -1,14 +1,38 @@
+# Bytom network
+def bytom():
+    return {
+        "mainnet": {
+            "bytom": "http://localhost:9888",
+            "blockmeta": "https://blockmeta.com/api/v2",
+            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
+        },
+        "testnet": {
+            "bytom": "http://localhost:9888",
+            "blockmeta": "https://blockmeta.com/api/wisdom",
+            "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
+        }
+    }
+
+
 # Bitcoin network
-def bitcoin():
+def bitcoin(blockcypher_token=None):
+    if blockcypher_token is None:
+        blockcypher_token = "c6ef693d3c024088810e6fac2a1494ee"
     return {
         "mainnet": {
             "coin_type": "0",
             "blockchain": "https://blockchain.info",
-            "blockcypher": "https://api.blockcypher.com/v1/btc/main"
+            "blockcypher": {
+                "url": "https://api.blockcypher.com/v1/btc/main",
+                "token": blockcypher_token
+            }
         },
         "testnet": {
             "coin_type": "1",
             "blockchain": "https://testnet.blockchain.info",
-            "blockcypher": "https://api.blockcypher.com/v1/btc/test3"
+            "blockcypher": {
+                "url": "https://api.blockcypher.com/v1/btc/test3",
+                "token": blockcypher_token
+            }
         }
     }
