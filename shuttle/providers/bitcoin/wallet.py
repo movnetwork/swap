@@ -7,8 +7,8 @@ from cryptos import Bitcoin
 
 import hashlib
 
-from shuttle.providers.bitcoin.utils import is_address
-from shuttle.providers.bitcoin.rpc import get_balance
+from .utils import is_address
+from .rpc import get_balance
 
 
 # Bitcoin Wallet.
@@ -107,7 +107,6 @@ class Wallet:
     # Bitcoin balance
     def balance(self, address=None, testnet=True):
         if address is None:
-            return get_balance(str(self._address), self.network)["balance"]
+            return get_balance(str(self._address), self.network)
         network = "testnet" if testnet else "mainnet"
-        assert is_address(address), "Invalid %s _address!" % network
-        return get_balance(address, network)["balance"]
+        return get_balance(address, network)
