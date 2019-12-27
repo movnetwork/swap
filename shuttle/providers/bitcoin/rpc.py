@@ -16,13 +16,13 @@ bitcoin = bitcoin()
 
 # Get balance by address
 def get_balance(address, network="testnet", timeout=5):
-    assert is_address(address), "Invalid address!"
-    url = str(bitcoin[network]["blockcypher"]) + ("/addrs/%s/balance" % address)
+    assert is_address(address, network), "Invalid %s address!" % network
+    url = str(bitcoin[network]["blockcypher"]["url"]) + ("/addrs/%s/balance" % address)
     return requests.get(url=url, headers=headers, timeout=timeout).json()["balance"]
 
 
 # Get unspent transaction by address
-def get_unspent_transactions(address, network="testnet", include_script=True, limit=50, timeout=15):
+def get_unspent_transactions(address, network="testnet", include_script=True, limit=50, timeout=5):
     assert is_address(address), "Invalid address!"
     _include_script = "true" if include_script else "false"
     parameter = dict(limit=limit, unspentOnly="true",
