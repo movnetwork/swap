@@ -1,4 +1,4 @@
-## PyShuttle
+# PyShuttle
 Cross-chain atomic swaps between the networks of two cryptocurrencies.
 
 ## Version
@@ -12,9 +12,9 @@ Cross-chain atomic swaps between the networks of two cryptocurrencies.
 
 Meheret Tesfaye – [@meherett](https://github.com/meherett) – meherett@zoho.com
 
-Distributed under the AGPLv3+ license. See ``LICENSE`` for more information.
+Distributed under the AGPL-3.0 license. See ``LICENSE`` for more information.
 
 [https://github.com/meherett/pyshuttle](LICENSE)
 
 ## License
-[AGPLv3+](LICENSE)
+[AGPL-3.0](LICENSE)
