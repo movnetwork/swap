@@ -1,0 +1,22 @@
+// Hash Time Lock Contract (HTLC)
+// Author Meheret Tesfaye | meherett@zoho.com
+
+contract HTLC(
+  sender: PublicKey,
+  recipient: PublicKey,
+  blockHeight: Integer,
+  hash: Hash
+) locks valueAmount of valueAsset {
+
+  clause claim(preimage: String, sig: Signature) {
+    verify sha256(preimage) == hash
+    verify checkTxSig(recipient, sig)
+    unlock valueAmount of valueAsset
+  }
+
+  clause refund(sig: Signature) {
+    verify above(blockHeight)
+    verify checkTxSig(sender, sig)
+    unlock valueAmount of valueAsset
+  }
+}
