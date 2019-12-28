@@ -11,9 +11,11 @@ from .utils import double_sha256, script_from_address
 class HTLC:
 
     # Initialization
-    def __init__(self, testnet=True):
+    def __init__(self, network="testnet"):
         # Bitcoin network.
-        self.testnet = testnet
+        self.network = network
+        # Bitcoin network boolean..
+        self.testnet = True if network == "testnet" else False
         # HTLC script
         self.script = None
 
