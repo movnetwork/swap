@@ -8,7 +8,7 @@ from cryptos import Bitcoin
 import hashlib
 
 from .utils import is_address
-from .rpc import get_balance
+from .rpc import get_balance, get_unspent_transactions
 
 
 # Bitcoin Wallet.
@@ -110,3 +110,21 @@ class Wallet:
         if address is None:
             return get_balance(str(self._address), self.network)
         return get_balance(address, network)
+
+    def unspent(self, address=None, network="testnet", limit=15):
+        if address is None:
+            address = str(self._address)
+            network = str(self.network)
+        unspent = list()
+        assert is_address(address, network), "Invalid %s address!" % network
+        unspent_transactions = get_unspent_transactions(
+            address, network, limit=limit)
+        for index, unspent_transaction in enumerate(unspent_transactions):
+            unspent.append(dict(
+                index=index,
+                hash=unspent_transaction["tx_hash"],
+                output_index=unspent_transaction["tx_output_n"],
+                amount=unspent_transaction["value"],
+                script=unspent_transaction["script"]
+            ))
+        return unspent
