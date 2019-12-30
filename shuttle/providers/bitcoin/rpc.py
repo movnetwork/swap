@@ -3,13 +3,14 @@
 import requests
 import json
 
-from shuttle.providers.bitcoin.utils import is_address
-from shuttle.providers.config import bitcoin
+from .utils import is_address
+from ..config import bitcoin
 
 
 # Request headers
 headers = dict()
 headers.setdefault("Content-Type", "application/json")
+
 # Bitcoin configuration
 bitcoin = bitcoin()
 
@@ -23,13 +24,21 @@ def get_balance(address, network="testnet", timeout=5):
 
 # Get unspent transaction by address
 def get_unspent_transactions(address, network="testnet", include_script=True, limit=50, timeout=5):
-    assert is_address(address), "Invalid address!"
+    assert is_address(address, network), "Invalid %s address!" % network
     _include_script = "true" if include_script else "false"
     parameter = dict(limit=limit, unspentOnly="true",
                      includeScript=_include_script, token=bitcoin[network]["blockcypher"]["token"])
     url = bitcoin[network]["blockcypher"]["url"] + ("/addrs/%s" % address)
     response = requests.get(url=url, params=parameter, headers=headers, timeout=timeout).json()
     return response["txrefs"] if "txrefs" in response else []
+
+
+# Get transaction detail by hash
+def get_transaction_detail(tx_hash, network="testnet", timeout=5):
+    parameter = dict(token=bitcoin[network]["blockcypher"]["token"])
+    url = bitcoin[network]["blockcypher"]["url"] + ("/txs/%s" % tx_hash)
+    return requests.get(url=url, params=parameter,
+                        headers=headers, timeout=timeout).json()
 
 
 # Getting decode transaction by transaction raw
