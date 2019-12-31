@@ -59,19 +59,3 @@ def push_transaction_raw(transaction_raw, network="testnet", timeout=5):
         return requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/push",
                              data=tx, params=parameter, headers=headers, timeout=timeout).json()
     raise TypeError("Transaction raw must be string format!")
-
-
-def custom_unspent_transaction(address, network="testnet", limit=15):
-    unspent = list()
-    assert is_address(address, network), "Invalid %s address!" % network
-    unspent_transactions = get_unspent_transactions(
-        address, network, limit=limit)
-    for index, unspent_transaction in enumerate(unspent_transactions):
-        unspent.append(dict(
-            index=index,
-            hash=unspent_transaction["tx_hash"],
-            output_index=unspent_transaction["tx_output_n"],
-            amount=unspent_transaction["value"],
-            script=unspent_transaction["script"]
-        ))
-    return unspent
