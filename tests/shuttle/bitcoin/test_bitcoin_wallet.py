@@ -13,13 +13,15 @@ def test_from_passphrase():
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
     assert bitcoin_from_passphrase.private_key() == private_key
 
-    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c965994963c77bfb470dff5afd351a442ebf329f3b2c2835"
+    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c9659" \
+                 "94963c77bfb470dff5afd351a442ebf329f3b2c2835"
     assert bitcoin_from_passphrase.public_key() == public_key
 
     compressed = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
     assert bitcoin_from_passphrase.compressed() == compressed
 
-    uncompressed = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c965994963c77bfb470dff5afd351a442ebf329f3b2c2835"
+    uncompressed = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c96" \
+                   "5994963c77bfb470dff5afd351a442ebf329f3b2c2835"
     assert bitcoin_from_passphrase.uncompressed() == uncompressed
 
     assert bitcoin_from_passphrase.uncompressed() == bitcoin_from_passphrase.public_key()
@@ -47,13 +49,15 @@ def test_from_private_key():
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
     assert bitcoin_from_private_key.private_key() == private_key
 
-    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c965994963c77bfb470dff5afd351a442ebf329f3b2c2835"
+    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c9659" \
+                 "94963c77bfb470dff5afd351a442ebf329f3b2c2835"
     assert bitcoin_from_private_key.public_key() == public_key
 
     compressed = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
     assert bitcoin_from_private_key.compressed() == compressed
 
-    uncompressed = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c965994963c77bfb470dff5afd351a442ebf329f3b2c2835"
+    uncompressed = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c96" \
+                   "5994963c77bfb470dff5afd351a442ebf329f3b2c2835"
     assert bitcoin_from_private_key.uncompressed() == uncompressed
 
     assert bitcoin_from_private_key.uncompressed() == bitcoin_from_private_key.public_key()

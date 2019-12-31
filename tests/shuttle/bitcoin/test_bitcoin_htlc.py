@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 from shuttle.providers.bitcoin.htlc import HTLC
+from shuttle.utils import sha256
 
 
 # Testing HTLC init
 def test_htlc_init():
     htlc = HTLC(network="testnet")
 
-    htlc.init(secret_hash="BooOoom!".encode(), recipient_address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH",
+    htlc.init(secret_hash=sha256("BooOoom!".encode()), recipient_address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH",
               sender_address="mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE", sequence=5)
 
     htlc_bytecode = htlc.bytecode()
@@ -23,10 +24,10 @@ def test_htlc_init():
                           "30e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
 
     htlc_address = htlc.address()
-    assert str(htlc_address) == "2MyfJRLNYPVLPetgiqgQCoFqKEswXyG8Pcv"
+    assert str(htlc_address) == "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"
 
     htlc_hash = htlc.hash()
-    assert str(htlc_hash) == "a914465e6ff6bf989177eb25595df8b9e7ff531f501987"
+    assert str(htlc_hash) == "a914971894c58d85981c16c2059d422bcde0b156d04487"
 
 
 # Testing HTLC from bytecode
@@ -50,10 +51,10 @@ def test_htlc_from_bytecode():
                           "30e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
 
     htlc_address = htlc.address()
-    assert str(htlc_address) == "2MyfJRLNYPVLPetgiqgQCoFqKEswXyG8Pcv"
+    assert str(htlc_address) == "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"
 
     htlc_hash = htlc.hash()
-    assert str(htlc_hash) == "a914465e6ff6bf989177eb25595df8b9e7ff531f501987"
+    assert str(htlc_hash) == "a914971894c58d85981c16c2059d422bcde0b156d04487"
 
 
 # Testing HTLC from opcode
@@ -79,7 +80,7 @@ def test_htlc_from_opcode():
                           "30e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
 
     htlc_address = htlc.address()
-    assert str(htlc_address) == "2MyfJRLNYPVLPetgiqgQCoFqKEswXyG8Pcv"
+    assert str(htlc_address) == "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"
 
     htlc_hash = htlc.hash()
-    assert str(htlc_hash) == "a914465e6ff6bf989177eb25595df8b9e7ff531f501987"
+    assert str(htlc_hash) == "a914971894c58d85981c16c2059d422bcde0b156d04487"
