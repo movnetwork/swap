@@ -68,12 +68,10 @@ class HTLC:
     def hash(self):
         if self.script is None:
             raise ValueError("HTLC script is none, Please initialization htlc first.")
-        script_builder = ScriptBuilder.identify(str(self.script.decompile()).encode())
-        return P2shScript(script_builder.p2sh_hash()).hexlify()
+        return P2shScript(self.script.p2sh_hash()).hexlify()
 
     # HTLC script address
     def address(self):
         if self.script is None:
             raise ValueError("HTLC script is none, Please initialization htlc first.")
-        script_builder = ScriptBuilder.identify(str(self.script.decompile()).encode())
-        return P2shScript(script_builder.p2sh_hash()).address(mainnet=(not self.testnet))
+        return P2shScript(self.script.p2sh_hash()).address(mainnet=(not self.testnet))
