@@ -130,3 +130,56 @@ class FundTransaction(Transaction):
                 break
             previous_transaction_indexes.append(index)
         return previous_transaction_indexes
+
+
+class ClaimTransaction(Transaction):
+
+    def __init__(self, htlc_transaction_id, wallet: Wallet, network="testnet", version=2):
+        super().__init__(network=network, version=version)
+        # Bitcoin sender wallet
+        assert isinstance(wallet, Wallet), "Invalid Bitcoin Wallet!"
+        self.wallet = wallet
+        self.htlc_transaction_id = htlc_transaction_id
+        self.htlc_transaction_detail = get_transaction_detail(htlc_transaction_id)
+        mainnet = True if self.network == "mainnet" else False
+        if "outputs" not in self.htlc_transaction_detail:
+            raise Exception("Not found HTLC in this %s hash" % self.htlc_transaction_id)
+
+        self.htlc = self.htlc_transaction_detail["outputs"][0]
+        self.htlc_value = self.htlc["value"]  # Funded amount
+        self.htlc_script = P2shScript.unhexlify(self.htlc["script"])
+        self.htlc_address = self.htlc_script.address(mainnet=mainnet)
+        self.sender_script = P2pkhScript.unhexlify(self.htlc_transaction_detail["outputs"][1]["script"])
+        self.sender_address = self.sender_script.address(mainnet=mainnet)
+
+    # Building transaction
+    def build_transaction(self, locktime=0, **kwargs):
+        # Building mutable bitcoin transaction
+        self.transaction = MutableTransaction(
+            version=self.version,
+            ins=[
+                TxIn(txid=self.htlc_transaction_id, txout=0,
+                     script_sig=ScriptSig.empty(), sequence=Sequence.max())
+            ],
+            outs=[
+                TxOut(value=self.htlc_value - fee_calculator(1, 1), n=0,
+                      script_pubkey=P2pkhScript.unhexlify(self.wallet.p2pkh()))
+            ], locktime=Locktime(locktime))
+        return self
+
+    # Signing transaction using private keys
+    def sign(self, solver, **kwargs):
+        if not isinstance(solver, ClaimSolver):
+            raise Exception("Solver error")
+        htlc = HTLC(self.network).init(
+            secret_hash=double_sha256(solver.secret),
+            recipient_address=str(self.wallet.address()),
+            sender_address=str(self.sender_address),
+            sequence=solver.sequence
+        )
+        self.transaction.spend([
+            TxOut(value=self.htlc_value, n=0, script_pubkey=self.htlc_script)
+        ], [
+            P2shSolver(htlc.script, solver.solve())
+        ])
+        return self
