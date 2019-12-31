@@ -5,10 +5,10 @@ from shuttle.providers.bitcoin.htlc import HTLC
 
 # Testing HTLC init
 def test_htlc_init():
-    htlc = HTLC(testnet=True)
+    htlc = HTLC(network="testnet")
 
     htlc.init(secret_hash="BooOoom!".encode(), recipient_address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH",
-              sender_address="mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE", expiration_block=5)
+              sender_address="mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE", sequence=5)
 
     htlc_bytecode = htlc.bytecode()
     assert htlc_bytecode == "63aa20b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a55c4d02367" \
@@ -31,7 +31,7 @@ def test_htlc_init():
 
 # Testing HTLC from bytecode
 def test_htlc_from_bytecode():
-    htlc = HTLC(testnet=True)
+    htlc = HTLC(network="testnet")
 
     htlc.from_bytecode(bytecode="63aa20b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a55c4d02367fcc2ab8876a914"
                                 "7b7c4431a43b612a72f8229935c469f1f690365888ac6755b27576a9146bce65e58a50b9798993"
@@ -58,7 +58,7 @@ def test_htlc_from_bytecode():
 
 # Testing HTLC from opcode
 def test_htlc_from_opcode():
-    htlc = HTLC(testnet=True)
+    htlc = HTLC(network="testnet")
 
     htlc.from_opcode(opcode="OP_IF OP_HASH256 b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a5" \
                             "5c4d02367fcc2ab OP_EQUALVERIFY OP_DUP OP_HASH160 7b7c4431a43b612a7" \
