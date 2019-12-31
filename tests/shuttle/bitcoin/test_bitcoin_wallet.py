@@ -8,7 +8,7 @@ def test_from_passphrase():
     print("Passphrase", passphrase)
 
     # Initialize bitcoin wallet
-    bitcoin_from_passphrase = Wallet(testnet=True).from_passphrase(passphrase)
+    bitcoin_from_passphrase = Wallet(network="testnet").from_passphrase(passphrase)
 
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
     assert bitcoin_from_passphrase.private_key() == private_key
@@ -42,7 +42,7 @@ def test_from_private_key():
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
 
     # Initialize bitcoin wallet
-    bitcoin_from_private_key = Wallet(testnet=True).from_private_key(private_key)
+    bitcoin_from_private_key = Wallet(network="testnet").from_private_key(private_key)
 
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
     assert bitcoin_from_private_key.private_key() == private_key
@@ -76,7 +76,7 @@ def test_from_address():
     address = "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"
 
     # Initialize bitcoin wallet
-    bitcoin_from_address = Wallet(testnet=True).from_address(address)
+    bitcoin_from_address = Wallet(network="testnet").from_address(address)
 
     assert bitcoin_from_address.address() == address
 
