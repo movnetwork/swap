@@ -2,12 +2,12 @@
 from btcpy.structs.address import Address
 from btcpy.structs.script import ScriptSig, Script, P2pkhScript, P2shScript
 from btcpy.structs.transaction import Locktime, MutableTransaction, TxOut, Sequence, TxIn
-from btcpy.structs.sig import P2pkhSolver
+from btcpy.structs.sig import P2pkhSolver, P2shSolver
 from btcpy.setup import setup
 
-from .utils import is_address, fee_calculator
-from .solver import ClaimSolver
-from .rpc import get_unspent_transactions
+from .utils import double_sha256, fee_calculator
+from .solver import ClaimSolver, FundSolver
+from .rpc import get_transaction_detail
 from .htlc import HTLC
 from .wallet import Wallet
 
@@ -19,6 +19,8 @@ class Transaction:
         self.version = version
         # Transaction
         self.transaction = None
+        # Bitcoin network
+        self.network = network
         # Setting testnet
         setup(network, strict=True)
 
@@ -76,8 +78,8 @@ class Transaction:
 
 class FundTransaction(Transaction):
 
-    def __init__(self, wallet: Wallet, htlc: HTLC, amount: int, version=2):
-        super().__init__(version)
+    def __init__(self, wallet: Wallet, htlc: HTLC, amount: int, network="testnet", version=2):
+        super().__init__(network=network, version=version)
         # Bitcoin sender wallet
         assert isinstance(wallet, Wallet), "Invalid Bitcoin Wallet!"
         self.wallet = wallet
@@ -109,8 +111,10 @@ class FundTransaction(Transaction):
 
     # Signing transaction using private keys
     def sign(self, solver, **kwargs):
+        if not isinstance(solver, FundSolver):
+            raise Exception("Solver error")
         outputs = self.outputs(self.unspent, self.previous_transaction_indexes)
-        self.transaction.spend(outputs, [solver for output in outputs])
+        self.transaction.spend(outputs, [solver.solve() for _ in outputs])
         return self
 
     # Automatically analysis previous transaction indexes using fund amount
