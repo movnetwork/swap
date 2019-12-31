@@ -4,7 +4,8 @@ from btcpy.structs.script import Script, ScriptBuilder, P2shScript, \
     IfElseScript, Hashlock256Script, RelativeTimelockScript
 from btcpy.structs.transaction import Sequence
 
-from .utils import double_sha256, script_from_address
+from .utils import script_from_address
+from ...utils import sha256
 
 
 # Hash Time Lock Contract
@@ -25,7 +26,7 @@ class HTLC:
         self.script = IfElseScript(
             # If branch
             Hashlock256Script(  # Hash lock 250
-                double_sha256(secret_hash),  # Secret key
+                sha256(secret_hash),  # Secret key
                 script_from_address(recipient_address)  # Script hash of account two
             ),
             # Else branch
