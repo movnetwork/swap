@@ -20,7 +20,7 @@ class HTLC:
         self.script = None
 
     # Initialize new HTLC Contract script
-    def init(self, secret_hash, recipient_address, sender_address, expiration_block):
+    def init(self, secret_hash, recipient_address, sender_address, sequence):
         # HASH TIME LOCK CONTRACT SCRIPT
         self.script = IfElseScript(
             # If branch
@@ -30,7 +30,7 @@ class HTLC:
             ),
             # Else branch
             RelativeTimelockScript(  # Relative time locked script
-                Sequence(expiration_block),  # Expiration blocks
+                Sequence(sequence),  # Expiration blocks
                 script_from_address(sender_address)  # Script hash of account one
             )
         )
