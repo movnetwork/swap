@@ -8,7 +8,7 @@ from ..config import bytom
 
 # Request headers
 headers = dict()
-headers.setdefault("Content-Type", "application/json")
+# headers.setdefault("Content-Type", "application/json")
 
 # Bytom configuration
 bytom = bytom()

@@ -15,56 +15,77 @@ class Wallet:
         # Bytom wallet initialization.
         self.bytom = BytomHDWallet()
 
-        # Path derivation
+        # Derivation
+        self._account = account
+        self._change = change
+        self._address = address
+
+    # Bytom wallet from mnemonic
+    def from_mnemonic(self, mnemonic):
+        self.bytom = self.bytom.masterKeyFromMnemonic(mnemonic=mnemonic)
+        self.derivation()
+        return self
+
+    # Bytom wallet from seed
+    def from_seed(self, seed):
+        self.bytom = self.bytom.masterKeyFromSeed(seed=seed)
+        self.derivation()
+        return self
+
+    # Bytom wallet from entropy
+    def from_entropy(self, entropy):
+        self.bytom = self.bytom.masterKeyFromEntropy(entropy=entropy)
+        self.derivation()
+        return self
+
+    # Bytom wallet from xprivate key
+    def from_xprivate_key(self, xprivate):
+        self.bytom.masterKeyFromXPrivate(xprivate=xprivate)
+        self.derivation()
+        return self
+
+    # Path derivation
+    def derivation(self):
         self.bytom.fromIndex(44)
         self.bytom.fromIndex(153)
-        self.bytom.fromIndex(account)
-        self.bytom.fromIndex(change)
-        self.bytom.fromIndex(address)
-
-        # Main wallet init.
-        self._xprivate_key, self._xpublic_key, self._address = None, None, None
-
-    def from_mnemonic(self, mnemonic):
-        self.bytom.masterKeyFromMnemonic(mnemonic=mnemonic)
+        self.bytom.fromIndex(self._account)
+        self.bytom.fromIndex(self._change)
+        self.bytom.fromIndex(self._address)
         return self
 
-    def from_seed(self, seed):
-        self.bytom.masterKeyFromSeed(seed=seed)
-        return self
-
-    def from_entropy(self, entropy):
-        self.bytom.masterKeyFromEntropy(entropy=entropy)
-        return self
-
-    def from_xprivate(self, xprivate):
-        self.bytom.masterKeyFromXPrivate(xprivate=xprivate)
-        return self
-
+    # Getting seed
     def seed(self):
         return self.bytom.seed.hex()
 
+    # Getting path derivation indexes
     def indexes(self):
         return self.bytom.getIndexes()
 
+    # Getting xprivate key
     def xprivate_key(self):
         return self.bytom.xprivateKey()
 
+    # Getting xpublic key
     def xpublic_key(self):
         return self.bytom.xpublicKey()
 
+    # Getting expand xprivate key
     def expand_xprivate_key(self):
         return self.bytom.expandPrivateKey()
 
+    # Getting public key
     def public_key(self):
         return self.bytom.publicKey()
 
+    # Getting control program
     def program(self):
         return self.bytom.program()
 
+    # Getting address
     def address(self):
         return self.bytom.address(network=self.network)
 
+    # Getting balance
     def balance(self):
-        return get_balance(
-            self.bytom.address(network=self.network),self. network)
+        return get_balance(self.bytom.address(
+            network=self.network), self. network)
