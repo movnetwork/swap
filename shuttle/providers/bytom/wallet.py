@@ -40,7 +40,7 @@ class Wallet:
 
     # Bytom wallet from xprivate key
     def from_xprivate_key(self, xprivate):
-        self.bytom.masterKeyFromXPrivate(xprivate=xprivate)
+        self.bytom = self.bytom.masterKeyFromXPrivate(xprivate=xprivate)
         self.derivation()
         return self
 
@@ -55,7 +55,7 @@ class Wallet:
 
     # Getting seed
     def seed(self):
-        return self.bytom.seed.hex()
+        return self.bytom.seed
 
     # Getting path derivation indexes
     def indexes(self):
