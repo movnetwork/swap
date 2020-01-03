@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+
 from btmhdw import BytomHDWallet
 
-from .rpc import get_balance
+from .rpc import get_balance, account_create
 
 
 # Bytom Wallet.
@@ -84,6 +86,11 @@ class Wallet:
     # Getting address
     def address(self):
         return self.bytom.address(network=self.network)
+
+    # Getting guid from blockcenter
+    def guid(self):
+        return account_create(
+            xpublic_key=self.xpublic_key(), network=self.network)["guid"]
 
     # Getting balance
     def balance(self):
