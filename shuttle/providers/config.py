@@ -10,7 +10,8 @@ def bytom():
             "bytom": "http://localhost:9888",
             "blockmeta": "https://blockmeta.com/api/wisdom",
             "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
-        }
+        },
+        "timeout": 5
     }
 
 
@@ -34,5 +35,6 @@ def bitcoin(blockcypher_token=None):
                 "url": "https://api.blockcypher.com/v1/btc/test3",
                 "token": blockcypher_token
             }
-        }
+        },
+        "timeout": 5
     }
