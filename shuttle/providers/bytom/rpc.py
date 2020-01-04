@@ -45,3 +45,36 @@ def list_address(guid, limit=10, network="testnet", timeout=bytom["timeout"]):
     if response.status_code == 200 and response.json()["code"] == 300:
         raise Exception(response.json()["message"])
     return response.json()["result"]["data"]
+
+
+# Build transaction in blockcenter
+def build_transaction(tx, network="testnet", timeout=bytom["timeout"]):
+    url = str(bytom[network]["blockcenter"]) + "/merchant/build-transaction"
+    response = requests.post(url=url, data=json.dumps(tx),
+                             headers=headers, timeout=timeout)
+    if response.status_code == 200 and response.json()["code"] == 300:
+        raise Exception(response.json()["message"])
+    return response.json()
+
+
+# Get transaction from blockcenter
+def get_transaction(tx_id, network="testnet", timeout=bytom["timeout"]):
+    url = str(bytom[network]["blockcenter"]) + "/merchant/get-transaction"
+    response = requests.post(url=url, data=json.dumps(dict(tx_id=tx_id)),
+                             headers=headers, timeout=timeout)
+    if response.status_code == 200 and response.json()["code"] == 300:
+        raise Exception(response.json()["message"])
+    return response.json()
+
+
+# Submit payment from blockcenter
+def submit_payment(guid, raw_transaction, signatures, memo="mock", network="testnet", timeout=bytom["timeout"]):
+    if not isinstance(signatures, list):
+        raise Exception("Signatures must be list format.")
+    url = str(bytom[network]["blockcenter"]) + "/merchant/submit-payment"
+    data = dict(guid=guid, raw_transaction=raw_transaction, signatures=signatures, memo=memo)
+    response = requests.post(url=url, data=json.dumps(data),
+                             headers=headers, timeout=timeout)
+    if response.status_code == 200 and response.json()["code"] == 300:
+        raise Exception(response.json()["message"])
+    return response.json()
