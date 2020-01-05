@@ -2,7 +2,7 @@
 
 
 from .rpc import build_transaction, decode_raw_transaction
-from .utils import spend_wallet_action, control_program_action
+from .utils import spend_wallet_action, control_program_action, spend_utxo_action, control_address_action
 from ..config import bytom
 
 # Bytom configuration
@@ -81,6 +81,45 @@ class FundTransaction(Transaction):
                 asset_id=locked_asset,
                 amount=locked_amount,
                 control_program=contract_program
+            )
+        )
+
+        # Transaction
+        tx = dict(
+            guid=guid,
+            inputs=inputs,
+            outputs=outputs,
+            fee=bytom["fee"],
+            confirmations=bytom["confirmations"]
+        )
+        # Building transaction
+        self.transaction = build_transaction(tx=tx, network=self.network)
+        return self
+
+
+class ClaimTransaction(Transaction):
+
+    # Initialization fund transaction
+    def __init__(self, network="testnet"):
+        super().__init__(network)
+
+    def build_transaction(self, guid, utxo_id, contract_asset,
+                          contract_amount, receiver_address):
+        # Actions
+        inputs, outputs = list(), list()
+
+        # Input action
+        inputs.append(
+            spend_utxo_action(
+                utxo=utxo_id
+            )
+        )
+        # Output action
+        outputs.append(
+            control_address_action(
+                asset_id=contract_asset,
+                amount=contract_amount,
+                address=receiver_address
             )
         )
 
