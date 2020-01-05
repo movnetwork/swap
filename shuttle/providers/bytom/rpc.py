@@ -33,7 +33,7 @@ def account_create(xpublic_key, label="1st address", email=None,
     response = requests.post(url=url, data=json.dumps(data),
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
-        raise Exception(response.json()["message"])
+        raise Exception(response.json()["msg"])
     return response.json()["result"]["data"]
 
 
@@ -43,7 +43,7 @@ def list_address(guid, limit=10, network="testnet", timeout=bytom["timeout"]):
     response = requests.post(url=url, data=json.dumps(dict(guid=guid)),
                              params=dict(limit=limit), headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
-        raise Exception(response.json()["message"])
+        raise Exception(response.json()["msg"])
     return response.json()["result"]["data"]
 
 
@@ -53,7 +53,7 @@ def build_transaction(tx, network="testnet", timeout=bytom["timeout"]):
     response = requests.post(url=url, data=json.dumps(tx),
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
-        raise Exception(response.json()["message"])
+        raise Exception(response.json()["msg"])
     return response.json()
 
 
@@ -63,7 +63,7 @@ def get_transaction(tx_id, network="testnet", timeout=bytom["timeout"]):
     response = requests.post(url=url, data=json.dumps(dict(tx_id=tx_id)),
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
-        raise Exception(response.json()["message"])
+        raise Exception(response.json()["msg"])
     return response.json()
 
 
@@ -76,5 +76,5 @@ def submit_payment(guid, raw_transaction, signatures, memo="mock", network="test
     response = requests.post(url=url, data=json.dumps(data),
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
-        raise Exception(response.json()["message"])
+        raise Exception(response.json()["msg"])
     return response.json()
