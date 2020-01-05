@@ -78,3 +78,11 @@ def submit_payment(guid, raw_transaction, signatures, memo="mock", network="test
     if response.status_code == 200 and response.json()["code"] == 300:
         raise Exception(response.json()["msg"])
     return response.json()
+
+
+# Decode raw transaction
+def decode_raw_transaction(raw_tx, network="testnet", timeout=bytom["timeout"]):
+    url = str(bytom[network]["bytom"]) + "/decode-raw-transaction"
+    response = requests.post(url=url, data=json.dumps(dict(raw_transaction=raw_tx)),
+                             headers=headers, timeout=timeout)
+    return response.json()
