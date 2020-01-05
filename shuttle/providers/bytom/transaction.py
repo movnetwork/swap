@@ -2,6 +2,7 @@
 
 
 from .rpc import build_transaction
+from .utils import spend_wallet_action, control_program_action
 from ..config import bytom
 
 # Bytom configuration
@@ -45,3 +46,38 @@ class Transaction:
             raise ValueError("Transaction is none, Please build transaction first.")
         return self.transaction["raw_transaction"]
 
+
+class FundTransaction(Transaction):
+
+    # Initialization fund transaction
+    def __init__(self, network="testnet"):
+        super().__init__(network)
+
+    def build_transaction(self, guid, locked_asset,
+                          contract_program, locked_amount):
+        # Actions
+        inputs, outputs = list(), list()
+
+        # Input action
+        inputs.append(list(spend_wallet_action(
+            asset_id=locked_asset,
+            amount=locked_amount
+        )))
+        # Output action
+        outputs.append(list(control_program_action(
+            asset_id=locked_asset,
+            amount=locked_amount,
+            control_program=contract_program
+        )))
+
+        # Transaction
+        tx = dict(
+            guid=guid,
+            inputs=inputs,
+            outputs=outputs,
+            fee=bytom["fee"],
+            confirmations=bytom["confirmations"]
+        )
+        # Building transaction
+        self.transaction = build_transaction(tx=tx, network=self.network)
+        return self
