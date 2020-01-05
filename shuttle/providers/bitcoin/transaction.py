@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from btcpy.structs.address import Address
 from btcpy.structs.script import ScriptSig, Script, P2pkhScript, P2shScript
 from btcpy.structs.transaction import Locktime, MutableTransaction, TxOut, Sequence, TxIn
