@@ -42,8 +42,10 @@ class Transaction:
 
     # Getting transaction raw
     def raw(self):
-        if self.transaction is None and "raw_transaction" not in self.transaction:
+        if self.transaction is None:
             raise ValueError("Transaction is none, Please build transaction first.")
+        elif "msg" in self.transaction:
+            raise ValueError(self.transaction["msg"])
         return self.transaction["raw_transaction"]
 
 
@@ -59,16 +61,20 @@ class FundTransaction(Transaction):
         inputs, outputs = list(), list()
 
         # Input action
-        inputs.append(list(spend_wallet_action(
-            asset_id=locked_asset,
-            amount=locked_amount
-        )))
+        inputs.append(
+            spend_wallet_action(
+                asset_id=locked_asset,
+                amount=locked_amount
+            )
+        )
         # Output action
-        outputs.append(list(control_program_action(
-            asset_id=locked_asset,
-            amount=locked_amount,
-            control_program=contract_program
-        )))
+        outputs.append(
+            control_program_action(
+                asset_id=locked_asset,
+                amount=locked_amount,
+                control_program=contract_program
+            )
+        )
 
         # Transaction
         tx = dict(
