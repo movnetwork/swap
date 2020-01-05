@@ -13,7 +13,7 @@ def bytom():
         },
         "timeout": 5,
         "fee": 40000000,
-        "confirmations": 40000000,
+        "confirmations": 1
     }
 
 
