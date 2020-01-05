@@ -11,7 +11,9 @@ def bytom():
             "blockmeta": "https://blockmeta.com/api/wisdom",
             "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
         },
-        "timeout": 5
+        "timeout": 5,
+        "fee": 40000000,
+        "confirmations": 40000000,
     }
 
 
