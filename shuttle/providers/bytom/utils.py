@@ -10,12 +10,12 @@ def contract_arguments(amount, address):
             dict(type=str("address"), value=address), dict(type=str("data"), value=str())]
 
 
-def spend_wallet_action(amount, asset):
-    return dict(amount=amount, asset=asset, type=str("spend_wallet"))
+def spend_wallet_action(amount, asset_id):
+    return dict(amount=amount, asset_id=asset_id, type=str("spend_wallet"))
 
 
 def spend_account_action(account_id, amount, asset_id):
-    return dict(account_id=account_id, amount=amount, asset=asset_id, type=str("spend_account"))
+    return dict(account_id=account_id, amount=amount, asset_id=asset_id, type=str("spend_account"))
 
 
 def control_program_action(amount, asset_id, control_program):
