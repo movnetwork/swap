@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-from .rpc import build_transaction
+from .rpc import build_transaction, decode_raw_transaction
 from .utils import spend_wallet_action, control_program_action
 from ..config import bytom
 
@@ -47,6 +47,14 @@ class Transaction:
         elif "msg" in self.transaction:
             raise ValueError(self.transaction["msg"])
         return self.transaction["raw_transaction"]
+
+    # Getting transaction json
+    def json(self):
+        if self.transaction is None:
+            raise ValueError("Transaction is none, Please build transaction first.")
+        elif "msg" in self.transaction:
+            raise ValueError(self.transaction["msg"])
+        return decode_raw_transaction(self.transaction["raw_transaction"])
 
 
 class FundTransaction(Transaction):
