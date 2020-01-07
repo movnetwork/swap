@@ -24,35 +24,35 @@ class Wallet:
 
     # Bytom wallet from mnemonic
     def from_mnemonic(self, mnemonic):
-        self.bytom = self.bytom.masterKeyFromMnemonic(mnemonic=mnemonic)
+        self.bytom = self.bytom.master_key_from_mnemonic(mnemonic=mnemonic)
         self.derivation()
         return self
 
     # Bytom wallet from seed
     def from_seed(self, seed):
-        self.bytom = self.bytom.masterKeyFromSeed(seed=seed)
+        self.bytom = self.bytom.master_key_from_seed(seed=seed)
         self.derivation()
         return self
 
     # Bytom wallet from entropy
     def from_entropy(self, entropy):
-        self.bytom = self.bytom.masterKeyFromEntropy(entropy=entropy)
+        self.bytom = self.bytom.master_key_from_entropy(entropy=entropy)
         self.derivation()
         return self
 
     # Bytom wallet from xprivate key
     def from_xprivate_key(self, xprivate):
-        self.bytom = self.bytom.masterKeyFromXPrivate(xprivate=xprivate)
+        self.bytom = self.bytom.master_key_from_xprivate(xprivate=xprivate)
         self.derivation()
         return self
 
     # Path derivation
     def derivation(self):
-        self.bytom.fromIndex(44)
-        self.bytom.fromIndex(153)
-        self.bytom.fromIndex(self._account)
-        self.bytom.fromIndex(self._change)
-        self.bytom.fromIndex(self._address)
+        self.bytom.from_index(44)
+        self.bytom.from_index(153)
+        self.bytom.from_index(self._account)
+        self.bytom.from_index(self._change)
+        self.bytom.from_index(self._address)
         return self
 
     # Getting seed
@@ -61,23 +61,23 @@ class Wallet:
 
     # Getting path derivation indexes
     def indexes(self):
-        return self.bytom.getIndexes()
+        return self.bytom.get_indexes()
 
     # Getting xprivate key
     def xprivate_key(self):
-        return self.bytom.xprivateKey()
+        return self.bytom.xprivate_key()
 
     # Getting xpublic key
     def xpublic_key(self):
-        return self.bytom.xpublicKey()
+        return self.bytom.xpublic_key()
 
     # Getting expand xprivate key
     def expand_xprivate_key(self):
-        return self.bytom.expandPrivateKey()
+        return self.bytom.expand_xprivate_key()
 
     # Getting public key
     def public_key(self):
-        return self.bytom.publicKey()
+        return self.bytom.public_key()
 
     # Getting control program
     def program(self):
