@@ -134,3 +134,42 @@ class ClaimTransaction(Transaction):
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
         return self
+
+
+class RefundTransaction(Transaction):
+
+    # Initialization fund transaction
+    def __init__(self, network="testnet"):
+        super().__init__(network)
+
+    def build_transaction(self, guid, utxo_id, contract_asset,
+                          contract_amount, sender_address):
+        # Actions
+        inputs, outputs = list(), list()
+
+        # Input action
+        inputs.append(
+            spend_utxo_action(
+                utxo=utxo_id
+            )
+        )
+        # Output action
+        outputs.append(
+            control_address_action(
+                asset_id=contract_asset,
+                amount=contract_amount,
+                address=sender_address
+            )
+        )
+
+        # Transaction
+        tx = dict(
+            guid=guid,
+            inputs=inputs,
+            outputs=outputs,
+            fee=bytom["fee"],
+            confirmations=bytom["confirmations"]
+        )
+        # Building transaction
+        self.transaction = build_transaction(tx=tx, network=self.network)
+        return self
