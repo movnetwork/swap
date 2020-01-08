@@ -9,7 +9,8 @@ from .rpc import get_balance, account_create
 class Wallet:
 
     # PyShuttle Bytom (BTM) wallet init.
-    def __init__(self, network="testnet", account=1, change=0, address=1):
+    def __init__(self, network="testnet",
+                 account=1, change=0, address=1, path=None, indexes=None):
         # Bytom network.
         if network not in ["mainnet", "testnet"]:
             raise Exception("Network initialization error.")
@@ -21,6 +22,10 @@ class Wallet:
         self._account = account
         self._change = change
         self._address = address
+        # Derivation path
+        self._path = path
+        # Derivation indexes
+        self._indexes = indexes
 
     # Bytom wallet from mnemonic
     def from_mnemonic(self, mnemonic):
@@ -48,11 +53,16 @@ class Wallet:
 
     # Path derivation
     def derivation(self):
-        self.bytom.from_index(44)
-        self.bytom.from_index(153)
-        self.bytom.from_index(self._account)
-        self.bytom.from_index(self._change)
-        self.bytom.from_index(self._address)
+        if self._path:
+            self.bytom.from_path(self._path)
+        elif self._indexes:
+            self.bytom.from_indexes(self._indexes)
+        else:
+            self.bytom.from_index(44)
+            self.bytom.from_index(153)
+            self.bytom.from_index(self._account)
+            self.bytom.from_index(self._change)
+            self.bytom.from_index(self._address)
         return self
 
     # Getting seed
