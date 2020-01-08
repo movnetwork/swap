@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from btmhdw import BytomHDWallet, sign, verify
 
 from .rpc import build_transaction, decode_raw_transaction
 from .utils import spend_wallet_action, control_program_action, spend_utxo_action, control_address_action
@@ -56,6 +57,45 @@ class Transaction:
             raise ValueError(self.transaction["msg"])
         return decode_raw_transaction(self.transaction["raw_transaction"])
 
+    def unsigned(self):
+        unsigned_datas = list()
+        if self.transaction is None:
+            raise ValueError("Transaction is none, Please build transaction first.")
+        elif "msg" in self.transaction:
+            raise ValueError(self.transaction["msg"])
+        bytom_hd_wallet = BytomHDWallet()
+        for signing_instruction in self.transaction["signing_instructions"]:
+            unsigned_data = dict(unsigned=signing_instruction["sign_data"])
+            if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
+                program = bytom_hd_wallet.program(public=signing_instruction["pubkey"])
+                address = bytom_hd_wallet.address(program=program, network=self.network)
+                unsigned_data.setdefault("public_key", signing_instruction["pubkey"])
+                unsigned_data.setdefault("program", program)
+                unsigned_data.setdefault("address", address)
+            else:
+                unsigned_data.setdefault("public_key", None)
+                unsigned_data.setdefault("program", None)
+                unsigned_data.setdefault("address", None)
+            if "derivation_path" in signing_instruction and signing_instruction["derivation_path"]:
+                path = bytom_hd_wallet.get_path(indexes=signing_instruction["derivation_path"])
+                unsigned_data.setdefault("indexes", signing_instruction["derivation_path"])
+                unsigned_data.setdefault("path", path)
+            else:
+                unsigned_data.setdefault("indexes", None)
+                unsigned_data.setdefault("path", None)
+            # Append unsigned datas
+            unsigned_datas.append(unsigned_data)
+        # Returning
+        return unsigned_datas
+
+    # Signing message
+    def sign(self, xprivate_key, message):
+        return sign(xprivate=xprivate_key, message=message)
+
+    # Verifying signed message.
+    def verify(self, xpublic_key, message, signature):
+        return verify(xpublic=xpublic_key, message=message, signature=signature)
+
 
 class FundTransaction(Transaction):
 
@@ -95,6 +135,12 @@ class FundTransaction(Transaction):
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
         return self
+
+    def sign(self, wallet: BytomHDWallet, **kwargs):
+        pass
+
+    def verify(self, wallet: BytomHDWallet, **kwargs):
+        pass
 
 
 class ClaimTransaction(Transaction):
