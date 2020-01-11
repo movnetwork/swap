@@ -24,16 +24,7 @@ class ClientError(Exception):
             return self.error_message
 
 
-class Timeout(Exception):
-
-    def __init__(self, error_message):
-        self.error_message = error_message
-
-    def __str__(self):
-        return "%s" % self.error_message
-
-
-class InvalidURL(Exception):
+class InvalidURLError(Exception):
 
     def __init__(self, error_message):
         self.error_message = error_message
@@ -48,4 +39,28 @@ class NotFoundError(Exception):
         self.error_message = error_message
 
     def __str__(self):
+        return "%s" % self.error_message
+
+
+class AddressError(Exception):
+
+    def __init__(self, error_message, error_detail=None):
+        self.error_message = error_message
+        self.error_detail = error_detail
+
+    def __str__(self):
+        if self.error_detail is None:
+            return "%s, %s" % (self.error_message, self.error_detail)
+        return "%s" % self.error_message
+
+
+class NetworkError(Exception):
+
+    def __init__(self, error_message, error_detail=None):
+        self.error_message = error_message
+        self.error_detail = error_detail
+
+    def __str__(self):
+        if self.error_detail is None:
+            return "%s, %s" % (self.error_message, self.error_detail)
         return "%s" % self.error_message
