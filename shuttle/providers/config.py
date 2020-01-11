@@ -23,7 +23,6 @@ def bitcoin(blockcypher_token=None):
         blockcypher_token = "c6ef693d3c024088810e6fac2a1494ee"
     return {
         "mainnet": {
-            "coin_type": "0",
             "blockchain": "https://blockchain.info",
             "blockcypher": {
                 "url": "https://api.blockcypher.com/v1/btc/main",
@@ -31,7 +30,6 @@ def bitcoin(blockcypher_token=None):
             }
         },
         "testnet": {
-            "coin_type": "1",
             "blockchain": "https://testnet.blockchain.info",
             "blockcypher": {
                 "url": "https://api.blockcypher.com/v1/btc/test3",
