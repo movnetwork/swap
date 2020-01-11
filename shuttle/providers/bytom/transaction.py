@@ -111,14 +111,14 @@ class FundTransaction(Transaction):
         # Input action
         inputs.append(
             spend_wallet_action(
-                asset_id=locked_asset,
+                asset=locked_asset,
                 amount=locked_amount
             )
         )
         # Output action
         outputs.append(
             control_program_action(
-                asset_id=locked_asset,
+                asset=locked_asset,
                 amount=locked_amount,
                 control_program=contract_program
             )
@@ -163,7 +163,7 @@ class ClaimTransaction(Transaction):
         # Output action
         outputs.append(
             control_address_action(
-                asset_id=contract_asset,
+                asset=contract_asset,
                 amount=contract_amount,
                 address=receiver_address
             )
@@ -202,7 +202,7 @@ class RefundTransaction(Transaction):
         # Output action
         outputs.append(
             control_address_action(
-                asset_id=contract_asset,
+                asset=contract_asset,
                 amount=contract_amount,
                 address=sender_address
             )

@@ -30,17 +30,17 @@ def contract_arguments(amount, address):
             dict(type=str("address"), value=address), dict(type=str("data"), value=str())]
 
 
-def spend_wallet_action(amount, asset_id):
-    return dict(amount=amount, asset_id=asset_id, type=str("spend_wallet"))
+def spend_wallet_action(amount, asset):
+    return dict(amount=amount, asset=asset, type=str("spend_wallet"))
 
 
-def spend_account_action(account_id, amount, asset_id):
-    return dict(account_id=account_id, amount=amount, asset_id=asset_id, type=str("spend_account"))
+def spend_account_action(account, amount, asset):
+    return dict(account=account, amount=amount, asset=asset, type=str("spend_account"))
 
 
-def control_program_action(amount, asset_id, control_program):
-    return dict(amount=amount, asset_id=asset_id, control_program=control_program, type=str("control_program"))
+def control_program_action(amount, asset, control_program):
+    return dict(amount=amount, asset=asset, control_program=control_program, type=str("control_program"))
 
 
-def control_address_action(amount, asset_id, address):
-    return dict(amount=amount, asset_id=asset_id, address=address, type=str("control_address"))
+def control_address_action(amount, asset, address):
+    return dict(amount=amount, asset=asset, address=address, type=str("control_address"))
