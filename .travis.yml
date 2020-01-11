@@ -5,7 +5,7 @@ install:
   - sudo add-apt-repository -y ppa:deadsnakes/ppa
   - sudo apt-get update
   - sudo apt-get install -y python$TRAVIS_PYTHON_VERSION-dev
-  - pip install -r requirements.txt
+  - pip install -r test-requirements.txt
   - pip install tox-travis coveralls
 matrix:
   include:
@@ -16,4 +16,4 @@ matrix:
   - name: '3.8'
     python: 3.8
 script: tox
-after_success: if [ "${TRAVIS_PYTHON_VERSION}" == "3.7" ]; then coveralls; fi;
+after_success: if [ "${TRAVIS_PYTHON_VERSION}" == "3.8" ]; then coveralls; fi;
