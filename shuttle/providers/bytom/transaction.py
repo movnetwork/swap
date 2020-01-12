@@ -2,7 +2,7 @@
 
 from btmhdw import BytomHDWallet, sign
 
-from .rpc import build_transaction, decode_raw_transaction
+from .rpc import build_transaction
 from .utils import spend_wallet_action, control_program_action, spend_utxo_action, control_address_action
 from .solver import FundSolver, ClaimSolver, RefundSolver
 from ..config import bytom
@@ -44,17 +44,23 @@ class Transaction:
         self.transaction = build_transaction(tx=tx, network=self.network)
         return self
 
-    # Getting transaction raw
+    # Transaction hash
+    def hash(self):
+        if self.transaction is None:
+            raise ValueError("Transaction is none, Please build transaction first.")
+        return self.transaction["tx"]["hash"]
+
+    # Transaction raw
     def raw(self):
         if self.transaction is None:
             raise ValueError("Transaction is none, Please build transaction first.")
         return self.transaction["raw_transaction"]
 
-    # Getting transaction json
+    # Transaction json
     def json(self):
         if self.transaction is None:
             raise ValueError("Transaction is none, Please build transaction first.")
-        return decode_raw_transaction(self.transaction["raw_transaction"])
+        return self.transaction["tx"]
 
     def unsigned(self):
         unsigned_datas = list()
