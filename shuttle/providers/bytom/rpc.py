@@ -54,7 +54,7 @@ def build_transaction(tx, network="testnet", timeout=bytom["timeout"]):
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
         raise Exception(response.json()["msg"])
-    return response.json()
+    return response.json()["result"]["data"]
 
 
 # Get transaction from blockcenter
@@ -64,11 +64,12 @@ def get_transaction(tx_id, network="testnet", timeout=bytom["timeout"]):
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
         raise Exception(response.json()["msg"])
-    return response.json()
+    return response.json()["result"]["data"]
 
 
 # Submit payment from blockcenter
-def submit_payment(guid, raw_transaction, signatures, memo="mock", network="testnet", timeout=bytom["timeout"]):
+def submit_payment(guid, raw_transaction, signatures,
+                   memo="mock", network="testnet", timeout=bytom["timeout"]):
     if not isinstance(signatures, list):
         raise Exception("Signatures must be list format.")
     url = str(bytom[network]["blockcenter"]) + "/merchant/submit-payment"
@@ -77,7 +78,7 @@ def submit_payment(guid, raw_transaction, signatures, memo="mock", network="test
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
         raise Exception(response.json()["msg"])
-    return response.json()
+    return response.json()["result"]["data"]
 
 
 # Decode raw transaction
