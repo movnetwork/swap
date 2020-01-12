@@ -12,7 +12,7 @@ def bytom():
             "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
         },
         "timeout": 5,
-        "fee": 40000000,
+        "fee": 10000000,
         "confirmations": 1
     }
 
