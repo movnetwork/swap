@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from btmhdw import BytomHDWallet, sign, verify
+from btmhdw import BytomHDWallet, sign
 
 from .rpc import build_transaction, decode_raw_transaction
 from .utils import spend_wallet_action, control_program_action, spend_utxo_action, control_address_action
+from .solver import FundSolver, ClaimSolver, RefundSolver
 from ..config import bytom
 
 # Bytom configuration
@@ -20,8 +21,10 @@ class Transaction:
         self.network = network
         # Input and Output actions
         self.inputs, self.outputs = inputs, outputs
-        # GUID
+        # Blockcenter GUID
         self.guid = guid
+        # Signed datas
+        self.signatures = list()
 
     # Building bytom transaction
     def build_transaction(self, *args, **kwargs):
@@ -45,27 +48,21 @@ class Transaction:
     def raw(self):
         if self.transaction is None:
             raise ValueError("Transaction is none, Please build transaction first.")
-        elif "msg" in self.transaction:
-            raise ValueError(self.transaction["msg"])
         return self.transaction["raw_transaction"]
 
     # Getting transaction json
     def json(self):
         if self.transaction is None:
             raise ValueError("Transaction is none, Please build transaction first.")
-        elif "msg" in self.transaction:
-            raise ValueError(self.transaction["msg"])
         return decode_raw_transaction(self.transaction["raw_transaction"])
 
     def unsigned(self):
         unsigned_datas = list()
         if self.transaction is None:
             raise ValueError("Transaction is none, Please build transaction first.")
-        elif "msg" in self.transaction:
-            raise ValueError(self.transaction["msg"])
         bytom_hd_wallet = BytomHDWallet()
         for signing_instruction in self.transaction["signing_instructions"]:
-            unsigned_data = dict(unsigned=signing_instruction["sign_data"])
+            unsigned_data = dict(datas=signing_instruction["sign_data"])
             if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
                 program = bytom_hd_wallet.program(public=signing_instruction["pubkey"])
                 address = bytom_hd_wallet.address(program=program, network=self.network)
@@ -89,12 +86,16 @@ class Transaction:
         return unsigned_datas
 
     # Signing message
-    def sign(self, xprivate_key, message):
-        return sign(xprivate=xprivate_key, message=message)
-
-    # Verifying signed message.
-    def verify(self, xpublic_key, message, signature):
-        return verify(xpublic=xpublic_key, message=message, signature=signature)
+    def sign(self, xprivate_key):
+        for unsigned in self.unsigned():
+            signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            for unsigned_data in unsigned_datas:
+                signed_data.append(
+                    sign(xprivate=xprivate_key,
+                         message=unsigned_data))
+            self.signatures.append(signed_data)
+        return self
 
 
 class FundTransaction(Transaction):
@@ -107,7 +108,6 @@ class FundTransaction(Transaction):
                           contract_program, locked_amount):
         # Actions
         inputs, outputs = list(), list()
-
         # Input action
         inputs.append(
             spend_wallet_action(
@@ -123,7 +123,6 @@ class FundTransaction(Transaction):
                 control_program=contract_program
             )
         )
-
         # Transaction
         tx = dict(
             guid=guid,
@@ -136,11 +135,18 @@ class FundTransaction(Transaction):
         self.transaction = build_transaction(tx=tx, network=self.network)
         return self
 
-    def sign(self, wallet: BytomHDWallet, **kwargs):
-        pass
-
-    def verify(self, wallet: BytomHDWallet, **kwargs):
-        pass
+    # Signing transaction using xprivate keys
+    def sign(self, solver: FundSolver, **kwargs):
+        if not isinstance(solver, FundSolver):
+            raise TypeError("Solver must be FundSolver format.")
+        wallet = solver.solve()
+        for unsigned in self.unsigned():
+            signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            for unsigned_data in unsigned_datas:
+                signed_data.append(wallet.sign(unsigned_data))
+            self.signatures.append(signed_data)
+        return self
 
 
 class ClaimTransaction(Transaction):
@@ -153,7 +159,6 @@ class ClaimTransaction(Transaction):
                           contract_amount, receiver_address):
         # Actions
         inputs, outputs = list(), list()
-
         # Input action
         inputs.append(
             spend_utxo_action(
@@ -168,7 +173,6 @@ class ClaimTransaction(Transaction):
                 address=receiver_address
             )
         )
-
         # Transaction
         tx = dict(
             guid=guid,
@@ -179,6 +183,24 @@ class ClaimTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
+        return self
+
+    # Signing transaction using private keys
+    def sign(self, solver: ClaimSolver, **kwargs):
+        if not isinstance(solver, ClaimSolver):
+            raise TypeError("Solver must be ClaimSolver format.")
+        wallet, secret = solver.solve()
+        for index, unsigned in enumerate(self.unsigned()):
+            signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            for unsigned_data in unsigned_datas:
+                if index == 0:
+                    signed_data.append(bytearray(secret).hex())
+                    signed_data.append(wallet.sign(unsigned_data))
+                    signed_data.append(str())
+                else:
+                    signed_data.append(wallet.sign(unsigned_data))
+            self.signatures.append(signed_data)
         return self
 
 
@@ -192,7 +214,6 @@ class RefundTransaction(Transaction):
                           contract_amount, sender_address):
         # Actions
         inputs, outputs = list(), list()
-
         # Input action
         inputs.append(
             spend_utxo_action(
@@ -207,7 +228,6 @@ class RefundTransaction(Transaction):
                 address=sender_address
             )
         )
-
         # Transaction
         tx = dict(
             guid=guid,
@@ -218,4 +238,21 @@ class RefundTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
+        return self
+
+    # Signing transaction using private keys
+    def sign(self, solver: RefundSolver, **kwargs):
+        if not isinstance(solver, RefundSolver):
+            raise TypeError("Solver must be ClaimSolver format.")
+        wallet = solver.solve()
+        for index, unsigned in enumerate(self.unsigned()):
+            signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            for unsigned_data in unsigned_datas:
+                if index == 0:
+                    signed_data.append(wallet.sign(unsigned_data))
+                    signed_data.append(str("01"))
+                else:
+                    signed_data.append(wallet.sign(unsigned_data))
+            self.signatures.append(signed_data)
         return self
