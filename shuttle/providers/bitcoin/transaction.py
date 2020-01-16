@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
+from base64 import b64encode, b64decode
 from btcpy.structs.address import Address
 from btcpy.structs.script import ScriptSig, Script, P2pkhScript, P2shScript
 from btcpy.structs.transaction import Locktime, MutableTransaction, TxOut, Sequence, TxIn
 from btcpy.structs.sig import P2pkhSolver, P2shSolver
 from btcpy.setup import setup
+
+import json
 
 from .utils import double_sha256, fee_calculator
 from .solver import ClaimSolver, FundSolver, RefundSolver
@@ -132,6 +135,18 @@ class FundTransaction(Transaction):
             previous_transaction_indexes.append(index)
         return previous_transaction_indexes
 
+    def unsigned_raw(self):
+        outputs = list()
+        if self.transaction is None:
+            raise ValueError("Transaction script is none, Please build transaction first.")
+        for index, utxo in enumerate(self.unspent):
+            if self.previous_transaction_indexes is None or index in self.previous_transaction_indexes:
+                outputs.append(dict(amount=utxo["amount"],
+                               n=utxo["output_index"], script=utxo["script"]))
+        return b64encode(str(json.dumps(dict(
+            raw=self.transaction.hexlify(), outputs=outputs, type="fund_unsigned"
+        ))).encode()).decode()
+
 
 class ClaimTransaction(Transaction):
 
@@ -171,7 +186,7 @@ class ClaimTransaction(Transaction):
     # Signing transaction using private keys
     def sign(self, solver: ClaimSolver, **kwargs):
         if not isinstance(solver, ClaimSolver):
-            raise Exception("Solver error")
+            raise Exception("Invalid solver error, only take claim solver.")
         htlc = HTLC(self.network).init(
             secret_hash=double_sha256(solver.secret),
             recipient_address=str(self.wallet.address()),
@@ -184,6 +199,15 @@ class ClaimTransaction(Transaction):
             P2shSolver(htlc.script, solver.solve())
         ])
         return self
+
+    def unsigned_raw(self):
+        if self.transaction is None:
+            raise ValueError("Transaction script is none, Please build transaction first.")
+        outputs = [dict(amount=self.htlc_value, n=0, script=self.htlc["script"])]
+        return b64encode(str(json.dumps(dict(
+            raw=self.transaction.hexlify(), outputs=outputs, type="claim_unsigned",
+            recipient=str(self.wallet.address()), sender=str(self.sender_address)
+        ))).encode()).decode()
 
 
 class RefundTransaction(Transaction):
@@ -237,3 +261,12 @@ class RefundTransaction(Transaction):
             P2shSolver(htlc.script, solver.solve())
         ])
         return self
+
+    def unsigned_raw(self):
+        if self.transaction is None:
+            raise ValueError("Transaction script is none, Please build transaction first.")
+        outputs = [dict(amount=self.htlc_value, n=0, script=self.htlc["script"])]
+        return b64encode(str(json.dumps(dict(
+            raw=self.transaction.hexlify(), outputs=outputs, type="refund_unsigned",
+            recipient=str(self.wallet.address()), sender=str(self.sender_address)
+        ))).encode()).decode()
