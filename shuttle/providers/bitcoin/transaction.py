@@ -4,7 +4,7 @@ from base64 import b64encode, b64decode
 from btcpy.structs.address import Address
 from btcpy.structs.script import ScriptSig, Script, P2pkhScript, P2shScript
 from btcpy.structs.transaction import Locktime, MutableTransaction, TxOut, Sequence, TxIn
-from btcpy.structs.sig import P2pkhSolver, P2shSolver
+from btcpy.structs.sig import P2shSolver
 from btcpy.setup import setup
 
 import json
@@ -14,7 +14,7 @@ from .solver import ClaimSolver, FundSolver, RefundSolver
 from .rpc import get_transaction_detail
 from .htlc import HTLC
 from .wallet import Wallet
-from ...utils.exceptions import BalanceError, ClientError
+from ...utils.exceptions import BalanceError, NotFoundError
 
 
 class Transaction:
@@ -25,23 +25,18 @@ class Transaction:
         # Transaction
         self.transaction = None
         # Bitcoin network
+        self.mainnet = None
         self.network = network
+        if self.network == "mainnet":
+            self.mainnet = True
+        elif self.network == "testnet":
+            self.mainnet = False
+        else:
+            raise ValueError("invalid network, only mainnet or testnet")
         # Bitcoin fee
         self.fee = int()
         # Setting testnet
         setup(network, strict=True)
-
-    # # Building transaction
-    # def build_transaction(self, inputs: list, outputs: list, locktime=0, **kwargs):
-    #     # Building mutable bitcoin transaction
-    #     self.transaction = MutableTransaction(version=self.version, ins=inputs,
-    #                                           outs=outputs, locktime=Locktime(locktime))
-    #     return self
-    #
-    # # Signing transaction
-    # def sign(self, outputs: list, solver: list):
-    #     self.transaction.spend(outputs, solver)
-    #     return self
 
     # Transaction hash
     def hash(self):
@@ -85,6 +80,7 @@ class Transaction:
 
 class FundTransaction(Transaction):
 
+    # Initialization fund transaction
     def __init__(self, version=2, network="testnet"):
         super().__init__(version=version, network=network)
         # Initialization wallet, htlc, amount and unspent
@@ -160,59 +156,84 @@ class FundTransaction(Transaction):
                 outputs.append(dict(amount=utxo["amount"],
                                n=utxo["output_index"], script=utxo["script"]))
         return b64encode(str(json.dumps(dict(
-            fee=self.fee, raw=self.transaction.hexlify(), outputs=outputs, type="fund_unsigned"
+            fee=self.fee,
+            raw=self.transaction.hexlify(),
+            outputs=outputs,
+            type="fund_unsigned"
         ))).encode()).decode()
 
 
 class ClaimTransaction(Transaction):
 
-    def __init__(self, htlc_hash, wallet: Wallet, network="testnet", version=2):
+    # Initialization claim transaction
+    def __init__(self, network="testnet", version=2):
         super().__init__(network=network, version=version)
-        # Bitcoin sender wallet
-        assert isinstance(wallet, Wallet), "Invalid Bitcoin Wallet!"
-        self.wallet = wallet
-        self.htlc_transaction_id = htlc_hash
-        self.htlc_transaction_detail = get_transaction_detail(self.htlc_transaction_id)
-        mainnet = True if self.network == "mainnet" else False
-        if "outputs" not in self.htlc_transaction_detail:
-            raise Exception("Not found HTLC in this %s hash" % self.htlc_transaction_id)
-
-        self.htlc = self.htlc_transaction_detail["outputs"][0]
-        self.htlc_value = self.htlc["value"]  # Funded amount
-        self.htlc_script = P2shScript.unhexlify(self.htlc["script"])
-        self.htlc_address = self.htlc_script.address(mainnet=mainnet)
-        self.sender_script = P2pkhScript.unhexlify(self.htlc_transaction_detail["outputs"][1]["script"])
-        self.sender_address = self.sender_script.address(mainnet=mainnet)
+        # Initialization transaction_id, wallet and amount
+        self.transaction_id, self.wallet, self.amount = None, None, None
+        # Getting transaction detail by id
+        self.transaction_detail = None
+        # Transaction detail outputs (HTLC and Sender account)
+        self.htlc = None
+        self.sender_account: Wallet = None
 
     # Building transaction
-    def build_transaction(self, locktime=0, **kwargs):
+    def build_transaction(self, transaction_id: str, wallet: Wallet, amount: int, locktime=0):
+        # Checking build transaction arguments instance
+        if not isinstance(transaction_id, str):
+            raise TypeError("invalid amount instance, only takes string type")
+        if not isinstance(wallet, Wallet):
+            raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+        # Setting transaction_id and wallet
+        self.transaction_id, self.wallet = transaction_id, wallet
+        # Getting transaction detail by id
+        self.transaction_detail = get_transaction_detail(self.transaction_id)
+        # Checking transaction outputs
+        if "outputs" not in self.transaction_detail:
+            raise NotFoundError("not found htlc in this %s hash" % self.transaction_id)
+        # Hash time lock contract output
+        self.htlc = self.transaction_detail["outputs"][0]
+        # Sender account output
+        sender_address = P2pkhScript.unhexlify(
+            self.transaction_detail["outputs"][1]["script"]).address(mainnet=self.mainnet)
+        self.sender_account = Wallet(network=self.network).from_address(str(sender_address))
+        # HTLC info's
+        htlc_amount = self.htlc["value"]
+        htlc_script = P2shScript.unhexlify(self.htlc["script"])
+        htlc_address = htlc_script.address(mainnet=self.mainnet)
         # Calculating fee
         self.fee = fee_calculator(1, 1)
+        if amount < self.fee:
+            raise BalanceError("insufficient spend utxos")
+        elif not htlc_amount >= (amount - self.fee):
+            raise BalanceError("insufficient spend utxos", "maximum withdraw %d" % htlc_amount)
         # Building mutable bitcoin transaction
         self.transaction = MutableTransaction(
             version=self.version,
             ins=[
-                TxIn(txid=self.htlc_transaction_id, txout=0,
+                TxIn(txid=self.transaction_id, txout=0,
                      script_sig=ScriptSig.empty(), sequence=Sequence.max())
             ],
             outs=[
-                TxOut(value=self.htlc_value - fee_calculator(1, 1), n=0,
+                TxOut(value=(amount - self.fee), n=0,
                       script_pubkey=P2pkhScript.unhexlify(self.wallet.p2pkh()))
             ], locktime=Locktime(locktime))
         return self
 
     # Signing transaction using private keys
-    def sign(self, solver: ClaimSolver, **kwargs):
+    def sign(self, solver: ClaimSolver):
         if not isinstance(solver, ClaimSolver):
-            raise Exception("Invalid solver error, only take claim solver.")
+            raise TypeError("invalid solver instance, only takes bitcoin ClaimSolver class")
+        if self.transaction is None:
+            raise ValueError("transaction script is none, build transaction first")
         htlc = HTLC(self.network).init(
             secret_hash=double_sha256(solver.secret),
             recipient_address=str(self.wallet.address()),
-            sender_address=str(self.sender_address),
+            sender_address=str(self.sender_account.address()),
             sequence=solver.sequence
         )
         self.transaction.spend([
-            TxOut(value=self.htlc_value, n=0, script_pubkey=self.htlc_script)
+            TxOut(value=self.htlc["value"], n=0,
+                  script_pubkey=P2shScript.unhexlify(self.htlc["script"]))
         ], [
             P2shSolver(htlc.script, solver.solve())
         ])
@@ -220,63 +241,89 @@ class ClaimTransaction(Transaction):
 
     def unsigned_raw(self):
         if self.transaction is None:
-            raise ValueError("Transaction script is none, Please build transaction first.")
-        outputs = [dict(amount=self.htlc_value, n=0, script=self.htlc["script"])]
+            raise ValueError("transaction script is none, build transaction first")
+        outputs = [dict(amount=self.htlc["value"], n=0, script=self.htlc["script"])]
         return b64encode(str(json.dumps(dict(
-            fee=self.fee, raw=self.transaction.hexlify(), outputs=outputs, type="claim_unsigned",
-            recipient_address=str(self.wallet.address()), sender_address=str(self.sender_address)
+            fee=self.fee,
+            raw=self.transaction.hexlify(),
+            outputs=outputs,
+            recipient_address=str(self.wallet.address()),
+            sender_address=str(self.sender_account.address()),
+            type="claim_unsigned"
         ))).encode()).decode()
 
 
 class RefundTransaction(Transaction):
 
-    def __init__(self, htlc_hash, wallet: Wallet, network="testnet", version=2):
-        super().__init__(network=network, version=version)
-        # Bitcoin sender wallet
-        assert isinstance(wallet, Wallet), "Invalid Bitcoin Wallet!"
-        self.wallet = wallet
-        self.htlc_transaction_id = htlc_hash
-        self.htlc_transaction_detail = get_transaction_detail(self.htlc_transaction_id)
-        mainnet = True if self.network == "mainnet" else False
-        if "outputs" not in self.htlc_transaction_detail:
-            raise Exception("Not found HTLC in this %s hash" % self.htlc_transaction_id)
-
-        self.htlc = self.htlc_transaction_detail["outputs"][0]
-        self.htlc_value = self.htlc["value"]  # Funded amount
-        self.htlc_script = P2shScript.unhexlify(self.htlc["script"])
-        self.htlc_address = self.htlc_script.address(mainnet=mainnet)
-        self.sender_script = P2pkhScript.unhexlify(self.htlc_transaction_detail["outputs"][1]["script"])
-        self.sender_address = self.sender_script.address(mainnet=mainnet)
+    # Initialization claim transaction
+    def __init__(self, version=2, network="testnet"):
+        super().__init__(version=version, network=network)
+        # Initialization transaction_id, wallet and amount
+        self.transaction_id, self.wallet, self.amount = None, None, None
+        # Getting transaction detail by id
+        self.transaction_detail = None
+        # Transaction detail outputs (HTLC and Sender account)
+        self.htlc = None
+        self.sender_account: Wallet = None
 
     # Building transaction
-    def build_transaction(self, locktime=0, **kwargs):
+    def build_transaction(self, transaction_id: str, wallet: Wallet, amount: int, locktime=0):
+        # Checking build transaction arguments instance
+        if not isinstance(transaction_id, str):
+            raise TypeError("invalid amount instance, only takes string type")
+        if not isinstance(wallet, Wallet):
+            raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+        # Setting transaction_id and wallet
+        self.transaction_id, self.wallet = transaction_id, wallet
+        # Getting transaction detail by id
+        self.transaction_detail = get_transaction_detail(self.transaction_id)
+        # Checking transaction outputs
+        if "outputs" not in self.transaction_detail:
+            raise NotFoundError("not found htlc in this %s hash" % self.transaction_id)
+        # Hash time lock contract output
+        self.htlc = self.transaction_detail["outputs"][0]
+        # Sender account output
+        sender_address = P2pkhScript.unhexlify(
+            self.transaction_detail["outputs"][1]["script"]).address(mainnet=self.mainnet)
+        self.sender_account = Wallet(network=self.network).from_address(str(sender_address))
+        # HTLC info's
+        htlc_amount = self.htlc["value"]
+        htlc_script = P2shScript.unhexlify(self.htlc["script"])
+        htlc_address = htlc_script.address(mainnet=self.mainnet)
         # Calculating fee
         self.fee = fee_calculator(1, 1)
+        if amount < self.fee:
+            raise BalanceError("insufficient spend utxos")
+        elif not htlc_amount >= (amount - self.fee):
+            raise BalanceError("insufficient spend utxos", "maximum withdraw %d" % htlc_amount)
         # Building mutable bitcoin transaction
         self.transaction = MutableTransaction(
             version=self.version,
             ins=[
-                TxIn(txid=self.htlc_transaction_id, txout=0,
+                TxIn(txid=self.transaction_id, txout=0,
                      script_sig=ScriptSig.empty(), sequence=Sequence.max())
             ],
             outs=[
-                TxOut(value=self.htlc_value - self.fee, n=0,
+                TxOut(value=(amount - self.fee), n=0,
                       script_pubkey=P2pkhScript.unhexlify(self.wallet.p2pkh()))
             ], locktime=Locktime(locktime))
         return self
 
     # Signing transaction using private keys
-    def sign(self, solver: RefundSolver, **kwargs):
+    def sign(self, solver: RefundSolver):
         if not isinstance(solver, RefundSolver):
-            raise Exception("Solver error")
+            raise TypeError("invalid solver instance, only takes bitcoin RefundSolver class")
+        if self.transaction is None:
+            raise ValueError("transaction script is none, build transaction first")
         htlc = HTLC(self.network).init(
             secret_hash=double_sha256(solver.secret),
             recipient_address=str(self.wallet.address()),
-            sender_address=str(self.sender_address),
+            sender_address=str(self.sender_account.address()),
             sequence=solver.sequence
         )
         self.transaction.spend([
-            TxOut(value=self.htlc_value, n=0, script_pubkey=self.htlc_script)
+            TxOut(value=self.htlc["value"], n=0,
+                  script_pubkey=P2shScript.unhexlify(self.htlc["script"]))
         ], [
             P2shSolver(htlc.script, solver.solve())
         ])
@@ -284,9 +331,13 @@ class RefundTransaction(Transaction):
 
     def unsigned_raw(self):
         if self.transaction is None:
-            raise ValueError("Transaction script is none, Please build transaction first.")
-        outputs = [dict(amount=self.htlc_value, n=0, script=self.htlc["script"])]
+            raise ValueError("transaction script is none, build transaction first")
+        outputs = [dict(amount=self.htlc["value"], n=0, script=self.htlc["script"])]
         return b64encode(str(json.dumps(dict(
-            fee=self.fee, raw=self.transaction.hexlify(), outputs=outputs, type="refund_unsigned",
-            recipient_address=str(self.wallet.address()), sender_address=str(self.sender_address)
+            fee=self.fee,
+            raw=self.transaction.hexlify(),
+            outputs=outputs,
+            recipient_address=str(self.wallet.address()),
+            sender_address=str(self.sender_account.address()),
+            type="refund_unsigned"
         ))).encode()).decode()

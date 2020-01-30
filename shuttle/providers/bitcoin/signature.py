@@ -30,30 +30,30 @@ class Signature:
     # Transaction hash
     def hash(self):
         if self.transaction is None:
-            raise ValueError("Transaction script is none, Please sign first.")
+            raise ValueError("transaction script is none, sign first")
         return self.transaction.txid
 
     # Transaction raw
     def raw(self):
         if self.transaction is None:
-            raise ValueError("Transaction script is none, Please build transaction first.")
+            raise ValueError("transaction script is none, build transaction first")
         return self.transaction.hexlify()
 
     # Transaction json format
     def json(self):
         if self.transaction is None:
-            raise ValueError("Transaction script is none, Please sign first.")
+            raise ValueError("transaction script is none, sign first")
         return self.transaction.to_json()
 
     def type(self):
         if self.type is None:
-            raise ValueError("Not found type, Please sign first.")
+            raise ValueError("not found type, sign first")
         return self.type
 
     def sign(self, unsigned_raw, solver):
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "type" not in tx_raw:
-            raise ValueError("Invalid unsigned transaction raw.")
+            raise ValueError("invalid unsigned transaction raw")
         self.type = tx_raw["type"]
         if tx_raw["type"] == "fund_unsigned":
             return FundSignature(network=self.network, version=self.version)\
@@ -67,7 +67,7 @@ class Signature:
 
     def signed_raw(self):
         if self.signed is None:
-            raise ValueError("There is not signed data, Please sign first.")
+            raise ValueError("there is no signed data, sign first")
         return self.signed
 
 
@@ -80,11 +80,13 @@ class FundSignature(Signature):
     def sign(self, unsigned_raw, solver: FundSolver):
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "outputs" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned fund transaction raw.")
+            raise ValueError("invalid unsigned fund transaction raw")
         self.fee = tx_raw["fee"]
         self.type = tx_raw["type"]
         if not self.type == "fund_unsigned":
-            raise TypeError("Can't sign this %s transaction using FundSignature" % tx_raw["type"])
+            raise TypeError("can't sign this %s transaction using FundSignature" % tx_raw["type"])
+        if not isinstance(solver, FundSolver):
+            raise TypeError("invalid solver instance, only takes bitcoin FundSolver class")
         self.transaction = MutableTransaction.unhexlify(tx_raw["raw"])
         outputs = list()
         for output in tx_raw["outputs"]:
@@ -108,7 +110,7 @@ class ClaimSignature(Signature):
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "outputs" not in tx_raw or "type" not in tx_raw or \
                 "recipient_address" not in tx_raw or "sender_address" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned claim transaction raw.")
+            raise ValueError("invalid unsigned claim transaction raw")
         self.fee = tx_raw["fee"]
         self.type = tx_raw["type"]
         if not self.type == "claim_unsigned":
@@ -142,14 +144,14 @@ class RefundSignature(Signature):
     def sign(self, unsigned_raw, solver: RefundSolver):
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "outputs" not in tx_raw or "type" not in tx_raw or \
-                "recipient" not in tx_raw or "sender" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("Invalid unsigned refund transaction raw.")
+                "recipient_address" not in tx_raw or "sender_address" not in tx_raw or "fee" not in tx_raw:
+            raise ValueError("invalid unsigned refund transaction raw")
         self.fee = tx_raw["fee"]
         self.type = tx_raw["type"]
         if not self.type == "refund_unsigned":
-            raise TypeError("Can't sign this %s transaction using RefundSignature" % tx_raw["type"])
+            raise TypeError("can't sign this %s transaction using RefundSignature" % tx_raw["type"])
         if not isinstance(solver, RefundSolver):
-            raise Exception("Invalid solver error, only refund solver.")
+            raise Exception("invalid solver error, only refund solver")
         htlc = HTLC(network=self.network).init(
             secret_hash=double_sha256(solver.secret),
             recipient_address=tx_raw["recipient_address"],

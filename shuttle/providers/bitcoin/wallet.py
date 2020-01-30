@@ -75,33 +75,32 @@ class Wallet:
         return PublicKey.unhexlify(public_key).uncompressed.hex()
 
     # Bitcoin main _address.
-    def address(self, public_key=None, network="testnet"):
+    def address(self, public_key=None):
         if public_key is None:
             return str(self._address)
-        testnet = True if network == "testnet" else False
-        return PublicKey.unhexlify(public_key).to__address(mainnet=(not testnet))
+        return PublicKey.unhexlify(public_key)\
+            .to__address(mainnet=(not self.testnet))
 
     # Bitcoin main _address hash.
-    def hash(self, public_key=None, network="testnet"):
+    def hash(self, public_key=None):
         if public_key is None:
             return self._address.hash.hex()
-        testnet = True if network == "testnet" else False
         return PublicKey.unhexlify(public_key)\
-            .to__address(mainnet=(not testnet)).hash.hex()
+            .to__address(mainnet=(not self.testnet)).hash.hex()
 
     # Bitcoin public to public key hash script.
-    def p2pkh(self, address=None, network="testnet"):
+    def p2pkh(self, address=None):
         if address is None:
             return P2pkhScript(self._address).hexlify()
-        assert is_address(address, network), "Invalid %s _address!" % network
+        assert is_address(address, self.testnet), "Invalid %s _address!" % self.network
         address = Address.from_string(address)
         return P2pkhScript(address).hexlify()
 
     # Bitcoin public to script hash script.
-    def p2sh(self, address=None, network="testnet"):
+    def p2sh(self, address=None):
         if address is None:
             return P2shScript(P2pkhScript(self._address)).hexlify()
-        assert is_address(address, network), "Invalid %s _address!" % network
+        assert is_address(address, self.network), "Invalid %s _address!" % self.network
         address = Address.from_string(address)
         return P2shScript(P2pkhScript(address)).hexlify()
 
