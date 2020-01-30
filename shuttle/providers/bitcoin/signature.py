@@ -80,7 +80,7 @@ class FundSignature(Signature):
     def sign(self, unsigned_raw, solver: FundSolver):
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "outputs" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("Invalid unsigned fund transaction raw.")
+            raise ValueError("invalid unsigned fund transaction raw.")
         self.fee = tx_raw["fee"]
         self.type = tx_raw["type"]
         if not self.type == "fund_unsigned":
@@ -107,14 +107,14 @@ class ClaimSignature(Signature):
     def sign(self, unsigned_raw, solver: ClaimSolver):
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "outputs" not in tx_raw or "type" not in tx_raw or \
-                "recipient" not in tx_raw or "sender" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("Invalid unsigned claim transaction raw.")
+                "recipient_address" not in tx_raw or "sender_address" not in tx_raw or "fee" not in tx_raw:
+            raise ValueError("invalid unsigned claim transaction raw.")
         self.fee = tx_raw["fee"]
         self.type = tx_raw["type"]
         if not self.type == "claim_unsigned":
-            raise TypeError("Can't sign this %s transaction using ClaimSignature" % tx_raw["type"])
+            raise TypeError("can't sign this %s transaction using ClaimSignature" % tx_raw["type"])
         if not isinstance(solver, ClaimSolver):
-            raise Exception("Invalid solver error, only take claim solver.")
+            raise TypeError("invalid solver instance, only takes bitcoin ClaimSolver class")
         htlc = HTLC(network=self.network).init(
             secret_hash=double_sha256(solver.secret),
             recipient_address=tx_raw["recipient_address"],
