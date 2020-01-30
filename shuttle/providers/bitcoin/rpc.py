@@ -5,6 +5,7 @@ import json
 
 from .utils import is_address
 from ..config import bitcoin
+from ...utils.exceptions import AddressError
 
 
 # Request headers
@@ -17,14 +18,16 @@ bitcoin = bitcoin()
 
 # Get balance by address
 def get_balance(address, network="testnet", timeout=5):
-    assert is_address(address, network), "Invalid %s address!" % network
+    if not is_address(address=address, network=network):
+        raise AddressError("invalid %s %s address" % (network, address))
     url = str(bitcoin[network]["blockcypher"]["url"]) + ("/addrs/%s/balance" % address)
     return requests.get(url=url, headers=headers, timeout=timeout).json()["balance"]
 
 
 # Get unspent transaction by address
 def get_unspent_transactions(address, network="testnet", include_script=True, limit=15, timeout=5):
-    assert is_address(address, network), "Invalid %s address!" % network
+    if not is_address(address=address, network=network):
+        raise AddressError("invalid %s %s address" % (network, address))
     _include_script = "true" if include_script else "false"
     parameter = dict(limit=limit, unspentOnly="true",
                      includeScript=_include_script, token=bitcoin[network]["blockcypher"]["token"])

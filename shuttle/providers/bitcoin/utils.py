@@ -18,15 +18,15 @@ def is_address(address, network="testnet"):
         elif network == "mainnet":
             return cryptos.Bitcoin(testnet=False).is_address(address)
         else:
-            raise NetworkError("Invalid %s network" % network, "Only testnet or mainnet.")
-    raise TypeError("Address must be string format!")
+            raise NetworkError("invalid %s network" % network, "only takes testnet or mainnet")
+    raise TypeError("address must be string format!")
 
 
 # Double SHA256 hash
 def double_sha256(data):
     if isinstance(data, bytes):
         return hashlib.sha256(hashlib.sha256(data).digest()).digest()
-    raise TypeError("Data must be bytes format!")
+    raise TypeError("data must be bytes format!")
 
 
 # Transaction fee calculator
@@ -50,7 +50,7 @@ def expiration_to_script(sequence):
 # Creating script from address
 def script_from_address(address, network="testnet"):
     if not is_address(address, network):
-        raise AddressError("Invalid %s %s address!" % (network, address))
+        raise AddressError("invalid %s %s address!" % (network, address))
     load_address = Address.from_string(address)
     get_type = load_address.get_type()
     if str(get_type) == "p2pkh":
@@ -62,5 +62,5 @@ def script_from_address(address, network="testnet"):
 # Creating script from address
 def address_to_hash(address, network="testnet"):
     if not is_address(address, network):
-        raise AddressError("Invalid %s %s address!" % (network, address))
+        raise AddressError("invalid %s %s address!" % (network, address))
     return Address.from_string(address).hash.hex()

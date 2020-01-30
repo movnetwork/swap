@@ -42,12 +42,14 @@ class HTLC:
             # If branch
             Hashlock256Script(  # Hash lock 250
                 sha256(secret_hash),  # Secret key
-                script_from_address(recipient_address, self.network)  # Script hash of account two
+                script_from_address(
+                    address=recipient_address, network=self.network)  # Script hash of account two
             ),
             # Else branch
             RelativeTimelockScript(  # Relative time locked script
                 Sequence(sequence),  # Expiration blocks
-                script_from_address(sender_address, self.network)  # Script hash of account one
+                script_from_address(
+                    address=sender_address, network=self.network)  # Script hash of account one
             )
         )
         return self

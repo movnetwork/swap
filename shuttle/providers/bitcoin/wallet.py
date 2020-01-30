@@ -9,6 +9,7 @@ import hashlib
 
 from .utils import is_address
 from .rpc import get_balance, get_unspent_transactions
+from ...utils.exceptions import AddressError
 
 
 # Bitcoin Wallet.
@@ -49,6 +50,8 @@ class Wallet:
         return self
 
     def from_address(self, address):
+        if not is_address(address=address, network=self.network):
+            raise AddressError("invalid %s %s address" % (self.network, address))
         self._address = Address.from_string(address)
         return self
 
@@ -92,7 +95,8 @@ class Wallet:
     def p2pkh(self, address=None):
         if address is None:
             return P2pkhScript(self._address).hexlify()
-        assert is_address(address, self.testnet), "Invalid %s _address!" % self.network
+        if not is_address(address=address, network=self.network):
+            raise AddressError("invalid %s %s address" % (self.network, address))
         address = Address.from_string(address)
         return P2pkhScript(address).hexlify()
 
@@ -100,7 +104,8 @@ class Wallet:
     def p2sh(self, address=None):
         if address is None:
             return P2shScript(P2pkhScript(self._address)).hexlify()
-        assert is_address(address, self.network), "Invalid %s _address!" % self.network
+        if not is_address(address=address, network=self.network):
+            raise AddressError("invalid %s %s address" % (self.network, address))
         address = Address.from_string(address)
         return P2shScript(P2pkhScript(address)).hexlify()
 
@@ -115,7 +120,8 @@ class Wallet:
             address = str(self._address)
             network = str(self.network)
         unspent = list()
-        assert is_address(address, network), "Invalid %s address!" % network
+        if not is_address(address=address, network=network):
+            raise AddressError("invalid %s %s address" % (network, address))
         unspent_transactions = get_unspent_transactions(
             address, network, limit=limit)
         for index, unspent_transaction in enumerate(unspent_transactions):
