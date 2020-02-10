@@ -55,13 +55,13 @@ class Signature:
         if "type" not in tx_raw:
             raise ValueError("invalid unsigned transaction raw")
         self.type = tx_raw["type"]
-        if tx_raw["type"] == "fund_unsigned":
+        if tx_raw["type"] == "bitcoin_fund_unsigned":
             return FundSignature(network=self.network, version=self.version)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
-        elif tx_raw["type"] == "claim_unsigned":
+        elif tx_raw["type"] == "bitcoin_claim_unsigned":
             return ClaimSignature(network=self.network, version=self.version)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
-        elif tx_raw["type"] == "refund_unsigned":
+        elif tx_raw["type"] == "bitcoin_refund_unsigned":
             return RefundSignature(network=self.network, version=self.version)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
 
@@ -95,7 +95,7 @@ class FundSignature(Signature):
                       script_pubkey=Script.unhexlify(output["script"])))
         self.transaction.spend(outputs, [solver.solve() for _ in outputs])
         self.signed = b64encode(str(json.dumps(dict(
-            raw=self.transaction.hexlify(), type="fund_signed"
+            raw=self.transaction.hexlify(), type="bitcoin_fund_signed"
         ))).encode()).decode()
         return self
 
@@ -130,7 +130,7 @@ class ClaimSignature(Signature):
             P2shSolver(htlc.script, solver.solve())
         ])
         self.signed = b64encode(str(json.dumps(dict(
-            raw=self.transaction.hexlify(), type="claim_signed"
+            raw=self.transaction.hexlify(), type="bitcoin_claim_signed"
         ))).encode()).decode()
         return self
 
@@ -165,6 +165,6 @@ class RefundSignature(Signature):
             P2shSolver(htlc.script, solver.solve())
         ])
         self.signed = b64encode(str(json.dumps(dict(
-            raw=self.transaction.hexlify(), type="refund_signed"
+            raw=self.transaction.hexlify(), type="bitcoin_refund_signed"
         ))).encode()).decode()
         return self

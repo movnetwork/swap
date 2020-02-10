@@ -159,7 +159,7 @@ class FundTransaction(Transaction):
             fee=self.fee,
             raw=self.transaction.hexlify(),
             outputs=outputs,
-            type="fund_unsigned"
+            type="bitcoin_fund_unsigned"
         ))).encode()).decode()
 
 
@@ -249,7 +249,7 @@ class ClaimTransaction(Transaction):
             outputs=outputs,
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
-            type="claim_unsigned"
+            type="bitcoin_claim_unsigned"
         ))).encode()).decode()
 
 
@@ -339,5 +339,5 @@ class RefundTransaction(Transaction):
             outputs=outputs,
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
-            type="refund_unsigned"
+            type="bitcoin_refund_unsigned"
         ))).encode()).decode()
