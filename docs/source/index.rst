@@ -1,21 +1,21 @@
+====================================
 Welcome to PyShuttle's documentation
-=====================================
+====================================
 
 Cross chain atomic swap between to the networks of two cryptocurrencies.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents
 
-   license
-   example
+    license
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Providers:
+    :maxdepth: 3
+    :caption: Providers
 
-   bitcoin
-   bytom
+    providers/bitcoin/bitcoin
+    providers/bytom/bytom
 
 Indices and tables
 ==================
