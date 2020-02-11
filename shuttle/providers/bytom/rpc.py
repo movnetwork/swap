@@ -54,6 +54,8 @@ def build_transaction(tx, network="testnet", timeout=bytom["timeout"]):
                              headers=headers, timeout=timeout)
     if response.status_code == 200 and response.json()["code"] == 300:
         raise Exception(response.json()["msg"])
+    elif response.status_code == 200 and response.json()["code"] == 503:
+        raise Exception(response.json()["msg"])
     return response.json()["result"]["data"]
 
 
