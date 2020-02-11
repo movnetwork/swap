@@ -22,6 +22,9 @@ Cross chain atomic swap for Bitcoin cryptocurrencies.
     :caption: API
 
     wallet
+    htlc
     transaction
     solver
     signature
+    rpc
+    utils
