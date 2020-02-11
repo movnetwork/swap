@@ -15,14 +15,14 @@ from ...utils.exceptions import AddressError
 # Bitcoin Wallet.
 class Wallet:
     """
-    Bitcoin wallet class.
+    Bitcoin Wallet class.
 
     :param network: bitcoin network, defaults to testnet.
     :type network: str
     :returns:  Wallet -- bitcoin wallet instance.
 
     .. note::
-        Bitcoin has only two networks called ``mainnet`` and ``testnet``.
+        Bitcoin has only two networks, ``mainnet`` and ``testnet``.
     """
 
     # PyShuttle Bitcoin (BTC) wallet init.
@@ -53,6 +53,7 @@ class Wallet:
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_private_key("92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
+        <shuttle.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
         self._private_key = PrivateKey.unhexlify(private_key)
         self._public_key = PublicKey.unhexlify(
@@ -90,6 +91,7 @@ class Wallet:
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        <shuttle.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
         private_key = hashlib.sha256(mnemonic).hexdigest()
         self._private_key = PrivateKey.unhexlify(private_key)
@@ -109,6 +111,7 @@ class Wallet:
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
         >>> wallet.from_address("mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE")
+        <shuttle.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
         if not is_address(address=address, network=self.network):
             raise AddressError("invalid %s %s address" % (self.network, address))
