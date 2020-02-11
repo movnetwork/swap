@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 from btmhdw import BytomHDWallet, sign
+from base64 import b64encode, b64decode
+
+import json
 
 from .rpc import build_transaction
 from .utils import spend_wallet_action, control_program_action, spend_utxo_action, control_address_action
@@ -14,15 +17,18 @@ bytom = bytom()
 class Transaction:
 
     # Initialization transaction
-    def __init__(self, network="testnet", guid=None, inputs=None, outputs=None):
+    def __init__(self, network="testnet",
+                 guid=None, inputs=None, outputs=None, tx=None):
         # Transaction
-        self.transaction = None
+        self.transaction = tx
         # Bitcoin network
         self.network = network
         # Input and Output actions
         self.inputs, self.outputs = inputs, outputs
         # Blockcenter GUID
         self.guid = guid
+        # Bitcoin fee
+        self.fee = bytom["fee"]
         # Signed datas
         self.signatures = list()
 
@@ -30,7 +36,7 @@ class Transaction:
     def build_transaction(self, *args, **kwargs):
 
         if not self.guid and not self.inputs or not self.outputs:
-            raise ValueError("Transaction fail | GUID, Inputs or Outputs are none.")
+            raise ValueError("transaction fail | GUID, Inputs or Outputs are none.")
 
         # Transaction
         tx = dict(
@@ -47,25 +53,25 @@ class Transaction:
     # Transaction hash
     def hash(self):
         if self.transaction is None:
-            raise ValueError("Transaction is none, Please build transaction first.")
+            raise ValueError("transaction is none, build transaction first.")
         return self.transaction["tx"]["hash"]
 
     # Transaction raw
     def raw(self):
         if self.transaction is None:
-            raise ValueError("Transaction is none, Please build transaction first.")
+            raise ValueError("transaction is none, build transaction first.")
         return self.transaction["raw_transaction"]
 
     # Transaction json
     def json(self):
         if self.transaction is None:
-            raise ValueError("Transaction is none, Please build transaction first.")
+            raise ValueError("transaction is none, build transaction first.")
         return self.transaction["tx"]
 
     def unsigned(self):
         unsigned_datas = list()
         if self.transaction is None:
-            raise ValueError("Transaction is none, Please build transaction first.")
+            raise ValueError("transaction is none, build transaction first.")
         bytom_hd_wallet = BytomHDWallet()
         for signing_instruction in self.transaction["signing_instructions"]:
             unsigned_data = dict(datas=signing_instruction["sign_data"])
@@ -91,17 +97,17 @@ class Transaction:
         # Returning
         return unsigned_datas
 
-    # Signing message
-    def sign(self, xprivate_key):
-        for unsigned in self.unsigned():
-            signed_data = list()
-            unsigned_datas = unsigned["datas"]
-            for unsigned_data in unsigned_datas:
-                signed_data.append(
-                    sign(xprivate=xprivate_key,
-                         message=unsigned_data))
-            self.signatures.append(signed_data)
-        return self
+    # # Signing message
+    # def sign(self, xprivate_key):
+    #     for unsigned in self.unsigned():
+    #         signed_data = list()
+    #         unsigned_datas = unsigned["datas"]
+    #         for unsigned_data in unsigned_datas:
+    #             signed_data.append(
+    #                 sign(xprivate=xprivate_key,
+    #                      message=unsigned_data))
+    #         self.signatures.append(signed_data)
+    #     return self
 
 
 class FundTransaction(Transaction):
@@ -153,6 +159,16 @@ class FundTransaction(Transaction):
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
         return self
+
+    def unsigned_raw(self):
+        if not self.transaction:
+            raise ValueError("transaction script is none, build transaction first")
+
+        return b64encode(str(json.dumps(dict(
+            fee=self.fee,
+            tx=self.transaction,
+            type="bytom_fund_unsigned"
+        ))).encode()).decode()
 
 
 class ClaimTransaction(Transaction):
@@ -209,6 +225,16 @@ class ClaimTransaction(Transaction):
             self.signatures.append(signed_data)
         return self
 
+    def unsigned_raw(self):
+        if not self.transaction:
+            raise ValueError("transaction script is none, build transaction first")
+
+        return b64encode(str(json.dumps(dict(
+            fee=self.fee,
+            tx=self.transaction,
+            type="bytom_claim_unsigned"
+        ))).encode()).decode()
+
 
 class RefundTransaction(Transaction):
 
@@ -262,3 +288,13 @@ class RefundTransaction(Transaction):
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
         return self
+
+    def unsigned_raw(self):
+        if not self.transaction:
+            raise ValueError("transaction script is none, build transaction first")
+
+        return b64encode(str(json.dumps(dict(
+            fee=self.fee,
+            tx=self.transaction,
+            type="bytom_refund_unsigned"
+        ))).encode()).decode()
