@@ -1,6 +1,6 @@
-====================================
-Welcome to PyShuttle's documentation
-====================================
+=========================
+PyShuttle's documentation
+=========================
 
 Cross chain atomic swap between to the networks of two cryptocurrencies.
 
