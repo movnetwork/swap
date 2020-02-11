@@ -12,7 +12,7 @@ class Wallet:
     def __init__(self, network="testnet",
                  account=1, change=0, address=1, path=None, indexes=None):
         # Bytom network.
-        if network not in ["mainnet", "testnet"]:
+        if network not in ["mainnet", "solonet", "testnet"]:
             raise Exception("Network initialization error.")
         self.network = network
         # Bytom wallet initialization.
