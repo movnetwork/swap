@@ -23,3 +23,5 @@ Cross chain atomic swap for Bitcoin cryptocurrencies.
 
     wallet
     transaction
+    solver
+    signature
