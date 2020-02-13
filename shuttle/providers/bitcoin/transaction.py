@@ -71,7 +71,7 @@ class Transaction:
         """
         Get bitcoin transaction json format.
 
-        :returns: str -- bitcoin transaction json format.
+        :returns: dict -- bitcoin transaction json format.
 
         >>> transaction.json()
         {"hex": "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000", "txid": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "hash": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "size": 117, "vsize": 117, "version": 2, "locktime": 0, "vin": [{"txid": "be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c", "vout": 1, "scriptSig": {"asm": "", "hex": ""}, "sequence": "4294967295"}], "vout": [{"value": "0.00001000", "n": 0, "scriptPubKey": {"asm": "OP_HASH160 971894c58d85981c16c2059d422bcde0b156d044 OP_EQUAL", "hex": "a914971894c58d85981c16c2059d422bcde0b156d04487", "type": "p2sh", "address": "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"}}, {"value": "0.00010662", "n": 1, "scriptPubKey": {"asm": "OP_DUP OP_HASH160 6bce65e58a50b97989930e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG", "hex": "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac", "type": "p2pkh", "address": "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"}}]}
@@ -91,6 +91,7 @@ class Transaction:
         >>> transaction.raw()
         "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000"
         """
+
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first.")
         return self.transaction.hexlify()
@@ -125,7 +126,7 @@ class FundTransaction(Transaction):
     :type version: int
     :param network: bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  Transaction -- bitcoin transaction instance.
+    :returns: FundTransaction -- bitcoin fund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize fund transaction.
@@ -150,9 +151,9 @@ class FundTransaction(Transaction):
         Build bitcoin fund transaction.
 
         :param wallet: bitcoin sender wallet.
-        :type wallet: Wallet
+        :type wallet: bitcoin.wallet.Wallet
         :param htlc: bitcoin hash time lock contract (HTLC).
-        :type htlc: HTLC
+        :type htlc: bitcoin.htlc.HTLC
         :param amount: bitcoin amount to fund.
         :type amount: int
         :param locktime: bitcoin transaction lock time, defaults to 0.
@@ -204,7 +205,7 @@ class FundTransaction(Transaction):
         Sign bitcoin fund transaction.
 
         :param solver: bitcoin fund solver.
-        :type solver: FundSolver
+        :type solver: bitcoin.solver.FundSolver
         :returns: FundTransaction -- bitcoin fund transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import FundTransaction
@@ -301,7 +302,7 @@ class ClaimTransaction(Transaction):
         :param transaction_id: bitcoin fund transaction id to redeem.
         :type transaction_id: str
         :param wallet: bitcoin recipient wallet.
-        :type wallet: Wallet
+        :type wallet: bitcoin.wallet.Wallet
         :param amount: bitcoin amount to withdraw.
         :type amount: int
         :param locktime: bitcoin transaction lock time, defaults to 0.
@@ -356,12 +357,12 @@ class ClaimTransaction(Transaction):
         return self
 
     # Signing transaction using private keys
-    def sign(self, solver: ClaimSolver):
+    def sign(self, solver):
         """
         Sign bitcoin claim transaction.
 
         :param solver: bitcoin claim solver.
-        :type solver: ClaimSolver
+        :type solver: bitcoin.solver.ClaimSolver
         :returns: ClaimTransaction -- bitcoin claim transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import ClaimTransaction
@@ -452,7 +453,7 @@ class RefundTransaction(Transaction):
         :param transaction_id: bitcoin fund transaction id to redeem.
         :type transaction_id: str
         :param wallet: bitcoin sender wallet.
-        :type wallet: Wallet
+        :type wallet: bitcoin.wallet.Wallet
         :param amount: bitcoin amount to withdraw.
         :type amount: int
         :param locktime: bitcoin transaction lock time, defaults to 0.
@@ -507,12 +508,12 @@ class RefundTransaction(Transaction):
         return self
 
     # Signing transaction using private keys
-    def sign(self, solver: RefundSolver):
+    def sign(self, solver):
         """
         Sign bitcoin refund transaction.
 
         :param solver: bitcoin refund solver.
-        :type solver: RefundSolver
+        :type solver: bitcoin.solver.RefundSolver
         :returns: RefundTransaction -- bitcoin refund transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import RefundTransaction

@@ -4,11 +4,7 @@
 Bytom
 =====
 
-.. image:: bytom.svg
-   :width: 250px
-   :alt: bytom icon
-
-Cross chain atomic swap for Bytom cryptocurrencies.
+Cross chain atomic swap for Bytom cryptocurrency.
 
 .. sidebar:: Sidebar Title
     :subtitle: Optional Sidebar Subtitle
@@ -16,3 +12,13 @@ Cross chain atomic swap for Bytom cryptocurrencies.
     Subsequent indented lines comprise
     the body of the sidebar, and are
     interpreted as body elements.
+
+.. toctree::
+    :maxdepth: 3
+    :caption: API
+
+    wallet
+    htlc
+    transaction
+    solver
+    signature

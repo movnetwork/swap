@@ -4,11 +4,7 @@
 Bitcoin
 =======
 
-.. image:: bitcoin.svg
-   :width: 250px
-   :alt: bitcoin icon
-
-Cross chain atomic swap for Bitcoin cryptocurrencies.
+Cross chain atomic swap for Bitcoin cryptocurrency.
 
 .. sidebar:: Sidebar Title
     :subtitle: Optional Sidebar Subtitle

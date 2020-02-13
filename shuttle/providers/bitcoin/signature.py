@@ -105,7 +105,7 @@ class Signature:
         :param unsigned_raw: bitcoin unsigned transaction raw.
         :type unsigned_raw: str
         :param solver: bitcoin solver
-        :type solver: FundSolver, ClaimSolver, RefundSolver
+        :type solver: bitcoin.solver.FundSolver, bitcoin.solver.ClaimSolver, bitcoin.solver.RefundSolver
         :returns:  FundSignature, ClaimSignature, RefundSignature -- bitcoin signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import Signature
@@ -173,7 +173,7 @@ class FundSignature(Signature):
         :param unsigned_raw: bitcoin unsigned fund transaction raw.
         :type unsigned_raw: str
         :param solver: bitcoin fund solver.
-        :type solver: FundSolver
+        :type solver: bitcoin.solver.FundSolver
         :returns:  FundSignature -- bitcoin fund signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import FundSignature
@@ -231,7 +231,7 @@ class ClaimSignature(Signature):
         :param unsigned_raw: bitcoin unsigned claim transaction raw.
         :type unsigned_raw: str
         :param solver: bitcoin claim solver.
-        :type solver: ClaimSolver
+        :type solver: bitcoin.solver.ClaimSolver
         :returns:  ClaimSignature -- bitcoin claim signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import ClaimSignature
@@ -295,7 +295,7 @@ class RefundSignature(Signature):
         :param unsigned_raw: bitcoin unsigned refund transaction raw.
         :type unsigned_raw: str
         :param solver: bitcoin refund solver.
-        :type solver: RefundSolver
+        :type solver: bitcoin.solver.RefundSolver
         :returns:  RefundSignature -- bitcoin refund signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import RefundSignature
