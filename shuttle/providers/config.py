@@ -17,6 +17,7 @@ def bytom():
             "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
         },
         "timeout": 15,
+        "BTM_asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "fee": 10000000,
         "confirmations": 1,
         "sequence": 15
