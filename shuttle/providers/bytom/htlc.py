@@ -46,8 +46,6 @@ class HTLC:
     def __init__(self, network="testnet"):
         # Bytom network.
         self.network = network
-        # Bytom network boolean..
-        self.testnet = True if network == "testnet" else False
         # Initializing equity
         self.equity = None
 
@@ -99,7 +97,7 @@ class HTLC:
         """
 
         if self.equity and "program" not in self.equity:
-            raise ValueError("HTLC script is none, Please initialization htlc first.")
+            raise ValueError("htlc script is none, initialization htlc first")
         return self.equity["program"]
 
     # OP Code of HTLC script
@@ -117,5 +115,5 @@ class HTLC:
         """
 
         if self.equity and "opcodes" not in self.equity:
-            raise ValueError("HTLC script is none, Please initialization htlc first.")
+            raise ValueError("htlc script is none, initialization htlc first")
         return self.equity["opcodes"]

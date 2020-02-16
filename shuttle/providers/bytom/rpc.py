@@ -163,7 +163,7 @@ def get_transaction(tx_id, network="testnet", timeout=bytom["timeout"]):
 def submit_payment(guid, raw_transaction, signatures,
                    memo="mock", network="testnet", timeout=bytom["timeout"]):
     if not isinstance(signatures, list):
-        raise Exception("Signatures must be list format.")
+        raise Exception("signatures must be list format.")
     url = str(bytom[network]["blockcenter"]) + "/merchant/submit-payment"
     data = dict(guid=guid, raw_transaction=raw_transaction, signatures=signatures, memo=memo)
     response = requests.post(url=url, data=json.dumps(data),

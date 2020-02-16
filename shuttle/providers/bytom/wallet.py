@@ -397,8 +397,10 @@ class Wallet:
         "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b"
         """
 
-        return account_create(
-            xpublic_key=self.xpublic_key(), network=self.network)["guid"]
+        if self._guid is None:
+            self._guid = account_create(
+                xpublic_key=self.xpublic_key(), network=self.network)["guid"]
+        return self._guid
 
     # Getting balance
     def balance(self):
@@ -414,6 +416,4 @@ class Wallet:
         2450000000
         """
 
-        if self._guid is None:
-            self._guid = get_balance(address=self.address(), network=self.network)
-        return self._guid
+        return get_balance(address=self.address(), network=self.network)
