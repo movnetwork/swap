@@ -80,7 +80,6 @@ class Wallet:
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
-        self._guid = self.guid()
         return self
 
     # Bytom wallet from seed
@@ -106,7 +105,6 @@ class Wallet:
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
-        self._guid = self.guid()
         return self
 
     # Bytom wallet from entropy
@@ -132,7 +130,6 @@ class Wallet:
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
-        self._guid = self.guid()
         return self
 
     # Bytom wallet from xprivate key
@@ -158,7 +155,6 @@ class Wallet:
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
-        self._guid = self.guid()
         return self
 
     # Bytom wallet from xpublic key
@@ -183,7 +179,6 @@ class Wallet:
         self._program = bytom.program(public=self._public_key)
         self._address = bytom.address(
             program=self._program, network=self.network)
-        self._guid = self.guid()
         return self
 
     # Bytom wallet from public key
@@ -419,5 +414,6 @@ class Wallet:
         2450000000
         """
 
-        return self._guid if self._guid else \
-            get_balance(address=self.address(), network=self. network)
+        if self._guid is None:
+            self._guid = get_balance(address=self.address(), network=self.network)
+        return self._guid
