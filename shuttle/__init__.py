@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # PyShuttle Information's
-__version__ = "0.0.3.dev1"
+__version__ = "0.0.5b1"
 __author__ = "Meheret Tesfaye"
 __author_email__ = "meherett@zoho.com"
 

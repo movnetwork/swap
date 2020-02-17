@@ -25,13 +25,13 @@ setup(
     packages=find_packages(),
     keywords=['shuttle'],
     entry_points={
-        'console_scripts': ["shuttle=shuttle.shell.__main__:main"]
+        'console_scripts': ["shuttle=shuttle.cli.__main__:main"]
     },
-    python_requires=">=3.5,<4",
+    python_requires=">=3.6,<4",
     install_requires=requirements,
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "License :: OSI Approved :: GNU Affero General Public License v3.0",
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
