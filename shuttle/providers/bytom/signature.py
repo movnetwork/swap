@@ -39,21 +39,21 @@ class Signature(Transaction):
 
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return self.transaction["tx"]["hash"]
+        return self.transaction["hash"]
 
-    # Transaction json
-    def json(self):
-        """
-        Get bytom signature transaction json format.
-
-        :returns: dict -- bytom signature transaction json format.
-
-        >>> signature.json()
-        {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
-        """
-        if self.transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
-        return self.transaction["tx"]
+    # # Transaction json
+    # def json(self):
+    #     """
+    #     Get bytom signature transaction json format.
+    #
+    #     :returns: dict -- bytom signature transaction json format.
+    #
+    #     >>> signature.json()
+    #     {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
+    #     """
+    #     if self.transaction is None:
+    #         raise ValueError("transaction is none, build transaction first.")
+    #     return self.transaction["tx"]
 
     # Transaction raw
     def raw(self):
@@ -114,6 +114,11 @@ class Signature(Transaction):
             return RefundSignature(network=self.network)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
 
+    def unsigned(self, raw=False):
+        if self.transaction is None:
+            raise ValueError("transaction is none, build transaction first.")
+        return self.transaction["unsigned"]
+
     def signed_raw(self):
         """
         Get bytom signed transaction raw.
@@ -173,14 +178,14 @@ class FundSignature(Signature):
         if not self.type == "bytom_fund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
-        for unsigned in self.unsigned():
+        for unsigned_datas in self.unsigned():
             signed_data = list()
-            unsigned_datas = unsigned["datas"]
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
         self.signed = b64encode(str(json.dumps(dict(
             raw=self.raw(),
+            hash=self.hash(),
             signatures=self.signatures,
             type="bytom_fund_signed"
         ))).encode()).decode()
@@ -228,9 +233,8 @@ class ClaimSignature(Signature):
         if not self.type == "bytom_claim_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet, secret = solver.solve()
-        for index, unsigned in enumerate(self.unsigned()):
+        for index, unsigned_datas in enumerate(self.unsigned()):
             signed_data = list()
-            unsigned_datas = unsigned["datas"]
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(bytearray(secret).hex())
@@ -241,6 +245,7 @@ class ClaimSignature(Signature):
             self.signatures.append(signed_data)
         self.signed = b64encode(str(json.dumps(dict(
             raw=self.raw(),
+            hash=self.hash(),
             signatures=self.signatures,
             type="bytom_claim_signed"
         ))).encode()).decode()
@@ -288,9 +293,8 @@ class RefundSignature(Signature):
         if not self.type == "bytom_refund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
-        for index, unsigned in enumerate(self.unsigned()):
+        for index, unsigned_datas in enumerate(self.unsigned()):
             signed_data = list()
-            unsigned_datas = unsigned["datas"]
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
@@ -300,6 +304,7 @@ class RefundSignature(Signature):
             self.signatures.append(signed_data)
         self.signed = b64encode(str(json.dumps(dict(
             raw=self.raw(),
+            hash=self.hash(),
             signatures=self.signatures,
             type="bytom_refund_signed"
         ))).encode()).decode()

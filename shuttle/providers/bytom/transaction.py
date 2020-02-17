@@ -114,12 +114,15 @@ class Transaction:
             raise ValueError("transaction is none, build transaction first.")
         return self.transaction["raw_transaction"]
 
-    def unsigned(self):
+    def unsigned(self, for_raw=False):
         unsigned_datas = list()
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
         bytom_hd_wallet = BytomHDWallet()
         for signing_instruction in self.transaction["signing_instructions"]:
+            if for_raw:
+                unsigned_datas.append(signing_instruction["sign_data"])
+                continue
             unsigned_data = dict(datas=signing_instruction["sign_data"])
             if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
                 program = bytom_hd_wallet.program(public=signing_instruction["pubkey"])
@@ -285,7 +288,11 @@ class FundTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
-            tx=self.transaction,
+            tx=dict(
+                unsigned=self.unsigned(for_raw=True),
+                hash=self.transaction["tx"]["hash"],
+                raw_transaction=self.transaction["raw_transaction"]
+            ),
             type="bytom_fund_unsigned"
         ))).encode()).decode()
 
@@ -424,7 +431,11 @@ class ClaimTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
-            tx=self.transaction,
+            tx=dict(
+                unsigned=self.unsigned(for_raw=True),
+                hash=self.transaction["tx"]["hash"],
+                raw_transaction=self.transaction["raw_transaction"]
+            ),
             type="bytom_claim_unsigned"
         ))).encode()).decode()
 
@@ -529,8 +540,8 @@ class RefundTransaction(Transaction):
         <shuttle.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
-        if not isinstance(solver):
-            raise TypeError("Solver must be ClaimSolver format.")
+        if not isinstance(solver, RefundSolver):
+            raise TypeError("Solver must be RefundSolver format.")
         wallet = solver.solve()
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
@@ -562,6 +573,10 @@ class RefundTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
-            tx=self.transaction,
+            tx=dict(
+                unsigned=self.unsigned(for_raw=True),
+                hash=self.transaction["tx"]["hash"],
+                raw_transaction=self.transaction["raw_transaction"]
+            ),
             type="bytom_refund_unsigned"
         ))).encode()).decode()
