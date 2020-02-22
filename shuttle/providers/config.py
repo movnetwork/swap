@@ -20,7 +20,7 @@ def bytom():
         "BTM_asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "fee": 10000000,
         "confirmations": 1,
-        "sequence": 15
+        "sequence": 100
     }
 
 
@@ -44,5 +44,5 @@ def bitcoin(blockcypher_token=None):
             }
         },
         "timeout": 15,
-        "sequence": 15
+        "sequence": 100
     }
