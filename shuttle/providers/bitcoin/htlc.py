@@ -50,7 +50,7 @@ class HTLC:
         :param recipient_address: bitcoin recipient address.
         :type recipient_address: str
         :param sender_address: bitcoin sender address.
-        :type sender_address: int
+        :type sender_address: str
         :param sequence: bitcoin sequence number of expiration block, defaults to bitcoin config sequence (15).
         :type sequence: int
         :returns: HTLC -- bitcoin Hash Time Lock Contract (HTLC) instance.

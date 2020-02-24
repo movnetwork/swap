@@ -4,12 +4,15 @@
 
 class APIError(Exception):
 
-    def __init__(self, error_message, error_detail):
+    def __init__(self, error_message, error_detail=None):
         self.error_message = error_message
         self.error_detail = error_detail
 
     def __str__(self):
-        return "%s, %s" % (self.error_message, self.error_detail)
+        if self.error_detail:
+            return "(%s) %s" % (self.error_detail, self.error_message)
+        else:
+            return self.error_message
 
 
 class ClientError(Exception):
