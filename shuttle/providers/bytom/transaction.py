@@ -293,6 +293,7 @@ class FundTransaction(Transaction):
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
+            network=self.network,
             type="bytom_fund_unsigned"
         ))).encode()).decode()
 
@@ -319,11 +320,14 @@ class ClaimTransaction(Transaction):
     [...]
     """
 
-    # Initialization fund transaction
+    # Initialization claim transaction
     def __init__(self, network="testnet"):
         super().__init__(network)
 
-    def build_transaction(self, transaction_id, wallet, amount, asset=bytom["BTM_asset"]):
+        # Init secret key
+        self.secret = None
+
+    def build_transaction(self, transaction_id, wallet, amount, asset=bytom["BTM_asset"], secret=None):
         """
         Build bytom claim transaction.
 
@@ -335,6 +339,8 @@ class ClaimTransaction(Transaction):
         :type amount: int
         :param asset: bytom asset id, defaults to BTM asset.
         :type asset: str
+        :param secret: secret key.
+        :type secret: str
         :returns: ClaimTransaction -- bytom claim transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
@@ -352,6 +358,8 @@ class ClaimTransaction(Transaction):
             raise TypeError("invalid asset instance, only takes integer type")
         if not isinstance(asset, str):
             raise TypeError("invalid amount instance, only takes string type")
+        if secret is not None and not isinstance(secret, str):
+            raise TypeError("invalid secret instance, only takes string type")
 
         # Actions
         inputs, outputs = list(), list()
@@ -379,6 +387,7 @@ class ClaimTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
+        self.secret = secret
         return self
 
     # Signing transaction using private keys
@@ -399,13 +408,13 @@ class ClaimTransaction(Transaction):
 
         if not isinstance(solver, ClaimSolver):
             raise TypeError("Solver must be ClaimSolver format.")
-        wallet, secret = solver.solve()
+        wallet, _secret = solver.solve()
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             for unsigned_data in unsigned_datas:
                 if index == 0:
-                    signed_data.append(bytearray(secret).hex())
+                    signed_data.append(bytearray(_secret).hex())
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str())
                 else:
@@ -436,6 +445,8 @@ class ClaimTransaction(Transaction):
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
+            secret=self.secret,
+            network=self.network,
             type="bytom_claim_unsigned"
         ))).encode()).decode()
 
@@ -578,5 +589,6 @@ class RefundTransaction(Transaction):
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
+            network=self.network,
             type="bytom_refund_unsigned"
         ))).encode()).decode()

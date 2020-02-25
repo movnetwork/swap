@@ -260,6 +260,7 @@ class FundTransaction(Transaction):
             fee=self.fee,
             raw=self.transaction.hexlify(),
             outputs=outputs,
+            network=self.network,
             type="bitcoin_fund_unsigned"
         ))).encode()).decode()
 
@@ -306,7 +307,7 @@ class ClaimTransaction(Transaction):
         :type wallet: bitcoin.wallet.Wallet
         :param amount: bitcoin amount to withdraw.
         :type amount: int
-        :param secret: secret passphrase.
+        :param secret: secret key.
         :type secret: str
         :param locktime: bitcoin transaction lock time, defaults to 0.
         :type locktime: int
@@ -417,6 +418,7 @@ class ClaimTransaction(Transaction):
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
             secret=self.secret,
+            network=self.network,
             type="bitcoin_claim_unsigned"
         ))).encode()).decode()
 
@@ -573,5 +575,6 @@ class RefundTransaction(Transaction):
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
             secret=self.secret,
+            network=self.network,
             type="bitcoin_refund_unsigned"
         ))).encode()).decode()
