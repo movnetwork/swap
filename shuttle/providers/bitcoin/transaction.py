@@ -286,16 +286,17 @@ class ClaimTransaction(Transaction):
     # Initialization claim transaction
     def __init__(self, network="testnet", version=2):
         super().__init__(network=network, version=version)
-        # Initialization transaction_id, wallet and amount
-        self.transaction_id, self.wallet, self.amount = None, None, None
+        # Initialization transaction_id, wallet, secret and amount
+        self.transaction_id, self.wallet, self.amount, self.secret = \
+            None, None, None, None
         # Getting transaction detail by id
         self.transaction_detail = None
         # Transaction detail outputs (HTLC and Sender account)
         self.htlc = None
-        self.sender_account: Wallet = None
+        self.sender_account = None
 
     # Building transaction
-    def build_transaction(self, transaction_id, wallet, amount, locktime=0):
+    def build_transaction(self, transaction_id, wallet, amount, secret=None, locktime=0):
         """
         Build bitcoin claim transaction.
 
@@ -305,6 +306,8 @@ class ClaimTransaction(Transaction):
         :type wallet: bitcoin.wallet.Wallet
         :param amount: bitcoin amount to withdraw.
         :type amount: int
+        :param secret: secret passphrase.
+        :type secret: str
         :param locktime: bitcoin transaction lock time, defaults to 0.
         :type locktime: int
         :returns: ClaimTransaction -- bitcoin claim transaction instance.
@@ -320,8 +323,10 @@ class ClaimTransaction(Transaction):
             raise TypeError("invalid amount instance, only takes string type")
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+        if secret is not None and not isinstance(secret, str):
+            raise TypeError("invalid secret instance, only takes string type")
         # Setting transaction_id and wallet
-        self.transaction_id, self.wallet = transaction_id, wallet
+        self.transaction_id, self.wallet, self.secret = transaction_id, wallet, secret
         # Getting transaction detail by id
         self.transaction_detail = get_transaction_detail(self.transaction_id)
         # Checking transaction outputs
@@ -411,6 +416,7 @@ class ClaimTransaction(Transaction):
             outputs=outputs,
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
+            secret=self.secret,
             type="bitcoin_claim_unsigned"
         ))).encode()).decode()
 
@@ -438,15 +444,16 @@ class RefundTransaction(Transaction):
     def __init__(self, version=2, network="testnet"):
         super().__init__(version=version, network=network)
         # Initialization transaction_id, wallet and amount
-        self.transaction_id, self.wallet, self.amount = None, None, None
+        self.transaction_id, self.wallet, self.amount, self.secret = \
+            None, None, None, None
         # Getting transaction detail by id
         self.transaction_detail = None
         # Transaction detail outputs (HTLC and Sender account)
         self.htlc = None
-        self.sender_account: Wallet = None
+        self.sender_account = None
 
     # Building transaction
-    def build_transaction(self, transaction_id, wallet, amount, locktime=0):
+    def build_transaction(self, transaction_id, wallet, amount, secret=None, locktime=0):
         """
         Build bitcoin refund transaction.
 
@@ -456,6 +463,8 @@ class RefundTransaction(Transaction):
         :type wallet: bitcoin.wallet.Wallet
         :param amount: bitcoin amount to withdraw.
         :type amount: int
+        :param secret: secret passphrase.
+        :type secret: str
         :param locktime: bitcoin transaction lock time, defaults to 0.
         :type locktime: int
         :returns: RefundTransaction -- bitcoin refund transaction instance.
@@ -471,8 +480,10 @@ class RefundTransaction(Transaction):
             raise TypeError("invalid amount instance, only takes string type")
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+        if secret is not None and not isinstance(secret, str):
+            raise TypeError("invalid secret instance, only takes string type")
         # Setting transaction_id and wallet
-        self.transaction_id, self.wallet = transaction_id, wallet
+        self.transaction_id, self.wallet, self.secret = transaction_id, wallet, secret
         # Getting transaction detail by id
         self.transaction_detail = get_transaction_detail(self.transaction_id)
         # Checking transaction outputs
@@ -561,5 +572,6 @@ class RefundTransaction(Transaction):
             outputs=outputs,
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
+            secret=self.secret,
             type="bitcoin_refund_unsigned"
         ))).encode()).decode()
