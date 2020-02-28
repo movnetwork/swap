@@ -51,6 +51,7 @@ class Wallet:
 
         # Wallet info's
         self._public_key = None
+        self._private_key = None
         self._xpublic_key = None
         self._program = None
         self._address = None
@@ -77,6 +78,7 @@ class Wallet:
             .master_key_from_mnemonic(mnemonic=mnemonic)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
+        self._private_key = self.bytom.private_key()
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
@@ -102,6 +104,7 @@ class Wallet:
             .master_key_from_seed(seed=seed)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
+        self._private_key = self.bytom.private_key()
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
@@ -127,6 +130,7 @@ class Wallet:
             .master_key_from_entropy(entropy=entropy)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
+        self._private_key = self.bytom.private_key()
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
@@ -152,6 +156,7 @@ class Wallet:
             .master_key_from_xprivate(xprivate=xprivate)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
+        self._private_key = self.bytom.private_key()
         self._public_key = self.bytom.public_key()
         self._program = self.bytom.program()
         self._address = self.bytom.address(network=self.network)
@@ -335,6 +340,22 @@ class Wallet:
             raise Exception("you can't get expand xprivate key from xpublic | public key")
         return self.bytom.expand_xprivate_key()
 
+    # Getting private key
+    def private_key(self):
+        """
+        Get bytom wallet private key.
+
+        :return: str -- bytom private key.
+
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.private_key()
+        "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
+        """
+
+        return self._private_key
+
     # Getting public key
     def public_key(self):
         """
@@ -346,7 +367,7 @@ class Wallet:
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> wallet.public_key()
-        "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
+        "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
         """
 
         return self._public_key
