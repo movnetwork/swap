@@ -178,11 +178,14 @@ class FundSignature(Signature):
         if not self.type == "bytom_fund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
-        for unsigned_datas in self.unsigned():
+        for unsigned in self.unsigned():
             signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            wallet.from_path(unsigned["path"])
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
+            wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
             raw=self.raw(),
             hash=self.hash(),
@@ -233,8 +236,10 @@ class ClaimSignature(Signature):
         if not self.type == "bytom_claim_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet, secret = solver.solve()
-        for index, unsigned_datas in enumerate(self.unsigned()):
+        for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            wallet.from_path(unsigned["path"])
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(bytearray(secret).hex())
@@ -243,6 +248,7 @@ class ClaimSignature(Signature):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
+            wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
             raw=self.raw(),
             hash=self.hash(),
@@ -293,8 +299,10 @@ class RefundSignature(Signature):
         if not self.type == "bytom_refund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
-        for index, unsigned_datas in enumerate(self.unsigned()):
+        for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            wallet.from_path(unsigned["path"])
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
@@ -302,6 +310,7 @@ class RefundSignature(Signature):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
+            wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
             raw=self.raw(),
             hash=self.hash(),

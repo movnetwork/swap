@@ -114,29 +114,30 @@ class Transaction:
             raise ValueError("transaction is none, build transaction first.")
         return self.transaction["raw_transaction"]
 
-    def unsigned(self, for_raw=False):
+    def unsigned(self, detail=True):
         unsigned_datas = list()
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
         bytom_hd_wallet = BytomHDWallet()
         for signing_instruction in self.transaction["signing_instructions"]:
-            if for_raw:
-                unsigned_datas.append(signing_instruction["sign_data"])
-                continue
             unsigned_data = dict(datas=signing_instruction["sign_data"])
             if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
-                program = bytom_hd_wallet.program(public=signing_instruction["pubkey"])
-                address = bytom_hd_wallet.address(program=program, network=self.network)
                 unsigned_data.setdefault("public_key", signing_instruction["pubkey"])
-                unsigned_data.setdefault("program", program)
-                unsigned_data.setdefault("address", address)
+                if detail:
+                    program = bytom_hd_wallet.program(public=signing_instruction["pubkey"])
+                    address = bytom_hd_wallet.address(program=program, network=self.network)
+                    unsigned_data.setdefault("program", program)
+                    unsigned_data.setdefault("address", address)
+                else:
+                    unsigned_data.setdefault("network", self.network)
             else:
                 unsigned_data.setdefault("public_key", None)
                 unsigned_data.setdefault("program", None)
                 unsigned_data.setdefault("address", None)
             if "derivation_path" in signing_instruction and signing_instruction["derivation_path"]:
                 path = bytom_hd_wallet.get_path(indexes=signing_instruction["derivation_path"])
-                unsigned_data.setdefault("indexes", signing_instruction["derivation_path"])
+                if detail:
+                    unsigned_data.setdefault("indexes", signing_instruction["derivation_path"])
                 unsigned_data.setdefault("path", path)
             else:
                 unsigned_data.setdefault("indexes", None)
@@ -265,9 +266,11 @@ class FundTransaction(Transaction):
         for unsigned in self.unsigned():
             signed_data = list()
             unsigned_datas = unsigned["datas"]
+            wallet.from_path(unsigned["path"])
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
+            wallet.indexes = list()
         return self
 
     def unsigned_raw(self):
@@ -289,7 +292,7 @@ class FundTransaction(Transaction):
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
             tx=dict(
-                unsigned=self.unsigned(for_raw=True),
+                unsigned=self.unsigned(detail=False),
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
@@ -412,6 +415,7 @@ class ClaimTransaction(Transaction):
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
+            wallet.from_path(unsigned["path"])
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(bytearray(_secret).hex())
@@ -420,6 +424,7 @@ class ClaimTransaction(Transaction):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
+            wallet.indexes = list()
         return self
 
     def unsigned_raw(self):
@@ -441,7 +446,7 @@ class ClaimTransaction(Transaction):
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
             tx=dict(
-                unsigned=self.unsigned(for_raw=True),
+                unsigned=self.unsigned(detail=False),
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
@@ -557,6 +562,7 @@ class RefundTransaction(Transaction):
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
+            wallet.from_path(unsigned["path"])
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
@@ -564,6 +570,7 @@ class RefundTransaction(Transaction):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
+            wallet.indexes = list()
         return self
 
     def unsigned_raw(self):
@@ -585,7 +592,7 @@ class RefundTransaction(Transaction):
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
             tx=dict(
-                unsigned=self.unsigned(for_raw=True),
+                unsigned=self.unsigned(detail=False),
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
