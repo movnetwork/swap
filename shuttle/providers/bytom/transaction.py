@@ -6,7 +6,8 @@ from base64 import b64encode, b64decode
 import json
 
 from .rpc import build_transaction
-from .utils import spend_wallet_action, control_program_action, spend_utxo_action, control_address_action
+from .utils import spend_wallet_action, control_program_action, \
+    find_contract_utxo_id, spend_utxo_action, control_address_action
 from .solver import FundSolver, ClaimSolver, RefundSolver
 from .htlc import HTLC
 from .wallet import Wallet
@@ -330,18 +331,21 @@ class ClaimTransaction(Transaction):
         # Init secret key
         self.secret = None
 
-    def build_transaction(self, transaction_id, wallet, amount, asset=bytom["BTM_asset"], secret=None):
+    def build_transaction(self, wallet, amount, asset=bytom["BTM_asset"],
+                          transaction_id=None, utxo_id=None, secret=None):
         """
         Build bytom claim transaction.
 
-        :param transaction_id: bytom fund transaction id to redeem.
-        :type transaction_id: str
         :param wallet: bytom recipient wallet.
         :type wallet: bytom.wallet.Wallet
         :param amount: bytom amount to withdraw.
         :type amount: int
         :param asset: bytom asset id, defaults to BTM asset.
         :type asset: str
+        :param transaction_id: bytom fund transaction id to redeem, default to None.
+        :type transaction_id: str
+        :param utxo_id: bytom htlc utxo id, default to None..
+        :type utxo_id: str
         :param secret: secret key.
         :type secret: str
         :returns: ClaimTransaction -- bytom claim transaction instance.
@@ -352,9 +356,15 @@ class ClaimTransaction(Transaction):
         <shuttle.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
+        # Checking transaction and utxo id
+        if not transaction_id and not utxo_id:
+            raise ValueError("transaction or utxo id are required")
+
         # Checking build transaction arguments instance
-        if not isinstance(transaction_id, str):
+        if transaction_id and not isinstance(transaction_id, str):
             raise TypeError("invalid transaction id instance, only takes bytom string type")
+        if utxo_id and not isinstance(utxo_id, str):
+            raise TypeError("invalid utxo id instance, only takes bytom string type")
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes bytom Wallet class")
         if not isinstance(amount, int):
@@ -364,12 +374,17 @@ class ClaimTransaction(Transaction):
         if secret is not None and not isinstance(secret, str):
             raise TypeError("invalid secret instance, only takes string type")
 
+        if transaction_id:
+            # Finding htlc utxo id.
+            utxo_id = find_contract_utxo_id(
+                tx_id=transaction_id, network=self.network)
+
         # Actions
         inputs, outputs = list(), list()
         # Input action
         inputs.append(
             spend_utxo_action(
-                utxo=transaction_id
+                utxo=utxo_id
             )
         )
         # Output action
@@ -482,18 +497,21 @@ class RefundTransaction(Transaction):
     def __init__(self, network="testnet"):
         super().__init__(network)
 
-    def build_transaction(self, transaction_id, wallet, amount, asset=bytom["BTM_asset"]):
+    def build_transaction(self, wallet, amount, asset=bytom["BTM_asset"],
+                          transaction_id=None, utxo_id=None):
         """
         Build bytom refund transaction.
 
-        :param transaction_id: bytom fund transaction id to redeem.
-        :type transaction_id: str
         :param wallet: bytom sender wallet.
         :type wallet: bytom.wallet.Wallet
         :param amount: bytom amount to withdraw.
         :type amount: int
         :param asset: bytom asset id, defaults to BTM asset.
         :type asset: str
+        :param transaction_id: bytom fund transaction id to redeem, defaults to None.
+        :type transaction_id: str
+        :param utxo_id: bytom htlc utxo id, default to None..
+        :type utxo_id: str
         :returns: RefundTransaction -- bytom refund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
@@ -502,9 +520,15 @@ class RefundTransaction(Transaction):
         <shuttle.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
+        # Checking transaction and utxo id
+        if not transaction_id and not utxo_id:
+            raise ValueError("transaction or utxo id are required")
+
         # Checking build transaction arguments instance
-        if not isinstance(transaction_id, str):
+        if transaction_id and not isinstance(transaction_id, str):
             raise TypeError("invalid transaction id instance, only takes bytom string type")
+        if utxo_id and not isinstance(utxo_id, str):
+            raise TypeError("invalid utxo id instance, only takes bytom string type")
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes bytom Wallet class")
         if not isinstance(amount, int):
@@ -512,12 +536,17 @@ class RefundTransaction(Transaction):
         if not isinstance(asset, str):
             raise TypeError("invalid amount instance, only takes string type")
 
+        if transaction_id:
+            # Finding htlc utxo id.
+            utxo_id = find_contract_utxo_id(
+                tx_id=transaction_id, network=self.network)
+
         # Actions
         inputs, outputs = list(), list()
         # Input action
         inputs.append(
             spend_utxo_action(
-                utxo=transaction_id
+                utxo=utxo_id
             )
         )
         # Output action
