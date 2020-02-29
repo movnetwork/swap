@@ -2,6 +2,8 @@
 
 import ed25519
 
+from .rpc import get_transaction
+
 
 def sign(private_key_str, message_str):
     signing_key = ed25519.SigningKey(bytes.fromhex(private_key_str))
@@ -19,6 +21,31 @@ def verify(public_key_str, signature_str, message_str):
     except ed25519.BadSignatureError:
         result = False
     return result
+
+
+def find_contract_utxo_id(tx_id, network):
+    """
+    Find smart contract UTXO id.
+
+    :param tx_id: bytom transaction id or hash.
+    :type tx_id: str
+    :param network: bytom network.
+    :type network: str
+    :returns: str -- UTXO id.
+
+    >>> from shuttle.providers.bytom.utils import find_contract_utxo_id
+    >>> find_contract_utxo_id(bytom_transaction_id, "mainnet")
+    "9059cd0d03e4d4fab70a415169a45be47583f7240115c36cf298d6f261c0a1ac"
+    """
+
+    utxo_id = None
+    contract_transaction = get_transaction(tx_id=tx_id, network=network)
+    contract_outputs = contract_transaction["outputs"]
+    for contract_output in contract_outputs:
+        if contract_output["address"] == "smart contract":
+            utxo_id = contract_output["utxo_id"]
+            break
+    return utxo_id
 
 
 def spend_utxo_action(utxo):
