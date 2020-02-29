@@ -20,9 +20,20 @@ NETWORK = "solonet"  # mainnet or testnet
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select bytom transaction raw signer.")
 @click.option("-xp", "--xprivate", type=str, required=True, help="Set bytom xprivate key.")
-@click.option("-u", "--unsigned", type=str, required=True, help="Set bytom unsigned transaction raw.")
+@click.option("-u", "--unsigned", type=str, required=True,
+              help="Set bytom unsigned transaction raw.")
+@click.option("-ac", "--account", type=int, default=1,
+              show_default=True, help="Set bytom derivation from account")
+@click.option("-c", "--change", type=bool, default=False,
+              show_default=True, help="Set bytom derivation from change")
+@click.option("-ad", "--address", type=int, default=1,
+              show_default=True, help="Set bytom derivation from address")
 @click.option("-s", "--secret", type=str, default=str(), help="Set secret key.")
-def sign(xprivate, unsigned, secret):
+@click.option("-p", "--path", type=str, default=None,
+              help="Set bytom derivation from path")
+@click.option("-i", "--indexes", type=list, default=None,
+              help="Set bytom derivation from indexes")
+def sign(xprivate, unsigned, account, change, address, secret, path, indexes):
     """
     SHUTTLE BYTOM SIGN
     """
@@ -47,7 +58,8 @@ def sign(xprivate, unsigned, secret):
 
     if transaction["type"] == "bytom_fund_unsigned":
         # Fund HTLC solver
-        fund_solver = FundSolver(xprivate_key=xprivate)
+        fund_solver = FundSolver(xprivate_key=xprivate, account=account,
+                                 change=change, address=address, path=path, indexes=indexes)
         try:
             # Fund signature
             fund_signature = FundSignature(network=transaction["network"])
@@ -61,15 +73,13 @@ def sign(xprivate, unsigned, secret):
         if secret != str():
             _secret = secret
         elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo(warning("secret key is empty, use -s or --secret \"Hello Meheret!\""))
+            click.echo(warning("secret key is empty, use -s or --secret \"Hello Meheret!\", default to None"))
             _secret = str()
         else:
             _secret = transaction["secret"]
         # Claim HTLC solver
-        claim_solver = ClaimSolver(
-            secret=_secret,
-            xprivate_key=xprivate
-        )
+        claim_solver = ClaimSolver(secret=_secret, xprivate_key=xprivate, account=account,
+                                   change=change, address=address, path=path, indexes=indexes)
         try:
             # Claim signature
             claim_signature = ClaimSignature(network=transaction["network"])
@@ -80,18 +90,9 @@ def sign(xprivate, unsigned, secret):
             sys.exit()
 
     elif transaction["type"] == "bytom_refund_unsigned":
-        if secret != str():
-            _secret = secret
-        elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo(warning("secret key is empty, use -s or --secret \"Hello Meheret!\""))
-            _secret = str()
-        else:
-            _secret = transaction["secret"]
         # Refunding HTLC solver
-        refund_solver = RefundSolver(
-            secret=_secret,
-            xprivate_key=xprivate
-        )
+        refund_solver = RefundSolver(xprivate_key=xprivate, account=account,
+                                     change=change, address=address, path=path, indexes=indexes)
         try:
             # Refund signature
             refund_signature = RefundSignature(network=transaction["network"])
