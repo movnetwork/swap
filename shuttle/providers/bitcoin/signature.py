@@ -199,7 +199,10 @@ class FundSignature(Signature):
                       script_pubkey=Script.unhexlify(output["script"])))
         self.transaction.spend(outputs, [solver.solve() for _ in outputs])
         self.signed = b64encode(str(json.dumps(dict(
-            raw=self.transaction.hexlify(), type="bitcoin_fund_signed"
+            raw=self.transaction.hexlify(),
+            fee=tx_raw["fee"],
+            network=tx_raw["network"],
+            type="bitcoin_fund_signed"
         ))).encode()).decode()
         return self
 
@@ -263,7 +266,10 @@ class ClaimSignature(Signature):
             P2shSolver(htlc.script, solver.solve())
         ])
         self.signed = b64encode(str(json.dumps(dict(
-            raw=self.transaction.hexlify(), type="bitcoin_claim_signed"
+            raw=self.transaction.hexlify(),
+            fee=tx_raw["fee"],
+            network=tx_raw["network"],
+            type="bitcoin_claim_signed"
         ))).encode()).decode()
         return self
 
@@ -327,6 +333,9 @@ class RefundSignature(Signature):
             P2shSolver(htlc.script, solver.solve())
         ])
         self.signed = b64encode(str(json.dumps(dict(
-            raw=self.transaction.hexlify(), type="bitcoin_refund_signed"
+            raw=self.transaction.hexlify(),
+            fee=tx_raw["fee"],
+            network=tx_raw["network"],
+            type="bitcoin_refund_signed"
         ))).encode()).decode()
         return self
