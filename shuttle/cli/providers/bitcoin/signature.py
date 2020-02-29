@@ -30,6 +30,9 @@ def sign(private, unsigned, secret, version):
     """
     SHUTTLE BITCOIN SIGN
     """
+    if len(private) != 64:
+        click.echo(error("invalid bitcoin private key"))
+        sys.exit()
 
     unsigned_raw = str(unsigned + "=" * (-len(unsigned) % 4))
     try:
@@ -48,9 +51,6 @@ def sign(private, unsigned, secret, version):
 
     if transaction["type"] == "bitcoin_fund_unsigned":
         # Fund HTLC solver
-        if len(private) != 64:
-            click.echo(error("invalid bitcoin private key"))
-            sys.exit()
         fund_solver = FundSolver(private_key=private)
         try:
             # Fund signature
