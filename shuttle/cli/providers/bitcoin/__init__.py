@@ -5,6 +5,7 @@
 from shuttle.cli import click
 
 from .signature import sign
+from .decode import decode
 
 
 @click.group("bitcoin", options_metavar="[OPTIONS]",
@@ -18,3 +19,5 @@ def bitcoin():
 
 # Adding bitcoin sign
 bitcoin.add_command(sign)
+# Adding bitcoin decoder
+bitcoin.add_command(decode)
