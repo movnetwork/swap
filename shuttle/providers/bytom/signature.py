@@ -178,10 +178,16 @@ class FundSignature(Signature):
         if not self.type == "bytom_fund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
+        wallet.indexes = list()
         for unsigned in self.unsigned():
             signed_data = list()
             unsigned_datas = unsigned["datas"]
-            wallet.from_path(unsigned["path"])
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif solver.path:
+                wallet.from_path(solver.path)
+            elif solver.indexes:
+                wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
@@ -235,14 +241,20 @@ class ClaimSignature(Signature):
         self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw["tx"]
         if not self.type == "bytom_claim_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
-        wallet, secret = solver.solve()
+        wallet = solver.solve()
+        wallet.indexes = list()
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
-            wallet.from_path(unsigned["path"])
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif solver.path:
+                wallet.from_path(solver.path)
+            elif solver.indexes:
+                wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 if index == 0:
-                    signed_data.append(bytearray(secret).hex())
+                    signed_data.append(bytearray(solver.secret).hex())
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str())
                 else:
@@ -299,10 +311,16 @@ class RefundSignature(Signature):
         if not self.type == "bytom_refund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
+        wallet.indexes = list()
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
-            wallet.from_path(unsigned["path"])
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif solver.path:
+                wallet.from_path(solver.path)
+            elif solver.indexes:
+                wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))

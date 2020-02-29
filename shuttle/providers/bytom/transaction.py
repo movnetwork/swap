@@ -132,16 +132,20 @@ class Transaction:
                 else:
                     unsigned_data.setdefault("network", self.network)
             else:
-                unsigned_data.setdefault("public_key", None)
-                unsigned_data.setdefault("program", None)
-                unsigned_data.setdefault("address", None)
+                if detail:
+                    unsigned_data.setdefault("public_key", None)
+                    unsigned_data.setdefault("program", None)
+                    unsigned_data.setdefault("address", None)
+                else:
+                    unsigned_data.setdefault("network", self.network)
             if "derivation_path" in signing_instruction and signing_instruction["derivation_path"]:
                 path = bytom_hd_wallet.get_path(indexes=signing_instruction["derivation_path"])
                 if detail:
                     unsigned_data.setdefault("indexes", signing_instruction["derivation_path"])
                 unsigned_data.setdefault("path", path)
             else:
-                unsigned_data.setdefault("indexes", None)
+                if detail:
+                    unsigned_data.setdefault("indexes", None)
                 unsigned_data.setdefault("path", None)
             # Append unsigned datas
             unsigned_datas.append(unsigned_data)
@@ -264,10 +268,16 @@ class FundTransaction(Transaction):
         if not isinstance(solver, FundSolver):
             raise TypeError("Solver must be FundSolver format.")
         wallet = solver.solve()
+        wallet.indexes = list()
         for unsigned in self.unsigned():
             signed_data = list()
             unsigned_datas = unsigned["datas"]
-            wallet.from_path(unsigned["path"])
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif solver.path:
+                wallet.from_path(solver.path)
+            elif solver.indexes:
+                wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
@@ -378,6 +388,8 @@ class ClaimTransaction(Transaction):
             # Finding htlc utxo id.
             utxo_id = find_contract_utxo_id(
                 tx_id=transaction_id, network=self.network)
+            if utxo_id is None:
+                raise ValueError("invalid transaction id, there is no smart contact")
 
         # Actions
         inputs, outputs = list(), list()
@@ -425,15 +437,21 @@ class ClaimTransaction(Transaction):
         """
 
         if not isinstance(solver, ClaimSolver):
-            raise TypeError("Solver must be ClaimSolver format.")
-        wallet, _secret = solver.solve()
+            raise TypeError("solver must be ClaimSolver format.")
+        wallet = solver.solve()
+        wallet.indexes = list()
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
-            wallet.from_path(unsigned["path"])
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif solver.path:
+                wallet.from_path(solver.path)
+            elif solver.indexes:
+                wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 if index == 0:
-                    signed_data.append(bytearray(_secret).hex())
+                    signed_data.append(bytearray(solver.secret).hex())
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str())
                 else:
@@ -540,6 +558,8 @@ class RefundTransaction(Transaction):
             # Finding htlc utxo id.
             utxo_id = find_contract_utxo_id(
                 tx_id=transaction_id, network=self.network)
+            if utxo_id is None:
+                raise ValueError("invalid transaction id, there is no smart contact")
 
         # Actions
         inputs, outputs = list(), list()
@@ -586,12 +606,18 @@ class RefundTransaction(Transaction):
         """
 
         if not isinstance(solver, RefundSolver):
-            raise TypeError("Solver must be RefundSolver format.")
+            raise TypeError("solver must be RefundSolver format.")
         wallet = solver.solve()
+        wallet.indexes = list()
         for index, unsigned in enumerate(self.unsigned()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
-            wallet.from_path(unsigned["path"])
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif solver.path:
+                wallet.from_path(solver.path)
+            elif solver.indexes:
+                wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
