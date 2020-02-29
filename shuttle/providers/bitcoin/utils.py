@@ -1,13 +1,48 @@
 #!/usr/bin/env python3
 
 from btcpy.structs.script import P2pkhScript, P2shScript
-from btcpy.structs.transaction import Sequence
+from btcpy.structs.transaction import Sequence, MutableTransaction
 from btcpy.structs.address import Address
+from btcpy.setup import setup
+from base64 import b64encode, b64decode
 
 import cryptos
 import hashlib
+import json
+import binascii
 
 from ...utils.exceptions import AddressError, NetworkError
+
+
+def decode_transaction_raw(tx_raw):
+    """
+    Decode bitcoin transaction raw.
+
+    :param tx_raw: bitcoin transaction raw.
+    :type tx_raw: str
+    :returns: dict -- decoded bitcoin transaction.
+
+    >>> from shuttle.providers.bitcoin.utils import decode_transaction_raw
+    >>> decode_transaction_raw(transaction_raw)
+    {...}
+    """
+
+    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    try:
+        tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
+        raise ValueError("invalid bitcoin transaction raw")
+    if "type" not in tx_raw and not str(tx_raw["type"]).startswith("bitcoin"):
+        raise ValueError("invalid bitcoin transaction raw")
+    # Setting testnet
+    setup(tx_raw["network"], strict=True)
+    tx = MutableTransaction.unhexlify(tx_raw["raw"])
+    return dict(
+        fee=tx_raw["fee"],
+        type=tx_raw["type"],
+        tx=tx.to_json(),
+        network=tx_raw["network"]
+    )
 
 
 # Checking address
