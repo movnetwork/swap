@@ -18,14 +18,14 @@ setup(
     description="Cross-chain atomic swaps between the networks of two cryptocurrencies.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    license="AGPL-3.0",
+    license=shuttle.__license__,
     author=shuttle.__author__,
     author_email=shuttle.__email__,
     url="https://github.com/meherett/shuttle",
     packages=find_packages(),
-    keywords=['shuttle'],
+    keywords=["shuttle"],
     entry_points={
-        'console_scripts': ["shuttle=shuttle.cli.__main__:main"]
+        "console_scripts": ["shuttle=shuttle.cli.__main__:main"]
     },
     python_requires=">=3.6,<4",
     install_requires=requirements,
