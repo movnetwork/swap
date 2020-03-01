@@ -20,8 +20,8 @@ setup(
     long_description_content_type="text/markdown",
     license="AGPL-3.0",
     author=shuttle.__author__,
-    author_email=shuttle.__author_email__,
-    url="https://github.com/mehetett/pyshuttle",
+    author_email=shuttle.__email__,
+    url="https://github.com/meherett/shuttle",
     packages=find_packages(),
     keywords=['shuttle'],
     entry_points={
