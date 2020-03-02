@@ -23,16 +23,16 @@ NETWORK = "solonet"  # mainnet or testnet
 @click.option("-u", "--unsigned", type=str, required=True,
               help="Set bytom unsigned transaction raw.")
 @click.option("-ac", "--account", type=int, default=1,
-              show_default=True, help="Set bytom derivation from account")
+              show_default=True, help="Set bytom derivation from account.")
 @click.option("-c", "--change", type=bool, default=False,
-              show_default=True, help="Set bytom derivation from change")
+              show_default=True, help="Set bytom derivation from change.")
 @click.option("-ad", "--address", type=int, default=1,
-              show_default=True, help="Set bytom derivation from address")
+              show_default=True, help="Set bytom derivation from address.")
 @click.option("-s", "--secret", type=str, default=str(), help="Set secret key.")
 @click.option("-p", "--path", type=str, default=None,
-              help="Set bytom derivation from path")
+              help="Set bytom derivation from path.")
 @click.option("-i", "--indexes", type=list, default=None,
-              help="Set bytom derivation from indexes")
+              help="Set bytom derivation from indexes.")
 def sign(xprivate, unsigned, account, change, address, secret, path, indexes):
     """
     SHUTTLE BYTOM SIGN
