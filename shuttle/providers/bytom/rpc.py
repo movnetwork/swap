@@ -175,24 +175,26 @@ def submit_payment(guid, raw_transaction, signatures,
 
 
 # Decode raw transaction
-def decode_raw_transaction(raw_tx, network="testnet", timeout=bytom["timeout"]):
+def decode_transaction_raw(tx_raw, network="testnet", timeout=bytom["timeout"]):
     """
     Get decoded transaction raw.
 
-    :param raw_tx: bytom transaction raw.
-    :type raw_tx: str
+    :param tx_raw: bytom transaction raw.
+    :type tx_raw: str
     :param network: bytom network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
     :returns: dict -- bytom decoded transaction raw.
 
-    >>> from shuttle.providers.bytom.rpc import decode_raw_transaction
-    >>> decode_raw_transaction(transaction_raw, "testnet")
+    >>> from shuttle.providers.bytom.rpc import decode_transaction_raw
+    >>> decode_transaction_raw(transaction_raw, "testnet")
     {...}
     """
     
     url = str(bytom[network]["bytom"]) + "/decode-raw-transaction"
-    response = requests.post(url=url, data=json.dumps(dict(raw_transaction=raw_tx)),
+    response = requests.post(url=url, data=json.dumps(dict(raw_transaction=tx_raw)),
                              headers=headers, timeout=timeout)
-    return response.json()
+    if response.status_code == 400:
+        raise APIError(response.json()["msg"])
+    return response.json()["data"]
