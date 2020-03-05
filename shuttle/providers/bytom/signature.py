@@ -6,6 +6,7 @@ import json
 
 from .solver import ClaimSolver, FundSolver, RefundSolver
 from .transaction import Transaction
+from .rpc import decode_transaction_raw
 
 
 # Signature
@@ -53,7 +54,7 @@ class Signature(Transaction):
     #     """
     #     if self.transaction is None:
     #         raise ValueError("transaction is none, build transaction first.")
-    #     return self.transaction["tx"]
+    #     return decode_transaction_raw(tx_raw=self.transaction["raw_transaction"])
 
     # Transaction raw
     def raw(self):
@@ -193,8 +194,9 @@ class FundSignature(Signature):
             self.signatures.append(signed_data)
             wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
+            fee=self.fee,
             raw=self.raw(),
-            hash=self.hash(),
+            network=self.network,
             signatures=self.signatures,
             type="bytom_fund_signed"
         ))).encode()).decode()
@@ -262,8 +264,9 @@ class ClaimSignature(Signature):
             self.signatures.append(signed_data)
             wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
+            fee=self.fee,
             raw=self.raw(),
-            hash=self.hash(),
+            network=self.network,
             signatures=self.signatures,
             type="bytom_claim_signed"
         ))).encode()).decode()
@@ -330,8 +333,9 @@ class RefundSignature(Signature):
             self.signatures.append(signed_data)
             wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
+            fee=self.fee,
             raw=self.raw(),
-            hash=self.hash(),
+            network=self.network,
             signatures=self.signatures,
             type="bytom_refund_signed"
         ))).encode()).decode()
