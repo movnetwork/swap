@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
-import ed25519
+from base64 import b64encode, b64decode
 
-from .rpc import get_transaction
+import ed25519
+import json
+import binascii
+
+from .rpc import get_transaction, decode_transaction_raw as dtr
 
 
 def sign(private_key_str, message_str):
@@ -46,6 +50,35 @@ def find_contract_utxo_id(tx_id, network):
             utxo_id = contract_output["utxo_id"]
             break
     return utxo_id
+
+
+def decode_transaction_raw(tx_raw):
+    """
+    Decode bytom transaction raw.
+
+    :param tx_raw: bytom transaction raw.
+    :type tx_raw: str
+    :returns: dict -- decoded bytom transaction.
+
+    >>> from shuttle.providers.bytom.utils import decode_transaction_raw
+    >>> decode_transaction_raw(transaction_raw)
+    {...}
+    """
+
+    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    try:
+        tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
+        raise ValueError("invalid bytom transaction raw")
+    if "type" not in tx_raw and not str(tx_raw["type"]).startswith("bytom"):
+        raise ValueError("invalid bytom transaction raw")
+    return dict(
+        fee=tx_raw["fee"],
+        type=tx_raw["type"],
+        tx=dtr(tx_raw=tx_raw["raw"]),
+        signatures=tx_raw["signatures"],
+        network=tx_raw["network"]
+    )
 
 
 def spend_utxo_action(utxo):
