@@ -5,7 +5,7 @@ from base64 import b64encode, b64decode
 
 import json
 
-from .rpc import build_transaction
+from .rpc import build_transaction, decode_transaction_raw
 from .utils import spend_wallet_action, control_program_action, \
     find_contract_utxo_id, spend_utxo_action, control_address_action
 from .solver import FundSolver, ClaimSolver, RefundSolver
@@ -98,7 +98,7 @@ class Transaction:
         """
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return self.transaction["tx"]
+        return decode_transaction_raw(tx_raw=self.transaction["raw_transaction"])
 
     # Transaction raw
     def raw(self):
@@ -307,6 +307,7 @@ class FundTransaction(Transaction):
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
+            signatures=list(),
             network=self.network,
             type="bytom_fund_unsigned"
         ))).encode()).decode()
@@ -485,6 +486,7 @@ class ClaimTransaction(Transaction):
             ),
             secret=self.secret,
             network=self.network,
+            signatures=list(),
             type="bytom_claim_unsigned"
         ))).encode()).decode()
 
@@ -651,6 +653,7 @@ class RefundTransaction(Transaction):
                 hash=self.transaction["tx"]["hash"],
                 raw_transaction=self.transaction["raw_transaction"]
             ),
+            signatures=list(),
             network=self.network,
             type="bytom_refund_unsigned"
         ))).encode()).decode()
