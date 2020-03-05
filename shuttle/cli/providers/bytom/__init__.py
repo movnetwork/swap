@@ -5,6 +5,7 @@
 from shuttle.cli import click
 
 from .signature import sign
+from .decode import decode
 
 
 @click.group("bytom", options_metavar="[OPTIONS]",
@@ -18,3 +19,5 @@ def bytom():
 
 # Adding bytom sign
 bytom.add_command(sign)
+# Adding bytom decoder
+bytom.add_command(decode)
