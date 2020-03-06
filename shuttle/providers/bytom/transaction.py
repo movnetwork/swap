@@ -115,7 +115,7 @@ class Transaction:
             raise ValueError("transaction is none, build transaction first.")
         return self.transaction["raw_transaction"]
 
-    def unsigned(self, detail=True):
+    def unsigned(self, detail=False):
         unsigned_datas = list()
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
@@ -269,7 +269,7 @@ class FundTransaction(Transaction):
             raise TypeError("Solver must be FundSolver format.")
         wallet = solver.solve()
         wallet.indexes = list()
-        for unsigned in self.unsigned():
+        for unsigned in self.unsigned(detail=True):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -439,7 +439,7 @@ class ClaimTransaction(Transaction):
             raise TypeError("solver must be ClaimSolver format.")
         wallet = solver.solve()
         wallet.indexes = list()
-        for index, unsigned in enumerate(self.unsigned()):
+        for index, unsigned in enumerate(self.unsigned(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -607,7 +607,7 @@ class RefundTransaction(Transaction):
             raise TypeError("solver must be RefundSolver format.")
         wallet = solver.solve()
         wallet.indexes = list()
-        for index, unsigned in enumerate(self.unsigned()):
+        for index, unsigned in enumerate(self.unsigned(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
