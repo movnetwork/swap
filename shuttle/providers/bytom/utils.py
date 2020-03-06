@@ -76,6 +76,7 @@ def decode_transaction_raw(tx_raw):
         fee=tx_raw["fee"],
         type=tx_raw["type"],
         tx=dtr(tx_raw=tx_raw["raw"]),
+        unsigned=tx_raw["unsigned"],
         signatures=tx_raw["signatures"],
         network=tx_raw["network"]
     )
