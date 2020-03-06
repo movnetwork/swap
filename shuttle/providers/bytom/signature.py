@@ -54,7 +54,7 @@ class Signature(Transaction):
         """
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return decode_transaction_raw(tx_raw=self.transaction["raw_transaction"])
+        return decode_transaction_raw(tx_raw=self.transaction["raw"])
 
     # Transaction raw
     def raw(self):
@@ -69,7 +69,7 @@ class Signature(Transaction):
 
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return self.transaction["raw_transaction"]
+        return self.transaction["raw"]
 
     def type(self):
         """
@@ -173,9 +173,9 @@ class FundSignature(Signature):
         """
         
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "tx" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
+        if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
             raise ValueError("invalid unsigned bytom fund transaction raw")
-        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw["tx"]
+        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
         if not self.type == "bytom_fund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
@@ -196,6 +196,8 @@ class FundSignature(Signature):
         self.signed = b64encode(str(json.dumps(dict(
             fee=self.fee,
             raw=self.raw(),
+            hash=self.hash(),
+            unsigned=self.unsigned(),
             network=self.network,
             signatures=self.signatures,
             type="bytom_fund_signed"
@@ -238,9 +240,9 @@ class ClaimSignature(Signature):
         """
         
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "tx" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
+        if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
             raise ValueError("invalid unsigned bytom fund transaction raw")
-        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw["tx"]
+        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
         if not self.type == "bytom_claim_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
@@ -266,6 +268,8 @@ class ClaimSignature(Signature):
         self.signed = b64encode(str(json.dumps(dict(
             fee=self.fee,
             raw=self.raw(),
+            hash=self.hash(),
+            unsigned=self.unsigned(),
             network=self.network,
             signatures=self.signatures,
             type="bytom_claim_signed"
@@ -308,9 +312,9 @@ class RefundSignature(Signature):
         """
         
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "tx" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
+        if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
             raise ValueError("invalid unsigned bytom fund transaction raw")
-        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw["tx"]
+        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
         if not self.type == "bytom_refund_unsigned":
             raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
@@ -335,6 +339,8 @@ class RefundSignature(Signature):
         self.signed = b64encode(str(json.dumps(dict(
             fee=self.fee,
             raw=self.raw(),
+            hash=self.hash(),
+            unsigned=self.unsigned(),
             network=self.network,
             signatures=self.signatures,
             type="bytom_refund_signed"

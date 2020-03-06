@@ -302,11 +302,9 @@ class FundTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
-            tx=dict(
-                unsigned=self.unsigned(detail=False),
-                hash=self.transaction["tx"]["hash"],
-                raw_transaction=self.transaction["raw_transaction"]
-            ),
+            unsigned=self.unsigned(detail=False),
+            hash=self.transaction["tx"]["hash"],
+            raw=self.transaction["raw_transaction"],
             signatures=list(),
             network=self.network,
             type="bytom_fund_unsigned"
@@ -479,11 +477,9 @@ class ClaimTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
-            tx=dict(
-                unsigned=self.unsigned(detail=False),
-                hash=self.transaction["tx"]["hash"],
-                raw_transaction=self.transaction["raw_transaction"]
-            ),
+            unsigned=self.unsigned(detail=False),
+            hash=self.transaction["tx"]["hash"],
+            raw=self.transaction["raw_transaction"],
             secret=self.secret,
             network=self.network,
             signatures=list(),
@@ -648,11 +644,9 @@ class RefundTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
-            tx=dict(
-                unsigned=self.unsigned(detail=False),
-                hash=self.transaction["tx"]["hash"],
-                raw_transaction=self.transaction["raw_transaction"]
-            ),
+            unsigned=self.unsigned(detail=False),
+            hash=self.transaction["tx"]["hash"],
+            raw=self.transaction["raw_transaction"],
             signatures=list(),
             network=self.network,
             type="bytom_refund_unsigned"
