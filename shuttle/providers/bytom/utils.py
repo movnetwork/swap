@@ -5,8 +5,9 @@ from base64 import b64encode, b64decode
 import ed25519
 import json
 import binascii
+import datetime
 
-from .rpc import get_transaction, decode_transaction_raw as dtr
+from .rpc import get_transaction, decode_tx_raw, submit_payment
 
 
 def sign(private_key_str, message_str):
@@ -67,18 +68,56 @@ def decode_transaction_raw(tx_raw):
 
     tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
     try:
-        tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+        # Decoding transaction raw.
+        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid bytom transaction raw")
-    if "type" not in tx_raw and not str(tx_raw["type"]).startswith("bytom"):
+    if "type" not in decoded_tx_raw and not str(decoded_tx_raw["type"]).startswith("bytom"):
         raise ValueError("invalid bytom transaction raw")
     return dict(
-        fee=tx_raw["fee"],
-        type=tx_raw["type"],
-        tx=dtr(tx_raw=tx_raw["raw"]),
-        unsigned=tx_raw["unsigned"],
-        signatures=tx_raw["signatures"],
-        network=tx_raw["network"]
+        fee=decoded_tx_raw["fee"],
+        guid=decoded_tx_raw["guid"],
+        type=decoded_tx_raw["type"],
+        tx=decode_tx_raw(tx_raw=decoded_tx_raw["raw"]),
+        unsigned=decoded_tx_raw["unsigned"],
+        signatures=decoded_tx_raw["signatures"],
+        network=decoded_tx_raw["network"]
+    )
+
+
+def submit_transaction_raw(tx_raw):
+    """
+    Submit transaction raw to Bytom blockchain.
+
+    :param tx_raw: bytom transaction raw.
+    :type tx_raw: str
+    :returns: dict -- bytom transaction id, fee, type and date.
+
+    >>> from shuttle.providers.bytom.utils import submit_transaction_raw
+    >>> submit_transaction_raw(transaction_raw)
+    {...}
+    """
+
+    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    try:
+        # Decoding transaction raw.
+        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
+        raise ValueError("invalid bytom transaction raw")
+    if "type" not in decoded_tx_raw and not str(decoded_tx_raw["type"]).startswith("bytom"):
+        raise ValueError("invalid bytom transaction raw")
+    submitted = submit_payment(
+        guid=decoded_tx_raw["guid"],
+        tx_raw=decoded_tx_raw["raw"],
+        signatures=decoded_tx_raw["signatures"],
+        network=decoded_tx_raw["network"]
+    )
+    return dict(
+        fee=decoded_tx_raw["fee"],
+        type=decoded_tx_raw["type"],
+        tx_id=submitted["transaction_hash"],
+        network=decoded_tx_raw["network"],
+        date=str(datetime.datetime.utcnow())
     )
 
 
