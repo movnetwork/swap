@@ -6,7 +6,7 @@ import json
 
 from .solver import ClaimSolver, FundSolver, RefundSolver
 from .transaction import Transaction
-from .rpc import decode_transaction_raw
+from .rpc import decode_tx_raw
 
 
 # Signature
@@ -54,7 +54,7 @@ class Signature(Transaction):
         """
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return decode_transaction_raw(tx_raw=self.transaction["raw"])
+        return decode_tx_raw(tx_raw=self.transaction["raw"])
 
     # Transaction raw
     def raw(self):
@@ -195,6 +195,7 @@ class FundSignature(Signature):
             wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
             fee=self.fee,
+            guid=self.transaction["guid"],
             raw=self.raw(),
             hash=self.hash(),
             unsigned=self.unsigned(),
@@ -267,6 +268,7 @@ class ClaimSignature(Signature):
             wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
             fee=self.fee,
+            guid=self.transaction["guid"],
             raw=self.raw(),
             hash=self.hash(),
             unsigned=self.unsigned(),
@@ -338,6 +340,7 @@ class RefundSignature(Signature):
             wallet.indexes = list()
         self.signed = b64encode(str(json.dumps(dict(
             fee=self.fee,
+            guid=self.transaction["guid"],
             raw=self.raw(),
             hash=self.hash(),
             unsigned=self.unsigned(),

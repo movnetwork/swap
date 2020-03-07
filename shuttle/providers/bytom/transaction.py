@@ -5,7 +5,7 @@ from base64 import b64encode, b64decode
 
 import json
 
-from .rpc import build_transaction, decode_transaction_raw
+from .rpc import build_transaction, decode_tx_raw
 from .utils import spend_wallet_action, control_program_action, \
     find_contract_utxo_id, spend_utxo_action, control_address_action
 from .solver import FundSolver, ClaimSolver, RefundSolver
@@ -98,7 +98,7 @@ class Transaction:
         """
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return decode_transaction_raw(tx_raw=self.transaction["raw_transaction"])
+        return decode_tx_raw(tx_raw=self.transaction["raw_transaction"])
 
     # Transaction raw
     def raw(self):
@@ -220,6 +220,8 @@ class FundTransaction(Transaction):
             raise TypeError("invalid amount instance, only takes integer type")
         if not isinstance(asset, str):
             raise TypeError("invalid asset instance, only takes string type")
+        # Setting wallet GUID
+        self.guid = wallet.guid()
         # Actions
         inputs, outputs = list(), list()
         # Input action
@@ -239,7 +241,7 @@ class FundTransaction(Transaction):
         )
         # Transaction
         tx = dict(
-            guid=wallet.guid(),
+            guid=self.guid,
             inputs=inputs,
             outputs=outputs,
             fee=bytom["fee"],
@@ -302,6 +304,7 @@ class FundTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
+            guid=self.guid,
             unsigned=self.unsigned(detail=False),
             hash=self.transaction["tx"]["hash"],
             raw=self.transaction["raw_transaction"],
@@ -390,6 +393,8 @@ class ClaimTransaction(Transaction):
             if utxo_id is None:
                 raise ValueError("invalid transaction id, there is no smart contact")
 
+        # Setting wallet GUID
+        self.guid = wallet.guid()
         # Actions
         inputs, outputs = list(), list()
         # Input action
@@ -408,7 +413,7 @@ class ClaimTransaction(Transaction):
         )
         # Transaction
         tx = dict(
-            guid=wallet.guid(),
+            guid=self.guid,
             inputs=inputs,
             outputs=outputs,
             fee=bytom["fee"],
@@ -477,6 +482,7 @@ class ClaimTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
+            guid=self.guid,
             unsigned=self.unsigned(detail=False),
             hash=self.transaction["tx"]["hash"],
             raw=self.transaction["raw_transaction"],
@@ -559,6 +565,8 @@ class RefundTransaction(Transaction):
             if utxo_id is None:
                 raise ValueError("invalid transaction id, there is no smart contact")
 
+        # Setting wallet GUID
+        self.guid = wallet.guid()
         # Actions
         inputs, outputs = list(), list()
         # Input action
@@ -577,7 +585,7 @@ class RefundTransaction(Transaction):
         )
         # Transaction
         tx = dict(
-            guid=wallet.guid(),
+            guid=self.guid,
             inputs=inputs,
             outputs=outputs,
             fee=bytom["fee"],
@@ -644,6 +652,7 @@ class RefundTransaction(Transaction):
 
         return b64encode(str(json.dumps(dict(
             fee=self.fee,
+            guid=self.guid,
             unsigned=self.unsigned(detail=False),
             hash=self.transaction["tx"]["hash"],
             raw=self.transaction["raw_transaction"],
