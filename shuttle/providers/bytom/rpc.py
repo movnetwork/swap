@@ -161,21 +161,42 @@ def get_transaction(tx_id, network="testnet", timeout=bytom["timeout"]):
 
 
 # Submit payment from blockcenter
-def submit_payment(guid, raw_transaction, signatures,
-                   memo="mock", network="testnet", timeout=bytom["timeout"]):
+def submit_payment(guid, tx_raw, signatures,
+                   network, memo="mock", timeout=bytom["timeout"]):
+    """
+     Submit transaction raw to Bytom blockchain.
+
+    :param guid: bytom blockcenter id.
+    :type guid: str
+    :param tx_raw: bytom transaction raw.
+    :type tx_raw: str
+    :param signatures: bytom signed datas.
+    :type signatures: list
+    :param network: bytom network, defaults to testnet.
+    :type network: str
+    :param memo: memo, defaults to mock.
+    :type memo: str
+    :param timeout: request timeout, default to 15.
+    :type timeout: int
+    :returns: dict -- bytom transaction id, fee, type and date.
+
+    >>> from shuttle.providers.bytom.rpc import submit_payment
+    >>> submit_payment("guid", transaction_raw, [[...]], "mainent")
+    {...}
+    """
     if not isinstance(signatures, list):
         raise ClientError("signatures must be list format.")
     url = str(bytom[network]["blockcenter"]) + "/merchant/submit-payment"
-    data = dict(guid=guid, raw_transaction=raw_transaction, signatures=signatures, memo=memo)
+    data = dict(guid=guid, raw_transaction=tx_raw, signatures=signatures, memo=memo)
     response = requests.post(url=url, data=json.dumps(data),
                              headers=headers, timeout=timeout)
-    if response.status_code == 200 and response.json()["code"] == 300:
+    if response.json()["code"] != 200:
         raise APIError(response.json()["msg"])
     return response.json()["result"]["data"]
 
 
-# Decode raw transaction
-def decode_transaction_raw(tx_raw, network="testnet", timeout=bytom["timeout"]):
+# Decode transaction raw
+def decode_tx_raw(tx_raw, network="testnet", timeout=bytom["timeout"]):
     """
     Get decoded transaction raw.
 
@@ -187,8 +208,8 @@ def decode_transaction_raw(tx_raw, network="testnet", timeout=bytom["timeout"]):
     :type timeout: int
     :returns: dict -- bytom decoded transaction raw.
 
-    >>> from shuttle.providers.bytom.rpc import decode_transaction_raw
-    >>> decode_transaction_raw(transaction_raw, "testnet")
+    >>> from shuttle.providers.bytom.rpc import decode_tx_raw
+    >>> decode_tx_raw(transaction_raw, "testnet")
     {...}
     """
     
