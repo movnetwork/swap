@@ -19,12 +19,12 @@ sys.path.insert(1, os.path.abspath('./extensions'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'PyShuttle'
+project = 'Shuttle'
 copyright = '{year}, Meheret Tesfaye'.format(year=datetime.datetime.now().year)
 author = 'Meheret Tesfaye'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
