@@ -9,8 +9,10 @@ from base64 import b64encode, b64decode
 import cryptos
 import hashlib
 import json
+import datetime
 import binascii
 
+from .rpc import submit_payment
 from ...utils.exceptions import AddressError, NetworkError
 
 
@@ -42,6 +44,40 @@ def decode_transaction_raw(tx_raw):
         type=tx_raw["type"],
         tx=tx.to_json(),
         network=tx_raw["network"]
+    )
+
+
+def submit_transaction_raw(tx_raw):
+    """
+    Submit transaction raw to Bitcoin blockchain.
+
+    :param tx_raw: bitcoin transaction raw.
+    :type tx_raw: str
+    :returns: dict -- bitcoin transaction id, fee, type and date.
+
+    >>> from shuttle.providers.bitcoin.utils import submit_transaction_raw
+    >>> submit_transaction_raw(transaction_raw)
+    {...}
+    """
+
+    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    try:
+        # Decoding transaction raw.
+        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
+        raise ValueError("invalid bitcoin transaction raw")
+    if "type" not in decoded_tx_raw and not str(decoded_tx_raw["type"]).startswith("bitcoin"):
+        raise ValueError("invalid bitcoin transaction raw")
+    submitted = submit_payment(
+        tx_raw=decoded_tx_raw["raw"],
+        network=decoded_tx_raw["network"]
+    )
+    return dict(
+        fee=decoded_tx_raw["fee"],
+        type=decoded_tx_raw["type"],
+        tx_id=submitted["hash"],
+        network=decoded_tx_raw["network"],
+        date=str(datetime.datetime.utcnow())
     )
 
 
