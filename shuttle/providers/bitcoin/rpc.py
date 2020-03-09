@@ -3,7 +3,6 @@
 import requests
 import json
 
-from .utils import is_address
 from ..config import bitcoin
 from ...utils.exceptions import AddressError, APIError
 
