@@ -30,7 +30,7 @@ setup(
     python_requires=">=3.6,<4",
     install_requires=requirements,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
