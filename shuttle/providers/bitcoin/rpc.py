@@ -5,7 +5,7 @@ import json
 
 from .utils import is_address
 from ..config import bitcoin
-from ...utils.exceptions import AddressError
+from ...utils.exceptions import AddressError, APIError
 
 
 # Request headers
@@ -123,27 +123,30 @@ def decoded_transaction_raw(transaction_raw, network="testnet", timeout=bitcoin[
     raise TypeError("transaction raw must be string format!")
 
 
-# Getting push transaction by transaction raw
-def push_transaction_raw(transaction_raw, network="testnet", timeout=bitcoin["timeout"]):
+# Submit payment from blockcypher
+def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     """
-    Get push transaction raw.
+    Submit transaction raw to Bitcoin blockchain.
 
-    :param transaction_raw: bitcoin transaction raw.
-    :type transaction_raw: str
+    :param tx_raw: bitcoin transaction raw.
+    :type tx_raw: str
     :param network: bitcoin network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
     :returns: dict -- bitcoin decoded transaction raw.
 
-    >>> from shuttle.providers.bitcoin.rpc import push_transaction_raw
-    >>> push_transaction_raw(transaction_raw, "testnet")
+    >>> from shuttle.providers.bitcoin.rpc import submit_payment
+    >>> submit_payment(transaction_raw, "testnet")
     {...}
     """
 
-    if isinstance(transaction_raw, str):
+    if isinstance(tx_raw, str):
+        tx = json.dumps(dict(tx=tx_raw))
         parameter = dict(token=bitcoin[network]["blockcypher"]["token"])
-        tx = json.dumps(dict(tx=transaction_raw))
-        return requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/push",
-                             data=tx, params=parameter, headers=headers, timeout=timeout).json()
+        response = requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/push",
+                                 data=tx, params=parameter, headers=headers, timeout=timeout)
+        if "error" in response.json():
+            raise APIError(response.json()["error"])
+        return response.json()
     raise TypeError("transaction raw must be string format!")
