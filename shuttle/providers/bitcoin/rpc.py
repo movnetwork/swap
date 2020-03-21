@@ -5,6 +5,7 @@ import json
 
 from ..config import bitcoin
 from ...utils.exceptions import AddressError, APIError
+from .utils import is_address
 
 
 # Request headers
