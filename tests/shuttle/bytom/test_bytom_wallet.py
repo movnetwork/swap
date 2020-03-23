@@ -22,7 +22,7 @@ def test_mainnet_from_mnemonic():
     assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
 
     public_key = bytom_wallet.public_key()
-    assert public_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5"
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
 
     program = bytom_wallet.program()
     assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
@@ -50,7 +50,7 @@ def test_testnet_from_mnemonic():
     assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
 
     public_key = bytom_wallet.public_key()
-    assert public_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5"
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
 
     program = bytom_wallet.program()
     assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
@@ -74,7 +74,7 @@ def test_mainnet_from_seed():
     assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
 
     public_key = bytom_mainnet_wallet.public_key()
-    assert public_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5"
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
 
     program = bytom_mainnet_wallet.program()
     assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
@@ -98,7 +98,7 @@ def test_testnet_from_seed():
     assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
 
     public_key = bytom_testnet_wallet.public_key()
-    assert public_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5"
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
 
     program = bytom_testnet_wallet.program()
     assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
@@ -119,7 +119,7 @@ def test_mainnet_from_xprivate_key():
     assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
 
     public_key = bytom_mainnet_wallet.public_key()
-    assert public_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5"
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
 
     program = bytom_mainnet_wallet.program()
     assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
@@ -140,10 +140,31 @@ def test_testnet_from_xprivate_key():
     assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
 
     public_key = bytom_testnet_wallet.public_key()
-    assert public_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5"
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
 
     program = bytom_testnet_wallet.program()
     assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
 
     address = bytom_testnet_wallet.address()
     assert address == "tm1q9ndylx02syfwd7npehfxz4lddhzqsve2d2mgc0"
+
+
+def test_solonet_from_xprivate_key():
+    # Initialize bytom sender wallet
+    bytom_testnet_wallet = Wallet(network="solonet") \
+        .from_xprivate_key("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+
+    xpublic_key = bytom_testnet_wallet.xpublic_key()
+    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+
+    expand_xprivate_key = bytom_testnet_wallet.expand_xprivate_key()
+    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
+
+    public_key = bytom_testnet_wallet.public_key()
+    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
+
+    program = bytom_testnet_wallet.program()
+    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
+
+    address = bytom_testnet_wallet.address()
+    assert address == "sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs"
