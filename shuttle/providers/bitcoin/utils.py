@@ -11,9 +11,17 @@ import hashlib
 import json
 import datetime
 import binascii
+import requests
 
-from .rpc import submit_payment
-from ...utils.exceptions import AddressError, NetworkError
+from ..config import bitcoin
+from ...utils.exceptions import AddressError, NetworkError, APIError
+
+# Request headers
+headers = dict()
+headers.setdefault("Content-Type", "application/json")
+
+# Bitcoin configuration
+bitcoin = bitcoin()
 
 
 def decode_transaction_raw(tx_raw):
@@ -45,6 +53,19 @@ def decode_transaction_raw(tx_raw):
         tx=tx.to_json(),
         network=tx_raw["network"]
     )
+
+
+# Submit payment from blockcypher
+def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
+    if isinstance(tx_raw, str):
+        tx = json.dumps(dict(tx=tx_raw))
+        parameter = dict(token=bitcoin[network]["blockcypher"]["token"])
+        response = requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/push",
+                                 data=tx, params=parameter, headers=headers, timeout=timeout)
+        if "error" in response.json():
+            raise APIError(response.json()["error"])
+        return response.json()
+    raise TypeError("transaction raw must be string format!")
 
 
 def submit_transaction_raw(tx_raw):
