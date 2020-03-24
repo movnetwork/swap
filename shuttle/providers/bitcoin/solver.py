@@ -103,7 +103,7 @@ class RefundSolver:
     """
 
     # Initialization refunding on hash time lock contract (HTLC)
-    def __init__(self, secret, private_key, sequence=5, compressed=False):
+    def __init__(self, secret, private_key, sequence=bitcoin["sequence"], compressed=False):
         # Public key compression
         self.compressed = compressed
         # Secret key to unlock HTLC
