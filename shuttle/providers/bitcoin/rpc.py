@@ -148,5 +148,5 @@ def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
                                  data=tx, params=parameter, headers=headers, timeout=timeout)
         if "error" in response.json():
             raise APIError(response.json()["error"])
-        return response.json()
+        return response.json()["tx"]
     raise TypeError("transaction raw must be string format!")
