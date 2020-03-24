@@ -128,6 +128,25 @@ def is_address(address, network="testnet"):
     raise TypeError("address must be string format!")
 
 
+# SHA256 hash
+def sha256(data):
+    """
+    SHA256 hash.
+
+    :param data: encoded data.
+    :type data: bytes
+    :returns: bytearray -- hashed sha256.
+
+    >>> from shuttle.providers.bitcoin.utils import sha256
+    >>> sha256("Hello Meheret!".encode())
+    b"..."
+    """
+
+    if isinstance(data, bytes):
+        return hashlib.sha256(data).digest()
+    raise TypeError("data must be bytes format!")
+
+
 # Double SHA256 hash
 def double_sha256(data):
     """
