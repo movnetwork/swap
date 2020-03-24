@@ -342,7 +342,6 @@ class ClaimTransaction(Transaction):
         # HTLC info's
         htlc_amount = self.htlc["value"]
         htlc_script = P2shScript.unhexlify(self.htlc["script"])
-        htlc_address = htlc_script.address(mainnet=self.mainnet)
         # Calculating fee
         self.fee = fee_calculator(1, 1)
         if amount < self.fee:
@@ -500,7 +499,6 @@ class RefundTransaction(Transaction):
         # HTLC info's
         htlc_amount = self.htlc["value"]
         htlc_script = P2shScript.unhexlify(self.htlc["script"])
-        htlc_address = htlc_script.address(mainnet=self.mainnet)
         # Calculating fee
         self.fee = fee_calculator(1, 1)
         if amount < self.fee:
@@ -516,7 +514,7 @@ class RefundTransaction(Transaction):
             ],
             outs=[
                 TxOut(value=(amount - self.fee), n=0,
-                      script_pubkey=P2pkhScript.unhexlify(self.wallet.p2pkh()))
+                      script_pubkey=P2pkhScript.unhexlify(self.sender_account.p2pkh()))
             ], locktime=Locktime(locktime))
         return self
 
