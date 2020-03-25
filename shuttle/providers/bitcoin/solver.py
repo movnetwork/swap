@@ -36,7 +36,7 @@ class FundSolver:
 
     # Signature solve
     def solve(self):
-        return P2pkhSolver(self.private_key, compressed=self.compressed)
+        return P2pkhSolver(self.private_key)
 
 
 # Claim HTLC Solver
@@ -77,7 +77,7 @@ class ClaimSolver:
             Branch.IF,
             HashlockSolver(
                 self.secret,
-                P2pkhSolver(self.private_key, compressed=self.compressed)
+                P2pkhSolver(self.private_key)
             )
         )
 
@@ -118,6 +118,6 @@ class RefundSolver:
             Branch.ELSE,
             RelativeTimelockSolver(
                 Sequence(self.sequence),
-                P2pkhSolver(self.private_key, compressed=self.compressed)
+                P2pkhSolver(self.private_key)
             )
         )
