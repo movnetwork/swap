@@ -142,11 +142,10 @@ def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     """
 
     if isinstance(tx_raw, str):
-        tx = json.dumps(dict(tx=tx_raw))
-        parameter = dict(token=bitcoin[network]["blockcypher"]["token"])
-        response = requests.post(url=bitcoin[network]["blockcypher"]["url"] + "/txs/push",
-                                 data=tx, params=parameter, headers=headers, timeout=timeout)
+        tx = json.dumps(dict(hex=tx_raw))
+        response = requests.post(url=bitcoin[network]["smartbit"]["url"] + "/pushtx",
+                                 data=tx, headers=headers, timeout=timeout)
         if "error" in response.json():
-            raise APIError(response.json()["error"])
-        return response.json()["tx"]
+            raise APIError(response.json()["error"]["message"])
+        return response.json()
     raise TypeError("transaction raw must be string format!")
