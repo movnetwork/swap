@@ -171,7 +171,7 @@ class Wallet:
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet.from_passphrase("meherett", compressed=False)
         >>> wallet.public_key()
         "04afa8301b068c2c184e0a3e77183dc95ec1130371c02ed172bec8f3bfbad6b17334244f64fe877d5e4839690c62b9d1f4095608f2ac29235e4b0299b6b96f6f35"
         """
