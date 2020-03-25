@@ -31,6 +31,7 @@ def bitcoin(blockcypher_token=None):
     return {
         "mainnet": {
             "blockchain": "https://blockchain.info",
+            "smartbit": "https://api.smartbit.com.au/v1/blockchain",
             "blockcypher": {
                 "url": "https://api.blockcypher.com/v1/btc/main",
                 "token": blockcypher_token
@@ -38,6 +39,7 @@ def bitcoin(blockcypher_token=None):
         },
         "testnet": {
             "blockchain": "https://testnet.blockchain.info",
+            "smartbit": "https://testnet-api.smartbit.com.au/v1/blockchain",
             "blockcypher": {
                 "url": "https://api.blockcypher.com/v1/btc/test3",
                 "token": blockcypher_token
