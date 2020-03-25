@@ -59,7 +59,7 @@ def decode_transaction_raw(tx_raw):
 def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     if isinstance(tx_raw, str):
         tx = json.dumps(dict(hex=tx_raw))
-        response = requests.post(url=bitcoin[network]["smartbit"]["url"] + "/pushtx",
+        response = requests.post(url=bitcoin[network]["smartbit"] + "/pushtx",
                                  data=tx, headers=headers, timeout=timeout)
         if "error" in response.json():
             raise APIError(response.json()["error"]["message"])
