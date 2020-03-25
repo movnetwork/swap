@@ -11,6 +11,9 @@ from .utils import is_address
 from .rpc import get_balance, get_unspent_transactions
 from ...utils.exceptions import AddressError
 
+# Public key
+COMPRESSED = True
+
 
 # Bitcoin Wallet.
 class Wallet:
@@ -39,15 +42,21 @@ class Wallet:
         # Bitcoin wallet initialization.
         self.bitcoin = Bitcoin(testnet=(not self.mainnet))
 
+        # Is compressed
+        self.is_compressed = None
         # Main wallet init.
         self._private_key, self._public_key, self._address = None, None, None
+        # Compressed and Uncompressed public key.
+        self._compressed, self._uncompressed = None, None
 
-    def from_private_key(self, private_key):
+    def from_private_key(self, private_key, compressed=COMPRESSED):
         """
         Initiate bitcoin wallet from private key.
 
         :param private_key: Bitcoin wallet private key.
         :type private_key: str.
+        :param compressed: bitcoin public key compressed, default is True.
+        :type compressed: bool
         :returns:  Wallet -- bitcoin wallet instance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
@@ -55,37 +64,49 @@ class Wallet:
         >>> wallet.from_private_key("92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
         <shuttle.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
+        self.is_compressed = compressed
         self._private_key = PrivateKey.unhexlify(private_key)
-        self._public_key = PublicKey.unhexlify(
-            self.bitcoin.privtopub(self._private_key.hexlify()))
+        public_key = self.bitcoin.privtopub(self._private_key.hexlify())
+        self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
+        self._uncompressed = PublicKey.unhexlify(public_key).uncompressed.hex()
+        self._public_key = PublicKey.unhexlify(self._compressed) if self.is_compressed \
+            else PublicKey.unhexlify(self._uncompressed)
         self._address = self._public_key.to_address(mainnet=self.mainnet)
         return self
 
-    def from_passphrase(self, passphrase):
+    def from_passphrase(self, passphrase, compressed=COMPRESSED):
         """
         Initiate bitcoin wallet from passphrase.
 
         :param passphrase: Bitcoin wallet passphrase.
         :type passphrase: str.
+        :param compressed: bitcoin public key compressed, default is True.
+        :type compressed: bool
         :returns:  Wallet -- bitcoin wallet instance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_passphrase("meherett")
         """
+        self.is_compressed = compressed
         private_key = hashlib.sha256(passphrase).hexdigest()
         self._private_key = PrivateKey.unhexlify(private_key)
-        self._public_key = PublicKey.unhexlify(
-            self.bitcoin.privtopub(self._private_key.hexlify()))
+        public_key = self.bitcoin.privtopub(self._private_key.hexlify())
+        self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
+        self._uncompressed = PublicKey.unhexlify(public_key).uncompressed.hex()
+        self._public_key = PublicKey.unhexlify(self._compressed) if self.is_compressed \
+            else PublicKey.unhexlify(self._uncompressed)
         self._address = self._public_key.to_address(mainnet=self.mainnet)
         return self
 
-    def from_mnemonic(self, mnemonic):
+    def from_mnemonic(self, mnemonic, compressed=COMPRESSED):
         """
         Initiate bitcoin wallet from mnemonic.
 
         :param mnemonic: Bitcoin wallet mnemonic.
         :type mnemonic: str
+        :param compressed: bitcoin public key compressed, default is True.
+        :type compressed: bool
         :returns: Wallet -- bitcoin wallet instance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
@@ -93,10 +114,14 @@ class Wallet:
         >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         <shuttle.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
+        self.is_compressed = compressed
         private_key = hashlib.sha256(mnemonic).hexdigest()
         self._private_key = PrivateKey.unhexlify(private_key)
-        self._public_key = PublicKey.unhexlify(
-            self.bitcoin.privtopub(self._private_key.hexlify()))
+        public_key = self.bitcoin.privtopub(self._private_key.hexlify())
+        self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
+        self._uncompressed = PublicKey.unhexlify(public_key).uncompressed.hex()
+        self._public_key = PublicKey.unhexlify(self._compressed) if self.is_compressed \
+            else PublicKey.unhexlify(self._uncompressed)
         self._address = self._public_key.to_address(mainnet=self.mainnet)
         return self
 
@@ -134,12 +159,14 @@ class Wallet:
         return self._private_key.hexlify()
 
     # Bitcoin main public key.
-    def public_key(self, private_key=None):
+    def public_key(self, private_key=None, compressed=COMPRESSED):
         """
         Get bitcoin wallet public key.
 
         :param private_key: bitcoin private key, default is None.
         :type private_key: str
+        :param compressed: bitcoin public key compressed, default is True.
+        :type compressed: bool
         :return: str -- bitcoin public key.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
@@ -150,7 +177,8 @@ class Wallet:
         """
         if private_key is None:
             return self._public_key.hexlify()
-        return PublicKey.unhexlify(private_key).hexlify()
+        return PublicKey.unhexlify(private_key).compressed.hex() if compressed else \
+            PublicKey.unhexlify(private_key).uncompressed.hex()
 
     # Compressed public key.
     def compressed(self, public_key=None):
@@ -168,7 +196,7 @@ class Wallet:
         "03afa8301b068c2c184e0a3e77183dc95ec1130371c02ed172bec8f3bfbad6b173"
         """
         if public_key is None:
-            return self._public_key.compressed.hex()
+            return self._compressed
         return PublicKey.unhexlify(public_key).compressed.hex()
 
     # Uncompressed public key.
@@ -187,7 +215,7 @@ class Wallet:
         "04afa8301b068c2c184e0a3e77183dc95ec1130371c02ed172bec8f3bfbad6b17334244f64fe877d5e4839690c62b9d1f4095608f2ac29235e4b0299b6b96f6f35"
         """
         if public_key is None:
-            return self._public_key.uncompressed.hex()
+            return self._uncompressed
         return PublicKey.unhexlify(public_key).uncompressed.hex()
 
     # Bitcoin main _address.
@@ -281,6 +309,8 @@ class Wallet:
 
         :param address: bitcoin balance, default is None.
         :type address: str
+        :param network: bitcoin balance, default is testnet.
+        :type network: str
         :return: int -- bitcoin balance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
