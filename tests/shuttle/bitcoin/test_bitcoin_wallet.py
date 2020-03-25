@@ -8,7 +8,21 @@ def test_from_passphrase():
     print("Passphrase", passphrase)
 
     # Initialize bitcoin wallet
-    bitcoin_from_passphrase = Wallet(network="testnet").from_passphrase(passphrase)
+    bitcoin_from_private_key = Wallet(network="testnet") \
+        .from_passphrase(passphrase)
+
+    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
+    assert bitcoin_from_private_key.private_key() == private_key
+
+    public_key = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
+    assert bitcoin_from_private_key.public_key() == public_key
+
+    address = "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q"
+    assert bitcoin_from_private_key.address() == address
+
+    # Initialize bitcoin wallet
+    bitcoin_from_passphrase = Wallet(network="testnet")\
+        .from_passphrase(passphrase, False)
 
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
     assert bitcoin_from_passphrase.private_key() == private_key
@@ -44,7 +58,21 @@ def test_from_private_key():
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
 
     # Initialize bitcoin wallet
-    bitcoin_from_private_key = Wallet(network="testnet").from_private_key(private_key)
+    bitcoin_from_private_key = Wallet(network="testnet")\
+        .from_private_key(private_key)
+
+    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
+    assert bitcoin_from_private_key.private_key() == private_key
+
+    public_key = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
+    assert bitcoin_from_private_key.public_key() == public_key
+
+    address = "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q"
+    assert bitcoin_from_private_key.address() == address
+
+    # Initialize bitcoin wallet
+    bitcoin_from_private_key = Wallet(network="testnet") \
+        .from_private_key(private_key, False)
 
     private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
     assert bitcoin_from_private_key.private_key() == private_key
