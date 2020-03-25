@@ -10,7 +10,7 @@ with open("README.md", "r") as readme:
 
 # requirements.txt
 with open("requirements.txt", "r") as _requirements:
-    requirements = list(map(str.strip, _requirements.read().split("\n")))[:-1]
+    requirements = list(map(str.strip, _requirements.read().split("\n")))
 
 setup(
     name="pyshuttle",
