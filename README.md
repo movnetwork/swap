@@ -1,6 +1,6 @@
 # Shuttle
 
-[![Build Status](https://travis-ci.com/meherett/shuttle.svg?branch=master)](https://travis-ci.com/meherett/shuttle)
+[![Build Status](https://travis-ci.org/meherett/shuttle.svg?branch=master)](https://travis-ci.org/meherett/shuttle)
 ![PyPI Version](https://img.shields.io/pypi/v/pyshuttle.svg?color=blue)
 ![PyPI License](https://img.shields.io/pypi/l/pyshuttle.svg?color=black)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/shuttle/badge.svg?branch=master)](https://coveralls.io/github/meherett/shuttle?branch=master)
