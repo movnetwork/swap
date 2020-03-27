@@ -20,13 +20,14 @@ sys.path.insert(1, os.path.abspath('./extensions'))
 # -- Project information -----------------------------------------------------
 
 project = 'Shuttle'
-copyright = '{year}, Meheret Tesfaye'.format(year=datetime.datetime.now().year)
+copyright = '{year}, meherett@zoho.com'.format(year=datetime.datetime.now().year)
 author = 'Meheret Tesfaye'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
 
-master_doc = 'index'
+# The master toctree document.
+master_doc = "toctree"
 
 # -- General configuration ---------------------------------------------------
 
@@ -81,4 +82,4 @@ html_static_path = ['static']
 
 # Docs Setup
 def setup(app):
-    app.add_css_file('custom.css')
+    app.add_css_file('css/shuttle.css')

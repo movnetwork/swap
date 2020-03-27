@@ -6,12 +6,13 @@ Bytom
 
 Cross chain atomic swap for Bytom cryptocurrency.
 
-.. sidebar:: Sidebar Title
-    :subtitle: Optional Sidebar Subtitle
+.. sidebar:: Bytom Blockchain
 
-    Subsequent indented lines comprise
-    the body of the sidebar, and are
-    interpreted as body elements.
+    Bytom is a protocol of multiple byte assets. Heterogeneous byte-assets operate in
+    different forms on the Bytom Blockchain and atomic assets (warrants, securities,
+    dividends, bonds, intelligence information, forecasting information and other
+    information that exist in the physical world) can be registered, exchanged,
+    gambled via Bytom.
 
 .. toctree::
     :maxdepth: 3
