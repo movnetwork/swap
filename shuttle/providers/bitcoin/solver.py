@@ -18,8 +18,6 @@ class FundSolver:
 
     :param private_key: bitcoin sender private key.
     :type private_key: str
-    :param compressed: bitcoin network, defaults to False.
-    :type compressed: bool
     :returns:  FundSolver -- bitcoin fund solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import FundSolver
@@ -28,9 +26,7 @@ class FundSolver:
     """
 
     # Initialization funding on hash time lock contract (HTLC)
-    def __init__(self, private_key, compressed=False):
-        # Public key compression
-        self.compressed = compressed
+    def __init__(self, private_key):
         # Private key of sender to sign signature
         self.private_key = PrivateKey.unhexlify(private_key)
 
@@ -50,8 +46,6 @@ class ClaimSolver:
     :type private_key: str
     :param sequence: bitcoin sequence number of expiration block, defaults to bitcoin config sequence (15).
     :type sequence: int
-    :param compressed: bitcoin network, defaults to False.
-    :type compressed: bool
     :returns:  ClaimSolver -- bitcoin claim solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import ClaimSolver
@@ -61,9 +55,7 @@ class ClaimSolver:
 
     # Initialization claiming on hash time lock contract (HTLC)
     def __init__(self, secret, private_key,
-                 sequence=bitcoin["sequence"], compressed=False):
-        # Public key compression
-        self.compressed = compressed
+                 sequence=bitcoin["sequence"]):
         # Secret key to unlock HTLC
         self.secret = secret.encode()
         # Private key of recipient to sign signature
@@ -93,8 +85,6 @@ class RefundSolver:
     :type private_key: str
     :param sequence: bitcoin sequence number of expiration block, defaults to bitcoin config sequence (15).
     :type sequence: int
-    :param compressed: bitcoin network, defaults to False.
-    :type compressed: bool
     :returns:  RefundSolver -- bitcoin refund solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import RefundSolver
@@ -103,9 +93,7 @@ class RefundSolver:
     """
 
     # Initialization refunding on hash time lock contract (HTLC)
-    def __init__(self, secret, private_key, sequence=bitcoin["sequence"], compressed=False):
-        # Public key compression
-        self.compressed = compressed
+    def __init__(self, secret, private_key, sequence=bitcoin["sequence"]):
         # Secret key to unlock HTLC
         self.secret = secret.encode()
         # Private key of recipient to sign signature
