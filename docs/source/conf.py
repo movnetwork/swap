@@ -24,7 +24,7 @@ copyright = '{year}, meherett@zoho.com'.format(year=datetime.datetime.now().year
 author = 'Meheret Tesfaye'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = 'v0.1.0'
 
 # The master toctree document.
 master_doc = "toctree"
@@ -81,5 +81,5 @@ html_static_path = ['static']
 
 
 # Docs Setup
-def setup(app):
-    app.add_css_file('css/shuttle.css')
+def setup(sphinx):
+    sphinx.add_css_file('css/shuttle.css')

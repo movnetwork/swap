@@ -1,10 +1,8 @@
-.. _install:
-
 ==================
 Installing Shuttle
 ==================
 
-The easiest way to install Brownie is via pip.
+The easiest way to install Shuttle is via pip.
 
 ::
 
