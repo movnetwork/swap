@@ -9,7 +9,7 @@ from btcpy.setup import setup
 
 import json
 
-from .utils import double_sha256, fee_calculator
+from .utils import sha256, fee_calculator
 from .solver import ClaimSolver, FundSolver, RefundSolver
 from .rpc import get_transaction_detail
 from .htlc import HTLC
@@ -382,7 +382,7 @@ class ClaimTransaction(Transaction):
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first")
         htlc = HTLC(self.network).init(
-            secret_hash=double_sha256(solver.secret),
+            secret_hash=sha256(solver.secret),
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
             sequence=solver.sequence
@@ -538,7 +538,7 @@ class RefundTransaction(Transaction):
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first")
         htlc = HTLC(self.network).init(
-            secret_hash=double_sha256(solver.secret),
+            secret_hash=sha256(solver.secret),
             recipient_address=str(self.wallet.address()),
             sender_address=str(self.sender_account.address()),
             sequence=solver.sequence
