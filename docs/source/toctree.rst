@@ -13,7 +13,6 @@ Shuttle
     :maxdepth: 2
 
     install.rst
-    cli.rst
 
 .. toctree::
     :maxdepth: 3
