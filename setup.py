@@ -29,6 +29,18 @@ setup(
     },
     python_requires=">=3.6,<4",
     install_requires=requirements,
+    extras_require={
+        "tests": [
+            "pytest>=5.4.1,<6",
+            "pytest-cov>=2.8.1,<3",
+            "pytest-console-scripts>=0.2.0,<1"
+        ],
+        "docs": [
+            "sphinx>=2.4.4,<3",
+            "sphinx_rtd_theme>=0.4.3,<1",
+            "sphinx_click>=2.3.1,<3"
+        ]
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: GNU Affero General Public License v3",
