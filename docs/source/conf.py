@@ -36,6 +36,7 @@ master_doc = "toctree"
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_click.ext',
     'edit_on_github'
 ]
 

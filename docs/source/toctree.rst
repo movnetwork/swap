@@ -3,16 +3,17 @@ Shuttle
 =======
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     Overview <index.rst>
     htlc.rst
 
 .. toctree::
     :caption: Getting Started
-    :maxdepth: 2
+    :maxdepth: 3
 
     install.rst
+    cli.rst
 
 .. toctree::
     :maxdepth: 3
