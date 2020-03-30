@@ -1,0 +1,21 @@
+# .readthedocs.yml
+# Read the Docs configuration file
+
+# Required
+version: 2
+# Optionally build your docs in additional formats such as PDF and ePub
+formats: all
+
+sphinx:
+  builder: html
+  configuration: docs/conf.py
+  fail_on_warning: true
+
+# Use python 3.8 for building
+python:
+   version: 3.8
+   install:
+      - method: pip
+        path: .
+        extra_requirements:
+            - docs
