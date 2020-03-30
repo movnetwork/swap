@@ -6,10 +6,11 @@ version: 2
 # Optionally build your docs in additional formats such as PDF and ePub
 formats: all
 
+# Sphinx configuration
 sphinx:
   builder: html
   configuration: docs/conf.py
-  fail_on_warning: true
+  fail_on_warning: false
 
 # Use python 3.8 for building
 python:
