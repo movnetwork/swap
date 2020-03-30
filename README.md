@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/meherett/shuttle.svg?branch=master)](https://travis-ci.org/meherett/shuttle)
 ![PyPI Version](https://img.shields.io/pypi/v/pyshuttle.svg?color=blue)
 ![PyPI License](https://img.shields.io/pypi/l/pyshuttle.svg?color=black)
+[![Documentation Status](https://readthedocs.org/projects/shuttle/badge/?version=latest)](https://shuttle.readthedocs.io/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/shuttle/badge.svg?branch=master)](https://coveralls.io/github/meherett/shuttle?branch=master)
 
 Shuttle is a python library for cross-chain atomic swaps between the networks of two cryptocurrencies. ​Cross-chain atomic swaps are the cheapest and most secure way to swap cryptocurrencies. It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol.
