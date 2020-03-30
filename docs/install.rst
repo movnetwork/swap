@@ -45,6 +45,6 @@ Dependencies
 
 Shuttle has the following dependencies:
 
-* `bytom-wallet-desktop <https://bytom.io/en/wallet/>`_ - tested with version `1.1.0 <https://github.com/Bytom/bytom/releases/tag/v1.1.0>`_
+* `bytom-wallet-desktop <https://bytom.io/en/wallet/>`_ - version `1.1.0 <https://github.com/Bytom/bytom/releases/tag/v1.1.0>`_  or greater.
 * `pip <https://pypi.org/project/pip/>`_ - To install packages from the Python Package Index and other indexes
 * `python3 <https://www.python.org/downloads/release/python-368/>`_ version 3.6 or greater, python3-dev

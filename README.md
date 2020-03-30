@@ -8,6 +8,14 @@
 
 Shuttle is a python library for cross-chain atomic swaps between the networks of two cryptocurrencies. ​Cross-chain atomic swaps are the cheapest and most secure way to swap cryptocurrencies. It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol.
 
+## Dependencies
+
+Shuttle has the following dependencies:
+
+* [bytom-wallet-desktop](https://bytom.io/en/wallet/) - version [1.1.0](https://github.com/Bytom/bytom/releases/tag/v1.1.0) or greater.
+* [pip](https://pypi.org/project/pip/) - To install packages from the Python Package Index and other indexes.
+* [python3](https://www.python.org/downloads/release/python-368/) version 3.6 or greater, python3-dev.
+
 ## Installation
 PIP to install shuttle globally. For Linux sudo may be required.
 ```
