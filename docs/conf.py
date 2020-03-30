@@ -36,12 +36,8 @@ master_doc = "toctree"
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx_click.ext',
-    'edit_on_github'
+    'sphinx_click.ext'
 ]
-
-edit_on_github_project = 'meherett/pyshuttle'
-edit_on_github_branch = 'master'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['templates']
@@ -81,6 +77,6 @@ html_theme_options = {
 html_static_path = ['static']
 
 
-# Docs Setup
+# Sphinx docs setup.
 def setup(sphinx):
     sphinx.add_css_file('css/shuttle.css')
