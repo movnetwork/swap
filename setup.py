@@ -32,8 +32,7 @@ setup(
     extras_require={
         "tests": [
             "pytest>=5.4.1,<6",
-            "pytest-cov>=2.8.1,<3",
-            "pytest-console-scripts>=0.2.0,<1"
+            "pytest-cov>=2.8.1,<3"
         ],
         "docs": [
             "sphinx>=2.4.4,<3",
