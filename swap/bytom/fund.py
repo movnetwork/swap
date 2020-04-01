@@ -59,7 +59,7 @@ print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
 # Initialization Hash Time Lock Contract (HTLC).
 bytom_htlc = HTLC(network="mainnet").init(
-    secret_hash=sha256("BooOoom!".encode()).hex(),
+    secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_public=recipient_public_key,
     sender_public=sender_public_key,
     sequence=100
