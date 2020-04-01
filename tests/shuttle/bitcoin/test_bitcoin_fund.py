@@ -7,8 +7,6 @@ from shuttle.providers.bitcoin.solver import FundSolver
 from shuttle.providers.bitcoin.signature import FundSignature
 from shuttle.utils import sha256
 
-import json
-
 network = "testnet"
 sender_passphrase = "meheret tesfaye batu bayou".encode()
 
@@ -33,7 +31,7 @@ htlc = HTLC(network=network).init(
 )
 
 
-# Testing HTLC init
+# Testing bitcoin fund
 def test_bitcoin_fund():
     # Initialization fund transaction
     unsigned_fund_transaction = FundTransaction(version=2, network=network)
