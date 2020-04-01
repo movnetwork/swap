@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-import pytest
+
+from shuttle.cli import __main__ as cli_main
+from shuttle import __version__
 
 
-@pytest.mark.script_launch_mode('subprocess')
-def test_shuttle_cli(script_runner):
-    assert script_runner.run("shuttle").success
-    version = script_runner.run("shuttle", "--version")
-    assert version.success
-
-    assert version.stdout == "PyShuttle version 0.1.3\n"
-    assert version.stderr == ""
+def test_shuttle_cli(cli_tester):
+    assert cli_tester.invoke(cli_main.shuttle).exit_code == 0
+    version = cli_tester.invoke(cli_main.shuttle, ["--version"])
+    assert version.exit_code == 0
+    assert version.output == "PyShuttle version " + __version__ + "\n"

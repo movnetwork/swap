@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-import pytest
-import click
+from shuttle.cli import __main__ as cli_main
+
 
 RAW = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3s" \
       "iZGF0YXMiOiBbIjg0MGYwZjM5MTFiOTllY2NlODk0MjA0OWFhYjY4NjEzMmE5MTAzNTBiZTAxNDY0MTU1YzkzM2ZjMWE5Y2NmZjQiXSwgIm" \
@@ -59,25 +59,24 @@ def success(_):
     return "[{}] {}".format("SUCCESS", str(_))
 
 
-@pytest.mark.script_launch_mode('subprocess')
-def test_bytom_cli(script_runner):
-    assert script_runner.run("shuttle", "bytom").success
+def test_bytom_cli(cli_tester):
+    assert cli_tester.invoke(cli_main.shuttle,
+                             ["bytom"]).exit_code == 0
 
     # Testing bytom decode command.
-    decode = script_runner.run("shuttle", "bytom", "decode", "--raw", RAW)
-    assert decode.success
-    assert decode.stdout != ""
-    assert decode.stderr == ""
+    decode = cli_tester.invoke(cli_main.shuttle,
+                               ["bytom", "decode", "--raw", RAW])
+    assert decode.exit_code == 0
+    assert decode.output != success("") + "\n"
 
     # Testing bytom sign command.
-    sign = script_runner.run("shuttle", "bytom", "sign",
-                             "--unsigned", RAW, "--xprivate", XPRIVATE_KEY)
-    assert sign.success
-    assert sign.stdout == success(SIGNED) + "\n"
-    assert sign.stderr == ""
+    sign = cli_tester.invoke(cli_main.shuttle,
+                             ["bytom", "sign", "--unsigned", RAW, "--xprivate", XPRIVATE_KEY])
+    assert sign.exit_code == 0
+    assert sign.output == success(SIGNED) + "\n"
 
     # Testing bytom submit command.
-    submit = script_runner.run("shuttle", "bytom", "submit", "--raw", RAW)
-    assert submit.success
-    assert submit.stdout == "[ERROR] finalize tx fail" + "\n"
-    assert submit.stderr == ""
+    submit = cli_tester.invoke(cli_main.shuttle,
+                               ["bytom", "submit", "--raw", RAW])
+    assert submit.exit_code == 0
+    assert submit.output == "[ERROR] finalize tx fail" + "\n"

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-import pytest
-import click
+from shuttle.cli import __main__ as cli_main
+
 
 RAW = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMWQyNDFjY2ZkMmZhMTc4OTNhNGE1YWNkZjg1ZWJjOWE1YjFkYTIzOGZhMmZhMDE2N" \
       "jMyMTFjZWNhZjVmMDc0Y2UwMTAwMDAwMDAwZmZmZmZmZmYwMmQwMDcwMDAwMDAwMDAwMDAxN2E5MTQ2ZjA4YjI1NGU0YzU4ZGM2NWY2Zj" \
@@ -77,25 +77,24 @@ def success(_):
     return "[{}] {}".format("SUCCESS", str(_))
 
 
-@pytest.mark.script_launch_mode('subprocess')
-def test_bitcoin_cli(script_runner):
-    assert script_runner.run("shuttle", "bitcoin").success
+def test_bitcoin_cli(cli_tester):
+    assert cli_tester.invoke(cli_main.shuttle,
+                             ["bitcoin"]).exit_code == 0
 
     # Testing bitcoin decode command.
-    decode = script_runner.run("shuttle", "bitcoin", "decode", "--raw", RAW)
-    assert decode.success
-    assert decode.stdout != success(DECODE_RESULT) + "\n"
-    assert decode.stderr == ""
+    decode = cli_tester.invoke(cli_main.shuttle,
+                               ["bitcoin", "decode", "--raw", RAW])
+    assert decode.exit_code == 0
+    assert decode.output != success(DECODE_RESULT) + "\n"
 
     # Testing bitcoin sign command.
-    sign = script_runner.run("shuttle", "bitcoin", "sign",
-                             "--unsigned", RAW, "--private", PRIVATE_KEY)
-    assert sign.success
-    assert sign.stdout == success(SIGNED) + "\n"
-    assert sign.stderr == ""
+    sign = cli_tester.invoke(cli_main.shuttle,
+                             ["bitcoin", "sign", "--unsigned", RAW, "--private", PRIVATE_KEY])
+    assert sign.exit_code == 0
+    assert sign.output == success(SIGNED) + "\n"
 
     # Testing bitcoin submit command.
-    submit = script_runner.run("shuttle", "bitcoin", "submit", "--raw", RAW)
-    assert submit.success
-    assert submit.stdout == "[ERROR] Missing inputs" + "\n"
-    assert submit.stderr == ""
+    submit = cli_tester.invoke(cli_main.shuttle,
+                               ["bitcoin", "submit", "--raw", RAW])
+    assert submit.exit_code == 0
+    assert submit.output == "[ERROR] Missing inputs" + "\n"
