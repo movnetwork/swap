@@ -90,7 +90,23 @@ def test_bytom_claim():
            "ed6dc408332a00013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80b0b4f808011600142" \
            "cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
     assert claim_signature.unsigned() == signed_claim_transaction.unsigned() == \
-           unsigned_claim_transaction.unsigned() == [{'datas': ['494ee77690ac2ab51e6de4dac2eba2d3577174312ed0a222494a995e28fff846'], 'network': 'mainnet', 'path': None}, {'datas': ['ecaba401a6df9cffbed37d1abcf23b91b3c84ec7aa9411d481cbef2e437ef7b1'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
+           unsigned_claim_transaction.unsigned() == [
+               {
+                   'datas': [
+                       '494ee77690ac2ab51e6de4dac2eba2d3577174312ed0a222494a995e28fff846'
+                   ],
+                   'network': 'mainnet',
+                   'path': None
+               },
+               {
+                   'datas': [
+                       'ecaba401a6df9cffbed37d1abcf23b91b3c84ec7aa9411d481cbef2e437ef7b1'
+                   ],
+                   'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2',
+                   'network': 'mainnet',
+                   'path': 'm/44/153/1/0/1'
+               }
+           ]
     assert claim_signature.signatures == signed_claim_transaction.signatures == \
            unsigned_claim_transaction.signatures == [
                [
