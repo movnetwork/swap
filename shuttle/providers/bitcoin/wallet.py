@@ -99,32 +99,6 @@ class Wallet:
         self._address = self._public_key.to_address(mainnet=self.mainnet)
         return self
 
-    def from_mnemonic(self, mnemonic, compressed=COMPRESSED):
-        """
-        Initiate bitcoin wallet from mnemonic.
-
-        :param mnemonic: Bitcoin wallet mnemonic.
-        :type mnemonic: str
-        :param compressed: bitcoin public key compressed, default is True.
-        :type compressed: bool
-        :returns: Wallet -- bitcoin wallet instance.
-
-        >>> from shuttle.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        <shuttle.providers.bitcoin.wallet.Wallet object at 0x040DA268>
-        """
-        self.is_compressed = compressed
-        private_key = hashlib.sha256(mnemonic).hexdigest()
-        self._private_key = PrivateKey.unhexlify(private_key)
-        public_key = self.bitcoin.privtopub(self._private_key.hexlify())
-        self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
-        self._uncompressed = PublicKey.unhexlify(public_key).uncompressed.hex()
-        self._public_key = PublicKey.unhexlify(self._compressed) if self.is_compressed \
-            else PublicKey.unhexlify(self._uncompressed)
-        self._address = self._public_key.to_address(mainnet=self.mainnet)
-        return self
-
     def from_address(self, address):
         """
         Initiate bitcoin wallet from address.
@@ -177,8 +151,9 @@ class Wallet:
         """
         if private_key is None:
             return self._public_key.hexlify()
-        return PublicKey.unhexlify(private_key).compressed.hex() if compressed else \
-            PublicKey.unhexlify(private_key).uncompressed.hex()
+        public_key = self.bitcoin.privtopub(private_key)
+        return PublicKey.unhexlify(public_key).compressed.hex() if compressed else \
+            PublicKey.unhexlify(public_key).uncompressed.hex()
 
     # Compressed public key.
     def compressed(self, public_key=None):
@@ -235,8 +210,8 @@ class Wallet:
         """
         if public_key is None:
             return str(self._address)
-        return PublicKey.unhexlify(public_key)\
-            .to__address(mainnet=self.mainnet)
+        return str(PublicKey.unhexlify(public_key)
+                   .to_address(mainnet=self.mainnet))
 
     # Bitcoin main _address hash.
     def hash(self, public_key=None):
@@ -256,7 +231,7 @@ class Wallet:
         if public_key is None:
             return self._address.hash.hex()
         return PublicKey.unhexlify(public_key)\
-            .to__address(mainnet=self.mainnet).hash.hex()
+            .to_address(mainnet=self.mainnet).hash.hex()
 
     # Bitcoin public to public key hash script.
     def p2pkh(self, address=None):
