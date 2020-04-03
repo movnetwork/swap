@@ -126,7 +126,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.bytom = BytomHDWallet()\
+        self.bytom, _ = BytomHDWallet()\
             .master_key_from_entropy(entropy=entropy)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
