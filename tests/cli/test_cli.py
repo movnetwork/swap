@@ -2,12 +2,12 @@
 # coding=utf-8
 
 
-from shuttle.cli import __main__ as cli_main
+from shuttle.cli.__main__ import main as cli_main
 from shuttle import __version__
 
 
 def test_shuttle_cli(cli_tester):
-    assert cli_tester.invoke(cli_main.shuttle).exit_code == 0
-    version = cli_tester.invoke(cli_main.shuttle, ["--version"])
+    assert cli_tester.invoke(cli_main).exit_code == 0
+    version = cli_tester.invoke(cli_main, ["--version"])
     assert version.exit_code == 0
-    assert version.output == "PyShuttle version " + __version__ + "\n"
+    assert version.output == "v%s\n" % __version__

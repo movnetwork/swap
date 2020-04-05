@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-from shuttle.cli import __main__ as cli_main
+from shuttle.cli.__main__ import main as cli_main
 
 PRIVATE_KEY = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
 
@@ -61,41 +61,36 @@ REFUND_SIGNED = "eyJyYXciOiAiMDIwMDAwMDAwMTUyYzIzZGM2NDU2N2IxY2ZhZjRkNzc2NjBjNzF
                 "fc2lnbmVkIn0="
 
 
-# Success template
-def success(_):
-    return "[{}] {}".format("SUCCESS", str(_))
-
-
 def test_bitcoin_cli(cli_tester):
-    assert cli_tester.invoke(cli_main.shuttle,
+    assert cli_tester.invoke(cli_main,
                              ["bitcoin"]).exit_code == 0
 
     # Testing bitcoin decode command.
-    decode = cli_tester.invoke(cli_main.shuttle,
+    decode = cli_tester.invoke(cli_main,
                                ["bitcoin", "decode", "--raw", FUND_RAW])
     assert decode.exit_code == 0
-    assert decode.output != success("DECODE_RESULT") + "\n"
+    assert decode.output != "\n"
 
     # Testing bitcoin sign command.
-    fund_sign = cli_tester.invoke(cli_main.shuttle,
-                                  ["bitcoin", "sign", "--unsigned", FUND_RAW, "--private", PRIVATE_KEY])
+    fund_sign = cli_tester.invoke(cli_main,
+                                  ["bitcoin", "sign", "--raw", FUND_RAW, "--private", PRIVATE_KEY])
     assert fund_sign.exit_code == 0
-    assert fund_sign.output == success(FUND_SIGNED) + "\n"
+    assert fund_sign.output == FUND_SIGNED + "\n"
 
     # Testing bitcoin sign command.
-    claim_sign = cli_tester.invoke(cli_main.shuttle,
-                                   ["bitcoin", "sign", "--unsigned", CLAIM_RAW, "--private", PRIVATE_KEY])
+    claim_sign = cli_tester.invoke(cli_main,
+                                   ["bitcoin", "sign", "--raw", CLAIM_RAW, "--private", PRIVATE_KEY])
     assert claim_sign.exit_code == 0
-    assert claim_sign.output == success(CLAIM_SIGNED) + "\n"
+    assert claim_sign.output == CLAIM_SIGNED + "\n"
 
     # Testing bitcoin sign command.
-    refund_sign = cli_tester.invoke(cli_main.shuttle,
-                                    ["bitcoin", "sign", "--unsigned", REFUND_RAW, "--private", PRIVATE_KEY])
+    refund_sign = cli_tester.invoke(cli_main,
+                                    ["bitcoin", "sign", "--raw", REFUND_RAW, "--private", PRIVATE_KEY])
     assert refund_sign.exit_code == 0
-    assert refund_sign.output == success(REFUND_SIGNED) + "\n"
+    assert refund_sign.output == REFUND_SIGNED + "\n"
 
     # Testing bitcoin submit command.
-    submit = cli_tester.invoke(cli_main.shuttle,
+    submit = cli_tester.invoke(cli_main,
                                ["bitcoin", "submit", "--raw", REFUND_RAW])
     assert submit.exit_code == 0
-    assert submit.output == "[ERROR] Missing inputs" + "\n"
+    assert submit.output == "Error: Missing inputs" + "\n"
