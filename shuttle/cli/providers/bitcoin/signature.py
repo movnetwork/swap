@@ -22,16 +22,16 @@ VERSION = 2  # 1
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Bitcoin transaction raw signer.")
 @click.option("-p", "--private", type=str, required=True, help="Set Bitcoin private key.")
-@click.option("-u", "--unsigned", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
+@click.option("-r", "--raw", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
 @click.option("-s", "--secret", type=str, default=str(), help="Set secret key.")
 @click.option("-v", "--version", type=int, default=VERSION,
               help="Set Bitcoin version.", show_default=True)
-def sign(private, unsigned, secret, version):
+def sign(private, raw, secret, version):
     if len(private) != 64:
         click.echo("invalid Bitcoin private key")
         sys.exit()
 
-    unsigned_raw = str(unsigned + "=" * (-len(unsigned) % 4))
+    unsigned_raw = str(raw + "=" * (-len(raw) % 4))
     try:
         transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:

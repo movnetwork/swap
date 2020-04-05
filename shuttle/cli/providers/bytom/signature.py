@@ -20,7 +20,7 @@ NETWORK = "solonet"  # mainnet or testnet
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Bytom transaction raw signer.")
 @click.option("-xp", "--xprivate", type=str, required=True, help="Set Bytom xprivate key.")
-@click.option("-u", "--unsigned", type=str, required=True,
+@click.option("-r", "--raw", type=str, required=True,
               help="Set Bytom unsigned transaction raw.")
 @click.option("-ac", "--account", type=int, default=1,
               show_default=True, help="Set Bytom derivation from account.")
@@ -33,12 +33,12 @@ NETWORK = "solonet"  # mainnet or testnet
               help="Set Bytom derivation from path.")
 @click.option("-i", "--indexes", type=list, default=None,
               help="Set Bytom derivation from indexes.")
-def sign(xprivate, unsigned, account, change, address, secret, path, indexes):
+def sign(xprivate, raw, account, change, address, secret, path, indexes):
     if len(xprivate) != 128:
         click.echo("invalid Bytom xprivate key")
         sys.exit()
 
-    unsigned_raw = str(unsigned + "=" * (-len(unsigned) % 4))
+    unsigned_raw = str(raw + "=" * (-len(raw) % 4))
     try:
         transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
