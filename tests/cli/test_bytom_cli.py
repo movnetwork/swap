@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-from shuttle.cli import __main__ as cli_main
+from shuttle.cli.__main__ import main as cli_main
 
 XPRIVATE_KEY = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830d" \
                "e09518e6bd5958d5d5dd97624cfa4b"
@@ -157,41 +157,36 @@ REFUND_SIGNED = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg
                 "NTQxMzBhIl1dLCAidHlwZSI6ICJieXRvbV9yZWZ1bmRfc2lnbmVkIn0="
 
 
-# Success template
-def success(_):
-    return "[{}] {}".format("SUCCESS", str(_))
-
-
 def test_bytom_cli(cli_tester):
-    assert cli_tester.invoke(cli_main.shuttle,
+    assert cli_tester.invoke(cli_main,
                              ["bytom"]).exit_code == 0
 
     # Testing bytom decode command.
-    decode = cli_tester.invoke(cli_main.shuttle,
+    decode = cli_tester.invoke(cli_main,
                                ["bytom", "decode", "--raw", FUND_RAW])
     assert decode.exit_code == 0
-    assert decode.output != success("") + "\n"
+    assert decode.output != "\n"
 
     # Testing bitcoin sign command.
-    fund_sign = cli_tester.invoke(cli_main.shuttle,
-                                  ["bytom", "sign", "--unsigned", FUND_RAW, "--xprivate", XPRIVATE_KEY])
+    fund_sign = cli_tester.invoke(cli_main,
+                                  ["bytom", "sign", "--raw", FUND_RAW, "--xprivate", XPRIVATE_KEY])
     assert fund_sign.exit_code == 0
-    assert fund_sign.output == success(FUND_SIGNED) + "\n"
+    assert fund_sign.output == FUND_SIGNED + "\n"
 
     # Testing bitcoin sign command.
-    claim_sign = cli_tester.invoke(cli_main.shuttle,
-                                   ["bytom", "sign", "--unsigned", CLAIM_RAW, "--xprivate", XPRIVATE_KEY])
+    claim_sign = cli_tester.invoke(cli_main,
+                                   ["bytom", "sign", "--raw", CLAIM_RAW, "--xprivate", XPRIVATE_KEY])
     assert claim_sign.exit_code == 0
-    assert claim_sign.output == success(CLAIM_SIGNED) + "\n"
+    assert claim_sign.output == CLAIM_SIGNED + "\n"
 
     # Testing bitcoin sign command.
-    refund_sign = cli_tester.invoke(cli_main.shuttle,
-                                    ["bytom", "sign", "--unsigned", REFUND_RAW, "--xprivate", XPRIVATE_KEY])
+    refund_sign = cli_tester.invoke(cli_main,
+                                    ["bytom", "sign", "--raw", REFUND_RAW, "--xprivate", XPRIVATE_KEY])
     assert refund_sign.exit_code == 0
-    assert refund_sign.output == success(REFUND_SIGNED) + "\n"
+    assert refund_sign.output == REFUND_SIGNED + "\n"
 
     # Testing bytom submit command.
-    submit = cli_tester.invoke(cli_main.shuttle,
+    submit = cli_tester.invoke(cli_main,
                                ["bytom", "submit", "--raw", REFUND_RAW])
     assert submit.exit_code == 0
-    assert submit.output == "[ERROR] finalize tx fail" + "\n"
+    assert submit.output == "Error: finalize tx fail" + "\n"
