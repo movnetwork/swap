@@ -31,7 +31,7 @@ class AliasedGroup(click.Group):
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo("PyShuttle version %s" % __version__)
+    click.echo("v%s" % __version__)
     ctx.exit()
 
 
@@ -39,22 +39,11 @@ def print_version(ctx, param, value):
              options_metavar="[OPTIONS]", context_settings=CONTEXT_SETTINGS)
 @click.option("-v", "--version", is_flag=True, callback=print_version,
               expose_value=False, help="Show Shuttle version and exit.")
-def shuttle():
-    """
-    SHUTTLE CLI
-
-    Cross-chain atomic swaps between the networks of two cryptocurrencies.
-
-    LICENCE AGPL-3.0 | AUTHOR Meheret Tesfaye | EMAIL meherett@zoho.com
-    """
+def main():
     pass
 
 
 # Adding bitcoin provider
-shuttle.add_command(bitcoin)
+main.add_command(bitcoin)
 # Adding bytom provider
-shuttle.add_command(bytom)
-
-
-def main():
-    shuttle()
+main.add_command(bytom)
