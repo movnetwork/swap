@@ -10,11 +10,8 @@ from .submit import submit
 
 
 @click.group("bytom", options_metavar="[OPTIONS]",
-             short_help="Select bytom cryptocurrency provider.")
+             short_help="Select Bytom provider.")
 def bytom():
-    """
-    SHUTTLE BYTOM
-    """
     pass
 
 

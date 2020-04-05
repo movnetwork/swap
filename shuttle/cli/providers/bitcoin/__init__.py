@@ -10,11 +10,8 @@ from .submit import submit
 
 
 @click.group("bitcoin", options_metavar="[OPTIONS]",
-             short_help="Select bitcoin cryptocurrency provider.")
+             short_help="Select Bitcoin provider.")
 def bitcoin():
-    """
-    SHUTTLE BITCOIN
-    """
     pass
 
 
