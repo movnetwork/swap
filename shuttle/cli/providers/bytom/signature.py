@@ -28,29 +28,31 @@ NETWORK = "solonet"  # mainnet or testnet
               show_default=True, help="Set Bytom derivation from change.")
 @click.option("-ad", "--address", type=int, default=1,
               show_default=True, help="Set Bytom derivation from address.")
-@click.option("-s", "--secret", type=str, default=str(), help="Set secret key.")
+@click.option("-s", "--secret", type=str, default=None, help="Set secret key.")
 @click.option("-p", "--path", type=str, default=None,
               help="Set Bytom derivation from path.")
 @click.option("-i", "--indexes", type=list, default=None,
               help="Set Bytom derivation from indexes.")
 def sign(xprivate, raw, account, change, address, secret, path, indexes):
+    if secret is None:
+        secret = str()
     if len(xprivate) != 128:
-        click.echo("invalid Bytom xprivate key")
+        click.echo(click.style("Error: {}")
+                   .format("invalid bytom xprivate key"), err=True)
         sys.exit()
 
     unsigned_raw = str(raw + "=" * (-len(raw) % 4))
     try:
         transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
-    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
-        click.echo("invalid unsigned transaction raw")
+    except (binascii.Error, json.decoder.JSONDecodeError) as exception:
+        click.echo(click.style("Error: {}")
+                   .format("invalid bytom unsigned transaction raw"), err=True)
         sys.exit()
-    if "type" not in transaction:
-        click.echo("there is no type provided on unsigned transaction raw")
-        click.echo("invalid unsigned transaction raw")
-        sys.exit()
-    if "network" not in transaction:
-        click.echo("there is no network provided on unsigned transaction raw")
-        click.echo("invalid unsigned transaction raw")
+    if "type" not in transaction or "network" not in transaction:
+        click.echo(click.style("Warning: {}", fg="yellow")
+                   .format("there is no type & network provided in bytom unsigned transaction raw"), err=True)
+        click.echo(click.style("Error: {}")
+                   .format("invalid bytom unsigned transaction raw"), err=True)
         sys.exit()
 
     if transaction["type"] == "bytom_fund_unsigned":
@@ -63,14 +65,16 @@ def sign(xprivate, raw, account, change, address, secret, path, indexes):
             fund_signature.sign(unsigned_raw=unsigned_raw, solver=fund_solver)
             click.echo(fund_signature.signed_raw())
         except Exception as exception:
-            click.echo(exception)
+            click.echo(click.style("Error: {}")
+                       .format(str(exception)), err=True)
             sys.exit()
 
     elif transaction["type"] == "bytom_claim_unsigned":
         if secret != str():
             _secret = secret
         elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo("secret key is empty, use -s or --secret \"Hello Meheret!\", default to None")
+            click.echo(click.style("Warning: {}")
+                       .format("secret key is empty, use -s or --secret \"Hello Meheret!\""), err=False)
             _secret = str()
         else:
             _secret = transaction["secret"]
@@ -83,7 +87,8 @@ def sign(xprivate, raw, account, change, address, secret, path, indexes):
             claim_signature.sign(unsigned_raw=unsigned_raw, solver=claim_solver)
             click.echo(claim_signature.signed_raw())
         except Exception as exception:
-            click.echo(exception)
+            click.echo(click.style("Error: {}")
+                       .format(str(exception)), err=True)
             sys.exit()
 
     elif transaction["type"] == "bytom_refund_unsigned":
@@ -96,5 +101,6 @@ def sign(xprivate, raw, account, change, address, secret, path, indexes):
             refund_signature.sign(unsigned_raw=unsigned_raw, solver=refund_solver)
             click.echo(refund_signature.signed_raw())
         except Exception as exception:
-            click.echo(exception)
+            click.echo(click.style("Error: {}")
+                       .format(str(exception)), err=True)
             sys.exit()
