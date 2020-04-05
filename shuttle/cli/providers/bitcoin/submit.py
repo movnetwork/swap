@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import json
+import sys
 
 
 from shuttle.cli import click
@@ -19,5 +20,11 @@ def submit(raw):
                 indent=4
             )
         )
+    except UnicodeDecodeError:
+        click.echo(click.style("Error: {}")
+                   .format("invalid bitcoin signed transaction raw"), err=True)
+        sys.exit()
     except Exception as exception:
-        click.echo(str(exception))
+        click.echo(click.style("Error: {}")
+                   .format(str(exception)), err=True)
+        sys.exit()

@@ -23,27 +23,29 @@ VERSION = 2  # 1
                short_help="Select Bitcoin transaction raw signer.")
 @click.option("-p", "--private", type=str, required=True, help="Set Bitcoin private key.")
 @click.option("-r", "--raw", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
-@click.option("-s", "--secret", type=str, default=str(), help="Set secret key.")
+@click.option("-s", "--secret", type=str, default=None, help="Set secret key.")
 @click.option("-v", "--version", type=int, default=VERSION,
-              help="Set Bitcoin version.", show_default=True)
+              help="Set Bitcoin transaction version.", show_default=True)
 def sign(private, raw, secret, version):
+    if secret is None:
+        secret = str()
     if len(private) != 64:
-        click.echo("invalid Bitcoin private key")
+        click.echo(click.style("Error: {}")
+                   .format("invalid bitcoin private key"), err=True)
         sys.exit()
 
     unsigned_raw = str(raw + "=" * (-len(raw) % 4))
     try:
         transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
-    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
-        click.echo("invalid unsigned transaction raw")
+    except (binascii.Error, json.decoder.JSONDecodeError) as exception:
+        click.echo(click.style("Error: {}")
+                   .format("invalid bitcoin unsigned transaction raw"), err=True)
         sys.exit()
-    if "type" not in transaction:
-        click.echo("there is no type provided on unsigned transaction raw")
-        click.echo("invalid unsigned transaction raw")
-        sys.exit()
-    if "network" not in transaction:
-        click.echo("there is no network provided on unsigned transaction raw")
-        click.echo("invalid unsigned transaction raw")
+    if "type" not in transaction or "network" not in transaction:
+        click.echo(click.style("Warning: {}", fg="yellow")
+                   .format("there is no type & network provided in bitcoin unsigned transaction raw"), err=True)
+        click.echo(click.style("Error: {}")
+                   .format("invalid bitcoin unsigned transaction raw"), err=True)
         sys.exit()
 
     if transaction["type"] == "bitcoin_fund_unsigned":
@@ -55,14 +57,15 @@ def sign(private, raw, secret, version):
             fund_signature.sign(unsigned_raw=unsigned_raw, solver=fund_solver)
             click.echo(fund_signature.signed_raw())
         except Exception as exception:
-            click.echo(exception)
+            click.echo(click.style("Error: {}").format(str(exception)), err=True)
             sys.exit()
 
     elif transaction["type"] == "bitcoin_claim_unsigned":
         if secret != str():
             _secret = secret
         elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo("secret key is empty, use -s or --secret \"Hello Meheret!\"")
+            click.echo(click.style("Warning: {}")
+                       .format("secret key is empty, use -s or --secret \"Hello Meheret!\""), err=False)
             _secret = str()
         else:
             _secret = transaction["secret"]
@@ -77,14 +80,15 @@ def sign(private, raw, secret, version):
             claim_signature.sign(unsigned_raw=unsigned_raw, solver=claim_solver)
             click.echo(claim_signature.signed_raw())
         except Exception as exception:
-            click.echo(exception)
+            click.echo(click.style("Error: {}").format(str(exception)), err=True)
             sys.exit()
 
     elif transaction["type"] == "bitcoin_refund_unsigned":
         if secret != str():
             _secret = secret
         elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo("secret key is empty, use -s or --secret \"Hello Meheret!\"")
+            click.echo(click.style("Warning: {}")
+                       .format("secret key is empty, use -s or --secret \"Hello Meheret!\""), err=False)
             _secret = str()
         else:
             _secret = transaction["secret"]
@@ -99,5 +103,5 @@ def sign(private, raw, secret, version):
             refund_signature.sign(unsigned_raw=unsigned_raw, solver=refund_solver)
             click.echo(refund_signature.signed_raw())
         except Exception as exception:
-            click.echo(exception)
+            click.echo(click.style("Error: {}").format(str(exception)), err=True)
             sys.exit()
