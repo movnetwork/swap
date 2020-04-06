@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from base64 import b64encode, b64decode
+from btmhdw import sign as btm_sign
 
 import ed25519
 import json
@@ -10,18 +11,15 @@ import datetime
 from .rpc import get_transaction, decode_tx_raw, submit_payment
 
 
-def sign(private_key_str, message_str):
-    signing_key = ed25519.SigningKey(bytes.fromhex(private_key_str))
-    # signature = signing_key.sign(message_str.encode(), encoding='hex')
-    signature = signing_key.sign(bytes.fromhex(message_str), encoding='hex')
-    return signature.decode()
+def sign(private_key, message):
+    return btm_sign(private_key, message)
 
 
-def verify(public_key_str, signature_str, message_str):
+def verify(public_key, signature, message):
     result = False
-    verifying_key = ed25519.VerifyingKey(public_key_str.encode(), encoding='hex')
+    verifying_key = ed25519.VerifyingKey(public_key.encode(), encoding='hex')
     try:
-        verifying_key.verify(signature_str.encode(), bytes.fromhex(message_str), encoding='hex')
+        verifying_key.verify(signature.encode(), bytes.fromhex(message), encoding='hex')
         result = True
     except ed25519.BadSignatureError:
         result = False
