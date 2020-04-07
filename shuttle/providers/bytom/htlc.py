@@ -59,7 +59,7 @@ class HTLC:
         :param recipient_public: bytom recipient public key.
         :type recipient_public: str
         :param sender_public: bytom sender public key.
-        :type sender_public: int
+        :type sender_public: str
         :param sequence: bytom sequence number of expiration block, defaults to bytom config sequence (15).
         :type sequence: int
         :returns: HTLC -- bytom Hash Time Lock Contract (HTLC) instance.
