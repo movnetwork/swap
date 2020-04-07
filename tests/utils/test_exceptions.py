@@ -10,7 +10,7 @@ def exceptions(error=""):
     if error == "network":
         raise NetworkError("Invalid network type.")
     elif error == "network_detail":
-        raise NetworkError("Invalid network type., testnet")
+        raise NetworkError("Invalid network type.", "testnet")
     elif error == "balance":
         raise BalanceError("0")
     elif error == "balance_detail":
