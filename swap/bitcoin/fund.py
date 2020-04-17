@@ -68,7 +68,7 @@ print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
 # Initialize Hash Time Lock Contract (HTLC)
 htlc = HTLC(network=network).init(
-    secret_hash=sha256("Hello Meheret!".encode()),
+    secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_address=recipient_address,
     sequence=100,
     sender_address=sender_address

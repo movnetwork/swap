@@ -24,7 +24,7 @@ recipient_address = recipient_wallet.address()
 
 # Initialize Hash Time Lock Contract (HTLC)
 htlc = HTLC(network=network).init(
-    secret_hash=sha256("Hello Meheret!".encode()),
+    secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_address=recipient_address,
     sequence=100,
     sender_address=sender_address
