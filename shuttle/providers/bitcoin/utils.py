@@ -102,7 +102,7 @@ def submit_transaction_raw(tx_raw):
 
 
 # Checking address
-def is_address(address, network="testnet"):
+def is_address(address, network=None):
     """
     Check bitcoin address.
 
@@ -118,6 +118,13 @@ def is_address(address, network="testnet"):
     """
 
     if isinstance(address, str):
+        if network is None:
+            for boolean in [True, False]:
+                valid = False
+                if cryptos.Bitcoin(testnet=boolean).is_address(address):
+                    valid = True
+                    break
+            return valid
         if network == "testnet":
             return cryptos.Bitcoin(testnet=True).is_address(address)
         elif network == "mainnet":
