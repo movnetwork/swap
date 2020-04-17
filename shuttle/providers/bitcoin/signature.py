@@ -254,7 +254,7 @@ class ClaimSignature(Signature):
         if not isinstance(solver, ClaimSolver):
             raise TypeError("invalid solver instance, only takes bitcoin ClaimSolver class")
         htlc = HTLC(network=self.network).init(
-            secret_hash=sha256(solver.secret),
+            secret_hash=sha256(solver.secret).hex(),
             recipient_address=tx_raw["recipient_address"],
             sender_address=tx_raw["sender_address"],
             sequence=solver.sequence
@@ -321,7 +321,7 @@ class RefundSignature(Signature):
         if not isinstance(solver, RefundSolver):
             raise Exception("invalid solver error, only refund solver")
         htlc = HTLC(network=self.network).init(
-            secret_hash=sha256(solver.secret),
+            secret_hash=sha256(solver.secret).hex(),
             recipient_address=tx_raw["recipient_address"],
             sender_address=tx_raw["sender_address"],
             sequence=solver.sequence
