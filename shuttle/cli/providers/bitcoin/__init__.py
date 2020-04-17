@@ -4,6 +4,7 @@
 # IMPORT ALL PACKAGES
 from shuttle.cli import click
 
+from .htlc import htlc
 from .signature import sign
 from .decode import decode
 from .submit import submit
@@ -15,6 +16,8 @@ def bitcoin():
     pass
 
 
+# Adding bitcoin htlc
+bitcoin.add_command(htlc)
 # Adding bitcoin sign
 bitcoin.add_command(sign)
 # Adding bitcoin decoder
