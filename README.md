@@ -35,7 +35,7 @@ Tests are still under development.
 You can run the tests with:
 
 ```
-$ pytest tests
+$ pytest
 ```
 
 Or use `tox` to run the complete suite against the full set of build targets, or pytest to run specific 
@@ -52,4 +52,4 @@ See also the list of [contributors](https://github.com/meherett/shuttle/graphs/c
 
 ## License
 
-Distributed under the [AGPL-3.0](https://github.com/meherett/shuttle/LICENSE) license. See ``LICENSE`` for more information.
+Distributed under the [AGPL-3.0](https://github.com/meherett/shuttle/blob/master/LICENSE) license. See ``LICENSE`` for more information.
