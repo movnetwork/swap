@@ -55,7 +55,7 @@ class HTLC:
         Initialize bytom Hash Time Lock Contract (HTLC).
 
         :param secret_hash: secret sha-256 hash.
-        :type secret_hash: hash
+        :type secret_hash: str
         :param recipient_public: bytom recipient public key.
         :type recipient_public: str
         :param sender_public: bytom sender public key.
@@ -73,14 +73,16 @@ class HTLC:
         # Checking parameters
         if not isinstance(secret_hash, str):
             raise TypeError("secret hash must be string format")
+        if len(secret_hash) != 64:
+            raise ValueError("invalid secret hash, length must be 64.")
         if not isinstance(recipient_public, str):
             raise TypeError("recipient public key must be string format")
         if len(recipient_public) != 64:
-            raise TypeError("invalid recipient public key, length must be 64.")
+            raise ValueError("invalid recipient public key, length must be 64.")
         if not isinstance(sender_public, str):
             raise TypeError("sender public key must be string format")
         if len(sender_public) != 64:
-            raise TypeError("invalid sender public key, length must be 64.")
+            raise ValueError("invalid sender public key, length must be 64.")
         if not isinstance(sequence, int):
             raise TypeError("sequence must be integer format")
 
@@ -110,7 +112,7 @@ class HTLC:
         "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         """
 
-        if self.equity and "program" not in self.equity:
+        if not self.equity or "program" not in self.equity:
             raise ValueError("htlc script is none, initialization htlc first")
         return self.equity["program"]
 
@@ -128,6 +130,6 @@ class HTLC:
         "0x64 0x91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0xac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01 0x2b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff DEPTH 0x547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
         """
 
-        if self.equity and "opcodes" not in self.equity:
+        if not self.equity or "opcodes" not in self.equity:
             raise ValueError("htlc script is none, initialization htlc first")
         return self.equity["opcodes"]
