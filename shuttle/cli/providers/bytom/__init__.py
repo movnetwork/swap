@@ -4,6 +4,7 @@
 # IMPORT ALL PACKAGES
 from shuttle.cli import click
 
+from .htlc import htlc
 from .signature import sign
 from .decode import decode
 from .submit import submit
@@ -15,6 +16,8 @@ def bytom():
     pass
 
 
+# Adding bitcoin htlc
+bytom.add_command(htlc)
 # Adding bytom sign
 bytom.add_command(sign)
 # Adding bytom decoder
