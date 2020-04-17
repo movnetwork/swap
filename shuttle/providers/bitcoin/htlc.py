@@ -3,6 +3,7 @@
 from btcpy.structs.script import Script, ScriptBuilder, P2shScript, \
     IfElseScript, Hashlock256Script, RelativeTimelockScript
 from btcpy.structs.transaction import Sequence
+from binascii import unhexlify
 
 from .utils import script_from_address, is_address
 from ...utils.exceptions import AddressError
@@ -62,10 +63,16 @@ class HTLC:
         """
 
         # Checking parameters
-        if not isinstance(secret_hash, bytes):
-            raise TypeError("secret hash must be bytes format")
+        if not isinstance(secret_hash, str):
+            raise TypeError("secret hash must be string format")
+        if len(secret_hash) != 64:
+            raise ValueError("invalid secret hash, length must be 64.")
+        if not isinstance(recipient_address, str):
+            raise TypeError("recipient address must be string format")
         if not is_address(recipient_address, self.network):
             raise AddressError("invalid %s recipient %s address" % (self.network, recipient_address))
+        if not isinstance(sender_address, str):
+            raise TypeError("sender address must be string format")
         if not is_address(sender_address, self.network):
             raise AddressError("invalid %s sender %s address" % (self.network, sender_address))
         if not isinstance(sequence, int):
@@ -74,7 +81,7 @@ class HTLC:
         self.script = IfElseScript(
             # If branch
             Hashlock256Script(  # Hash lock 250
-                sha256(secret_hash),  # Secret key
+                sha256(unhexlify(secret_hash)),  # Secret key
                 script_from_address(
                     address=recipient_address, network=self.network)  # Script hash of account two
             ),
