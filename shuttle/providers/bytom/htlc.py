@@ -70,8 +70,22 @@ class HTLC:
         <shuttle.providers.bytom.htlc.HTLC object at 0x0409DAF0>
         """
 
+        # Checking parameters
+        if not isinstance(secret_hash, str):
+            raise TypeError("secret hash must be string format")
+        if not isinstance(recipient_public, str):
+            raise TypeError("recipient public key must be string format")
+        if len(recipient_public) != 64:
+            raise TypeError("invalid recipient public key, length must be 64.")
+        if not isinstance(sender_public, str):
+            raise TypeError("sender public key must be string format")
+        if len(sender_public) != 64:
+            raise TypeError("invalid sender public key, length must be 64.")
+        if not isinstance(sequence, int):
+            raise TypeError("sequence must be integer format")
+
         # HTLC agreements
-        HTLC_ARGS = [
+        HTLC_ARGEEMENTS = [
             secret_hash,  # secret_hash: Hash
             recipient_public,  # recipient: PublicKey
             sender_public,  # sender: PublicKey
@@ -79,7 +93,7 @@ class HTLC:
         ]
         # Compiling HTLC contract
         self.equity = Equity(bytom[self.network]["bytom"])\
-            .compile_source(HTLC_SCRIPT, HTLC_ARGS)
+            .compile_source(HTLC_SCRIPT, HTLC_ARGEEMENTS)
         return self
 
     # Bytecode HTLC script
