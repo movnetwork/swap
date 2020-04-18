@@ -23,7 +23,7 @@ setup(
     author_email=shuttle.__email__,
     url="https://github.com/meherett/shuttle",
     packages=find_packages(),
-    keywords=["shuttle"],
+    keywords=["cross-chain", "atomic-swap", "cryptocurrencies"],
     entry_points={
         "console_scripts": ["shuttle=shuttle.cli.__main__:main"]
     },
@@ -45,6 +45,7 @@ setup(
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.8",
+        "Topic :: Software Development"
     ],
 )
