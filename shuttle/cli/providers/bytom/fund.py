@@ -14,7 +14,7 @@ from shuttle.providers.bytom.htlc import HTLC
                short_help="Select Bytom unsigned fund transaction builder.")
 @click.option("-sg", "--sender-guid", type=str, required=True, help="Set Bytom sender GUID.")
 @click.option("-a", "--amount", type=int, required=True, help="Set Bytom amount to fund on HTLC.")
-@click.option("-b", "--bytecode", type=str, required=True, help="Set Bytom Hash Time Lock Contract (HTLC) bytecode.")
+@click.option("-b", "--bytecode", type=str, required=True, help="Set Bytom HTLC bytecode.")
 @click.option("-n", "--network", type=str, default="testnet", help="Set Bytom network.")
 def fund(sender_guid, amount, bytecode, network):
     try:
