@@ -210,6 +210,11 @@ class Wallet:
             program=self._program, network=self.network)
         return self
 
+    # Bytom wallet from GUID
+    def from_guid(self, guid):
+        self._guid = guid
+        return self
+
     # Path derivation
     def derivation(self):
         if self._path:
