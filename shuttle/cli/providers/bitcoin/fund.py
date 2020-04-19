@@ -11,7 +11,7 @@ from shuttle.providers.bitcoin.htlc import HTLC
 
 
 @click.command("fund", options_metavar="[OPTIONS]",
-               short_help="Select Bitcoin unsigned fund transaction builder.")
+               short_help="Select Bitcoin fund transaction builder.")
 @click.option("-sa", "--sender-address", type=str, required=True, help="Set Bitcoin sender address.")
 @click.option("-a", "--amount", type=int, required=True, help="Set Bitcoin amount to fund on HTLC.")
 @click.option("-b", "--bytecode", type=str, required=True, help="Set Bitcoin HTLC bytecode.")
