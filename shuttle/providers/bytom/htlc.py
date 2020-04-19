@@ -98,6 +98,11 @@ class HTLC:
             .compile_source(HTLC_SCRIPT, HTLC_ARGEEMENTS)
         return self
 
+    # Bytom HTLC from bytecode
+    def from_bytecode(self, bytecode):
+        self.equity = dict(program=bytecode)
+        return self
+
     # Bytecode HTLC script
     def bytecode(self):
         """
