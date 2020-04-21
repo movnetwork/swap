@@ -1,4 +1,4 @@
-# Shuttle CLI
+# Swap on Shuttle CLI
 
 - [Shuttle Command](#shuttle-command)
   - [Version Option](#version-option)
