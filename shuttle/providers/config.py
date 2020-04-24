@@ -1,27 +1,4 @@
-# Bytom network
-def bytom():
-    return {
-        "mainnet": {
-            "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/v2",
-            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
-        },
-        "solonet": {
-            "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/v2",
-            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
-        },
-        "testnet": {
-            "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/wisdom",
-            "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
-        },
-        "timeout": 15,
-        "BTM_asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "fee": 10000000,
-        "confirmations": 1,
-        "sequence": 100
-    }
+#!/usr/bin/env python3
 
 
 # Bitcoin network
@@ -45,6 +22,32 @@ def bitcoin(blockcypher_token=None):
                 "token": blockcypher_token
             }
         },
-        "timeout": 15,
+        "timeout": 60,
+        "sequence": 100
+    }
+
+
+# Bytom network
+def bytom():
+    return {
+        "mainnet": {
+            "bytom": "http://localhost:9888",
+            "blockmeta": "https://blockmeta.com/api/v2",
+            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
+        },
+        "solonet": {
+            "bytom": "http://localhost:9888",
+            "blockmeta": "https://blockmeta.com/api/v2",
+            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
+        },
+        "testnet": {
+            "bytom": "http://localhost:9888",
+            "blockmeta": "https://blockmeta.com/api/wisdom",
+            "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
+        },
+        "timeout": 60,
+        "BTM_asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "fee": 10000000,
+        "confirmations": 1,
         "sequence": 100
     }
