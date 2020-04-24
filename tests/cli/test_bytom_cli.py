@@ -6,6 +6,10 @@ from shuttle.cli.__main__ import main as cli_main
 XPRIVATE_KEY = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830d" \
                "e09518e6bd5958d5d5dd97624cfa4b"
 
+HTLC_BYTECODE = "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182" \
+                "d53f0677cd4351a0e743e6f10b35122c3d7ea01203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e" \
+                "45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+
 FUND_RAW = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIj" \
            "ogW3siZGF0YXMiOiBbImIxYzVlYTFkNjAwNjY0Y2U4MTAwNzMxNmQ2Zjg5NThlMjQ4ZWZhNjk3YWRhN2Q0M2E4YzI2YjJkNjE1NjAx" \
            "NDgiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYj" \
@@ -160,6 +164,120 @@ REFUND_SIGNED = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg
 def test_bytom_cli(cli_tester):
     assert cli_tester.invoke(cli_main,
                              ["bytom"]).exit_code == 0
+
+    # Testing bytom htlc command.
+    htlc = cli_tester.invoke(cli_main,
+                             "bytom htlc --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e4"
+                             "5820eeb --recipient-public ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b3512"
+                             "2c3d7ea01 --sender-public 91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6"
+                             "448f22e2 --sequence 100 --network testnet".split(" "))
+    assert htlc.exit_code == 0
+    assert htlc.output != HTLC_BYTECODE + "\n"
+
+    # Testing bitcoin fund command.
+    fund = cli_tester.invoke(cli_main,
+                             ["bytom", "fund", "--sender-guid", "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b", "--amount",
+                              10000, "--asset", "f37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf",
+                              "--bytecode", HTLC_BYTECODE, "--network", "mainnet"])
+    assert fund.exit_code == 0
+    assert fund.output == "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiw" \
+                          "gInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjViZTliNWIxYjE4YzdhMjMxMjFhMGQ0MzEyZDcyZWIyN2ZhY2M1Ym" \
+                          "NiY2VlMGNmZmVlNDU5ZWVlNGRmYmFmNDAiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3Z" \
+                          "jBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQi" \
+                          "LCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9LCB7ImRhdGFzIjogWyI4MTgxZTFhYzViMDA2NjA1MDQ5ZDZhZDg" \
+                          "zNjg4Y2EyYTU4N2I0NTc0ZDVmZTQxYjY2ZmU3NDQ3MjczMGQ4OGM4Il0sICJwdWJsaWNfa2V5IjogIjkxZmY3Zj" \
+                          "UyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIiLCAibmV0d" \
+                          "29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJoYXNoIjogImI5OTgxMDI1ZGYw" \
+                          "OGM4ZmQ2ZTI5NzY2NTZjMjkyZjIyMTlmMTA4Y2U1ZjA4ZmZlODVkMzNlMjhmMjM4NTlmYTIiLCAicmF3IjogIjA" \
+                          "3MDEwMDAyMDE2MTAxNWY4MWU1MGUxMmY4MjM2ZjkxYzg4NDJkM2Y0OTU1MDJiOTc1MmZjMzVkMDE1MDA5MWVhNW" \
+                          "IyYzI2NjA1MTVjM2I1ZjM3ZGVhNjJlZmQyOTY1MTc0Yjg0YmJiNTlhMGJkMGE2NzFjZjVmYjI4NTczMDNmZmQ3N" \
+                          "2MxYjQ4MmI4NGJkZmE4Y2JkYmMzZjQwMjAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2" \
+                          "ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU" \
+                          "4YWQxYjY0NDhmMjJlMjAxNjAwMTVlM2ZiZjI0YjQwYzlhNzhiNWY3NmJlZTVlNmIyNDI4YTllYzU4YWJkNjQwND" \
+                          "k1ZDQ5ODQ0MDk2MjQxYTJjMDM2NWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZ" \
+                          "mZmZmZmZmZmZmZmZmZmZmZmZmY4MGRkOTZmZDA4MDEwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYx" \
+                          "NTdlZDZkYzQwODMzMmEyMjAxMjA5MWZmN2Y1MjVmZjQwODc0YzRmNDdmMGNhYjQyZTQ2ZTNiZjUzYWRhZDU5YWR" \
+                          "lZjk1NThhZDFiNjQ0OGYyMmUyMDMwMWFkMDFmMzdkZWE2MmVmZDI5NjUxNzRiODRiYmI1OWEwYmQwYTY3MWNmNW" \
+                          "ZiMjg1NzMwM2ZmZDc3YzFiNDgyYjg0YmRmOTA0ZTAxODgwMTAxNjQyMDkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY" \
+                          "2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIyMGFjMTNjMGJiMTQ0NTQyM2E2NDE3NTQx" \
+                          "ODJkNTNmMDY3N2NkNDM1MWEwZTc0M2U2ZjEwYjM1MTIyYzNkN2VhMDEyMDNhMjZkYTgyZWFkMTVhODA1MzNhMDI" \
+                          "2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWI3NDFmNTQ3YTY0MTYwMDAwMDA1NTdhYT" \
+                          "g4ODUzN2E3Y2FlN2NhYzYzMWYwMDAwMDA1MzdhY2Q5ZjY5NzJhZTdjYWMwMGMwMDAwMTNlZjM3ZGVhNjJlZmQyO" \
+                          "TY1MTc0Yjg0YmJiNTlhMGJkMGE2NzFjZjVmYjI4NTczMDNmZmQ3N2MxYjQ4MmI4NGJkZjk4ZmRkYWMzZjQwMjAx" \
+                          "MTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwMDEzZGZmZmZmZmZmZmZmZmZ" \
+                          "mZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGIwYjRmODA4MDExNj" \
+                          "AwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAic2lnbmF0dXJlcyI6IFtdL" \
+                          "CAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fZnVuZF91bnNpZ25lZCJ9" + "\n"
+
+    # Testing bitcoin claim command.
+    claim = cli_tester.invoke(cli_main,
+                              ["bytom", "claim", "--transaction", "8843bca172ed4685b511c0f106fd3f6889a42fa3f9383d0"
+                                                                  "57ea4e587f7db0cbe",
+                               "--recipient-guid", "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b", "--recipient-public",
+                               "ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01", "--amount", 100,
+                               "--asset", "f37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf",
+                               "--network", "mainnet"])
+    assert claim.exit_code == 0
+    assert claim.output == "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIi" \
+                           "wgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjg0MGYwZjM5MTFiOTllY2NlODk0MjA0OWFhYjY4NjEzMmE5MTAz" \
+                           "NTBiZTAxNDY0MTU1YzkzM2ZjMWE5Y2NmZjQiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH" \
+                           "0sIHsiZGF0YXMiOiBbIjg2ZGFiNjAwZWFjMDMxYjM4YjE2YmQ1NGQzMjMwYjgyNWUwYjI2YmNkZGZkZGJhNTdj" \
+                           "ODBhZDNmNjI4YTllYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0Nm" \
+                           "UzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6" \
+                           "ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiZTg5OWVjNzlhN2IxYTk0MzFjYjczNWMxYmMxYmNhYzg1MD" \
+                           "JjZjZkYmY3NTA0ODdjMzcxYjQ0NDFkNTUyNmVjNiIsICJyYXciOiAiMDcwMTAwMDIwMWQwMDEwMWNkMDEzZmJm" \
+                           "MjRiNDBjOWE3OGI1Zjc2YmVlNWU2YjI0MjhhOWVjNThhYmQ2NDA0OTVkNDk4NDQwOTYyNDFhMmMwMzY1ZjM3ZG" \
+                           "VhNjJlZmQyOTY1MTc0Yjg0YmJiNTlhMGJkMGE2NzFjZjVmYjI4NTczMDNmZmQ3N2MxYjQ4MmI4NGJkZjY0MDAw" \
+                           "MTg4MDEwMTY0MjA5MWZmN2Y1MjVmZjQwODc0YzRmNDdmMGNhYjQyZTQ2ZTNiZjUzYWRhZDU5YWRlZjk1NThhZD" \
+                           "FiNjQ0OGYyMmUyMjBhYzEzYzBiYjE0NDU0MjNhNjQxNzU0MTgyZDUzZjA2NzdjZDQzNTFhMGU3NDNlNmYxMGIz" \
+                           "NTEyMmMzZDdlYTAxMjAyYjlhNTk0OWY1NTQ2ZjYzYTI1M2U0MWNkYTZiZmZkZWRiNTI3Mjg4YTdlMjRlZDk1M2" \
+                           "Y1YzI2ODBjNzBkNmZmNzQxZjU0N2E2NDE2MDAwMDAwNTU3YWE4ODg1MzdhN2NhZTdjYWM2MzFmMDAwMDAwNTM3" \
+                           "YWNkOWY2OTcyYWU3Y2FjMDBjMDAxMDAwMTYwMDE1ZTNmYmYyNGI0MGM5YTc4YjVmNzZiZWU1ZTZiMjQyOGE5ZW" \
+                           "M1OGFiZDY0MDQ5NWQ0OTg0NDA5NjI0MWEyYzAzNjVmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZm" \
+                           "ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBkZDk2ZmQwODAxMDExNjAwMTQyY2RhNGY5OWVhODExMm" \
+                           "U2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUz" \
+                           "YmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDEzOWYzN2RlYTYyZWZkMjk2NTE3NGI4NGJiYjU5YT" \
+                           "BiZDBhNjcxY2Y1ZmIyODU3MzAzZmZkNzdjMWI0ODJiODRiZGY2NDAxMTYwMDE0MTFiYzE5MGY0ZWJlM2E2ZGRj" \
+                           "YmM3YWVmNjk3M2FjNGE4OTNiNDQ1NjAwMDEzZGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZm" \
+                           "ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGIwYjRmODA4MDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2" \
+                           "MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAic2VjcmV0IjogbnVsbCwgIm5ldHdvcmsiOiAibWFpbm5ldCIsIC" \
+                           "JzaWduYXR1cmVzIjogW10sICJ0eXBlIjogImJ5dG9tX2NsYWltX3Vuc2lnbmVkIn0=" + "\n"
+
+    # Testing bitcoin refund command.
+    refund = cli_tester.invoke(cli_main,
+                               ["bytom", "refund", "--transaction", "8843bca172ed4685b511c0f106fd3f6889a42fa3f9383d0"
+                                                                    "57ea4e587f7db0cbe",
+                                "--sender-guid", "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b",
+                                "--sender-public", "ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01",
+                                "--amount", 100, "--asset",
+                                "f37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf", "--network",
+                                "mainnet"])
+
+    assert refund.exit_code == 0
+    assert refund.output == "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiI" \
+                            "iwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjg0MGYwZjM5MTFiOTllY2NlODk0MjA0OWFhYjY4NjEzMmE5MT" \
+                            "AzNTBiZTAxNDY0MTU1YzkzM2ZjMWE5Y2NmZjQiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnV" \
+                            "sbH0sIHsiZGF0YXMiOiBbIjg2ZGFiNjAwZWFjMDMxYjM4YjE2YmQ1NGQzMjMwYjgyNWUwYjI2YmNkZGZkZGJh" \
+                            "NTdjODBhZDNmNjI4YTllYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0M" \
+                            "mU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicG" \
+                            "F0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiZTg5OWVjNzlhN2IxYTk0MzFjYjczNWMxYmMxYmN" \
+                            "hYzg1MDJjZjZkYmY3NTA0ODdjMzcxYjQ0NDFkNTUyNmVjNiIsICJyYXciOiAiMDcwMTAwMDIwMWQwMDEwMWNk" \
+                            "MDEzZmJmMjRiNDBjOWE3OGI1Zjc2YmVlNWU2YjI0MjhhOWVjNThhYmQ2NDA0OTVkNDk4NDQwOTYyNDFhMmMwM" \
+                            "zY1ZjM3ZGVhNjJlZmQyOTY1MTc0Yjg0YmJiNTlhMGJkMGE2NzFjZjVmYjI4NTczMDNmZmQ3N2MxYjQ4MmI4NG" \
+                            "JkZjY0MDAwMTg4MDEwMTY0MjA5MWZmN2Y1MjVmZjQwODc0YzRmNDdmMGNhYjQyZTQ2ZTNiZjUzYWRhZDU5YWR" \
+                            "lZjk1NThhZDFiNjQ0OGYyMmUyMjBhYzEzYzBiYjE0NDU0MjNhNjQxNzU0MTgyZDUzZjA2NzdjZDQzNTFhMGU3" \
+                            "NDNlNmYxMGIzNTEyMmMzZDdlYTAxMjAyYjlhNTk0OWY1NTQ2ZjYzYTI1M2U0MWNkYTZiZmZkZWRiNTI3Mjg4Y" \
+                            "TdlMjRlZDk1M2Y1YzI2ODBjNzBkNmZmNzQxZjU0N2E2NDE2MDAwMDAwNTU3YWE4ODg1MzdhN2NhZTdjYWM2Mz" \
+                            "FmMDAwMDAwNTM3YWNkOWY2OTcyYWU3Y2FjMDBjMDAxMDAwMTYwMDE1ZTNmYmYyNGI0MGM5YTc4YjVmNzZiZWU" \
+                            "1ZTZiMjQyOGE5ZWM1OGFiZDY0MDQ5NWQ0OTg0NDA5NjI0MWEyYzAzNjVmZmZmZmZmZmZmZmZmZmZmZmZmZmZm" \
+                            "ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBkZDk2ZmQwODAxMDExNjAwMTQyY" \
+                            "2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0Zj" \
+                            "Q3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDEzOWYzN2RlYTYyZWZkMjk" \
+                            "2NTE3NGI4NGJiYjU5YTBiZDBhNjcxY2Y1ZmIyODU3MzAzZmZkNzdjMWI0ODJiODRiZGY2NDAxMTYwMDE0MTFi" \
+                            "YzE5MGY0ZWJlM2E2ZGRjYmM3YWVmNjk3M2FjNGE4OTNiNDQ1NjAwMDEzZGZmZmZmZmZmZmZmZmZmZmZmZmZmZ" \
+                            "mZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGIwYjRmODA4MDExNjAwMTQyY2" \
+                            "RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAic2lnbmF0dXJlcyI6IFtdLCAibmV" \
+                            "0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fcmVmdW5kX3Vuc2lnbmVkIn0=" + "\n"
 
     # Testing bytom decode command.
     decode = cli_tester.invoke(cli_main,
