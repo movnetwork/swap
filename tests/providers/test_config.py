@@ -16,7 +16,7 @@ def test_config():
     assert btc["testnet"]["blockcypher"]["url"] == "https://api.blockcypher.com/v1/btc/test3"
     assert btc["testnet"]["blockcypher"]["token"] == "c6ef693d3c024088810e6fac2a1494ee"
 
-    assert btc["timeout"] == 15
+    assert btc["timeout"] == 60
     assert btc["sequence"] == 100
 
     assert btm["mainnet"]["bytom"] == "http://localhost:9888"
@@ -31,7 +31,7 @@ def test_config():
     assert btm["testnet"]["blockmeta"] == "https://blockmeta.com/api/wisdom"
     assert btm["testnet"]["blockcenter"] == "https://bcapi.bystack.com/api/v2/wisdom"
 
-    assert btm["timeout"] == 15
+    assert btm["timeout"] == 60
     assert btm["BTM_asset"] == "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     assert btm["fee"] == 10000000
     assert btm["confirmations"] == 1

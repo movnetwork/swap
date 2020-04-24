@@ -4,7 +4,9 @@ from shuttle.providers.bytom.wallet import Wallet
 from shuttle.providers.bytom.htlc import HTLC
 from shuttle.providers.bytom.transaction import FundTransaction
 from shuttle.providers.bytom.solver import FundSolver
-from shuttle.providers.bytom.signature import FundSignature
+from shuttle.providers.bytom.signature import FundSignature, Signature
+
+import pytest
 
 
 network = "mainnet"
@@ -108,11 +110,14 @@ def test_bytom_fund():
     fund_signature = FundSignature(network=network) \
         .sign(unsigned_raw=unsigned_fund_raw, solver=fund_solver)
 
-    assert fund_signature.fee == signed_fund_transaction.fee == \
+    signature = Signature(network=network) \
+        .sign(unsigned_raw=unsigned_fund_raw, solver=fund_solver)
+
+    assert fund_signature.fee == signature.fee == signed_fund_transaction.fee == \
            unsigned_fund_transaction.fee == 10000000
     assert fund_signature.hash() == signed_fund_transaction.hash() == unsigned_fund_transaction.hash() == \
-           "c6b32b95810a10023d078968735274d01e8b5ff8c55763d8378faf6af29a6666"
-    assert fund_signature.raw() == signed_fund_transaction.raw() == \
+           signature.hash() == "c6b32b95810a10023d078968735274d01e8b5ff8c55763d8378faf6af29a6666"
+    assert fund_signature.raw() == signature.raw() == signed_fund_transaction.raw() == \
            "070100020161015f81e50e12f8236f91c8842d3f495502b9752fc35d0150091ea5b2c2660515c3b5f37dea62efd29651" \
            "74b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdfa8cbdbc3f40201011600142cda4f99ea8112e6fa61cdd261" \
            "57ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20160015e3fbf" \
@@ -126,7 +131,7 @@ def test_bytom_fund():
            "4bdfc4cadbc3f402011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00013dffffffffffffffffffffffffff" \
            "ffffffffffffffffffffffffffffffffffffff80b0b4f808011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a" \
            "00"
-    assert fund_signature.unsigned() == signed_fund_transaction.unsigned() == \
+    assert fund_signature.unsigned() == signature.unsigned() == signed_fund_transaction.unsigned() == \
            unsigned_fund_transaction.unsigned() == [
                {
                    'datas': [
@@ -146,7 +151,7 @@ def test_bytom_fund():
                }
            ]
     assert fund_signature.signatures == signed_fund_transaction.signatures == \
-           unsigned_fund_transaction.signatures == [
+           unsigned_fund_transaction.signatures == signature.signatures == [
                [
                    "dfda4a7a739508eafb67846aaa28be97017c5642d5d3c5ce368605e11e0fca1e359d4edf2c112a528622d4fc75941"
                    "11c5ad921cee67378c62a6c0db2dd379201"
@@ -157,7 +162,7 @@ def test_bytom_fund():
                ]
            ]
 
-    assert fund_signature.signed_raw() == \
+    assert fund_signature.signed_raw() == signature.signed_raw() == \
            "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwN" \
            "zAxMDAwMjAxNjEwMTVmODFlNTBlMTJmODIzNmY5MWM4ODQyZDNmNDk1NTAyYjk3NTJmYzM1ZDAxNTAwOTFlYTViMmMyNjYwNTE1Yz" \
            "NiNWYzN2RlYTYyZWZkMjk2NTE3NGI4NGJiYjU5YTBiZDBhNjcxY2Y1ZmIyODU3MzAzZmZkNzdjMWI0ODJiODRiZGZhOGNiZGJjM2Y" \
@@ -186,3 +191,18 @@ def test_bytom_fund():
            "jJhNmMwZGIyZGQzNzkyMDEiXSwgWyI4Y2ZlNWRmYTM5ZmIyM2VlNmMxNWViNWNjYjgwMDlmMzI5NDhjMmMxNTliMTZiNWNhYjhiN2" \
            "IxNzk5MzZhZTU5MDAxNzNmOTZmZjc2YjdmYjBiNDU4Y2RiNzAyMzBhYmFkYjhmNjlkNmY2ZWU4NDIyMjM5ZWNiOTA0OWNlYTMwZiJ" \
            "dXSwgInR5cGUiOiAiYnl0b21fZnVuZF9zaWduZWQifQ=="
+
+    with pytest.raises(ValueError, match="transaction is none, build transaction first."):
+        Signature().hash()
+    with pytest.raises(ValueError, match="transaction is none, build transaction first."):
+        Signature().json()
+    with pytest.raises(ValueError, match="transaction is none, build transaction first."):
+        Signature().raw()
+    # with pytest.raises(ValueError, match="not found type, sign first"):
+    #     Signature().type()
+    with pytest.raises(ValueError, match="there is no signed data, sign first"):
+        Signature().signed_raw()
+    with pytest.raises(ValueError, match="transaction is none, build transaction first."):
+        Signature().unsigned()
+    with pytest.raises(ValueError, match="invalid unsigned transaction raw"):
+        Signature().sign("eyJtIjogImFzZCJ9", "")

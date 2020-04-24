@@ -3,7 +3,7 @@
 from shuttle.providers.bytom.wallet import Wallet
 from shuttle.providers.bytom.transaction import ClaimTransaction
 from shuttle.providers.bytom.solver import ClaimSolver
-from shuttle.providers.bytom.signature import ClaimSignature
+from shuttle.providers.bytom.signature import ClaimSignature, Signature
 
 recipient_mnemonic = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 recipient_bytom_wallet = Wallet(network="mainnet").from_mnemonic(recipient_mnemonic)
@@ -74,11 +74,14 @@ def test_bytom_claim():
     claim_signature = ClaimSignature(network="mainnet") \
         .sign(unsigned_raw=unsigned_claim_raw, solver=claim_solver)
 
-    assert claim_signature.fee == signed_claim_transaction.fee == \
+    signature = Signature(network="mainnet") \
+        .sign(unsigned_raw=unsigned_claim_raw, solver=claim_solver)
+
+    assert signature.fee == claim_signature.fee == signed_claim_transaction.fee == \
            unsigned_claim_transaction.fee == 10000000
     assert claim_signature.hash() == signed_claim_transaction.hash() == unsigned_claim_transaction.hash() == \
-           "069ae4486047ed3143291aac75d3af48d12836d0b5812787177dc40bb965c90f"
-    assert claim_signature.raw() == signed_claim_transaction.raw() == unsigned_claim_transaction.raw() == \
+           signature.hash() == "069ae4486047ed3143291aac75d3af48d12836d0b5812787177dc40bb965c90f"
+    assert signature.raw() == claim_signature.raw() == signed_claim_transaction.raw() == unsigned_claim_transaction.raw() == \
            "0701000201d00101cd013fbf24b40c9a78b5f76bee5e6b2428a9ec58abd640495d49844096241a2c0365f37dea62efd296517" \
            "4b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf640001880101642091ff7f525ff40874c4f47f0cab42e46e3bf53a" \
            "dad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a594" \
@@ -89,7 +92,7 @@ def test_bytom_claim():
            "37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf64011600142cda4f99ea8112e6fa61cdd26157" \
            "ed6dc408332a00013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80b0b4f808011600142" \
            "cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
-    assert claim_signature.unsigned() == signed_claim_transaction.unsigned() == \
+    assert signature.unsigned() == claim_signature.unsigned() == signed_claim_transaction.unsigned() == \
            unsigned_claim_transaction.unsigned() == [
                {
                    'datas': [
@@ -107,7 +110,7 @@ def test_bytom_claim():
                    'path': 'm/44/153/1/0/1'
                }
            ]
-    assert claim_signature.signatures == signed_claim_transaction.signatures == \
+    assert signature.signatures == claim_signature.signatures == signed_claim_transaction.signatures == \
            unsigned_claim_transaction.signatures == [
                [
                    '48656c6c6f204d65686572657421',
@@ -120,7 +123,7 @@ def test_bytom_claim():
                ]
            ]
 
-    assert claim_signature.signed_raw() == \
+    assert signature.signed_raw() == claim_signature.signed_raw() == \
            "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwN" \
            "zAxMDAwMjAxZDAwMTAxY2QwMTNmYmYyNGI0MGM5YTc4YjVmNzZiZWU1ZTZiMjQyOGE5ZWM1OGFiZDY0MDQ5NWQ0OTg0NDA5NjI0MW" \
            "EyYzAzNjVmMzdkZWE2MmVmZDI5NjUxNzRiODRiYmI1OWEwYmQwYTY3MWNmNWZiMjg1NzMwM2ZmZDc3YzFiNDgyYjg0YmRmNjQwMDA" \

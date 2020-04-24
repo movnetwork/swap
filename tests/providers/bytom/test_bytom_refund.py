@@ -3,7 +3,7 @@
 from shuttle.providers.bytom.wallet import Wallet
 from shuttle.providers.bytom.transaction import RefundTransaction
 from shuttle.providers.bytom.solver import RefundSolver
-from shuttle.providers.bytom.signature import RefundSignature
+from shuttle.providers.bytom.signature import RefundSignature, Signature
 
 sender_mnemonic = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 sender_bytom_wallet = Wallet(network="mainnet").from_mnemonic(sender_mnemonic)
@@ -72,11 +72,14 @@ def test_bytom_refund():
     refund_signature = RefundSignature(network="mainnet") \
         .sign(unsigned_raw=unsigned_refund_raw, solver=refund_solver)
 
-    assert refund_signature.fee == signed_refund_transaction.fee == \
+    signature = Signature(network="mainnet") \
+        .sign(unsigned_raw=unsigned_refund_raw, solver=refund_solver)
+
+    assert signature.fee == refund_signature.fee == signed_refund_transaction.fee == \
            unsigned_refund_transaction.fee == 10000000
     assert refund_signature.hash() == signed_refund_transaction.hash() == unsigned_refund_transaction.hash() == \
-           "069ae4486047ed3143291aac75d3af48d12836d0b5812787177dc40bb965c90f"
-    assert refund_signature.raw() == signed_refund_transaction.raw() == \
+           signature.hash() == "069ae4486047ed3143291aac75d3af48d12836d0b5812787177dc40bb965c90f"
+    assert signature.raw() == refund_signature.raw() == signed_refund_transaction.raw() == \
            "0701000201d00101cd013fbf24b40c9a78b5f76bee5e6b2428a9ec58abd640495d49844096241a2c0365f37dea62efd2965174" \
            "b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf640001880101642091ff7f525ff40874c4f47f0cab42e46e3bf53ada" \
            "d59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5" \
@@ -87,7 +90,7 @@ def test_bytom_refund():
            "efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf64011600142cda4f99ea8112e6fa61cdd26157ed6dc408" \
            "332a00013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80b0b4f808011600142cda4f99ea" \
            "8112e6fa61cdd26157ed6dc408332a00"
-    assert refund_signature.unsigned() == signed_refund_transaction.unsigned() == \
+    assert signature.unsigned() == refund_signature.unsigned() == signed_refund_transaction.unsigned() == \
            unsigned_refund_transaction.unsigned() == [
                 {
                     'datas': [
@@ -105,7 +108,7 @@ def test_bytom_refund():
                     'path': 'm/44/153/1/0/1'
                 }
             ]
-    assert refund_signature.signatures == signed_refund_transaction.signatures == \
+    assert signature.signatures == refund_signature.signatures == signed_refund_transaction.signatures == \
            unsigned_refund_transaction.signatures == [
                 [
                     "65b4fcd9e6d58e2ab9ddadc6f330c519d3fcecfe3d30a4e48419920c9dba9dc88be503d7c9a825d09becd68380b6c"
@@ -118,7 +121,7 @@ def test_bytom_refund():
                 ]
             ]
 
-    assert refund_signature.signed_raw() == \
+    assert signature.signed_raw() == refund_signature.signed_raw() == \
            "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwNz" \
            "AxMDAwMjAxZDAwMTAxY2QwMTNmYmYyNGI0MGM5YTc4YjVmNzZiZWU1ZTZiMjQyOGE5ZWM1OGFiZDY0MDQ5NWQ0OTg0NDA5NjI0MWEy" \
            "YzAzNjVmMzdkZWE2MmVmZDI5NjUxNzRiODRiYmI1OWEwYmQwYTY3MWNmNWZiMjg1NzMwM2ZmZDc3YzFiNDgyYjg0YmRmNjQwMDAxOD" \

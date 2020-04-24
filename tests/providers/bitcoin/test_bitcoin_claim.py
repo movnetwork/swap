@@ -3,7 +3,7 @@
 from shuttle.providers.bitcoin.wallet import Wallet
 from shuttle.providers.bitcoin.transaction import ClaimTransaction
 from shuttle.providers.bitcoin.solver import ClaimSolver
-from shuttle.providers.bitcoin.signature import ClaimSignature
+from shuttle.providers.bitcoin.signature import ClaimSignature, Signature
 
 network = "testnet"
 recipient_passphrase = "meheret".encode()
@@ -61,20 +61,23 @@ def test_bitcoin_claim():
     claim_signature = ClaimSignature(network=network)\
         .sign(unsigned_raw=unsigned_claim_raw, solver=claim_solver)
 
-    assert claim_signature.fee == signed_claim_transaction.fee == 576
-    assert claim_signature.hash() == signed_claim_transaction.hash() == \
+    signature = Signature(network=network) \
+        .sign(unsigned_raw=unsigned_claim_raw, solver=claim_solver)
+
+    assert signature.fee == claim_signature.fee == signed_claim_transaction.fee == 576
+    assert signature.hash() == claim_signature.hash() == signed_claim_transaction.hash() == \
            "910a173757d59492a6e807bf270650e950dde7949d540e70cc0ce5123008a52c"
-    assert claim_signature.raw() == signed_claim_transaction.raw() == \
+    assert signature.raw() == claim_signature.raw() == signed_claim_transaction.raw() == \
            "0200000001888be7ec065097d95664763f276d425552d735fb1d974ae78bf72106dca0f39100000000d847304402204e20eeb" \
            "3cb82dbe51f7929cd4e819891102d2d7a280919013ae31f12aa49212602206fbce96d734823579e6a4bb4b517d618dca47606" \
            "2f54d9df06aee4b73d08eae20121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656" \
            "c6c6f204d65686572657421514c5c63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e015888" \
            "76a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac670164b27576a91464a8390b0b1685fcbf2d4b457118dc8da92" \
            "d553488ac68ffffffff0190050000000000001976a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac00000000"
-    assert claim_signature.json() == signed_claim_transaction.json()
+    assert signature.json() == claim_signature.json() == signed_claim_transaction.json()
 
     signed_claim_raw = claim_signature.signed_raw()
-    assert signed_claim_raw == \
+    assert signature.signed_raw() == signed_claim_raw == \
            "eyJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2Z" \
            "GNhMGYzOTEwMDAwMDAwMGQ4NDczMDQ0MDIyMDRlMjBlZWIzY2I4MmRiZTUxZjc5MjljZDRlODE5ODkxMTAyZDJkN2EyODA5MTkwMT" \
            "NhZTMxZjEyYWE0OTIxMjYwMjIwNmZiY2U5NmQ3MzQ4MjM1NzllNmE0YmI0YjUxN2Q2MThkY2E0NzYwNjJmNTRkOWRmMDZhZWU0Yjc" \
