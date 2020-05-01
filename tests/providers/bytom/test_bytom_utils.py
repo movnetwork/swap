@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 from shuttle.providers.bytom.wallet import Wallet
-from shuttle.providers.bytom.utils import sign, verify
+from shuttle.providers.bytom.utils import *
+
+
+import pytest
 
 
 def test_bytom_sign_and_verify():
@@ -17,3 +20,25 @@ def test_bytom_sign_and_verify():
                         "9079cf75410cc055b937158fc473e8154130a"
 
     assert verify(public_key, signature, message)
+    assert not verify(public_key, signature, "4ec7aa9411d481cbef2e437ef7b1ecaba401a6df9cffbed37d1abcf23b91b3c8")
+
+
+def test_bytom_tools():
+
+    assert contract_arguments(123, "sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs")
+    assert spend_account_action("account", 123, "401a6df9cffbed37d1aecababcf23b91b3c84ec7aa9411d481cbef2e437ef7b1")
+
+
+def test_bytom_utils_error():
+
+    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+        decode_transaction_raw("YXNkZg==")
+
+    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+        decode_transaction_raw("eyJub25lIjogbnVsbH0=")
+
+    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+        submit_transaction_raw("YXNkZg==")
+
+    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+        submit_transaction_raw("eyJub25lIjogbnVsbH0=")

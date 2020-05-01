@@ -3,5 +3,5 @@ cryptos>=1.36,<2
 chainside-btcpy>=0.6.4,<1
 mnemonic>=0.19,<1
 py-equity>=0.1.0,<1
-click>=7.1.1,<8
-btmhdw>=2.2.2,<3
+click>=7.1.2,<8
+pybytom>=0.2.0,<1

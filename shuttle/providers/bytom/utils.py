@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from base64 import b64encode, b64decode
-from btmhdw import sign as btm_sign
+from pybytom.signature import sign as btm_sign
 
 import ed25519
 import json
@@ -17,9 +17,9 @@ def sign(private_key, message):
 
 def verify(public_key, signature, message):
     result = False
-    verifying_key = ed25519.VerifyingKey(public_key.encode(), encoding='hex')
+    verifying_key = ed25519.VerifyingKey(public_key.encode(), encoding="hex")
     try:
-        verifying_key.verify(signature.encode(), bytes.fromhex(message), encoding='hex')
+        verifying_key.verify(signature.encode(), bytes.fromhex(message), encoding="hex")
         result = True
     except ed25519.BadSignatureError:
         result = False
@@ -70,7 +70,7 @@ def decode_transaction_raw(tx_raw):
         decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid bytom transaction raw")
-    if "type" not in decoded_tx_raw and not str(decoded_tx_raw["type"]).startswith("bytom"):
+    if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bytom"):
         raise ValueError("invalid bytom transaction raw")
     return dict(
         fee=decoded_tx_raw["fee"],
@@ -102,7 +102,7 @@ def submit_transaction_raw(tx_raw):
         decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid bytom transaction raw")
-    if "type" not in decoded_tx_raw and not str(decoded_tx_raw["type"]).startswith("bytom"):
+    if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bytom"):
         raise ValueError("invalid bytom transaction raw")
     submitted = submit_payment(
         guid=decoded_tx_raw["guid"],
