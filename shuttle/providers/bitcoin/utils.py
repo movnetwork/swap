@@ -3,7 +3,7 @@
 from btcpy.structs.script import P2pkhScript, P2shScript
 from btcpy.structs.transaction import Sequence, MutableTransaction
 from btcpy.structs.address import Address
-from btcpy.setup import setup
+from btcpy.setup import setup as stp
 from base64 import b64encode, b64decode
 
 import cryptos
@@ -42,10 +42,10 @@ def decode_transaction_raw(tx_raw):
         tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid bitcoin transaction raw")
-    if "type" not in tx_raw and not str(tx_raw["type"]).startswith("bitcoin"):
+    if "type" not in tx_raw or not str(tx_raw["type"]).startswith("bitcoin"):
         raise ValueError("invalid bitcoin transaction raw")
     # Setting testnet
-    setup(tx_raw["network"], strict=True)
+    stp(tx_raw["network"], strict=True)
     tx = MutableTransaction.unhexlify(tx_raw["raw"])
     return dict(
         fee=tx_raw["fee"],
@@ -86,7 +86,7 @@ def submit_transaction_raw(tx_raw):
         decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid bitcoin transaction raw")
-    if "type" not in decoded_tx_raw and not str(decoded_tx_raw["type"]).startswith("bitcoin"):
+    if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bitcoin"):
         raise ValueError("invalid bitcoin transaction raw")
     submitted = submit_payment(
         tx_raw=decoded_tx_raw["raw"],
