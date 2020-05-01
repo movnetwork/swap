@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from btmhdw import BytomHDWallet, sign
+from pybytom.wallet.tools import indexes_to_path, get_program, get_address
 from base64 import b64encode, b64decode
 
 import json
@@ -119,14 +119,13 @@ class Transaction:
         unsigned_datas = list()
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        bytom_hd_wallet = BytomHDWallet()
         for signing_instruction in self.transaction["signing_instructions"]:
             unsigned_data = dict(datas=signing_instruction["sign_data"])
             if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
                 unsigned_data.setdefault("public_key", signing_instruction["pubkey"])
                 if detail:
-                    program = bytom_hd_wallet.program(public=signing_instruction["pubkey"])
-                    address = bytom_hd_wallet.address(program=program, network=self.network)
+                    program = get_program(public_key=signing_instruction["pubkey"])
+                    address = get_address(program=program, network=self.network)
                     unsigned_data.setdefault("program", program)
                     unsigned_data.setdefault("address", address)
                 else:
@@ -139,7 +138,7 @@ class Transaction:
                 else:
                     unsigned_data.setdefault("network", self.network)
             if "derivation_path" in signing_instruction and signing_instruction["derivation_path"]:
-                path = bytom_hd_wallet.get_path(indexes=signing_instruction["derivation_path"])
+                path = indexes_to_path(indexes=signing_instruction["derivation_path"])
                 if detail:
                     unsigned_data.setdefault("indexes", signing_instruction["derivation_path"])
                 unsigned_data.setdefault("path", path)
@@ -270,7 +269,7 @@ class FundTransaction(Transaction):
         if not isinstance(solver, FundSolver):
             raise TypeError("Solver must be FundSolver format.")
         wallet = solver.solve()
-        wallet.indexes = list()
+        wallet._indexes = list()
         for unsigned in self.unsigned(detail=True):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -283,7 +282,7 @@ class FundTransaction(Transaction):
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
-            wallet.indexes = list()
+            wallet._indexes = list()
         return self
 
     def unsigned_raw(self):
@@ -443,7 +442,7 @@ class ClaimTransaction(Transaction):
         if not isinstance(solver, ClaimSolver):
             raise TypeError("solver must be ClaimSolver format.")
         wallet = solver.solve()
-        wallet.indexes = list()
+        wallet._indexes = list()
         for index, unsigned in enumerate(self.unsigned(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -461,7 +460,7 @@ class ClaimTransaction(Transaction):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
-            wallet.indexes = list()
+            wallet._indexes = list()
         return self
 
     def unsigned_raw(self):
@@ -614,7 +613,7 @@ class RefundTransaction(Transaction):
         if not isinstance(solver, RefundSolver):
             raise TypeError("solver must be RefundSolver format.")
         wallet = solver.solve()
-        wallet.indexes = list()
+        wallet._indexes = list()
         for index, unsigned in enumerate(self.unsigned(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -631,7 +630,7 @@ class RefundTransaction(Transaction):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
-            wallet.indexes = list()
+            wallet._indexes = list()
         return self
 
     def unsigned_raw(self):

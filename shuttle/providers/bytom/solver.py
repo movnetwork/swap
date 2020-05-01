@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from btmhdw import BytomHDWallet
+from pybytom.wallet import Wallet
 
 
 # Fund HTLC Solver
@@ -36,7 +36,7 @@ class FundSolver:
                 account, 1 if change else 0, address)
 
         # Initialization bytom wallet
-        self.bytomHDWallet = BytomHDWallet()
+        self.wallet = Wallet()
         # XPrivate key of sender to sign signature
         self.xprivate_key = xprivate_key
         # Setting derivation key
@@ -44,8 +44,8 @@ class FundSolver:
 
     # Signature solve
     def solve(self):
-        return self.bytomHDWallet\
-            .master_key_from_xprivate(xprivate=self.xprivate_key)
+        return self.wallet\
+            .from_xprivate_key(xprivate_key=self.xprivate_key)
 
 
 # Claim HTLC Solver
@@ -83,7 +83,7 @@ class ClaimSolver:
                 account, 1 if change else 0, address)
 
         # Initialization bytom wallet
-        self.bytomHDWallet = BytomHDWallet()
+        self.wallet = Wallet()
         # Secret key to unlock HTLC
         self.secret = secret.encode()
         # XPrivate key of recipient to sign signature
@@ -93,8 +93,8 @@ class ClaimSolver:
 
     # Signature solve
     def solve(self):
-        return self.bytomHDWallet.master_key_from_xprivate(
-            xprivate=self.xprivate_key)
+        return self.wallet.from_xprivate_key(
+            xprivate_key=self.xprivate_key)
 
 
 # Refund HTLC Solver
@@ -130,7 +130,7 @@ class RefundSolver:
                 account, 1 if change else 0, address)
 
         # Initialization bytom wallet
-        self.bytomHDWallet = BytomHDWallet()
+        self.wallet = Wallet()
         # XPrivate key of recipient to sign signature
         self.xprivate_key = xprivate_key
         # Setting derivation key
@@ -138,6 +138,6 @@ class RefundSolver:
 
     # Signature solve
     def solve(self):
-        return self.bytomHDWallet.master_key_from_xprivate(
-            xprivate=self.xprivate_key)
+        return self.wallet.from_xprivate_key(
+            xprivate_key=self.xprivate_key)
 
