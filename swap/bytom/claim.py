@@ -16,7 +16,7 @@ print("Recipient Mnemonic:", recipient_mnemonic)
 recipient_bytom_wallet = Wallet(network="mainnet").from_mnemonic(recipient_mnemonic)
 # Recipient wallet information's
 recipient_seed = recipient_bytom_wallet.seed()
-print("Recipient Seed:", recipient_seed.hex())
+print("Recipient Seed:", recipient_seed)
 recipient_xprivate_key = recipient_bytom_wallet.xprivate_key()
 print("Recipient XPrivate Key:", recipient_xprivate_key)
 recipient_xpublic_key = recipient_bytom_wallet.xpublic_key()
