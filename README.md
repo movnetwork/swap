@@ -11,10 +11,10 @@ Shuttle is a python library for cross-chain atomic swaps between the networks�
 
 Shuttle has the following available cryptocurrencies to swap:
 
-| Cryptocurrencies                                    | Mainnet | Testnet | Solonet | 
-| --------------------------------------------------- | :-----: | :-----: | :-----: |
-| [Bitcoin](https://github.com/bitcoin/bitcoin) (BTC) | Yes     | Yes     | None    |
-| [Bytom](https://github.com/bytom/bytom) (BTM)       | Yes     | No      | No      |
+| Cryptocurrencies                                        | Mainnet | Testnet | Solonet | 
+| ------------------------------------------------------- | :-----: | :-----: | :-----: |
+| [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`     | Yes     | Yes     | None    |
+| [Bytom](https://github.com/bytom/bytom) `BTM`, `Assets` | Yes     | No      | No      |
 
 ## Dependencies
 
