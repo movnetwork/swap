@@ -151,18 +151,6 @@ class Transaction:
         # Returning
         return unsigned_datas
 
-    # # Signing message
-    # def sign(self, xprivate_key):
-    #     for unsigned in self.unsigned():
-    #         signed_data = list()
-    #         unsigned_datas = unsigned["datas"]
-    #         for unsigned_data in unsigned_datas:
-    #             signed_data.append(
-    #                 sign(xprivate=xprivate_key,
-    #                      message=unsigned_data))
-    #         self.signatures.append(signed_data)
-    #     return self
-
 
 class FundTransaction(Transaction):
     """
@@ -269,7 +257,7 @@ class FundTransaction(Transaction):
         if not isinstance(solver, FundSolver):
             raise TypeError("Solver must be FundSolver format.")
         wallet = solver.solve()
-        wallet._indexes = list()
+        wallet.clean_derivation()
         for unsigned in self.unsigned(detail=True):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -282,7 +270,7 @@ class FundTransaction(Transaction):
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
-            wallet._indexes = list()
+            wallet.clean_derivation()
         return self
 
     def unsigned_raw(self):
@@ -442,7 +430,7 @@ class ClaimTransaction(Transaction):
         if not isinstance(solver, ClaimSolver):
             raise TypeError("solver must be ClaimSolver format.")
         wallet = solver.solve()
-        wallet._indexes = list()
+        wallet.clean_derivation()
         for index, unsigned in enumerate(self.unsigned(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -460,7 +448,7 @@ class ClaimTransaction(Transaction):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
-            wallet._indexes = list()
+            wallet.clean_derivation()
         return self
 
     def unsigned_raw(self):
@@ -613,7 +601,7 @@ class RefundTransaction(Transaction):
         if not isinstance(solver, RefundSolver):
             raise TypeError("solver must be RefundSolver format.")
         wallet = solver.solve()
-        wallet._indexes = list()
+        wallet.clean_derivation()
         for index, unsigned in enumerate(self.unsigned(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -630,7 +618,7 @@ class RefundTransaction(Transaction):
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
-            wallet._indexes = list()
+            wallet.clean_derivation()
         return self
 
     def unsigned_raw(self):

@@ -3,6 +3,8 @@
 
 from shuttle.cli.__main__ import main as cli_main
 
+import pytest
+
 PRIVATE_KEY = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
 
 HTLC_BYTECODE = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b495" \
@@ -77,6 +79,14 @@ def test_bitcoin_cli(cli_tester):
     assert htlc.exit_code == 0
     assert htlc.output == HTLC_BYTECODE + "\n"
 
+    htlc = cli_tester.invoke(cli_main,
+                             "bitcoin htlc --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790"
+                             "f2e1be5e9e45820eeb --recipient-address 3464563463456346334666666546456gfdfgsdg "
+                             "--sender-address mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q --sequence 100 "
+                             "--network testnet".split(" "))
+    assert htlc.exit_code == 0
+    assert htlc.output
+
     # Testing bitcoin fund command.
     fund = cli_tester.invoke(cli_main,
                              ["bitcoin", "fund", "--sender-address", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q",
@@ -89,6 +99,12 @@ def test_bitcoin_cli(cli_tester):
                           "IiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4M" \
                           "zkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldC" \
                           "IsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9" + "\n"
+
+    fund = cli_tester.invoke(cli_main,
+                             ["bitcoin", "fund", "--sender-address", 3456346436344456456456,
+                              "--amount", 10000, "--bytecode", HTLC_BYTECODE, "--version", 2, "--network", "testnet"])
+    assert fund.exit_code == 0
+    assert fund.output
 
     # Testing bitcoin claim command.
     claim = cli_tester.invoke(cli_main,
@@ -106,6 +122,14 @@ def test_bitcoin_cli(cli_tester):
                            "RHBzcEg3a1I5UnRndmhXellFIiwgInNlY3JldCI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZS" \
                            "I6ICJiaXRjb2luX2NsYWltX3Vuc2lnbmVkIn0=" + "\n"
 
+    claim = cli_tester.invoke(cli_main,
+                              ["bitcoin", "claim", "--transaction", "f7a709ffe08856d7539a155b857913e69e1e6ab4079"
+                                                                    "a47d1c4b94eaa38982768",
+                               "--recipient-address", 253425345345345, "--amount", 700,
+                               "--version", 2, "--network", "testnet"])
+    assert claim.exit_code == 0
+    assert claim.output
+
     # Testing bitcoin refund command.
     refund = cli_tester.invoke(cli_main,
                                ["bitcoin", "refund", "--transaction", "f7a709ffe08856d7539a155b857913e69e1e6ab4079"
@@ -122,11 +146,34 @@ def test_bitcoin_cli(cli_tester):
                             "RHBzcEg3a1I5UnRndmhXellFIiwgInNlY3JldCI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZS" \
                             "I6ICJiaXRjb2luX3JlZnVuZF91bnNpZ25lZCJ9" + "\n"
 
+    refund = cli_tester.invoke(cli_main,
+                               ["bitcoin", "refund", "--transaction", "f7a709ffe08856d7539a155b857913e69e1e6ab4079"
+                                                                      "a47d1c4b94eaa38982768",
+                                "--recipient-address", 234234234234, "--amount", 700,
+                                "--version", 2, "--network", "testnet"])
+    assert refund.exit_code == 0
+    assert refund.output
+
     # Testing bitcoin decode command.
     decode = cli_tester.invoke(cli_main,
                                ["bitcoin", "decode", "--raw", FUND_RAW])
     assert decode.exit_code == 0
     assert decode.output != "\n"
+
+    decode = cli_tester.invoke(cli_main,
+                               ["bitcoin", "decode", "--raw", "asdfhklajdfhklsjdhfkladsjf"])
+    assert decode.exit_code == 0
+    assert decode.output
+
+    decode = cli_tester.invoke(cli_main,
+                               ["bitcoin", "decode", "--raw", "eyJtZWhlcmV0dA=="])
+    assert decode.exit_code == 0
+    assert decode.output
+
+    decode = cli_tester.invoke(cli_main,
+                               ["bitcoin", "decode", "--raw", "eyJtZWhlcmV0dCI6ICJhc2RmYXNkZmFzZGYifQ=="])
+    assert decode.exit_code == 0
+    assert decode.output
 
     # Testing bitcoin sign command.
     fund_sign = cli_tester.invoke(cli_main,
@@ -134,11 +181,31 @@ def test_bitcoin_cli(cli_tester):
     assert fund_sign.exit_code == 0
     assert fund_sign.output == FUND_SIGNED + "\n"
 
+    fund_sign = cli_tester.invoke(cli_main,
+                                  ["bitcoin", "sign", "--raw", "eyJtZWhlcmV0dCI6ICJhc2RmYXNkZmFzZGYifQ==", "--private", PRIVATE_KEY])
+    assert fund_sign.exit_code == 0
+    assert fund_sign.output
+
+    fund_sign = cli_tester.invoke(cli_main,
+                                  ["bitcoin", "sign", "--raw", "eyJtZWhlcmV0dA==", "--private", PRIVATE_KEY])
+    assert fund_sign.exit_code == 0
+    assert fund_sign.output
+
     # Testing bitcoin sign command.
     claim_sign = cli_tester.invoke(cli_main,
                                    ["bitcoin", "sign", "--raw", CLAIM_RAW, "--private", PRIVATE_KEY])
     assert claim_sign.exit_code == 0
     assert claim_sign.output == CLAIM_SIGNED + "\n"
+
+    claim_sign = cli_tester.invoke(cli_main,
+                                   ["bitcoin", "sign", "--raw", "eyJtZWhlcmV0dCI6ICJhc2RmYXNkZmFzZGYifQ==", "--private", PRIVATE_KEY])
+    assert claim_sign.exit_code == 0
+    assert claim_sign.output
+
+    claim_sign = cli_tester.invoke(cli_main,
+                                   ["bitcoin", "sign", "--raw", "eyJtZWhlcmV0dA==", "--private", PRIVATE_KEY])
+    assert claim_sign.exit_code == 0
+    assert claim_sign.output
 
     # Testing bitcoin sign command.
     refund_sign = cli_tester.invoke(cli_main,
@@ -146,8 +213,23 @@ def test_bitcoin_cli(cli_tester):
     assert refund_sign.exit_code == 0
     assert refund_sign.output == REFUND_SIGNED + "\n"
 
+    refund_sign = cli_tester.invoke(cli_main,
+                                    ["bitcoin", "sign", "--raw", "eyJtZWhlcmV0dCI6ICJhc2RmYXNkZmFzZGYifQ==", "--private", PRIVATE_KEY])
+    assert refund_sign.exit_code == 0
+    assert refund_sign.output
+
+    refund_sign = cli_tester.invoke(cli_main,
+                                    ["bitcoin", "sign", "--raw", "eyJtZWhlcmV0dA==", "--private", PRIVATE_KEY])
+    assert refund_sign.exit_code == 0
+    assert refund_sign.output
+
     # Testing bitcoin submit command.
     submit = cli_tester.invoke(cli_main,
                                ["bitcoin", "submit", "--raw", REFUND_RAW])
     assert submit.exit_code == 0
     assert submit.output == "Error: Missing inputs" + "\n"
+
+    submit = cli_tester.invoke(cli_main,
+                               ["bitcoin", "submit", "--raw", "asdfasdfasdfasdfasdfsdfasdf"])
+    assert submit.exit_code == 0
+    assert submit.output
