@@ -285,6 +285,21 @@ def test_bytom_cli(cli_tester):
     assert decode.exit_code == 0
     assert decode.output != "\n"
 
+    decode = cli_tester.invoke(cli_main,
+                               ["bytom", "decode", "--raw", "asdfjhasdjkhfjasdhfkjahsdkljfhk"])
+    assert decode.exit_code == 0
+    assert decode.output
+
+    decode = cli_tester.invoke(cli_main,
+                               ["bytom", "decode", "--raw", "eyJtZWhlcmV0dA=="])
+    assert decode.exit_code == 0
+    assert decode.output
+
+    decode = cli_tester.invoke(cli_main,
+                               ["bytom", "decode", "--raw", "eyJtZWhlcmV0dCI6ICJhc2RmYXNkZmFzZGYifQ=="])
+    assert decode.exit_code == 0
+    assert decode.output
+
     # Testing bitcoin sign command.
     fund_sign = cli_tester.invoke(cli_main,
                                   ["bytom", "sign", "--raw", FUND_RAW, "--xprivate", XPRIVATE_KEY])
@@ -308,3 +323,8 @@ def test_bytom_cli(cli_tester):
                                ["bytom", "submit", "--raw", REFUND_RAW])
     assert submit.exit_code == 0
     assert submit.output == "Error: finalize tx fail" + "\n"
+
+    submit = cli_tester.invoke(cli_main,
+                               ["bytom", "submit", "--raw", "asdfgjasdgjkfgaskdjfsadg"])
+    assert submit.exit_code == 0
+    assert submit.output
