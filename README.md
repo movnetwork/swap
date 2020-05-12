@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/shuttle/badge/?version=latest)](https://shuttle.readthedocs.io/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/shuttle/badge.svg?branch=master)](https://coveralls.io/github/meherett/shuttle?branch=master)
 
-Shuttle is a python library for cross-chain atomic swaps between the networks of two cryptocurrencies. Cross-chain atomic swaps are the cheapest and most secure way to swap cryptocurrencies. It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol. [Documentation](https://shuttle.readthedocs.io/en/latest)
+Shuttle is a python library for cross-chain atomic swaps between the networks of two cryptocurrencies. Cross-chain atomic swaps are the cheapest and most secure way to swap cryptocurrencies. It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol. [Documentation](https://shuttle.readthedocs.io)
 
 ## Available Cryptocurrencies
 
