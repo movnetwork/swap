@@ -8,19 +8,19 @@ class FundSolver:
     """
     Bytom FundSolver class.
 
-    :param xprivate_key: bytom sender xprivate key.
+    :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
-    :param account: bytom derivation account, defaults to 1.
+    :param account: Bytom derivation account, defaults to 1.
     :type account: int
-    :param change: bytom derivation change, defaults to False.
+    :param change: Bytom derivation change, defaults to False.
     :type change: bool
-    :param address: bytom derivation address, defaults to 1.
+    :param address: Bytom derivation address, defaults to 1.
     :type address: int
-    :param path: bytom derivation path, defaults to None.
+    :param path: Bytom derivation path, defaults to None.
     :type path: str
-    :param indexes: bytom derivation indexes, defaults to None.
+    :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  FundSolver -- bytom fund solver instance.
+    :returns:  FundSolver -- Bytom fund solver instance.
 
     >>> from shuttle.providers.bytom.solver import FundSolver
     >>> fund_solver = FundSolver(sender_xprivate_key)
@@ -35,7 +35,7 @@ class FundSolver:
             path = "m/44/153/{}/{}/{}".format(
                 account, 1 if change else 0, address)
 
-        # Initialization bytom wallet
+        # Initialization Bytom wallet
         self.wallet = Wallet()
         # XPrivate key of sender to sign signature
         self.xprivate_key = xprivate_key
@@ -55,19 +55,19 @@ class ClaimSolver:
 
     :param secret: secret key.
     :type secret: str
-    :param xprivate_key: bytom sender xprivate key.
+    :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
-    :param account: bytom derivation account, defaults to 1.
+    :param account: Bytom derivation account, defaults to 1.
     :type account: int
-    :param change: bytom derivation change, defaults to False.
+    :param change: Bytom derivation change, defaults to False.
     :type change: bool
-    :param address: bytom derivation address, defaults to 1.
+    :param address: Bytom derivation address, defaults to 1.
     :type address: int
-    :param path: bytom derivation path, defaults to None.
+    :param path: Bytom derivation path, defaults to None.
     :type path: str
-    :param indexes: bytom derivation indexes, defaults to None.
+    :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  ClaimSolver -- bytom claim solver instance.
+    :returns:  ClaimSolver -- Bytom claim solver instance.
 
     >>> from shuttle.providers.bytom.solver import ClaimSolver
     >>> claim_solver = ClaimSolver("Hello Meheret!", recipient_xprivate_key)
@@ -82,7 +82,7 @@ class ClaimSolver:
             path = "m/44/153/{}/{}/{}".format(
                 account, 1 if change else 0, address)
 
-        # Initialization bytom wallet
+        # Initialization Bytom wallet
         self.wallet = Wallet()
         # Secret key to unlock HTLC
         self.secret = secret.encode()
@@ -102,19 +102,19 @@ class RefundSolver:
     """
     Bytom RefundSolver class.
 
-    :param xprivate_key: bytom sender xprivate key.
+    :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
-    :param account: bytom derivation account, defaults to 1.
+    :param account: Bytom derivation account, defaults to 1.
     :type account: int
-    :param change: bytom derivation change, defaults to False.
+    :param change: Bytom derivation change, defaults to False.
     :type change: bool
-    :param address: bytom derivation address, defaults to 1.
+    :param address: Bytom derivation address, defaults to 1.
     :type address: int
-    :param path: bytom derivation path, defaults to None.
+    :param path: Bytom derivation path, defaults to None.
     :type path: str
-    :param indexes: bytom derivation indexes, defaults to None.
+    :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  RefundSolver -- bytom refund solver instance.
+    :returns:  RefundSolver -- Bytom refund solver instance.
 
     >>> from shuttle.providers.bytom.solver import RefundSolver
     >>> refund_solver = RefundSolver(sender_xprivate_key)
@@ -129,7 +129,7 @@ class RefundSolver:
             path = "m/44/153/{}/{}/{}".format(
                 account, 1 if change else 0, address)
 
-        # Initialization bytom wallet
+        # Initialization Bytom wallet
         self.wallet = Wallet()
         # XPrivate key of recipient to sign signature
         self.xprivate_key = xprivate_key

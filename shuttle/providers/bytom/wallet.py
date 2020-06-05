@@ -11,19 +11,19 @@ class Wallet:
     """
     Bytom Wallet class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :param account: bytom derivation account, defaults to 1.
+    :param account: Bytom derivation account, defaults to 1.
     :type account: int
-    :param change: bytom derivation change, defaults to False.
+    :param change: Bytom derivation change, defaults to False.
     :type change: bool
-    :param address: bytom derivation address, defaults to 1.
+    :param address: Bytom derivation address, defaults to 1.
     :type address: int
-    :param path: bytom derivation path, defaults to None.
+    :param path: Bytom derivation path, defaults to None.
     :type path: str
-    :param indexes: bytom derivation indexes, defaults to None.
+    :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  Wallet -- bytom wallet instance.
+    :returns:  Wallet -- Bytom wallet instance.
 
     .. note::
         Bytom has only three networks, ``mainnet``, ``solonet`` and ``testnet``.
@@ -37,7 +37,7 @@ class Wallet:
             raise ValueError("invalid network, only takes mainnet, solonet & testnet")
         self.network = network
         # Bytom wallet initialization.
-        self.bytom = None
+        self.Bytom = None
 
         # Derivation
         self._account = account
@@ -62,11 +62,11 @@ class Wallet:
     # Bytom wallet from entropy
     def from_entropy(self, entropy):
         """
-        Initiate bytom wallet from entropy.
+        Initiate Bytom wallet from entropy.
 
         :param entropy: Bytom wallet entropy.
         :type entropy: str.
-        :returns:  Wallet -- bytom wallet instance.
+        :returns:  Wallet -- Bytom wallet instance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -75,7 +75,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
+        self.Bytom = BTMWallet()\
             .from_entropy(entropy=entropy)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -88,11 +88,11 @@ class Wallet:
     # Bytom wallet from mnemonic
     def from_mnemonic(self, mnemonic):
         """
-        Initiate bytom wallet from mnemonic.
+        Initiate Bytom wallet from mnemonic.
 
         :param mnemonic: Bytom wallet mnemonic.
         :type mnemonic: str.
-        :returns:  Wallet -- bytom wallet instance.
+        :returns:  Wallet -- Bytom wallet instance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -101,7 +101,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
+        self.Bytom = BTMWallet()\
             .from_mnemonic(mnemonic=mnemonic)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -114,11 +114,11 @@ class Wallet:
     # Bytom wallet from seed
     def from_seed(self, seed):
         """
-        Initiate bytom wallet from seed.
+        Initiate Bytom wallet from seed.
 
         :param seed: Bytom wallet seed.
         :type seed: str.
-        :returns:  Wallet -- bytom wallet instance.
+        :returns:  Wallet -- Bytom wallet instance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -127,7 +127,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
+        self.Bytom = BTMWallet()\
             .from_seed(seed=seed)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -140,11 +140,11 @@ class Wallet:
     # Bytom wallet from xprivate key
     def from_xprivate_key(self, xprivate_key):
         """
-        Initiate bytom wallet from xprivate key.
+        Initiate Bytom wallet from xprivate key.
 
         :param xprivate_key: Bytom wallet xprivate key.
         :type xprivate_key: str.
-        :returns:  Wallet -- bytom wallet instance.
+        :returns:  Wallet -- Bytom wallet instance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -153,7 +153,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
+        self.Bytom = BTMWallet()\
             .from_xprivate_key(xprivate_key=xprivate_key)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -166,11 +166,11 @@ class Wallet:
     # Bytom wallet from xpublic key
     def from_xpublic_key(self, xpublic_key):
         """
-        Initiate bytom wallet from xpublic key.
+        Initiate Bytom wallet from xpublic key.
 
         :param xpublic_key: Bytom wallet xpublic key.
         :type xpublic_key: str.
-        :returns:  Wallet -- bytom wallet instance.
+        :returns:  Wallet -- Bytom wallet instance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -179,7 +179,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        bytom = BTMWallet()
+        Bytom = BTMWallet()
         self._xpublic_key = xpublic_key
         self._public_key = get_public_key(xpublic_key=self._xpublic_key, path=self.path())
         self._program = get_program(public_key=self._public_key)
@@ -190,11 +190,11 @@ class Wallet:
     # Bytom wallet from public key
     def from_public_key(self, public):
         """
-        Initiate bytom wallet from public key.
+        Initiate Bytom wallet from public key.
 
         :param public: Bytom wallet public key.
         :type public: str.
-        :returns:  Wallet -- bytom wallet instance.
+        :returns:  Wallet -- Bytom wallet instance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -203,7 +203,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        bytom = BTMWallet()
+        Bytom = BTMWallet()
         self._public_key = public
         self._program = get_program(
             public_key=self._public_key)
@@ -233,9 +233,9 @@ class Wallet:
     # Getting path
     def path(self):
         """
-        Get bytom wallet derivation path.
+        Get Bytom wallet derivation path.
 
-        :return: str -- bytom derivation path.
+        :return: str -- Bytom derivation path.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet", change=True, address=3)
@@ -246,7 +246,7 @@ class Wallet:
 
         if self._xpublic_key is None:
             return None
-        if self.bytom is not None:
+        if self.Bytom is not None:
             return self.bytom.path()
         else:
             if self._path:
@@ -260,9 +260,9 @@ class Wallet:
     # Getting seed
     def seed(self):
         """
-        Get bytom wallet seed.
+        Get Bytom wallet seed.
 
-        :return: str -- bytom seed.
+        :return: str -- Bytom seed.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -271,16 +271,16 @@ class Wallet:
         "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
         """
 
-        if self.bytom is None:
+        if self.Bytom is None:
             return None
         return self.bytom.seed()
 
     # Getting path derivation indexes
     def indexes(self):
         """
-        Get bytom wallet derivation indexes.
+        Get Bytom wallet derivation indexes.
 
-        :return: list -- bytom derivation indexes.
+        :return: list -- Bytom derivation indexes.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -294,9 +294,9 @@ class Wallet:
     # Getting xprivate key
     def xprivate_key(self):
         """
-        Get bytom wallet xprivate key.
+        Get Bytom wallet xprivate key.
 
-        :return: str -- bytom xprivate key.
+        :return: str -- Bytom xprivate key.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -305,16 +305,16 @@ class Wallet:
         "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
         """
 
-        if self.bytom is None:
+        if self.Bytom is None:
             return None
         return self.bytom.xprivate_key()
 
     # Getting xpublic key
     def xpublic_key(self):
         """
-        Get bytom wallet xpublic key.
+        Get Bytom wallet xpublic key.
 
-        :return: str -- bytom xpublic key.
+        :return: str -- Bytom xpublic key.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -330,9 +330,9 @@ class Wallet:
     # Getting expand xprivate key
     def expand_xprivate_key(self):
         """
-        Get bytom wallet expand xprivate key.
+        Get Bytom wallet expand xprivate key.
 
-        :return: str -- bytom expand xprivate key.
+        :return: str -- Bytom expand xprivate key.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -341,16 +341,16 @@ class Wallet:
         "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
         """
 
-        if self.bytom is None:
+        if self.Bytom is None:
             return None
         return self.bytom.expand_xprivate_key()
 
     # Getting private key
     def private_key(self):
         """
-        Get bytom wallet private key.
+        Get Bytom wallet private key.
 
-        :return: str -- bytom private key.
+        :return: str -- Bytom private key.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -364,9 +364,9 @@ class Wallet:
     # Getting public key
     def public_key(self):
         """
-        Get bytom wallet public key.
+        Get Bytom wallet public key.
 
-        :return: str -- bytom public key.
+        :return: str -- Bytom public key.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -380,9 +380,9 @@ class Wallet:
     # Getting control program
     def program(self):
         """
-        Get bytom wallet control program.
+        Get Bytom wallet control program.
 
-        :return: str -- bytom control program.
+        :return: str -- Bytom control program.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -396,9 +396,9 @@ class Wallet:
     # Getting address
     def address(self):
         """
-        Get bytom wallet address.
+        Get Bytom wallet address.
 
-        :return: str -- bytom address.
+        :return: str -- Bytom address.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -412,9 +412,9 @@ class Wallet:
     # Getting guid from blockcenter
     def guid(self):
         """
-        Get bytom wallet blockcenter guid.
+        Get Bytom wallet blockcenter guid.
 
-        :return: str -- bytom blockcenter guid.
+        :return: str -- Bytom blockcenter guid.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -431,9 +431,9 @@ class Wallet:
     # Getting balance
     def balance(self):
         """
-        Get bytom wallet balance.
+        Get Bytom wallet balance.
 
-        :return: int -- bytom balance.
+        :return: int -- Bytom balance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")

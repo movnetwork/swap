@@ -13,9 +13,9 @@ class Signature(Transaction):
     """
     Bytom Signature class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns:  Transaction -- bytom transaction instance.
+    :returns:  Transaction -- Bytom transaction instance.
 
     .. note::
         Bytom has only three networks, ``mainnet``, ``solonet`` and ``testnet``.
@@ -29,9 +29,9 @@ class Signature(Transaction):
     # Transaction hash
     def hash(self):
         """
-        Get bytom signature transaction hash.
+        Get Bytom signature transaction hash.
 
-        :returns: str -- bytom signature transaction hash or transaction id.
+        :returns: str -- Bytom signature transaction hash or transaction id.
 
         >>> signature.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
@@ -44,9 +44,9 @@ class Signature(Transaction):
     # Transaction json
     def json(self):
         """
-        Get bytom signature transaction json format.
+        Get Bytom signature transaction json format.
 
-        :returns: dict -- bytom signature transaction json format.
+        :returns: dict -- Bytom signature transaction json format.
 
         >>> signature.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
@@ -58,9 +58,9 @@ class Signature(Transaction):
     # Transaction raw
     def raw(self):
         """
-        Get bytom signature transaction raw.
+        Get Bytom signature transaction raw.
 
-        :returns: str -- bytom signature transaction raw.
+        :returns: str -- Bytom signature transaction raw.
 
         >>> signature.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
@@ -72,9 +72,9 @@ class Signature(Transaction):
 
     def type(self):
         """
-        Get bytom signature transaction type.
+        Get Bytom signature transaction type.
 
-        :returns: str -- bytom signature transaction type.
+        :returns: str -- Bytom signature transaction type.
 
         >>> signature.type()
         "bytom_fund_signed"
@@ -88,11 +88,11 @@ class Signature(Transaction):
         """
         Sign unsigned transaction raw.
 
-        :param unsigned_raw: bytom unsigned transaction raw.
+        :param unsigned_raw: Bytom unsigned transaction raw.
         :type unsigned_raw: str
-        :param solver: bytom solver
+        :param solver: Bytom solver
         :type solver: bytom.solver.FundSolver, bytom.solver.ClaimSolver, bytom.solver.RefundSolver
-        :returns:  FundSignature, ClaimSignature, RefundSignature -- bytom signature instance.
+        :returns:  FundSignature, ClaimSignature, RefundSignature -- Bytom signature instance.
 
         >>> from shuttle.providers.bytom.signature import Signature
         >>> signature = Signature()
@@ -121,9 +121,9 @@ class Signature(Transaction):
 
     def signed_raw(self):
         """
-        Get bytom signed transaction raw.
+        Get Bytom signed transaction raw.
 
-        :returns: str -- bytom signed transaction raw.
+        :returns: str -- Bytom signed transaction raw.
 
         >>> from shuttle.providers.bytom.signature import Signature
         >>> signature = Signature()
@@ -142,11 +142,11 @@ class FundSignature(Signature):
     """
     Bytom FundSignature class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns:  FundSignature -- bytom fund signature instance.
+    :returns:  FundSignature -- Bytom fund signature instance.
 
-    :fee: Get bytom fund signature transaction fee.
+    :fee: Get Bytom fund signature transaction fee.
 
     >>> fund_signature.fee
     10000000
@@ -159,11 +159,11 @@ class FundSignature(Signature):
         """
         Sign unsigned fund transaction raw.
 
-        :param unsigned_raw: bytom unsigned fund transaction raw.
+        :param unsigned_raw: Bytom unsigned fund transaction raw.
         :type unsigned_raw: str
-        :param solver: bytom fund solver.
+        :param solver: Bytom fund solver.
         :type solver: bytom.solver.FundSolver
-        :returns:  FundSignature -- bytom fund signature instance.
+        :returns:  FundSignature -- Bytom fund signature instance.
 
         >>> from shuttle.providers.bytom.signature import FundSignature
         >>> fund_signature = FundSignature()
@@ -173,10 +173,10 @@ class FundSignature(Signature):
         
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned bytom fund transaction raw")
+            raise ValueError("invalid unsigned Bytom fund transaction raw")
         self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
         if not self.type == "bytom_fund_unsigned":
-            raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
+            raise TypeError("can't sign this %s transaction using Bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
         wallet.clean_derivation()
         for unsigned in self.unsigned():
@@ -210,11 +210,11 @@ class ClaimSignature(Signature):
     """
     Bytom ClaimSignature class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns:  ClaimSignature -- bytom claim signature instance.
+    :returns:  ClaimSignature -- Bytom claim signature instance.
 
-    :fee: Get bytom claim signature transaction fee.
+    :fee: Get Bytom claim signature transaction fee.
 
     >>> claim_signature.fee
     10000000
@@ -227,11 +227,11 @@ class ClaimSignature(Signature):
         """
         Sign unsigned claim transaction raw.
 
-        :param unsigned_raw: bytom unsigned claim transaction raw.
+        :param unsigned_raw: Bytom unsigned claim transaction raw.
         :type unsigned_raw: str
-        :param solver: bytom claim solver.
+        :param solver: Bytom claim solver.
         :type solver: bytom.solver.ClaimSolver
-        :returns:  ClaimSignature -- bytom claim signature instance.
+        :returns:  ClaimSignature -- Bytom claim signature instance.
 
         >>> from shuttle.providers.bytom.signature import ClaimSignature
         >>> claim_signature = ClaimSignature()
@@ -241,10 +241,10 @@ class ClaimSignature(Signature):
         
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned bytom fund transaction raw")
+            raise ValueError("invalid unsigned Bytom fund transaction raw")
         self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
         if not self.type == "bytom_claim_unsigned":
-            raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
+            raise TypeError("can't sign this %s transaction using Bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
         wallet.clean_derivation()
         for index, unsigned in enumerate(self.unsigned()):
@@ -283,11 +283,11 @@ class RefundSignature(Signature):
     """
     Bytom RefundSignature class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns:  RefundSignature -- bytom claim signature instance.
+    :returns:  RefundSignature -- Bytom claim signature instance.
 
-    :fee: Get bytom refund signature transaction fee.
+    :fee: Get Bytom refund signature transaction fee.
 
     >>> refund_signature.fee
     10000000
@@ -300,11 +300,11 @@ class RefundSignature(Signature):
         """
         Sign unsigned refund transaction raw.
 
-        :param unsigned_raw: bytom unsigned refund transaction raw.
+        :param unsigned_raw: Bytom unsigned refund transaction raw.
         :type unsigned_raw: str
-        :param solver: bytom refund solver.
+        :param solver: Bytom refund solver.
         :type solver: bytom.solver.RefundSolver
-        :returns:  RefundSignature -- bytom refund signature instance.
+        :returns:  RefundSignature -- Bytom refund signature instance.
 
         >>> from shuttle.providers.bytom.signature import RefundSignature
         >>> refund_signature = RefundSignature()
@@ -314,10 +314,10 @@ class RefundSignature(Signature):
         
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned bytom fund transaction raw")
+            raise ValueError("invalid unsigned Bytom fund transaction raw")
         self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
         if not self.type == "bytom_refund_unsigned":
-            raise TypeError("can't sign this %s transaction using bytom FundSignature" % tx_raw["type"])
+            raise TypeError("can't sign this %s transaction using Bytom FundSignature" % tx_raw["type"])
         wallet = solver.solve()
         wallet.clean_derivation()
         for index, unsigned in enumerate(self.unsigned()):

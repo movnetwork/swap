@@ -16,9 +16,9 @@ class FundSolver:
     """
     Bitcoin FundSolver class.
 
-    :param private_key: bitcoin sender private key.
+    :param private_key: Bitcoin sender private key.
     :type private_key: str
-    :returns:  FundSolver -- bitcoin fund solver instance.
+    :returns:  FundSolver -- Bitcoin fund solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import FundSolver
     >>> fund_solver = FundSolver(sender_private_key)
@@ -42,11 +42,11 @@ class ClaimSolver:
 
     :param secret: secret key.
     :type secret: str
-    :param private_key: bitcoin sender private key.
+    :param private_key: Bitcoin sender private key.
     :type private_key: str
-    :param sequence: bitcoin sequence number of expiration block, defaults to bitcoin config sequence (15).
+    :param sequence: Bitcoin sequence number of expiration block, defaults to Bitcoin config sequence (15).
     :type sequence: int
-    :returns:  ClaimSolver -- bitcoin claim solver instance.
+    :returns:  ClaimSolver -- Bitcoin claim solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import ClaimSolver
     >>> claim_solver = ClaimSolver("Hello Meheret!", recipient_private_key)
@@ -81,11 +81,11 @@ class RefundSolver:
 
     :param secret: secret key.
     :type secret: str
-    :param private_key: bitcoin sender private key.
+    :param private_key: Bitcoin sender private key.
     :type private_key: str
-    :param sequence: bitcoin sequence number of expiration block, defaults to bitcoin config sequence (15).
+    :param sequence: Bitcoin sequence number of expiration block, defaults to Bitcoin config sequence (15).
     :type sequence: int
-    :returns:  RefundSolver -- bitcoin refund solver instance.
+    :returns:  RefundSolver -- Bitcoin refund solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import RefundSolver
     >>> refund_solver = RefundSolver("Hello Meheret!", sender_private_key)

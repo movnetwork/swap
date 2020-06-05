@@ -17,11 +17,11 @@ class Signature:
     """
     Bitcoin Signature class.
 
-    :param version: bitcoin transaction version, defaults to 2.
+    :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  Transaction -- bitcoin transaction instance.
+    :returns:  Transaction -- Bitcoin transaction instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
@@ -42,9 +42,9 @@ class Signature:
     # Transaction hash
     def hash(self):
         """
-        Get bitcoin signature transaction hash.
+        Get Bitcoin signature transaction hash.
 
-        :returns: str -- bitcoin signature transaction hash or transaction id.
+        :returns: str -- Bitcoin signature transaction hash or transaction id.
 
         >>> signature.hash()
         "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7"
@@ -57,9 +57,9 @@ class Signature:
     # Transaction json format
     def json(self):
         """
-        Get bitcoin signature transaction json format.
+        Get Bitcoin signature transaction json format.
 
-        :returns: str -- bitcoin signature transaction json format.
+        :returns: str -- Bitcoin signature transaction json format.
 
         >>> signature.json()
         {"hex": "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000", "txid": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "hash": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "size": 117, "vsize": 117, "version": 2, "locktime": 0, "vin": [{"txid": "be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c", "vout": 1, "scriptSig": {"asm": "", "hex": ""}, "sequence": "4294967295"}], "vout": [{"value": "0.00001000", "n": 0, "scriptPubKey": {"asm": "OP_HASH160 971894c58d85981c16c2059d422bcde0b156d044 OP_EQUAL", "hex": "a914971894c58d85981c16c2059d422bcde0b156d04487", "type": "p2sh", "address": "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"}}, {"value": "0.00010662", "n": 1, "scriptPubKey": {"asm": "OP_DUP OP_HASH160 6bce65e58a50b97989930e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG", "hex": "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac", "type": "p2pkh", "address": "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"}}]}
@@ -72,9 +72,9 @@ class Signature:
     # Transaction raw
     def raw(self):
         """
-        Get bitcoin signature transaction raw.
+        Get Bitcoin signature transaction raw.
 
-        :returns: str -- bitcoin signature transaction raw.
+        :returns: str -- Bitcoin signature transaction raw.
 
         >>> signature.raw()
         "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000"
@@ -86,9 +86,9 @@ class Signature:
 
     def type(self):
         """
-        Get bitcoin signature transaction type.
+        Get Bitcoin signature transaction type.
 
-        :returns: str -- bitcoin signature transaction type.
+        :returns: str -- Bitcoin signature transaction type.
 
         >>> signature.type()
         "bitcoin_fund_signed"
@@ -102,11 +102,11 @@ class Signature:
         """
         Sign unsigned transaction raw.
 
-        :param unsigned_raw: bitcoin unsigned transaction raw.
+        :param unsigned_raw: Bitcoin unsigned transaction raw.
         :type unsigned_raw: str
-        :param solver: bitcoin solver
+        :param solver: Bitcoin solver
         :type solver: bitcoin.solver.FundSolver, bitcoin.solver.ClaimSolver, bitcoin.solver.RefundSolver
-        :returns:  FundSignature, ClaimSignature, RefundSignature -- bitcoin signature instance.
+        :returns:  FundSignature, ClaimSignature, RefundSignature -- Bitcoin signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import Signature
         >>> signature = Signature()
@@ -130,9 +130,9 @@ class Signature:
 
     def signed_raw(self):
         """
-        Get bitcoin signed transaction raw.
+        Get Bitcoin signed transaction raw.
 
-        :returns: str -- bitcoin signed transaction raw.
+        :returns: str -- Bitcoin signed transaction raw.
 
         >>> from shuttle.providers.bitcoin.signature import Signature
         >>> signature = Signature()
@@ -151,13 +151,13 @@ class FundSignature(Signature):
     """
     Bitcoin FundSignature class.
 
-    :param version: bitcoin fund signature transaction version, defaults to 2.
+    :param version: Bitcoin fund signature transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  FundSignature -- bitcoin fund signature instance.
+    :returns:  FundSignature -- Bitcoin fund signature instance.
 
-    :fee: Get bitcoin fund signature transaction fee.
+    :fee: Get Bitcoin fund signature transaction fee.
 
     >>> fund_signature.fee
     675
@@ -170,11 +170,11 @@ class FundSignature(Signature):
         """
         Sign unsigned fund transaction raw.
 
-        :param unsigned_raw: bitcoin unsigned fund transaction raw.
+        :param unsigned_raw: Bitcoin unsigned fund transaction raw.
         :type unsigned_raw: str
-        :param solver: bitcoin fund solver.
+        :param solver: Bitcoin fund solver.
         :type solver: bitcoin.solver.FundSolver
-        :returns:  FundSignature -- bitcoin fund signature instance.
+        :returns:  FundSignature -- Bitcoin fund signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import FundSignature
         >>> fund_signature = FundSignature()
@@ -190,7 +190,7 @@ class FundSignature(Signature):
         if not self.type == "bitcoin_fund_unsigned":
             raise TypeError("can't sign this %s transaction using FundSignature" % tx_raw["type"])
         if not isinstance(solver, FundSolver):
-            raise TypeError("invalid solver instance, only takes bitcoin FundSolver class")
+            raise TypeError("invalid solver instance, only takes Bitcoin FundSolver class")
         self.transaction = MutableTransaction.unhexlify(tx_raw["raw"])
         outputs = list()
         for output in tx_raw["outputs"]:
@@ -212,13 +212,13 @@ class ClaimSignature(Signature):
     """
     Bitcoin ClaimSignature class.
 
-    :param version: bitcoin claim signature transaction version, defaults to 2.
+    :param version: Bitcoin claim signature transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  ClaimSignature -- bitcoin claim signature instance.
+    :returns:  ClaimSignature -- Bitcoin claim signature instance.
 
-    :fee: Get bitcoin claim signature transaction fee.
+    :fee: Get Bitcoin claim signature transaction fee.
 
     >>> claim_signature.fee
     675
@@ -231,11 +231,11 @@ class ClaimSignature(Signature):
         """
         Sign unsigned claim transaction raw.
 
-        :param unsigned_raw: bitcoin unsigned claim transaction raw.
+        :param unsigned_raw: Bitcoin unsigned claim transaction raw.
         :type unsigned_raw: str
-        :param solver: bitcoin claim solver.
+        :param solver: Bitcoin claim solver.
         :type solver: bitcoin.solver.ClaimSolver
-        :returns:  ClaimSignature -- bitcoin claim signature instance.
+        :returns:  ClaimSignature -- Bitcoin claim signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import ClaimSignature
         >>> claim_signature = ClaimSignature()
@@ -252,7 +252,7 @@ class ClaimSignature(Signature):
         if not self.type == "bitcoin_claim_unsigned":
             raise TypeError("can't sign this %s transaction using ClaimSignature" % tx_raw["type"])
         if not isinstance(solver, ClaimSolver):
-            raise TypeError("invalid solver instance, only takes bitcoin ClaimSolver class")
+            raise TypeError("invalid solver instance, only takes Bitcoin ClaimSolver class")
         htlc = HTLC(network=self.network).init(
             secret_hash=sha256(solver.secret).hex(),
             recipient_address=tx_raw["recipient_address"],
@@ -279,13 +279,13 @@ class RefundSignature(Signature):
     """
     Bitcoin RefundSignature class.
 
-    :param version: bitcoin refund signature transaction version, defaults to 2.
+    :param version: Bitcoin refund signature transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  RefundSignature -- bitcoin claim signature instance.
+    :returns:  RefundSignature -- Bitcoin claim signature instance.
 
-    :fee: Get bitcoin refund signature transaction fee.
+    :fee: Get Bitcoin refund signature transaction fee.
 
     >>> refund_signature.fee
     675
@@ -298,11 +298,11 @@ class RefundSignature(Signature):
         """
         Sign unsigned refund transaction raw.
 
-        :param unsigned_raw: bitcoin unsigned refund transaction raw.
+        :param unsigned_raw: Bitcoin unsigned refund transaction raw.
         :type unsigned_raw: str
-        :param solver: bitcoin refund solver.
+        :param solver: Bitcoin refund solver.
         :type solver: bitcoin.solver.RefundSolver
-        :returns:  RefundSignature -- bitcoin refund signature instance.
+        :returns:  RefundSignature -- Bitcoin refund signature instance.
 
         >>> from shuttle.providers.bitcoin.signature import RefundSignature
         >>> refund_signature = RefundSignature()

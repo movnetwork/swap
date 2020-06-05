@@ -21,11 +21,11 @@ class Transaction:
     """
     Bitcoin Transaction class.
 
-    :param version: bitcoin transaction version, defaults to 2.
+    :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  Transaction -- bitcoin transaction instance.
+    :returns:  Transaction -- Bitcoin transaction instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
@@ -54,9 +54,9 @@ class Transaction:
     # Transaction hash
     def hash(self):
         """
-        Get bitcoin transaction hash.
+        Get Bitcoin transaction hash.
 
-        :returns: str -- bitcoin transaction hash or transaction id.
+        :returns: str -- Bitcoin transaction hash or transaction id.
 
         >>> transaction.hash()
         "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7"
@@ -69,9 +69,9 @@ class Transaction:
     # Transaction json format
     def json(self):
         """
-        Get bitcoin transaction json format.
+        Get Bitcoin transaction json format.
 
-        :returns: dict -- bitcoin transaction json format.
+        :returns: dict -- Bitcoin transaction json format.
 
         >>> transaction.json()
         {"hex": "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000", "txid": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "hash": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "size": 117, "vsize": 117, "version": 2, "locktime": 0, "vin": [{"txid": "be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c", "vout": 1, "scriptSig": {"asm": "", "hex": ""}, "sequence": "4294967295"}], "vout": [{"value": "0.00001000", "n": 0, "scriptPubKey": {"asm": "OP_HASH160 971894c58d85981c16c2059d422bcde0b156d044 OP_EQUAL", "hex": "a914971894c58d85981c16c2059d422bcde0b156d04487", "type": "p2sh", "address": "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"}}, {"value": "0.00010662", "n": 1, "scriptPubKey": {"asm": "OP_DUP OP_HASH160 6bce65e58a50b97989930e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG", "hex": "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac", "type": "p2pkh", "address": "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"}}]}
@@ -84,9 +84,9 @@ class Transaction:
     # Transaction raw
     def raw(self):
         """
-        Get bitcoin transaction raw.
+        Get Bitcoin transaction raw.
 
-        :returns: str -- bitcoin transaction raw.
+        :returns: str -- Bitcoin transaction raw.
 
         >>> transaction.raw()
         "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000"
@@ -122,16 +122,16 @@ class FundTransaction(Transaction):
     """
     Bitcoin FundTransaction class.
 
-    :param version: bitcoin transaction version, defaults to 2.
+    :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns: FundTransaction -- bitcoin fund transaction instance.
+    :returns: FundTransaction -- Bitcoin fund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize fund transaction.
 
-    :fee: Get bitcoin fund transaction fee.
+    :fee: Get Bitcoin fund transaction fee.
 
     >>> fund_transaction.fee
     675
@@ -148,17 +148,17 @@ class FundTransaction(Transaction):
     # Building transaction
     def build_transaction(self, wallet, htlc, amount, locktime=0):
         """
-        Build bitcoin fund transaction.
+        Build Bitcoin fund transaction.
 
-        :param wallet: bitcoin sender wallet.
+        :param wallet: Bitcoin sender wallet.
         :type wallet: bitcoin.wallet.Wallet
-        :param htlc: bitcoin hash time lock contract (HTLC).
+        :param htlc: Bitcoin hash time lock contract (HTLC).
         :type htlc: bitcoin.htlc.HTLC
-        :param amount: bitcoin amount to fund.
+        :param amount: Bitcoin amount to fund.
         :type amount: int
-        :param locktime: bitcoin transaction lock time, defaults to 0.
+        :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
-        :returns: FundTransaction -- bitcoin fund transaction instance.
+        :returns: FundTransaction -- Bitcoin fund transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import FundTransaction
         >>> fund_transaction = FundTransaction(network="testnet")
@@ -168,9 +168,9 @@ class FundTransaction(Transaction):
 
         # Checking build transaction arguments instance
         if not isinstance(wallet, Wallet):
-            raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+            raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
         if not isinstance(htlc, HTLC):
-            raise TypeError("invalid htlc instance, only takes bitcoin HTLC class")
+            raise TypeError("invalid htlc instance, only takes Bitcoin HTLC class")
         if not isinstance(amount, int):
             raise TypeError("invalid amount instance, only takes integer type")
         # Setting wallet, htlc, amount and unspent
@@ -182,11 +182,11 @@ class FundTransaction(Transaction):
             self.get_previous_transaction_indexes(amount=self.amount)
         # Getting transaction inputs and amount
         inputs, amount = self.inputs(self.unspent, self.previous_transaction_indexes)
-        # Calculating bitcoin fee
+        # Calculating Bitcoin fee
         self.fee = fee_calculator(len(inputs), 2)
         if amount < (self.amount + self.fee):
             raise BalanceError("insufficient spend utxos")
-        # Building mutable bitcoin transaction
+        # Building mutable Bitcoin transaction
         self.transaction = MutableTransaction(
             version=self.version, ins=inputs,
             outs=[
@@ -202,11 +202,11 @@ class FundTransaction(Transaction):
     # Signing transaction using fund solver
     def sign(self, solver):
         """
-        Sign bitcoin fund transaction.
+        Sign Bitcoin fund transaction.
 
-        :param solver: bitcoin fund solver.
+        :param solver: Bitcoin fund solver.
         :type solver: bitcoin.solver.FundSolver
-        :returns: FundTransaction -- bitcoin fund transaction instance.
+        :returns: FundTransaction -- Bitcoin fund transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import FundTransaction
         >>> fund_transaction = FundTransaction(network="testnet")
@@ -216,7 +216,7 @@ class FundTransaction(Transaction):
         """
 
         if not isinstance(solver, FundSolver):
-            raise TypeError("invalid solver instance, only takes bitcoin FundSolver class")
+            raise TypeError("invalid solver instance, only takes Bitcoin FundSolver class")
         if not self.unspent or not self.previous_transaction_indexes or not self.transaction:
             raise ValueError("transaction script or unspent is none, build transaction first")
         outputs = self.outputs(self.unspent, self.previous_transaction_indexes)
@@ -239,9 +239,9 @@ class FundTransaction(Transaction):
 
     def unsigned_raw(self):
         """
-        Get bitcoin unsigned fund transaction raw.
+        Get Bitcoin unsigned fund transaction raw.
 
-        :returns: str -- bitcoin unsigned fund transaction raw.
+        :returns: str -- Bitcoin unsigned fund transaction raw.
 
         >>> from shuttle.providers.bitcoin.transaction import FundTransaction
         >>> fund_transaction = FundTransaction(network="testnet")
@@ -269,16 +269,16 @@ class ClaimTransaction(Transaction):
     """
     Bitcoin ClaimTransaction class.
 
-    :param version: bitcoin transaction version, defaults to 2.
+    :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  Transaction -- bitcoin transaction instance.
+    :returns:  Transaction -- Bitcoin transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize claim transaction.
 
-    :fee: Get bitcoin claim transaction fee.
+    :fee: Get Bitcoin claim transaction fee.
 
     >>> claim_transaction.fee
     675
@@ -299,19 +299,19 @@ class ClaimTransaction(Transaction):
     # Building transaction
     def build_transaction(self, transaction_id, wallet, amount, secret=None, locktime=0):
         """
-        Build bitcoin claim transaction.
+        Build Bitcoin claim transaction.
 
-        :param transaction_id: bitcoin fund transaction id to redeem.
+        :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
-        :param wallet: bitcoin recipient wallet.
+        :param wallet: Bitcoin recipient wallet.
         :type wallet: bitcoin.wallet.Wallet
-        :param amount: bitcoin amount to withdraw.
+        :param amount: Bitcoin amount to withdraw.
         :type amount: int
         :param secret: secret key.
         :type secret: str
-        :param locktime: bitcoin transaction lock time, defaults to 0.
+        :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
-        :returns: ClaimTransaction -- bitcoin claim transaction instance.
+        :returns: ClaimTransaction -- Bitcoin claim transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction(network="testnet")
@@ -323,7 +323,7 @@ class ClaimTransaction(Transaction):
         if not isinstance(transaction_id, str):
             raise TypeError("invalid amount instance, only takes string type")
         if not isinstance(wallet, Wallet):
-            raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+            raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
         if secret is not None and not isinstance(secret, str):
             raise TypeError("invalid secret instance, only takes string type")
         # Setting transaction_id and wallet
@@ -348,7 +348,7 @@ class ClaimTransaction(Transaction):
             raise BalanceError("insufficient spend utxos")
         elif not htlc_amount >= (amount - self.fee):
             raise BalanceError("insufficient spend utxos", "maximum withdraw %d" % htlc_amount)
-        # Building mutable bitcoin transaction
+        # Building mutable Bitcoin transaction
         self.transaction = MutableTransaction(
             version=self.version,
             ins=[
@@ -364,11 +364,11 @@ class ClaimTransaction(Transaction):
     # Signing transaction using private keys
     def sign(self, solver):
         """
-        Sign bitcoin claim transaction.
+        Sign Bitcoin claim transaction.
 
-        :param solver: bitcoin claim solver.
+        :param solver: Bitcoin claim solver.
         :type solver: bitcoin.solver.ClaimSolver
-        :returns: ClaimTransaction -- bitcoin claim transaction instance.
+        :returns: ClaimTransaction -- Bitcoin claim transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction(network="testnet")
@@ -378,7 +378,7 @@ class ClaimTransaction(Transaction):
         """
 
         if not isinstance(solver, ClaimSolver):
-            raise TypeError("invalid solver instance, only takes bitcoin ClaimSolver class")
+            raise TypeError("invalid solver instance, only takes Bitcoin ClaimSolver class")
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first")
         htlc = HTLC(self.network).init(
@@ -397,9 +397,9 @@ class ClaimTransaction(Transaction):
 
     def unsigned_raw(self):
         """
-        Get bitcoin unsigned claim transaction raw.
+        Get Bitcoin unsigned claim transaction raw.
 
-        :returns: str -- bitcoin unsigned claim transaction raw.
+        :returns: str -- Bitcoin unsigned claim transaction raw.
 
         >>> from shuttle.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction(network="testnet")
@@ -426,16 +426,16 @@ class RefundTransaction(Transaction):
     """
     Bitcoin RefundTransaction class.
 
-    :param version: bitcoin transaction version, defaults to 2.
+    :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  Transaction -- bitcoin transaction instance.
+    :returns:  Transaction -- Bitcoin transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize refund transaction.
 
-    :fee: Get bitcoin refund transaction fee.
+    :fee: Get Bitcoin refund transaction fee.
 
     >>> refund_transaction.fee
     675
@@ -456,19 +456,19 @@ class RefundTransaction(Transaction):
     # Building transaction
     def build_transaction(self, transaction_id, wallet, amount, secret=None, locktime=0):
         """
-        Build bitcoin refund transaction.
+        Build Bitcoin refund transaction.
 
-        :param transaction_id: bitcoin fund transaction id to redeem.
+        :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
-        :param wallet: bitcoin sender wallet.
+        :param wallet: Bitcoin sender wallet.
         :type wallet: bitcoin.wallet.Wallet
-        :param amount: bitcoin amount to withdraw.
+        :param amount: Bitcoin amount to withdraw.
         :type amount: int
         :param secret: secret passphrase.
         :type secret: str
-        :param locktime: bitcoin transaction lock time, defaults to 0.
+        :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
-        :returns: RefundTransaction -- bitcoin refund transaction instance.
+        :returns: RefundTransaction -- Bitcoin refund transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction(network="testnet")
@@ -480,7 +480,7 @@ class RefundTransaction(Transaction):
         if not isinstance(transaction_id, str):
             raise TypeError("invalid amount instance, only takes string type")
         if not isinstance(wallet, Wallet):
-            raise TypeError("invalid wallet instance, only takes bitcoin Wallet class")
+            raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
         if secret is not None and not isinstance(secret, str):
             raise TypeError("invalid secret instance, only takes string type")
         # Setting transaction_id and wallet
@@ -505,7 +505,7 @@ class RefundTransaction(Transaction):
             raise BalanceError("insufficient spend utxos")
         elif not htlc_amount >= (amount - self.fee):
             raise BalanceError("insufficient spend utxos", "maximum withdraw %d" % htlc_amount)
-        # Building mutable bitcoin transaction
+        # Building mutable Bitcoin transaction
         self.transaction = MutableTransaction(
             version=self.version,
             ins=[
@@ -521,11 +521,11 @@ class RefundTransaction(Transaction):
     # Signing transaction using private keys
     def sign(self, solver):
         """
-        Sign bitcoin refund transaction.
+        Sign Bitcoin refund transaction.
 
-        :param solver: bitcoin refund solver.
+        :param solver: Bitcoin refund solver.
         :type solver: bitcoin.solver.RefundSolver
-        :returns: RefundTransaction -- bitcoin refund transaction instance.
+        :returns: RefundTransaction -- Bitcoin refund transaction instance.
 
         >>> from shuttle.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction(network="testnet")
@@ -534,7 +534,7 @@ class RefundTransaction(Transaction):
         <shuttle.providers.bitcoin.transaction.RefundTransaction object at 0x0409DAF0>
         """
         if not isinstance(solver, RefundSolver):
-            raise TypeError("invalid solver instance, only takes bitcoin RefundSolver class")
+            raise TypeError("invalid solver instance, only takes Bitcoin RefundSolver class")
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first")
         htlc = HTLC(self.network).init(
@@ -553,9 +553,9 @@ class RefundTransaction(Transaction):
 
     def unsigned_raw(self):
         """
-        Get bitcoin unsigned refund transaction raw.
+        Get Bitcoin unsigned refund transaction raw.
 
-        :returns: str -- bitcoin unsigned refund transaction raw.
+        :returns: str -- Bitcoin unsigned refund transaction raw.
 
         >>> from shuttle.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction(network="testnet")

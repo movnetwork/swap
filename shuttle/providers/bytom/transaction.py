@@ -1,37 +1,39 @@
 #!/usr/bin/env python3
 
+from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.wallet.tools import indexes_to_path, get_program, get_address
+from pybytom.script import get_script_hash, get_p2wsh_program
 from base64 import b64encode, b64decode
 
 import json
 
 from .rpc import build_transaction, decode_tx_raw
-from .utils import spend_wallet_action, control_program_action, \
-    find_contract_utxo_id, spend_utxo_action, control_address_action
+from .utils import spend_wallet_action, \
+    control_program_action, spend_utxo_action, control_address_action
 from .solver import FundSolver, ClaimSolver, RefundSolver
 from .htlc import HTLC
 from .wallet import Wallet
 from ..config import bytom
 
 # Bytom configuration
-bytom = bytom()
+bytom= bytom()
 
 
 class Transaction:
     """
     Bytom Transaction class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :param guid: bytom blockcenter guid, defaults to None.
+    :param guid: Bytom blockcenter guid, defaults to None.
     :type guid: str
-    :param inputs: bytom transaction inputs, defaults to None.
+    :param inputs: Bytom transaction inputs, defaults to None.
     :type inputs: list
-    :param outputs: bytom transaction outputs, defaults to None.
+    :param outputs: Bytom transaction outputs, defaults to None.
     :type outputs: list
-    :param tx: bytom transaction, defaults to None.
+    :param tx: Bytom transaction, defaults to None.
     :type tx: dict
-    :returns:  Transaction -- bytom transaction instance.
+    :returns:  Transaction -- Bytom transaction instance.
 
     .. note::
         Bytom has only three networks, ``mainnet``. ``solonet`` and ``testnet``.
@@ -53,7 +55,7 @@ class Transaction:
         # Signed datas
         self.signatures = list()
 
-    # Building bytom transaction
+    # Building Bytom transaction
     def build_transaction(self, *args, **kwargs):
 
         if not self.guid and not self.inputs or not self.outputs:
@@ -74,9 +76,9 @@ class Transaction:
     # Transaction hash
     def hash(self):
         """
-        Get bytom transaction hash.
+        Get Bytom transaction hash.
 
-        :returns: str -- bytom transaction hash or transaction id.
+        :returns: str -- Bytom transaction hash or transaction id.
 
         >>> transaction.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
@@ -89,9 +91,9 @@ class Transaction:
     # Transaction json
     def json(self):
         """
-        Get bytom transaction json format.
+        Get Bytom transaction json format.
 
-        :returns: dict -- bytom transaction json format.
+        :returns: dict -- Bytom transaction json format.
 
         >>> transaction.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
@@ -103,9 +105,9 @@ class Transaction:
     # Transaction raw
     def raw(self):
         """
-        Get bytom transaction raw.
+        Get Bytom transaction raw.
 
-        :returns: str -- bytom transaction raw.
+        :returns: str -- Bytom transaction raw.
 
         >>> transaction.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
@@ -156,19 +158,19 @@ class FundTransaction(Transaction):
     """
     Bytom FundTransaction class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns: FundTransaction -- bytom fund transaction instance.
+    :returns: FundTransaction -- Bytom fund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize fund transaction.
 
-    :fee: Get bytom fund transaction fee.
+    :fee: Get Bytom fund transaction fee.
 
     >>> fund_transaction.fee
     10000000
 
-    :signatures: Get bytom fund transaction signature data.
+    :signatures: Get Bytom fund transaction signature data.
 
     >>> fund_transaction.signatures
     [...]
@@ -180,17 +182,17 @@ class FundTransaction(Transaction):
 
     def build_transaction(self, wallet, htlc, amount, asset=bytom["BTM_asset"]):
         """
-        Build bytom fund transaction.
+        Build Bytom fund transaction.
 
-        :param wallet: bytom sender wallet.
+        :param wallet: Bytom sender wallet.
         :type wallet: bytom.wallet.Wallet
-        :param htlc: bytom hash time lock contract (HTLC).
+        :param htlc: Bytom hash time lock contract (HTLC).
         :type htlc: bytom.htlc.HTLC
-        :param amount: bytom amount to fund.
+        :param amount: Bytom amount to fund.
         :type amount: int
-        :param asset: bytom asset id, defaults to BTM asset.
+        :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :returns: FundTransaction -- bytom fund transaction instance.
+        :returns: FundTransaction -- Bytom fund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import FundTransaction
         >>> fund_transaction = FundTransaction(network="testnet")
@@ -200,9 +202,9 @@ class FundTransaction(Transaction):
 
         # Checking build transaction arguments instance
         if not isinstance(wallet, Wallet):
-            raise TypeError("invalid wallet instance, only takes bytom Wallet class")
+            raise TypeError("invalid wallet instance, only takes Bytom Wallet class")
         if not isinstance(htlc, HTLC):
-            raise TypeError("invalid htlc instance, only takes bytom HTLC class")
+            raise TypeError("invalid htlc instance, only takes Bytom HTLC class")
         if not isinstance(amount, int):
             raise TypeError("invalid amount instance, only takes integer type")
         if not isinstance(asset, str):
@@ -223,7 +225,11 @@ class FundTransaction(Transaction):
             control_program_action(
                 asset=asset,
                 amount=amount,
-                control_program=htlc.bytecode()
+                control_program=get_p2wsh_program(
+                    script_hash=get_script_hash(
+                        bytecode=htlc.bytecode()
+                    )
+                )
             )
         )
         # Transaction
@@ -241,11 +247,11 @@ class FundTransaction(Transaction):
     # Signing transaction using xprivate keys
     def sign(self, solver):
         """
-        Sign bytom fund transaction.
+        Sign Bytom fund transaction.
 
-        :param solver: bytom fund solver.
+        :param solver: Bytom fund solver.
         :type solver: bytom.solver.FundSolver
-        :returns: FundTransaction -- bytom fund transaction instance.
+        :returns: FundTransaction -- Bytom fund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import FundTransaction
         >>> fund_transaction = FundTransaction(network="testnet")
@@ -275,9 +281,9 @@ class FundTransaction(Transaction):
 
     def unsigned_raw(self):
         """
-        Get bytom unsigned fund transaction raw.
+        Get Bytom unsigned fund transaction raw.
 
-        :returns: str -- bytom unsigned fund transaction raw.
+        :returns: str -- Bytom unsigned fund transaction raw.
 
         >>> from shuttle.providers.bytom.transaction import FundTransaction
         >>> fund_transaction = FundTransaction(network="testnet")
@@ -305,19 +311,19 @@ class ClaimTransaction(Transaction):
     """
     Bytom ClaimTransaction class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns: ClaimTransaction -- bytom claim transaction instance.
+    :returns: ClaimTransaction -- Bytom claim transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize claim transaction.
 
-    :fee: Get bytom claim transaction fee.
+    :fee: Get Bytom claim transaction fee.
 
     >>> claim_transaction.fee
     10000000
 
-    :signatures: Get bytom fund transaction signature data.
+    :signatures: Get Bytom fund transaction signature data.
 
     >>> claim_transaction.signatures
     [...]
@@ -333,21 +339,21 @@ class ClaimTransaction(Transaction):
     def build_transaction(self, wallet, amount, asset=bytom["BTM_asset"],
                           transaction_id=None, utxo_id=None, secret=None):
         """
-        Build bytom claim transaction.
+        Build Bytom claim transaction.
 
-        :param wallet: bytom recipient wallet.
+        :param wallet: Bytom recipient wallet.
         :type wallet: bytom.wallet.Wallet
-        :param amount: bytom amount to withdraw.
+        :param amount: Bytom amount to withdraw.
         :type amount: int
-        :param asset: bytom asset id, defaults to BTM asset.
+        :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :param transaction_id: bytom fund transaction id to redeem, default to None.
+        :param transaction_id: Bytom fund transaction id to redeem, default to None.
         :type transaction_id: str
-        :param utxo_id: bytom htlc utxo id, default to None..
+        :param utxo_id: Bytom htlc utxo id, default to None..
         :type utxo_id: str
         :param secret: secret key.
         :type secret: str
-        :returns: ClaimTransaction -- bytom claim transaction instance.
+        :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction(network="testnet")
@@ -361,11 +367,11 @@ class ClaimTransaction(Transaction):
 
         # Checking build transaction arguments instance
         if transaction_id and not isinstance(transaction_id, str):
-            raise TypeError("invalid transaction id instance, only takes bytom string type")
+            raise TypeError("invalid transaction id instance, only takes Bytom string type")
         if utxo_id and not isinstance(utxo_id, str):
-            raise TypeError("invalid utxo id instance, only takes bytom string type")
+            raise TypeError("invalid utxo id instance, only takes Bytom string type")
         if not isinstance(wallet, Wallet):
-            raise TypeError("invalid wallet instance, only takes bytom Wallet class")
+            raise TypeError("invalid wallet instance, only takes Bytom Wallet class")
         if not isinstance(amount, int):
             raise TypeError("invalid asset instance, only takes integer type")
         if not isinstance(asset, str):
@@ -375,8 +381,8 @@ class ClaimTransaction(Transaction):
 
         if transaction_id:
             # Finding htlc utxo id.
-            utxo_id = find_contract_utxo_id(
-                tx_id=transaction_id, network=self.network)
+            utxo_id = find_p2wsh_utxo(
+                transaction_id=transaction_id, network=self.network)
             if utxo_id is None:
                 raise ValueError("invalid transaction id, there is no smart contact")
 
@@ -414,11 +420,11 @@ class ClaimTransaction(Transaction):
     # Signing transaction using private keys
     def sign(self, solver):
         """
-        Sign bytom claim transaction.
+        Sign Bytom claim transaction.
 
-        :param solver: bytom claim solver.
+        :param solver: Bytom claim solver.
         :type solver: bytom.solver.ClaimSolver
-        :returns: ClaimTransaction -- bytom claim transaction instance.
+        :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction(network="testnet")
@@ -453,9 +459,9 @@ class ClaimTransaction(Transaction):
 
     def unsigned_raw(self):
         """
-        Get bytom unsigned claim transaction raw.
+        Get Bytom unsigned claim transaction raw.
 
-        :returns: str -- bytom unsigned claim transaction raw.
+        :returns: str -- Bytom unsigned claim transaction raw.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction(network="testnet")
@@ -484,19 +490,19 @@ class RefundTransaction(Transaction):
     """
     Bytom RefundTransaction class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns: RefundTransaction -- bytom refund transaction instance.
+    :returns: RefundTransaction -- Bytom refund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize refund transaction.
 
-    :fee: Get bytom refund transaction fee.
+    :fee: Get Bytom refund transaction fee.
 
     >>> refund_transaction.fee
     10000000
 
-    :signatures: Get bytom refund transaction signature data.
+    :signatures: Get Bytom refund transaction signature data.
 
     >>> refund_transaction.signatures
     [...]
@@ -509,19 +515,19 @@ class RefundTransaction(Transaction):
     def build_transaction(self, wallet, amount, asset=bytom["BTM_asset"],
                           transaction_id=None, utxo_id=None):
         """
-        Build bytom refund transaction.
+        Build Bytom refund transaction.
 
-        :param wallet: bytom sender wallet.
+        :param wallet: Bytom sender wallet.
         :type wallet: bytom.wallet.Wallet
-        :param amount: bytom amount to withdraw.
+        :param amount: Bytom amount to withdraw.
         :type amount: int
-        :param asset: bytom asset id, defaults to BTM asset.
+        :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :param transaction_id: bytom fund transaction id to redeem, defaults to None.
+        :param transaction_id: Bytom fund transaction id to redeem, defaults to None.
         :type transaction_id: str
-        :param utxo_id: bytom htlc utxo id, default to None..
+        :param utxo_id: Bytom htlc utxo id, default to None..
         :type utxo_id: str
-        :returns: RefundTransaction -- bytom refund transaction instance.
+        :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction(network="testnet")
@@ -535,11 +541,11 @@ class RefundTransaction(Transaction):
 
         # Checking build transaction arguments instance
         if transaction_id and not isinstance(transaction_id, str):
-            raise TypeError("invalid transaction id instance, only takes bytom string type")
+            raise TypeError("invalid transaction id instance, only takes Bytom string type")
         if utxo_id and not isinstance(utxo_id, str):
-            raise TypeError("invalid utxo id instance, only takes bytom string type")
+            raise TypeError("invalid utxo id instance, only takes Bytom string type")
         if not isinstance(wallet, Wallet):
-            raise TypeError("invalid wallet instance, only takes bytom Wallet class")
+            raise TypeError("invalid wallet instance, only takes Bytom Wallet class")
         if not isinstance(amount, int):
             raise TypeError("invalid asset instance, only takes integer type")
         if not isinstance(asset, str):
@@ -547,8 +553,8 @@ class RefundTransaction(Transaction):
 
         if transaction_id:
             # Finding htlc utxo id.
-            utxo_id = find_contract_utxo_id(
-                tx_id=transaction_id, network=self.network)
+            utxo_id = find_p2wsh_utxo(
+                transaction_id=transaction_id, network=self.network)
             if utxo_id is None:
                 raise ValueError("invalid transaction id, there is no smart contact")
 
@@ -585,11 +591,11 @@ class RefundTransaction(Transaction):
     # Signing transaction using private keys
     def sign(self, solver):
         """
-        Sign bytom refund transaction.
+        Sign Bytom refund transaction.
 
-        :param solver: bytom refund solver.
+        :param solver: Bytom refund solver.
         :type solver: bytom.solver.RefundSolver
-        :returns: RefundTransaction -- bytom refund transaction instance.
+        :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction(network="testnet")
@@ -623,9 +629,9 @@ class RefundTransaction(Transaction):
 
     def unsigned_raw(self):
         """
-        Get bytom unsigned refund transaction raw.
+        Get Bytom unsigned refund transaction raw.
 
-        :returns: str -- bytom unsigned refund transaction raw.
+        :returns: str -- Bytom unsigned refund transaction raw.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction(network="testnet")
