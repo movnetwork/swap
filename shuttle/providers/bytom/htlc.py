@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from pybytom.script import script_hash, p2wsh_address
 from equity import Equity
 
 from ..config import bytom
@@ -34,9 +35,9 @@ class HTLC:
     """
     Bytom Hash Time Lock Contract (HTLC) class.
 
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :returns:  HTLC -- bytom HTLC instance.
+    :returns:  HTLC -- Bytom HTLC instance.
 
     .. note::
         Bytom has only three networks, ``mainnet``, ``solonet`` and ``testnet``.
@@ -52,17 +53,17 @@ class HTLC:
     # Initialize new HTLC Contract script
     def init(self, secret_hash, recipient_public, sender_public, sequence=bytom["sequence"]):
         """
-        Initialize bytom Hash Time Lock Contract (HTLC).
+        Initialize Bytom Hash Time Lock Contract (HTLC).
 
         :param secret_hash: secret sha-256 hash.
         :type secret_hash: str
-        :param recipient_public: bytom recipient public key.
+        :param recipient_public: Bytom recipient public key.
         :type recipient_public: str
-        :param sender_public: bytom sender public key.
+        :param sender_public: Bytom sender public key.
         :type sender_public: str
-        :param sequence: bytom sequence number of expiration block, defaults to bytom config sequence (15).
+        :param sequence: Bytom sequence number of expiration block, defaults to Bytom config sequence (15).
         :type sequence: int
-        :returns: HTLC -- bytom Hash Time Lock Contract (HTLC) instance.
+        :returns: HTLC -- Bytom Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -87,7 +88,7 @@ class HTLC:
             raise TypeError("sequence must be integer format")
 
         # HTLC agreements
-        HTLC_ARGEEMENTS = [
+        HTLC_AGREEMENTS = [
             secret_hash,  # secret_hash: Hash
             recipient_public,  # recipient: PublicKey
             sender_public,  # sender: PublicKey
@@ -95,7 +96,7 @@ class HTLC:
         ]
         # Compiling HTLC contract
         self.equity = Equity(bytom[self.network]["bytom"])\
-            .compile_source(HTLC_SCRIPT, HTLC_ARGEEMENTS)
+            .compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
         return self
 
     # Bytom HTLC from bytecode
@@ -106,9 +107,9 @@ class HTLC:
     # Bytecode HTLC script
     def bytecode(self):
         """
-        Get bytom htlc bytecode.
+        Get Bytom htlc bytecode.
 
-        :returns: str -- bytom Hash Time Lock Contract (HTLC) bytecode.
+        :returns: str -- Bytom Hash Time Lock Contract (HTLC) bytecode.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -124,9 +125,9 @@ class HTLC:
     # OP Code of HTLC script
     def opcode(self):
         """
-        Get bytom htlc opcode.
+        Get Bytom htlc opcode.
 
-        :returns: str -- bytom Hash Time Lock Contract (HTLC) opcode.
+        :returns: str -- Bytom Hash Time Lock Contract (HTLC) opcode.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -138,3 +139,39 @@ class HTLC:
         if not self.equity or "opcodes" not in self.equity:
             raise ValueError("htlc script is none, initialization htlc first")
         return self.equity["opcodes"]
+
+    # HTLC script hash
+    def hash(self):
+        """
+        Get Bytom Hash Time Lock Contract (HTLC) hash.
+
+        :returns: str -- Bytom Hash Time Lock Contract (HTLC) hash.
+
+        >>> from shuttle.providers.bytom.htlc import HTLC
+        >>> htlc = HTLC(network="testnet")
+        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> htlc.hash()
+        "b3c67ffb38fa981ee368aa9dfc856bd62c6b93df9069deccd8159911c46c216a"
+        """
+
+        if not self.equity or "opcodes" not in self.equity:
+            raise ValueError("htlc script is none, initialization htlc first")
+        return script_hash(bytecode=self.bytecode())
+
+    # HTLC script address
+    def address(self):
+        """
+        Get Bytom Hash Time Lock Contract (HTLC) address.
+
+        :returns: str -- Bytom Hash Time Lock Contract (HTLC) address.
+
+        >>> from shuttle.providers.bytom.htlc import HTLC
+        >>> htlc = HTLC(network="testnet")
+        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> htlc.address()
+        "bm1qk0r8l7ecl2vpacmg42wleptt6ckxhy7ljp5aanxczkv3r3rvy94q4a2zpc"
+        """
+
+        if not self.equity or "opcodes" not in self.equity:
+            raise ValueError("htlc script is none, initialization htlc first")
+        return p2wsh_address(script_hash=script_hash(bytecode=self.bytecode()), network=self.network)
