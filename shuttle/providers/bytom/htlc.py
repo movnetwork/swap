@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 
 from pybytom.script import script_hash, p2wsh_address
+from pybytom.script.builder import Builder
+from pybytom.script.opcode import (
+    OP_FALSE, OP_DEPTH, OP_CHECKPREDICATE
+)
 from equity import Equity
+from ctypes import c_int64
 
 from ..config import bytom
 
@@ -28,6 +33,8 @@ contract HTLC (
   }
 }
 """
+# Hash Time Lock Contract (HTLC) Script Binary
+HTLC_SCRIPT_BINARY = "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac"
 
 
 # Hash Time Lock Contract
@@ -51,7 +58,7 @@ class HTLC:
         self.equity = None
 
     # Initialize new HTLC Contract script
-    def init(self, secret_hash, recipient_public, sender_public, sequence=bytom["sequence"]):
+    def init(self, secret_hash, recipient_public, sender_public, sequence=bytom["sequence"], use_script=False):
         """
         Initialize Bytom Hash Time Lock Contract (HTLC).
 
@@ -63,11 +70,14 @@ class HTLC:
         :type sender_public: str
         :param sequence: Bytom sequence number of expiration block, defaults to Bytom config sequence (15).
         :type sequence: int
+        :param use_script: Initialize HTLC by using script, default to False.
+        :type use_script: bool
         :returns: HTLC -- Bytom Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> from shuttle.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.init(secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sender_public="d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", sequence=1000, use_script=False)
         <shuttle.providers.bytom.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -87,16 +97,35 @@ class HTLC:
         if not isinstance(sequence, int):
             raise TypeError("sequence must be integer format")
 
-        # HTLC agreements
-        HTLC_AGREEMENTS = [
-            secret_hash,  # secret_hash: Hash
-            recipient_public,  # recipient: PublicKey
-            sender_public,  # sender: PublicKey
-            sequence,  # sequence: Integer
-        ]
-        # Compiling HTLC contract
-        self.equity = Equity(bytom[self.network]["bytom"])\
-            .compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
+        if use_script:
+            # HTLC agreements
+            HTLC_AGREEMENTS = [
+                secret_hash,  # secret_hash: Hash
+                recipient_public,  # recipient: PublicKey
+                sender_public,  # sender: PublicKey
+                sequence,  # sequence: Integer
+            ]
+            # Compiling HTLC by script
+            self.equity = Equity(bytom[self.network]["bytom"])\
+                .compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
+        else:
+            # Compiling HTLC by script binary
+            builder = Builder()
+            builder.add_int(sequence)  # sequence: Integer
+            builder.add_bytes(bytes.fromhex(sender_public))  # sender: PublicKey
+            builder.add_bytes(bytes.fromhex(recipient_public))  # recipient: PublicKey
+            builder.add_bytes(bytes.fromhex(secret_hash))  # secret_hash: Hash
+            builder.add_op(OP_DEPTH)
+            builder.add_bytes(bytes.fromhex(HTLC_SCRIPT_BINARY))
+            builder.add_op(OP_FALSE)
+            builder.add_op(OP_CHECKPREDICATE)
+
+            SEQUENCE = bytes(c_int64(sequence)).rstrip(b'\x00').hex()
+            self.equity = dict(
+                program=builder.hex_digest(),
+                opcodes=f"0x{SEQUENCE} 0x{sender_public} 0x{recipient_public} "
+                        f"0x{secret_hash} DEPTH 0x{HTLC_SCRIPT_BINARY} FALSE CHECKPREDICATE"
+            )
         return self
 
     # Bytom HTLC from bytecode
@@ -112,10 +141,11 @@ class HTLC:
         :returns: str -- Bytom Hash Time Lock Contract (HTLC) bytecode.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> from shuttle.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.init(sha256("Hello Meheret!".encode()).hex(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
         >>> htlc.bytecode()
-        "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        "02e80320d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         """
 
         if not self.equity or "program" not in self.equity:
@@ -130,10 +160,11 @@ class HTLC:
         :returns: str -- Bytom Hash Time Lock Contract (HTLC) opcode.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> from shuttle.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.init(sha256("Hello Meheret!".encode()).hex(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
         >>> htlc.opcode()
-        "0x64 0x91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0xac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01 0x2b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff DEPTH 0x547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
+        "0xe803 0xd4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01 0x91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0x3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb DEPTH 0x547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
         """
 
         if not self.equity or "opcodes" not in self.equity:
@@ -148,8 +179,9 @@ class HTLC:
         :returns: str -- Bytom Hash Time Lock Contract (HTLC) hash.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> from shuttle.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.init(sha256("Hello Meheret!".encode()).hex(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
         >>> htlc.hash()
         "b3c67ffb38fa981ee368aa9dfc856bd62c6b93df9069deccd8159911c46c216a"
         """
@@ -166,8 +198,9 @@ class HTLC:
         :returns: str -- Bytom Hash Time Lock Contract (HTLC) address.
 
         >>> from shuttle.providers.bytom.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_public_key, sender_public_key, 100)
+        >>> from shuttle.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.init(sha256("Hello Meheret!".encode()).hex(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
         >>> htlc.address()
         "bm1qk0r8l7ecl2vpacmg42wleptt6ckxhy7ljp5aanxczkv3r3rvy94q4a2zpc"
         """
