@@ -68,7 +68,7 @@ class HTLC:
         :type recipient_public: str
         :param sender_public: Bytom sender public key.
         :type sender_public: str
-        :param sequence: Bytom sequence number of expiration block, defaults to Bytom config sequence (15).
+        :param sequence: Bytom sequence number(expiration block), defaults to Bytom config sequence.
         :type sequence: int
         :param use_script: Initialize HTLC by using script, default to False.
         :type use_script: bool
