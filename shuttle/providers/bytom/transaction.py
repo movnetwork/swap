@@ -2,7 +2,7 @@
 
 from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.wallet.tools import indexes_to_path, get_program, get_address
-from pybytom.script import get_script_hash, get_p2wsh_program
+from pybytom.script import p2wsh_program
 from base64 import b64encode, b64decode
 
 import json
@@ -225,10 +225,8 @@ class FundTransaction(Transaction):
             control_program_action(
                 asset=asset,
                 amount=amount,
-                control_program=get_p2wsh_program(
-                    script_hash=get_script_hash(
-                        bytecode=htlc.bytecode()
-                    )
+                control_program=p2wsh_program(
+                    script_hash=htlc.hash()
                 )
             )
         )
@@ -450,7 +448,8 @@ class ClaimTransaction(Transaction):
                 if index == 0:
                     signed_data.append(bytearray(solver.secret).hex())
                     signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str())
+                    signed_data.append(str("00"))
+                    signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
@@ -621,6 +620,7 @@ class RefundTransaction(Transaction):
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str("01"))
+                    signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)

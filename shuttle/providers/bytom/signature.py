@@ -150,6 +150,11 @@ class FundSignature(Signature):
 
     >>> fund_signature.fee
     10000000
+
+    :signatures: Get Bytom fund transaction signature data.
+
+    >>> fund_signature.signatures
+    [...]
     """
 
     def __init__(self, network="testnet"):
@@ -218,6 +223,11 @@ class ClaimSignature(Signature):
 
     >>> claim_signature.fee
     10000000
+
+    :signatures: Get Bytom fund transaction signature data.
+
+    >>> claim_signature.signatures
+    [...]
     """
 
     def __init__(self, network="testnet"):
@@ -260,7 +270,8 @@ class ClaimSignature(Signature):
                 if index == 0:
                     signed_data.append(bytearray(solver.secret).hex())
                     signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str())
+                    signed_data.append(str("00"))
+                    signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
@@ -291,6 +302,11 @@ class RefundSignature(Signature):
 
     >>> refund_signature.fee
     10000000
+
+    :signatures: Get Bytom fund transaction signature data.
+
+    >>> refund_signature.signatures
+    [...]
     """
 
     def __init__(self, network="testnet"):
@@ -333,6 +349,7 @@ class RefundSignature(Signature):
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str("01"))
+                    signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self.signatures.append(signed_data)
