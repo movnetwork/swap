@@ -41,7 +41,7 @@ print("Sender GUID:", sender_guid)
 print("=" * 10, "Hash Time Lock Contract (HTLC) Fund Transaction Id")
 
 # Funded hash time lock contract transaction id/hash
-fund_transaction_id = "9059cd0d03e4d4fab70a415169a45be47583f7240115c36cf298d6f261c0a1ac"
+fund_transaction_id = "b1592a2350ba1cc0f87521ed846c5e17605b3e2f6f09800982c097075ac4aa8e"
 print("HTLC Fund Transaction Id:", fund_transaction_id)
 
 print("=" * 10, "Unsigned Refund Transaction")
@@ -52,8 +52,8 @@ unsigned_refund_transaction = RefundTransaction(network="mainnet")
 unsigned_refund_transaction.build_transaction(
     transaction_id=fund_transaction_id,
     wallet=sender_bytom_wallet,
-    amount=100,
-    asset="f37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf"
+    amount=1000,
+    asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 )
 
 print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee)
@@ -69,7 +69,13 @@ print("Unsigned Refund Transaction Unsigned Raw:", unsigned_refund_raw)
 print("=" * 10, "Signed Refund Transaction")
 
 # Initialize solver
-refund_solver = RefundSolver(xprivate_key=sender_xprivate_key)
+refund_solver = RefundSolver(
+    xprivate_key=sender_xprivate_key,
+    secret="Hello Meheret!",
+    recipient_public="445423a641754182d53f0122c3d7ea677cd4351a0e743e6f10b35ac13c0bb101",
+    sender_public=sender_public_key,
+    sequence=1000
+)
 
 # Singing Hash Time Lock Contract (HTLC)
 signed_refund_transaction = unsigned_refund_transaction.sign(refund_solver)
@@ -92,7 +98,7 @@ print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Raw:", refund_signature.raw())
 print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
 print("Refund Signature Unsigned:", json.dumps(refund_signature.unsigned(), indent=4))
-print("Refund Signature Transaction Signatures:", json.dumps(signed_refund_transaction.signatures, indent=4))
+print("Refund Signature Transaction Signatures:", json.dumps(refund_signature.signatures, indent=4))
 
 signed_refund_raw = refund_signature.signed_raw()
 print("Refund Signature Signed Raw:", signed_refund_raw)

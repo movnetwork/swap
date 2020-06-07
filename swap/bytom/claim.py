@@ -41,7 +41,7 @@ print("Recipient GUID:", recipient_guid)
 print("=" * 10, "Hash Time Lock Contract (HTLC) Fund Transaction Id")
 
 # Funded hash time lock contract transaction id/hash
-fund_transaction_id = "9059cd0d03e4d4fab70a415169a45be47583f7240115c36cf298d6f261c0a1ac"
+fund_transaction_id = "dcb3423e71206a368368d65074077b4e5e7b723ee1bc84cd2a47fffa1544450a"
 print("HTLC Fund Transaction Id:", fund_transaction_id)
 
 print("=" * 10, "Unsigned Claim Transaction")
@@ -52,14 +52,14 @@ unsigned_claim_transaction = ClaimTransaction(network="mainnet")
 unsigned_claim_transaction.build_transaction(
     transaction_id=fund_transaction_id,
     wallet=recipient_bytom_wallet,
-    amount=100,
-    asset="f37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf"
+    amount=1000,
+    asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 )
 
 print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee)
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction.raw())
-# print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
+print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
 print("Unsigned Claim Transaction Unsigned:", json.dumps(unsigned_claim_transaction.unsigned(), indent=4))
 print("Unsigned Claim Transaction Signatures:", json.dumps(unsigned_claim_transaction.signatures, indent=4))
 
@@ -70,8 +70,11 @@ print("=" * 10, "Signed Claim Transaction")
 
 # Claiming HTLC solver
 claim_solver = ClaimSolver(
+    xprivate_key=recipient_xprivate_key,
     secret="Hello Meheret!",
-    xprivate_key=recipient_xprivate_key
+    recipient_public=recipient_public_key,
+    sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
+    sequence=1000
 )
 
 # Singing Hash Time Lock Contract (HTLC)
@@ -80,7 +83,7 @@ signed_claim_transaction = unsigned_claim_transaction.sign(claim_solver)
 print("Signed Claim Transaction Fee:", signed_claim_transaction.fee)
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Raw:", signed_claim_transaction.raw())
-# print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
+print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
 print("Signed Claim Transaction Unsigned:", json.dumps(signed_claim_transaction.unsigned(), indent=4))
 print("Signed Claim Transaction Signatures:", json.dumps(signed_claim_transaction.signatures, indent=4))
 
@@ -93,9 +96,9 @@ claim_signature = ClaimSignature(network="mainnet")\
 print("Claim Signature Fee:", claim_signature.fee)
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Raw:", claim_signature.raw())
-# print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
+print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
 print("Claim Signature Unsigned:", json.dumps(claim_signature.unsigned(), indent=4))
-print("Claim Signature Transaction Signatures:", json.dumps(signed_claim_transaction.signatures, indent=4))
+print("Claim Signature Transaction Signatures:", json.dumps(claim_signature.signatures, indent=4))
 
 signed_claim_raw = claim_signature.signed_raw()
 print("Claim Signature Signed Raw:", signed_claim_raw)

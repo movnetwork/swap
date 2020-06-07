@@ -42,7 +42,7 @@ print("Sender GUID:", sender_guid)
 
 print("=" * 10, "Recipient Bytom Account")
 
-recipient_public = "ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01"
+recipient_public = "445423a641754182d53f0122c3d7ea677cd4351a0e743e6f10b35ac13c0bb101"
 # Initialize bytom sender wallet
 recipient_bytom_wallet = Wallet(network="mainnet").from_public_key(recipient_public)
 # Recipient wallet information's
@@ -58,17 +58,21 @@ print("Recipient Address:", recipient_address)
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
 # Initialization Hash Time Lock Contract (HTLC).
-bytom_htlc = HTLC(network="mainnet").init(
+htlc = HTLC(network="mainnet").init(
     secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_public=recipient_public_key,
     sender_public=sender_public_key,
-    sequence=100
+    sequence=1000
 )
 
-htlc_bytecode = bytom_htlc.bytecode()
+htlc_bytecode = htlc.bytecode()
 print("HTLC Bytecode:", htlc_bytecode)
-htlc_opcode = bytom_htlc.opcode()
+htlc_opcode = htlc.opcode()
 print("HTLC OP_Code:", htlc_opcode)
+htlc_hash = htlc.hash()
+print("HTLC Hash:", htlc_hash)
+htlc_address = htlc.address()
+print("HTLC Address:", htlc_address)
 
 print("=" * 10, "Unsigned Fund Transaction")
 
@@ -77,9 +81,9 @@ unsigned_fund_transaction = FundTransaction(network="mainnet")
 # Building fund transaction
 unsigned_fund_transaction.build_transaction(
     wallet=sender_bytom_wallet,
-    htlc=bytom_htlc,
-    amount=100,
-    asset="f37dea62efd2965174b84bbb59a0bd0a671cf5fb2857303ffd77c1b482b84bdf"
+    htlc=htlc,
+    amount=1000,
+    asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 )
 
 print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee)
