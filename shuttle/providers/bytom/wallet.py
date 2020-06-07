@@ -37,7 +37,7 @@ class Wallet:
             raise ValueError("invalid network, only takes mainnet, solonet & testnet")
         self.network = network
         # Bytom wallet initialization.
-        self.Bytom = None
+        self.bytom = None
 
         # Derivation
         self._account = account
@@ -75,7 +75,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.Bytom = BTMWallet()\
+        self.bytom = BTMWallet()\
             .from_entropy(entropy=entropy)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -101,7 +101,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.Bytom = BTMWallet()\
+        self.bytom = BTMWallet()\
             .from_mnemonic(mnemonic=mnemonic)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -127,7 +127,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.Bytom = BTMWallet()\
+        self.bytom = BTMWallet()\
             .from_seed(seed=seed)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -153,7 +153,7 @@ class Wallet:
         """
 
         # Bytom wallet initialization.
-        self.Bytom = BTMWallet()\
+        self.bytom = BTMWallet()\
             .from_xprivate_key(xprivate_key=xprivate_key)
         self.derivation()
         self._xpublic_key = self.bytom.xpublic_key()
@@ -246,7 +246,7 @@ class Wallet:
 
         if self._xpublic_key is None:
             return None
-        if self.Bytom is not None:
+        if self.bytom is not None:
             return self.bytom.path()
         else:
             if self._path:
@@ -271,7 +271,7 @@ class Wallet:
         "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
         """
 
-        if self.Bytom is None:
+        if self.bytom is None:
             return None
         return self.bytom.seed()
 
@@ -305,7 +305,7 @@ class Wallet:
         "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
         """
 
-        if self.Bytom is None:
+        if self.bytom is None:
             return None
         return self.bytom.xprivate_key()
 
@@ -341,7 +341,7 @@ class Wallet:
         "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
         """
 
-        if self.Bytom is None:
+        if self.bytom is None:
             return None
         return self.bytom.expand_xprivate_key()
 
