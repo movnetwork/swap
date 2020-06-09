@@ -24,7 +24,7 @@ def bitcoin(blockcypher_token=None):
         },
         "timeout": 60,
         "network": "testnet",
-        "sequence": 100
+        "sequence": 1000
     }
 
 
@@ -51,5 +51,5 @@ def bytom():
         "fee": 10000000,
         "confirmations": 1,
         "network": "solonet",
-        "sequence": 100
+        "sequence": 1000
     }
