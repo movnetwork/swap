@@ -88,8 +88,10 @@ print("=" * 10, "Signed Refund Transaction")
 
 # Refunding HTLC solver
 refund_solver = RefundSolver(
-    secret="Hello Meheret!",
     private_key=sender_private_key,
+    secret="Hello Meheret!",
+    recipient_address=recipient_address,
+    sender_address=sender_address,
     sequence=5
 )
 
