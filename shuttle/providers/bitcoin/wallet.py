@@ -40,7 +40,7 @@ class Wallet:
         else:
             raise ValueError("invalid network, only mainnet or testnet")
         # Bitcoin wallet initialization.
-        self.Bitcoin = Bitcoin(testnet=(not self.mainnet))
+        self.bitcoin = Bitcoin(testnet=(not self.mainnet))
 
         # Is compressed
         self.is_compressed = None
@@ -89,7 +89,7 @@ class Wallet:
         >>> wallet.from_passphrase("meherett")
         """
         self.is_compressed = compressed
-        private_key = hashlib.sha256(passphrase).hexdigest()
+        private_key = hashlib.sha256(passphrase.encode()).hexdigest()
         self._private_key = PrivateKey.unhexlify(private_key)
         public_key = self.bitcoin.privtopub(self._private_key.hexlify())
         self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
