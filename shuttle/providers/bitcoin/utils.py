@@ -21,7 +21,7 @@ headers = dict()
 headers.setdefault("Content-Type", "application/json")
 
 # Bitcoin configuration
-Bitcoin = bitcoin()
+bitcoin = bitcoin()
 
 
 def decode_transaction_raw(tx_raw):
@@ -67,12 +67,12 @@ def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     raise TypeError("transaction raw must be string format!")
 
 
-def submit_transaction_raw(tx_raw):
+def submit_transaction_raw(transaction_raw):
     """
     Submit transaction raw to Bitcoin blockchain.
 
-    :param tx_raw: Bitcoin transaction raw.
-    :type tx_raw: str
+    :param transaction_raw: Bitcoin transaction raw.
+    :type transaction_raw: str
     :returns: dict -- Bitcoin transaction id, fee, type and date.
 
     >>> from shuttle.providers.bitcoin.utils import submit_transaction_raw
@@ -80,7 +80,7 @@ def submit_transaction_raw(tx_raw):
     {...}
     """
 
-    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    tx_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
     try:
         # Decoding transaction raw.
         decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
