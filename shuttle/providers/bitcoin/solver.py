@@ -50,7 +50,7 @@ class ClaimSolver:
     :type recipient_address: str
     :param sender_address: Bitcoin sender address.
     :type sender_address: str
-    :param sequence: Bitcoin sequence number(expiration block), defaults to Bitcoin config sequence.
+    :param sequence: Bitcoin sequence number(expiration block), defaults to 1000.
     :type sequence: int
     :returns:  ClaimSolver -- Bitcoin claim solver instance.
 
