@@ -24,7 +24,7 @@ print("=" * 10, "Sender Bitcoin Account")
 sender_wallet = Wallet(network=NETWORK)
 # Initializing Bitcoin wallet from passphrase
 sender_wallet.from_passphrase(passphrase=SENDER_PASSPHRASE)
-# Getting wallet information's
+# Getting sender wallet information's
 sender_private_key = sender_wallet.private_key()
 print("Sender Private Key:", sender_private_key)
 sender_public_key = sender_wallet.public_key()
@@ -53,7 +53,7 @@ print("=" * 10, "Recipient Bitcoin Account")
 recipient_wallet = Wallet(network=NETWORK)
 # Initializing Bitcoin wallet from address
 recipient_wallet.from_address(address=RECIPIENT_ADDRESS)
-# Getting wallet information's
+# Getting recipient wallet information's
 recipient_address = recipient_wallet.address()
 print("Recipient Address:", recipient_address)
 recipient_hash = recipient_wallet.hash()
@@ -82,10 +82,10 @@ htlc_bytecode = htlc.bytecode()
 print("HTLC Bytecode:", htlc_bytecode)
 htlc_opcode = htlc.opcode()
 print("HTLC OP_Code:", htlc_opcode)
-htlc_address = htlc.address()
-print("HTLC Address:", htlc_address)
 htlc_hash = htlc.hash()
 print("HTLC Hash:", htlc_hash)
+htlc_address = htlc.address()
+print("HTLC Address:", htlc_address)
 
 print("=" * 10, "Unsigned Fund Transaction")
 

@@ -11,22 +11,22 @@ import json
 
 # Bytom network
 NETWORK = "mainnet"
-
 # Sender 12 word mnemonic
 SENDER_MNEMONIC = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Recipient Bytom public key
 RECIPIENT_PUBLIC_KEY = "445423a641754182d53f0122c3d7ea677cd4351a0e743e6f10b35ac13c0bb101"
-# Bytom fund amount and asset
-AMOUNT, ASSET = 1000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+# Bytom fund asset id
+ASSET = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+# Bytom fund amount
+AMOUNT = 10_000
 
 print("=" * 10, "Sender Bytom Account")
 
-print("Sender Mnemonic:", SENDER_MNEMONIC)
 # Initializing Bytom sender wallet
 sender_wallet = Wallet(network=NETWORK)
 # Initializing Bytom wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
-# Sender wallet information's
+# Getting sender wallet information's
 sender_seed = sender_wallet.seed()
 print("Sender Seed:", sender_seed)
 sender_xprivate_key = sender_wallet.xprivate_key()
@@ -56,7 +56,7 @@ print("=" * 10, "Recipient Bytom Account")
 recipient_wallet = Wallet(network=NETWORK)
 # Initializing Bytom wallet from public key
 recipient_wallet.from_public_key(public=RECIPIENT_PUBLIC_KEY)
-# Recipient wallet information's
+# Getting recipient wallet information's
 recipient_public_key = recipient_wallet.public_key()
 print("Recipient Public Key:", recipient_public_key)
 recipient_program = recipient_wallet.program()
@@ -68,7 +68,7 @@ print("Recipient Address:", recipient_address)
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
-# Initializing Hash Time Lock Contract (HTLC).
+# Initializing Hash Time Lock Contract (HTLC)
 htlc = HTLC(network=NETWORK).init(
     secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_public=recipient_public_key,
@@ -100,7 +100,7 @@ unsigned_fund_transaction.build_transaction(
 print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee)
 print("Unsigned Fund Transaction Hash:", unsigned_fund_transaction.hash())
 print("Unsigned Fund Transaction Raw:", unsigned_fund_transaction.raw())
-print("Unsigned Fund Transaction Json:", json.dumps(unsigned_fund_transaction.json(), indent=4))
+# print("Unsigned Fund Transaction Json:", json.dumps(unsigned_fund_transaction.json(), indent=4))
 print("Unsigned Fund Transaction Unsigned:", json.dumps(unsigned_fund_transaction.unsigned(), indent=4))
 print("Unsigned Fund Transaction Signatures:", json.dumps(unsigned_fund_transaction.signatures, indent=4))
 
@@ -111,7 +111,8 @@ print("=" * 10, "Signed Fund Transaction")
 
 # Initializing fund solver
 fund_solver = FundSolver(
-    xprivate_key=sender_xprivate_key
+    xprivate_key=sender_xprivate_key,
+    path="m/44/153/1/0/1"
 )
 
 # Singing unsigned fund transaction
@@ -120,13 +121,13 @@ signed_fund_transaction = unsigned_fund_transaction.sign(fund_solver)
 print("Signed Fund Transaction Fee:", signed_fund_transaction.fee)
 print("Signed Fund Transaction Hash:", signed_fund_transaction.hash())
 print("Signed Fund Transaction Raw:", signed_fund_transaction.raw())
-print("Signed Fund Transaction Json:", json.dumps(signed_fund_transaction.json(), indent=4))
+# print("Signed Fund Transaction Json:", json.dumps(signed_fund_transaction.json(), indent=4))
 print("Signed Fund Transaction Unsigned:", json.dumps(signed_fund_transaction.unsigned(), indent=4))
 print("Signed Fund Transaction Signatures:", json.dumps(signed_fund_transaction.signatures, indent=4))
 
 print("=" * 10, "Fund Signature")
 
-# Initializing fund signature.
+# Initializing fund signature
 fund_signature = FundSignature(network=NETWORK)
 # Singing unsigned fund transaction raw
 fund_signature.sign(
@@ -137,7 +138,7 @@ fund_signature.sign(
 print("Fund Signature Fee:", fund_signature.fee)
 print("Fund Signature Hash:", fund_signature.hash())
 print("Fund Signature Raw:", fund_signature.raw())
-print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
+# print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
 print("Fund Signature Unsigned:", json.dumps(fund_signature.unsigned(), indent=4))
 print("Fund Signature Transaction Signatures:", json.dumps(signed_fund_transaction.signatures, indent=4))
 
