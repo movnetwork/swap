@@ -7,18 +7,24 @@ from shuttle.providers.bitcoin.signature import RefundSignature
 
 import json
 
-# Setting network
-# mainnet or testnet
-network = "testnet"
+# Bitcoin network
+NETWORK = "testnet"
+# Transaction id/hash
+TRANSACTION_ID = "285ffc86ebece50f208bbfc1e72fb7c99991a3cf4d1b43cf93657838a4ae23ad"
+# Sender passphrase/password
+SENDER_PASSPHRASE = "meheret tesfaye batu bayou"
+# Recipient Bitcoin address
+RECIPIENT_ADDRESS = "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB"
+# Bitcoin refund amount
+AMOUNT = 10_000
 
 print("=" * 10, "Sender Bitcoin Account")
 
-sender_passphrase = "meheret tesfaye batu bayou".encode()
-print("Sender Passphrase:", sender_passphrase.decode())
-
-# Initialize sender bitcoin wallet
-sender_wallet = Wallet(network=network)\
-    .from_passphrase(sender_passphrase)
+# Initialize sender Bitcoin wallet
+sender_wallet = Wallet(network=NETWORK)
+# Initializing Bitcoin wallet from passphrase
+sender_wallet.from_passphrase(passphrase=SENDER_PASSPHRASE)
+# Getting wallet information's
 sender_private_key = sender_wallet.private_key()
 print("Sender Private Key:", sender_private_key)
 sender_public_key = sender_wallet.public_key()
@@ -36,16 +42,17 @@ print("Sender P2PKH:", sender_p2pkh)
 sender_p2sh = sender_wallet.p2sh()
 print("Sender P2SH:", sender_p2sh)
 sender_balance = sender_wallet.balance()
-print("Sender Balance:", sender_balance, "Satoshi")
+print("Sender Balance:", sender_balance)
 # sender_unspent = sender_wallet.unspent()
 # for index, unspent in enumerate(sender_unspent):
 #     print("Sender %d Unspent" % index, unspent)
 
 print("=" * 10, "Recipient Bitcoin Account")
 
-# Initialize recipient bitcoin wallet
-recipient_wallet = Wallet(network=network)
-recipient_wallet.from_address("muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB")
+# Initialize recipient Bitcoin wallet
+recipient_wallet = Wallet(network=NETWORK)
+# Initializing Bitcoin wallet from address
+recipient_wallet.from_address(address=RECIPIENT_ADDRESS)
 # Getting wallet information's
 recipient_address = recipient_wallet.address()
 print("Recipient Address:", recipient_address)
@@ -61,19 +68,15 @@ print("Recipient Balance:", recipient_balance)
 # for index, unspent in enumerate(recipient_unspent):
 #     print("Recipient %d Unspent" % index, unspent)
 
-print("=" * 10, "Hash Time Lock Contract (HTLC) Transaction Id")
-
-# Funded hash time lock contract transaction id/hash
-htlc_transaction_id = "51d6a08e8051001dac7f74c3a59b0ef951c7710c66774dafcfb16745c63dc252"
-print("HTLC Transaction Id:", htlc_transaction_id)
-
-
 print("=" * 10, "Unsigned Refund Transaction")
 
-unsigned_refund_transaction = RefundTransaction(version=2, network=network).build_transaction(
-    transaction_id=htlc_transaction_id,
-    wallet=recipient_wallet,
-    amount=5000
+# Initializing refund transaction
+unsigned_refund_transaction = RefundTransaction(version=2, network=NETWORK)
+# Building refund transaction
+unsigned_refund_transaction.build_transaction(
+    transaction_id=TRANSACTION_ID,
+    sender_wallet=sender_wallet,
+    amount=AMOUNT
 )
 
 print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee)
@@ -86,7 +89,7 @@ print("Unsigned Fund Transaction Unsigned Raw:", unsigned_fund_raw)
 
 print("=" * 10, "Signed Refund Transaction")
 
-# Refunding HTLC solver
+# Initializing refund solver
 refund_solver = RefundSolver(
     private_key=sender_private_key,
     secret="Hello Meheret!",
@@ -95,6 +98,7 @@ refund_solver = RefundSolver(
     sequence=5
 )
 
+# Singing unsigned claim transaction
 signed_refund_transaction = unsigned_refund_transaction.sign(refund_solver)
 
 print("Signed Refund Transaction Fee:", signed_refund_transaction.fee)
@@ -104,9 +108,13 @@ print("Signed Refund Transaction Raw:", signed_refund_transaction.raw())
 
 print("=" * 10, "Refund Signature")
 
-# Singing Hash Time Lock Contract (HTLC)
-refund_signature = RefundSignature(network=network)\
-    .sign(unsigned_raw=unsigned_fund_raw, solver=refund_solver)
+# Initializing refund signature
+refund_signature = RefundSignature(network=NETWORK)
+# Singing unsigned refund transaction raw
+refund_signature.sign(
+    unsigned_raw=unsigned_fund_raw,
+    solver=refund_solver
+)
 
 print("Refund Signature Fee:", refund_signature.fee)
 print("Refund Signature Hash:", refund_signature.hash())

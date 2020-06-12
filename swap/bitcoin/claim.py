@@ -7,18 +7,24 @@ from shuttle.providers.bitcoin.signature import ClaimSignature
 
 import json
 
-# Setting network
-# mainnet or testnet
-network = "testnet"
+# Bitcoin network
+NETWORK = "testnet"
+# Transaction id/hash
+TRANSACTION_ID = "285ffc86ebece50f208bbfc1e72fb7c99991a3cf4d1b43cf93657838a4ae23ad"
+# Recipient passphrase/password
+RECIPIENT_PASSPHRASE = "meheret"
+# Sender Bitcoin address
+SENDER_ADDRESS = "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q"
+# Bitcoin claim amount
+AMOUNT = 10_000
 
 print("=" * 10, "Recipient Bitcoin Account")
 
-recipient_passphrase = "meheret".encode()
-print("Recipient Passphrase:", recipient_passphrase.decode())
-
-# Initialize recipient bitcoin wallet
-recipient_wallet = Wallet(network=network)\
-    .from_passphrase(recipient_passphrase)
+# Initializing recipient Bitcoin wallet
+recipient_wallet = Wallet(network=NETWORK)
+# Initializing Bitcoin wallet from passphrase
+recipient_wallet.from_passphrase(passphrase=RECIPIENT_PASSPHRASE)
+# Getting wallet information's
 recipient_private_key = recipient_wallet.private_key()
 print("Recipient Private Key:", recipient_private_key)
 recipient_public_key = recipient_wallet.public_key()
@@ -36,61 +42,84 @@ print("Recipient P2PKH:", recipient_p2pkh)
 recipient_p2sh = recipient_wallet.p2sh()
 print("Recipient P2SH:", recipient_p2sh)
 recipient_balance = recipient_wallet.balance()
-print("Recipient Balance:", recipient_balance, "Satoshi")
+print("Recipient Balance:", recipient_balance)
 # recipient_unspent = recipient_wallet.unspent()
 # for index, unspent in enumerate(recipient_unspent):
 #     print("Recipient %d Unspent" % index, unspent)
 
-print("=" * 10, "Hash Time Lock Contract (HTLC) Fund Transaction Id")
+print("=" * 10, "Sender Bitcoin Account")
 
-# Funded hash time lock contract transaction id/hash
-fund_transaction_id = "f7a709ffe08856d7539a155b857913e69e1e6ab4079a47d1c4b94eaa38982768"
-print("HTLC Fund Transaction Id:", fund_transaction_id)
+# Initializing sender Bitcoin wallet
+sender_wallet = Wallet(network=NETWORK)
+# Initializing Bitcoin wallet from address
+sender_wallet.from_address(address=SENDER_ADDRESS)
+# Getting wallet information's
+sender_address = sender_wallet.address()
+print("Sender Address:", sender_address)
+sender_hash = sender_wallet.hash()
+print("Sender Hash:", sender_hash)
+sender_p2pkh = sender_wallet.p2pkh()
+print("Sender P2PKH:", sender_p2pkh)
+sender_p2sh = sender_wallet.p2sh()
+print("Sender P2SH:", sender_p2sh)
+sender_balance = sender_wallet.balance()
+print("Sender Balance:", sender_balance)
+# sender_unspent = sender_wallet.unspent()
+# for index, unspent in enumerate(sender_unspent):
+#     print("Sender %d Unspent" % index, unspent)
 
 print("=" * 10, "Unsigned Claim Transaction")
 
-# Initialization claim transaction
-unsigned_claim_transaction = ClaimTransaction(version=2, network=network)
+# Initializing claim transaction
+unsigned_claim_transaction = ClaimTransaction(version=2, network=NETWORK)
 # Building claim transaction
 unsigned_claim_transaction.build_transaction(
-    transaction_id=fund_transaction_id,
-    wallet=recipient_wallet,
-    amount=700
+    transaction_id=TRANSACTION_ID,
+    recipient_wallet=recipient_wallet,
+    amount=AMOUNT
 )
 
-print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee)
+print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee())
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction.raw())
-# print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
+print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
 
 unsigned_claim_raw = unsigned_claim_transaction.unsigned_raw()
 print("Unsigned Claim Transaction Unsigned Raw:", unsigned_claim_raw)
 
 print("=" * 10, "Signed Claim Transaction")
 
-# Claiming HTLC solver
+# Initializing claim solver
 claim_solver = ClaimSolver(
+    private_key=recipient_private_key,
     secret="Hello Meheret!",
-    private_key=recipient_private_key
+    recipient_address=recipient_address,
+    sender_address=sender_address,
+    sequence=1000
 )
 
-signed_claim_transaction = unsigned_claim_transaction.sign(claim_solver)
+# Singing unsigned claim transaction
+signed_claim_transaction = unsigned_claim_transaction.sign(solver=claim_solver)
 
-print("Signed Claim Transaction Fee:", signed_claim_transaction.fee)
+print("Signed Claim Transaction Fee:", signed_claim_transaction.fee())
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Raw:", signed_claim_transaction.raw())
-# print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
+print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
 
 print("=" * 10, "Claim Signature")
 
-# Singing Hash Time Lock Contract (HTLC)
-claim_signature = ClaimSignature(network=network)\
-    .sign(unsigned_raw=unsigned_claim_raw, solver=claim_solver)
+# Initializing claim signature
+claim_signature = ClaimSignature(network=NETWORK)
+# Singing unsigned claim transaction raw
+claim_signature.sign(
+    unsigned_raw=unsigned_claim_raw,
+    solver=claim_solver
+)
 
-print("Claim Signature Fee:", claim_signature.fee)
+print("Claim Signature Fee:", claim_signature.fee())
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Raw:", claim_signature.raw())
-# print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
+print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
 
 signed_claim_raw = claim_signature.signed_raw()
 print("Claim Signature Signed Raw:", signed_claim_raw)
