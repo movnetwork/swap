@@ -24,7 +24,7 @@ print("=" * 10, "Sender Bitcoin Account")
 sender_wallet = Wallet(network=NETWORK)
 # Initializing Bitcoin wallet from passphrase
 sender_wallet.from_passphrase(passphrase=SENDER_PASSPHRASE)
-# Getting wallet information's
+# Getting sender wallet information's
 sender_private_key = sender_wallet.private_key()
 print("Sender Private Key:", sender_private_key)
 sender_public_key = sender_wallet.public_key()
@@ -53,7 +53,7 @@ print("=" * 10, "Recipient Bitcoin Account")
 recipient_wallet = Wallet(network=NETWORK)
 # Initializing Bitcoin wallet from address
 recipient_wallet.from_address(address=RECIPIENT_ADDRESS)
-# Getting wallet information's
+# Getting recipient wallet information's
 recipient_address = recipient_wallet.address()
 print("Recipient Address:", recipient_address)
 recipient_hash = recipient_wallet.hash()
@@ -83,6 +83,7 @@ print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee)
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
 print("Unsigned Refund Transaction Raw:", unsigned_refund_transaction.raw())
 # print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
+print("Unsigned Refund Transaction Type:", unsigned_refund_transaction.type())
 
 unsigned_fund_raw = unsigned_refund_transaction.unsigned_raw()
 print("Unsigned Fund Transaction Unsigned Raw:", unsigned_fund_raw)
@@ -95,7 +96,7 @@ refund_solver = RefundSolver(
     secret="Hello Meheret!",
     recipient_address=recipient_address,
     sender_address=sender_address,
-    sequence=5
+    sequence=1000
 )
 
 # Singing unsigned claim transaction
@@ -105,6 +106,7 @@ print("Signed Refund Transaction Fee:", signed_refund_transaction.fee)
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
 print("Signed Refund Transaction Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
+print("Signed Refund Transaction Type:", signed_refund_transaction.type())
 
 print("=" * 10, "Refund Signature")
 
@@ -120,6 +122,7 @@ print("Refund Signature Fee:", refund_signature.fee)
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
+print("Refund Signature Type:", refund_signature.type())
 
 signed_refund_raw = refund_signature.signed_raw()
 print("Refund Signature Signed Raw:", signed_refund_raw)

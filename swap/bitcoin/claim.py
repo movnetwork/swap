@@ -24,7 +24,7 @@ print("=" * 10, "Recipient Bitcoin Account")
 recipient_wallet = Wallet(network=NETWORK)
 # Initializing Bitcoin wallet from passphrase
 recipient_wallet.from_passphrase(passphrase=RECIPIENT_PASSPHRASE)
-# Getting wallet information's
+# Getting recipient wallet information's
 recipient_private_key = recipient_wallet.private_key()
 print("Recipient Private Key:", recipient_private_key)
 recipient_public_key = recipient_wallet.public_key()
@@ -53,7 +53,7 @@ print("=" * 10, "Sender Bitcoin Account")
 sender_wallet = Wallet(network=NETWORK)
 # Initializing Bitcoin wallet from address
 sender_wallet.from_address(address=SENDER_ADDRESS)
-# Getting wallet information's
+# Getting sender wallet information's
 sender_address = sender_wallet.address()
 print("Sender Address:", sender_address)
 sender_hash = sender_wallet.hash()
@@ -82,7 +82,8 @@ unsigned_claim_transaction.build_transaction(
 print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee())
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction.raw())
-print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
+# print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
+print("Unsigned Claim Transaction Type:", unsigned_claim_transaction.type())
 
 unsigned_claim_raw = unsigned_claim_transaction.unsigned_raw()
 print("Unsigned Claim Transaction Unsigned Raw:", unsigned_claim_raw)
@@ -104,7 +105,8 @@ signed_claim_transaction = unsigned_claim_transaction.sign(solver=claim_solver)
 print("Signed Claim Transaction Fee:", signed_claim_transaction.fee())
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Raw:", signed_claim_transaction.raw())
-print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
+# print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
+print("Signed Claim Transaction Type:", signed_claim_transaction.type())
 
 print("=" * 10, "Claim Signature")
 
@@ -119,7 +121,8 @@ claim_signature.sign(
 print("Claim Signature Fee:", claim_signature.fee())
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Raw:", claim_signature.raw())
-print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
+# print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
+print("Claim Signature Type:", claim_signature.type())
 
 signed_claim_raw = claim_signature.signed_raw()
 print("Claim Signature Signed Raw:", signed_claim_raw)
