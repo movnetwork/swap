@@ -3,7 +3,7 @@
 from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.wallet.tools import indexes_to_path, get_program, get_address
 from pybytom.script import p2wsh_program
-from base64 import b64encode, b64decode
+from base64 import b64encode
 
 import json
 
@@ -16,7 +16,7 @@ from .wallet import Wallet
 from ..config import bytom
 
 # Bytom configuration
-bytom= bytom()
+bytom = bytom()
 
 
 class Transaction:
@@ -50,10 +50,10 @@ class Transaction:
         self.inputs, self.outputs = inputs, outputs
         # Blockcenter GUID
         self.guid = guid
-        # Bytom fee
-        self.fee = bytom["fee"]
+        # Bytom fee and type
+        self._fee, self._type = bytom["fee"], None
         # Signed datas
-        self.signatures = list()
+        self._signatures = []
 
     # Building Bytom transaction
     def build_transaction(self, *args, **kwargs):
@@ -73,6 +73,22 @@ class Transaction:
         self.transaction = build_transaction(tx=tx, network=self.network)
         return self
 
+    # Transaction fee
+    def fee(self):
+        """
+        Get Bitcoin transaction fee.
+
+        :returns: int -- Bitcoin transaction fee.
+
+        >>> from shuttle.providers.bytom.transaction import ClaimTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
+        >>> claim_transaction = ClaimTransaction(network="testnet")
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.fee()
+        10000000
+        """
+
     # Transaction hash
     def hash(self):
         """
@@ -80,7 +96,14 @@ class Transaction:
 
         :returns: str -- Bytom transaction hash or transaction id.
 
-        >>> transaction.hash()
+        >>> from shuttle.providers.bytom.htlc import HTLC
+        >>> from shuttle.providers.bytom.transaction import FundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> fund_transaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> fund_transaction.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
 
@@ -95,7 +118,12 @@ class Transaction:
 
         :returns: dict -- Bytom transaction json format.
 
-        >>> transaction.json()
+        >>> from shuttle.providers.bytom.transaction import RefundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> refund_transaction = RefundTransaction(network="testnet")
+        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
         if self.transaction is None:
@@ -109,15 +137,57 @@ class Transaction:
 
         :returns: str -- Bytom transaction raw.
 
-        >>> transaction.raw()
+        >>> from shuttle.providers.bytom.transaction import ClaimTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
+        >>> claim_transaction = ClaimTransaction(network="testnet")
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
 
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
         return self.transaction["raw_transaction"]
+    
+    def type(self):
+        """
+        Get Bitcoin signature transaction type.
 
-    def unsigned(self, detail=False):
+        :returns: str -- Bitcoin signature transaction type.
+
+        >>> from shuttle.providers.bytom.transaction import ClaimTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
+        >>> claim_transaction = ClaimTransaction(network="testnet")
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.type()
+        "bitcoin_claim_unsigned"
+        """
+
+        if self.transaction is None:
+            raise ValueError("transaction script is none, build transaction first.")
+        return self._type
+
+    def unsigned_datas(self, detail=False):
+        """
+        Get Bytom transaction unsigned datas with instruction.
+
+        :param detail: Bytom unsigned datas to see detail, defaults to False.
+        :type detail: bool
+        :returns: list -- Bytom transaction unsigned datas.
+
+        >>> from shuttle.providers.bytom.htlc import HTLC
+        >>> from shuttle.providers.bytom.transaction import FundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> fund_transaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> fund_transaction.unsigned_datas()
+        [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
+        """
+
         unsigned_datas = list()
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
@@ -153,6 +223,29 @@ class Transaction:
         # Returning
         return unsigned_datas
 
+    # Transaction signed datas
+    def signatures(self):
+        """
+        Get Bytom transaction signatures(signed datas).
+
+        :returns: list -- Bytom transaction signatures.
+
+        >>> from shuttle.providers.bytom.htlc import HTLC
+        >>> from shuttle.providers.bytom.transaction import FundTransaction
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> fund_solver = FundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> fund_transaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> fund_transaction.sign(solver=fund_solver)
+        >>> fund_transaction.signatures()
+        [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
+        """
+
+        return self._signatures
+
 
 class FundTransaction(Transaction):
     """
@@ -164,16 +257,6 @@ class FundTransaction(Transaction):
 
     .. warning::
         Do not forget to build transaction after initialize fund transaction.
-
-    :fee: Get Bytom fund transaction fee.
-
-    >>> fund_transaction.fee
-    10000000
-
-    :signatures: Get Bytom fund transaction signature data.
-
-    >>> fund_transaction.signatures
-    [...]
     """
 
     # Initialization fund transaction
@@ -194,7 +277,11 @@ class FundTransaction(Transaction):
         :type asset: str
         :returns: FundTransaction -- Bytom fund transaction instance.
 
+        >>> from shuttle.providers.bytom.htlc import HTLC
         >>> from shuttle.providers.bytom.transaction import FundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> fund_transaction = FundTransaction(network="testnet")
         >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
         <shuttle.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
@@ -251,10 +338,16 @@ class FundTransaction(Transaction):
         :type solver: bytom.solver.FundSolver
         :returns: FundTransaction -- Bytom fund transaction instance.
 
+        >>> from shuttle.providers.bytom.htlc import HTLC
         >>> from shuttle.providers.bytom.transaction import FundTransaction
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> fund_solver = FundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
         >>> fund_transaction = FundTransaction(network="testnet")
         >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
-        >>> fund_transaction.sign(fund_solver)
+        >>> fund_transaction.sign(solver=fund_solver)
         <shuttle.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
@@ -262,7 +355,7 @@ class FundTransaction(Transaction):
             raise TypeError("Solver must be FundSolver format.")
         wallet = solver.solve()
         wallet.clean_derivation()
-        for unsigned in self.unsigned(detail=True):
+        for unsigned in self.unsigned_datas(detail=True):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -273,7 +366,7 @@ class FundTransaction(Transaction):
                 wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
-            self.signatures.append(signed_data)
+            self._signatures.append(signed_data)
             wallet.clean_derivation()
         return self
 
@@ -283,7 +376,11 @@ class FundTransaction(Transaction):
 
         :returns: str -- Bytom unsigned fund transaction raw.
 
+        >>> from shuttle.providers.bytom.htlc import HTLC
         >>> from shuttle.providers.bytom.transaction import FundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> fund_transaction = FundTransaction(network="testnet")
         >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
         >>> fund_transaction.unsigned_raw()
@@ -294,9 +391,9 @@ class FundTransaction(Transaction):
             raise ValueError("transaction script is none, build transaction first")
 
         return b64encode(str(json.dumps(dict(
-            fee=self.fee,
+            fee=self._fee,
             guid=self.guid,
-            unsigned=self.unsigned(detail=False),
+            unsigned_datas=self.unsigned_datas(detail=False),
             hash=self.transaction["tx"]["hash"],
             raw=self.transaction["raw_transaction"],
             signatures=list(),
@@ -315,74 +412,53 @@ class ClaimTransaction(Transaction):
 
     .. warning::
         Do not forget to build transaction after initialize claim transaction.
-
-    :fee: Get Bytom claim transaction fee.
-
-    >>> claim_transaction.fee
-    10000000
-
-    :signatures: Get Bytom fund transaction signature data.
-
-    >>> claim_transaction.signatures
-    [...]
     """
 
     # Initialization claim transaction
     def __init__(self, network="testnet"):
         super().__init__(network)
 
-        # Init secret key
-        self.secret = None
-
-    def build_transaction(self, wallet, amount, asset=bytom["BTM_asset"],
-                          transaction_id=None, utxo_id=None, secret=None):
+    def build_transaction(self, transaction_id, wallet, amount, asset=bytom["BTM_asset"]):
         """
         Build Bytom claim transaction.
 
+        :param transaction_id: Bytom fund transaction id to redeem.
+        :type transaction_id: str
         :param wallet: Bytom recipient wallet.
         :type wallet: bytom.wallet.Wallet
         :param amount: Bytom amount to withdraw.
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :param transaction_id: Bytom fund transaction id to redeem, default to None.
-        :type transaction_id: str
-        :param utxo_id: Bytom htlc utxo id, default to None..
-        :type utxo_id: str
-        :param secret: secret key.
-        :type secret: str
         :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
         >>> claim_transaction = ClaimTransaction(network="testnet")
-        >>> claim_transaction.build_transaction(fund_transaction_id, recipient_wallet, 10000)
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <shuttle.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
         # Checking transaction and utxo id
-        if not transaction_id and not utxo_id:
-            raise ValueError("transaction or utxo id are required")
 
         # Checking build transaction arguments instance
-        if transaction_id and not isinstance(transaction_id, str):
+        if not isinstance(transaction_id, str):
             raise TypeError("invalid transaction id instance, only takes Bytom string type")
-        if utxo_id and not isinstance(utxo_id, str):
-            raise TypeError("invalid utxo id instance, only takes Bytom string type")
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes Bytom Wallet class")
         if not isinstance(amount, int):
             raise TypeError("invalid asset instance, only takes integer type")
         if not isinstance(asset, str):
             raise TypeError("invalid amount instance, only takes string type")
-        if secret is not None and not isinstance(secret, str):
-            raise TypeError("invalid secret instance, only takes string type")
 
-        if transaction_id:
-            # Finding htlc utxo id.
-            utxo_id = find_p2wsh_utxo(
-                transaction_id=transaction_id, network=self.network)
-            if utxo_id is None:
-                raise ValueError("invalid transaction id, there is no smart contact")
+        # Finding htlc utxo id.
+        utxo_id = find_p2wsh_utxo(
+            transaction_id=transaction_id,
+            network=self.network
+        )
+        if utxo_id is None:
+            raise ValueError("invalid transaction id, there is no pay to witness script hash")
 
         # Setting wallet GUID
         self.guid = wallet.guid()
@@ -412,7 +488,6 @@ class ClaimTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
-        self.secret = secret
         return self
 
     # Signing transaction using private keys
@@ -425,9 +500,13 @@ class ClaimTransaction(Transaction):
         :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
+        >>> from shuttle.providers.bytom.solver import ClaimSolver
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
+        >>> claim_solver = ClaimSolver("58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f", "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> claim_transaction = ClaimTransaction(network="testnet")
-        >>> claim_transaction.build_transaction(fund_transaction_id, recipient_wallet, 10000)
-        >>> claim_transaction.sign(claim_solver)
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.sign(solver=claim_solver)
         <shuttle.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
@@ -435,7 +514,7 @@ class ClaimTransaction(Transaction):
             raise TypeError("solver must be ClaimSolver format.")
         wallet = solver.solve()
         wallet.clean_derivation()
-        for index, unsigned in enumerate(self.unsigned(detail=True)):
+        for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -452,7 +531,7 @@ class ClaimTransaction(Transaction):
                     signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
-            self.signatures.append(signed_data)
+            self._signatures.append(signed_data)
             wallet.clean_derivation()
         return self
 
@@ -463,8 +542,10 @@ class ClaimTransaction(Transaction):
         :returns: str -- Bytom unsigned claim transaction raw.
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
         >>> claim_transaction = ClaimTransaction(network="testnet")
-        >>> claim_transaction.build_transaction(fund_transaction_id, recipient_wallet, 10000)
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.unsigned_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -473,14 +554,13 @@ class ClaimTransaction(Transaction):
             raise ValueError("transaction script is none, build transaction first")
 
         return b64encode(str(json.dumps(dict(
-            fee=self.fee,
+            fee=self._fee,
             guid=self.guid,
-            unsigned=self.unsigned(detail=False),
+            unsigned_datas=self.unsigned_datas(detail=False),
             hash=self.transaction["tx"]["hash"],
             raw=self.transaction["raw_transaction"],
-            secret=self.secret,
             network=self.network,
-            signatures=list(),
+            signatures=[],
             type="bytom_claim_unsigned"
         ))).encode()).decode()
 
@@ -495,54 +575,37 @@ class RefundTransaction(Transaction):
 
     .. warning::
         Do not forget to build transaction after initialize refund transaction.
-
-    :fee: Get Bytom refund transaction fee.
-
-    >>> refund_transaction.fee
-    10000000
-
-    :signatures: Get Bytom refund transaction signature data.
-
-    >>> refund_transaction.signatures
-    [...]
     """
 
     # Initialization fund transaction
     def __init__(self, network="testnet"):
         super().__init__(network)
 
-    def build_transaction(self, wallet, amount, asset=bytom["BTM_asset"],
-                          transaction_id=None, utxo_id=None):
+    def build_transaction(self, transaction_id, wallet, amount, asset=bytom["BTM_asset"]):
         """
         Build Bytom refund transaction.
 
+        :param transaction_id: Bytom fund transaction id to redeem.
+        :type transaction_id: str
         :param wallet: Bytom sender wallet.
         :type wallet: bytom.wallet.Wallet
         :param amount: Bytom amount to withdraw.
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :param transaction_id: Bytom fund transaction id to redeem, defaults to None.
-        :type transaction_id: str
-        :param utxo_id: Bytom htlc utxo id, default to None..
-        :type utxo_id: str
         :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> refund_transaction = RefundTransaction(network="testnet")
-        >>> refund_transaction.build_transaction(fund_transaction_id, sender_wallet, 10000)
+        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <shuttle.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
-        # Checking transaction and utxo id
-        if not transaction_id and not utxo_id:
-            raise ValueError("transaction or utxo id are required")
-
-        # Checking build transaction arguments instance
-        if transaction_id and not isinstance(transaction_id, str):
+        # Checking
+        if not isinstance(transaction_id, str):
             raise TypeError("invalid transaction id instance, only takes Bytom string type")
-        if utxo_id and not isinstance(utxo_id, str):
-            raise TypeError("invalid utxo id instance, only takes Bytom string type")
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes Bytom Wallet class")
         if not isinstance(amount, int):
@@ -550,12 +613,11 @@ class RefundTransaction(Transaction):
         if not isinstance(asset, str):
             raise TypeError("invalid amount instance, only takes string type")
 
-        if transaction_id:
-            # Finding htlc utxo id.
-            utxo_id = find_p2wsh_utxo(
-                transaction_id=transaction_id, network=self.network)
-            if utxo_id is None:
-                raise ValueError("invalid transaction id, there is no smart contact")
+        # Finding htlc utxo id.
+        utxo_id = find_p2wsh_utxo(
+            transaction_id=transaction_id, network=self.network)
+        if utxo_id is None:
+            raise ValueError("invalid transaction id, there is no smart contact")
 
         # Setting wallet GUID
         self.guid = wallet.guid()
@@ -597,17 +659,22 @@ class RefundTransaction(Transaction):
         :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
+        >>> from shuttle.providers.bytom.solver import RefundSolver
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> refund_solver = RefundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b", "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> refund_transaction = RefundTransaction(network="testnet")
-        >>> refund_transaction.build_transaction(fund_transaction_id, sender_wallet, 10000)
-        >>> refund_transaction.sign(refund_solver)
+        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.sign(solver=refund_solver)
         <shuttle.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         if not isinstance(solver, RefundSolver):
             raise TypeError("solver must be RefundSolver format.")
+
         wallet = solver.solve()
         wallet.clean_derivation()
-        for index, unsigned in enumerate(self.unsigned(detail=True)):
+        for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -623,7 +690,7 @@ class RefundTransaction(Transaction):
                     signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
-            self.signatures.append(signed_data)
+            self._signatures.append(signed_data)
             wallet.clean_derivation()
         return self
 
@@ -634,8 +701,10 @@ class RefundTransaction(Transaction):
         :returns: str -- Bytom unsigned refund transaction raw.
 
         >>> from shuttle.providers.bytom.transaction import RefundTransaction
+        >>> from shuttle.providers.bytom.wallet import Wallet
+        >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> refund_transaction = RefundTransaction(network="testnet")
-        >>> refund_transaction.build_transaction(fund_transaction_id, sender_wallet, 10000)
+        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.unsigned_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -644,9 +713,9 @@ class RefundTransaction(Transaction):
             raise ValueError("transaction script is none, build transaction first")
 
         return b64encode(str(json.dumps(dict(
-            fee=self.fee,
+            fee=self._fee,
             guid=self.guid,
-            unsigned=self.unsigned(detail=False),
+            unsigned_datas=self.unsigned_datas(detail=False),
             hash=self.transaction["tx"]["hash"],
             raw=self.transaction["raw_transaction"],
             signatures=list(),
