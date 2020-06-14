@@ -93,7 +93,7 @@ print("=" * 10, "Unsigned Fund Transaction")
 unsigned_fund_transaction = FundTransaction(version=2, network=NETWORK)
 # Building fund transaction
 unsigned_fund_transaction.build_transaction(
-    sender_wallet=sender_wallet,
+    wallet=sender_wallet,
     htlc=htlc,
     amount=AMOUNT
 )

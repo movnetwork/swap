@@ -75,7 +75,7 @@ unsigned_refund_transaction = RefundTransaction(version=2, network=NETWORK)
 # Building refund transaction
 unsigned_refund_transaction.build_transaction(
     transaction_id=TRANSACTION_ID,
-    sender_wallet=sender_wallet,
+    wallet=sender_wallet,
     amount=AMOUNT
 )
 

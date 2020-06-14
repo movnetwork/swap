@@ -75,7 +75,7 @@ unsigned_claim_transaction = ClaimTransaction(version=2, network=NETWORK)
 # Building claim transaction
 unsigned_claim_transaction.build_transaction(
     transaction_id=TRANSACTION_ID,
-    recipient_wallet=recipient_wallet,
+    wallet=recipient_wallet,
     amount=AMOUNT
 )
 
