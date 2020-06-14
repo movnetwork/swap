@@ -5,6 +5,7 @@ from base64 import b64encode, b64decode
 import json
 
 from .transaction import Transaction
+from .solver import FundSolver, ClaimSolver, RefundSolver
 from .rpc import decode_tx_raw
 
 
@@ -23,8 +24,34 @@ class Signature(Transaction):
 
     def __init__(self, network="testnet"):
         super().__init__(network)
-        # Signed and type
-        self.signed, self.type = None, None
+        # Bytom transaction
+        self.transaction = None
+        # Signed raw, type and fee
+        self._signed_raw, self._type, self._fee = None, None, 0,
+
+        # Bytom setup network
+        if network not in ["mainnet", "solonet", "testnet"]:
+            raise ValueError("invalid network, please choose only mainnet, solonet or testnet networks")
+        self.network = network
+
+    # Transaction fee
+    def fee(self):
+        """
+        Get Bitcoin transaction fee.
+
+        :returns: int -- Bitcoin transaction fee.
+
+        >>> from shuttle.providers.bytom.signature import Signature
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
+        >>> signature.fee()
+        10000000
+        """
+
+        return self._fee
 
     # Transaction hash
     def hash(self):
@@ -33,6 +60,12 @@ class Signature(Transaction):
 
         :returns: str -- Bytom signature transaction hash or transaction id.
 
+        >>> from shuttle.providers.bytom.signature import Signature
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
         >>> signature.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
@@ -48,6 +81,12 @@ class Signature(Transaction):
 
         :returns: dict -- Bytom signature transaction json format.
 
+        >>> from shuttle.providers.bytom.signature import Signature
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
         >>> signature.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
@@ -62,6 +101,12 @@ class Signature(Transaction):
 
         :returns: str -- Bytom signature transaction raw.
 
+        >>> from shuttle.providers.bytom.signature import Signature
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
         >>> signature.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
@@ -76,13 +121,19 @@ class Signature(Transaction):
 
         :returns: str -- Bytom signature transaction type.
 
+        >>> from shuttle.providers.bytom.signature import Signature
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
         >>> signature.type()
         "bytom_fund_signed"
         """
 
-        if self.type is None:
+        if self._type is None:
             raise ValueError("not found type, sign first")
-        return self.type
+        return self._type
 
     def sign(self, unsigned_raw, solver):
         """
@@ -95,15 +146,18 @@ class Signature(Transaction):
         :returns:  FundSignature, ClaimSignature, RefundSignature -- Bytom signature instance.
 
         >>> from shuttle.providers.bytom.signature import Signature
-        >>> signature = Signature()
-        >>> signature.sign(bytom_claim_unsigned, claim_solver)
-        <shuttle.providers.bytom.signature.ClaimSignature object at 0x0409DAF0>
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
+        <shuttle.providers.bytom.signature.FundSignature object at 0x0409DAF0>
         """
 
         tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
         if "type" not in tx_raw:
             raise ValueError("invalid unsigned transaction raw")
-        self.type = tx_raw["type"]
+        self._type = tx_raw["type"]
         if tx_raw["type"] == "bytom_fund_unsigned":
             return FundSignature(network=self.network)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
@@ -114,10 +168,27 @@ class Signature(Transaction):
             return RefundSignature(network=self.network)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
 
-    def unsigned(self, raw=False):
+    def unsigned_datas(self, *args, **kwargs):
+        """
+        Get Bytom transaction unsigned datas with instruction.
+
+        :param detail: Bytom unsigned datas to see detail, defaults to False.
+        :type detail: bool
+        :returns: list -- Bytom transaction unsigned datas.
+
+        >>> from shuttle.providers.bytom.signature import Signature
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
+        >>> signature.unsigned_datas()
+        [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
+        """
+
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
-        return self.transaction["unsigned"]
+        return self.transaction["unsigned_datas"]
 
     def signed_raw(self):
         """
@@ -126,15 +197,18 @@ class Signature(Transaction):
         :returns: str -- Bytom signed transaction raw.
 
         >>> from shuttle.providers.bytom.signature import Signature
-        >>> signature = Signature()
-        >>> signature.sign(bytom_refund_unsigned, refund_solver)
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver(xprivate_key="205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> signature = Signature(network="testnet")
+        >>> signature.sign(bytom_fund_unsigned_raw, fund_solver)
         >>> signature.signed_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
-        if self.signed is None:
+        if self._signed_raw is None:
             raise ValueError("there is no signed data, sign first")
-        return self.signed
+        return self._signed_raw
 
 
 # Fund signature
@@ -145,16 +219,6 @@ class FundSignature(Signature):
     :param network: Bytom network, defaults to testnet.
     :type network: str
     :returns:  FundSignature -- Bytom fund signature instance.
-
-    :fee: Get Bytom fund signature transaction fee.
-
-    >>> fund_signature.fee
-    10000000
-
-    :signatures: Get Bytom fund transaction signature data.
-
-    >>> fund_signature.signatures
-    [...]
     """
 
     def __init__(self, network="testnet"):
@@ -171,20 +235,37 @@ class FundSignature(Signature):
         :returns:  FundSignature -- Bytom fund signature instance.
 
         >>> from shuttle.providers.bytom.signature import FundSignature
-        >>> fund_signature = FundSignature()
-        >>> fund_signature.sign(bytom_fund_unsigned, fund_solver)
+        >>> from shuttle.providers.bytom.solver import FundSolver
+        >>> bytom_fund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> fund_solver = FundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> fund_signature = FundSignature(network="testnet")
+        >>> fund_signature.sign(bytom_fund_unsigned_raw, fund_solver)
         <shuttle.providers.bytom.signature.FundSignature object at 0x0409DAF0>
         """
         
-        tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned Bytom fund transaction raw")
-        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
-        if not self.type == "bytom_fund_unsigned":
-            raise TypeError("can't sign this %s transaction using Bytom FundSignature" % tx_raw["type"])
+        # Decoding and loading fund transaction
+        fund_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        # Checking fund transaction keys
+        for key in ["raw", "unsigned_datas", "type", "fee", "network"]:
+            if key not in fund_transaction:
+                raise ValueError("invalid Bytom unsigned fund transaction raw")
+        if not fund_transaction["type"] == "bytom_fund_unsigned":
+            raise TypeError(f"invalid transaction type, you can't sign this "
+                            f"{fund_transaction['type']} transaction by using Bytom FundSignature")
+        if not isinstance(solver, FundSolver):
+            raise TypeError("invalid solver error, only takes Bytom FundSolver class")
+
+        # Setting transaction fee, type, network and transaction
+        self._fee, self._type, self.network, self.transaction = (
+            fund_transaction["fee"], fund_transaction["type"],
+            fund_transaction["network"], fund_transaction
+        )
+
+        # Setting sender wallet
         wallet = solver.solve()
-        wallet.clean_derivation()
-        for unsigned in self.unsigned():
+        wallet.clean_derivation()  # Cleaning any derivation indexes/path
+        # Signing refund transaction
+        for unsigned in self.unsigned_datas():
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -195,17 +276,20 @@ class FundSignature(Signature):
                 wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 signed_data.append(wallet.sign(unsigned_data))
-            self.signatures.append(signed_data)
+            self._signatures.append(signed_data)
             wallet.clean_derivation()
-        self.signed = b64encode(str(json.dumps(dict(
-            fee=self.fee,
+
+        # Encoding fund transaction raw
+        self._type = "bytom_fund_signed"
+        self._signed_raw = b64encode(str(json.dumps(dict(
+            fee=self.fee(),
             guid=self.transaction["guid"],
             raw=self.raw(),
             hash=self.hash(),
-            unsigned=self.unsigned(),
+            unsigned_datas=self.unsigned_datas(),
             network=self.network,
-            signatures=self.signatures,
-            type="bytom_fund_signed"
+            signatures=self.signatures(),
+            type=self.type()
         ))).encode()).decode()
         return self
 
@@ -218,16 +302,6 @@ class ClaimSignature(Signature):
     :param network: Bytom network, defaults to testnet.
     :type network: str
     :returns:  ClaimSignature -- Bytom claim signature instance.
-
-    :fee: Get Bytom claim signature transaction fee.
-
-    >>> claim_signature.fee
-    10000000
-
-    :signatures: Get Bytom fund transaction signature data.
-
-    >>> claim_signature.signatures
-    [...]
     """
 
     def __init__(self, network="testnet"):
@@ -244,20 +318,38 @@ class ClaimSignature(Signature):
         :returns:  ClaimSignature -- Bytom claim signature instance.
 
         >>> from shuttle.providers.bytom.signature import ClaimSignature
-        >>> claim_signature = ClaimSignature()
-        >>> claim_signature.sign(bytom_claim_unsigned, claim_solver)
+        >>> from shuttle.providers.bytom.solver import ClaimSolver
+        >>> bytom_claim_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
+        >>> claim_solver = ClaimSolver(recipient_xprivate_key, "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> claim_signature = ClaimSignature(network="testnet")
+        >>> claim_signature.sign(bytom_claim_unsigned_raw, claim_solver)
         <shuttle.providers.bytom.signature.ClaimSignature object at 0x0409DAF0>
         """
-        
-        tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned Bytom fund transaction raw")
-        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
-        if not self.type == "bytom_claim_unsigned":
-            raise TypeError("can't sign this %s transaction using Bytom FundSignature" % tx_raw["type"])
+
+        # Decoding and loading claim transaction
+        claim_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        # Checking claim transaction keys
+        for key in ["raw", "unsigned_datas", "type", "fee", "network"]:
+            if key not in claim_transaction:
+                raise ValueError("invalid Bytom unsigned claim transaction raw")
+        if not claim_transaction["type"] == "bytom_claim_unsigned":
+            raise TypeError(f"invalid transaction type, you can't sign this "
+                            f"{claim_transaction['type']} transaction by using Bytom ClaimSignature")
+        if not isinstance(solver, ClaimSolver):
+            raise TypeError("invalid solver error, only takes Bytom ClaimSolver class")
+
+        # Setting transaction fee, type, network and transaction
+        self._fee, self._type, self.network, self.transaction = (
+            claim_transaction["fee"], claim_transaction["type"],
+            claim_transaction["network"], claim_transaction,
+        )
+
+        # Setting recipient wallet
         wallet = solver.solve()
-        wallet.clean_derivation()
-        for index, unsigned in enumerate(self.unsigned()):
+        wallet.clean_derivation()  # Cleaning any derivation indexes/path
+        # Signing claim transaction
+        for index, unsigned in enumerate(self.unsigned_datas()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -274,17 +366,20 @@ class ClaimSignature(Signature):
                     signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
-            self.signatures.append(signed_data)
+            self._signatures.append(signed_data)
             wallet.clean_derivation()
-        self.signed = b64encode(str(json.dumps(dict(
-            fee=self.fee,
+
+        # Encoding claim transaction raw
+        self._type = "bytom_claim_signed"
+        self._signed_raw = b64encode(str(json.dumps(dict(
+            fee=self.fee(),
             guid=self.transaction["guid"],
             raw=self.raw(),
             hash=self.hash(),
-            unsigned=self.unsigned(),
+            unsigned_datas=self.unsigned_datas(),
             network=self.network,
-            signatures=self.signatures,
-            type="bytom_claim_signed"
+            signatures=self.signatures(),
+            type=self.type()
         ))).encode()).decode()
         return self
 
@@ -297,16 +392,6 @@ class RefundSignature(Signature):
     :param network: Bytom network, defaults to testnet.
     :type network: str
     :returns:  RefundSignature -- Bytom claim signature instance.
-
-    :fee: Get Bytom refund signature transaction fee.
-
-    >>> refund_signature.fee
-    10000000
-
-    :signatures: Get Bytom fund transaction signature data.
-
-    >>> refund_signature.signatures
-    [...]
     """
 
     def __init__(self, network="testnet"):
@@ -323,20 +408,38 @@ class RefundSignature(Signature):
         :returns:  RefundSignature -- Bytom refund signature instance.
 
         >>> from shuttle.providers.bytom.signature import RefundSignature
-        >>> refund_signature = RefundSignature()
-        >>> refund_signature.sign(bytom_refund_unsigned, refund_solver)
+        >>> from shuttle.providers.bytom.solver import RefundSolver
+        >>> bytom_refund_unsigned_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkIjogW3siZGF0YXMiOiBbIjM4NjAxYmY3Y2UwOGRhYjkyMTkxNmYyYzcyM2FjY2EwNDUxZDg5MDQ2NDliYmVjMTZjMjA3NmYxNDU1ZGQxYTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiNzY0NzIyOGFlM2MxNGQ5OGI4N2JkOWE2ZWI5NGJiMjgzMjkxMzUzZWE2MmFjZDIxYWQzNTMxMWFlOTEwZWY2ZiIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZWU1MDFhOTdlMTQ0OWExYTg5OTI1ZGYxMjU5ZWJmMWUxYzhmYmIyM2E2MTA3MmNmMzQ0YmIzMmVlNjc2YjY2YmRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBkYjg4YzcwNzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQwZTBhNWMyMDcwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> sender_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+        >>> refund_solver = RefundSolver(sender_xprivate_key, "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> refund_signature = RefundSignature(network="testnet")
+        >>> refund_signature.sign(bytom_refund_unsigned_raw, refund_solver)
         <shuttle.providers.bytom.signature.RefundSignature object at 0x0409DAF0>
         """
-        
-        tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "raw" not in tx_raw or "type" not in tx_raw or "fee" not in tx_raw:
-            raise ValueError("invalid unsigned Bytom fund transaction raw")
-        self.fee, self.type, self.transaction = tx_raw["fee"], tx_raw["type"], tx_raw
-        if not self.type == "bytom_refund_unsigned":
-            raise TypeError("can't sign this %s transaction using Bytom FundSignature" % tx_raw["type"])
+
+        # Decoding and loading refund transaction
+        refund_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        # Checking refund transaction keys
+        for key in ["raw", "unsigned_datas", "type", "fee", "network"]:
+            if key not in refund_transaction:
+                raise ValueError("invalid Bytom unsigned refund transaction raw")
+        if not refund_transaction["type"] == "bytom_refund_unsigned":
+            raise TypeError(f"invalid transaction type, you can't sign this "
+                            f"{refund_transaction['type']} transaction by using Bytom RefundSignature")
+        if not isinstance(solver, RefundSolver):
+            raise TypeError("invalid solver error, only takes Bytom RefundSolver class")
+
+        # Setting transaction fee, type, network and transaction
+        self._fee, self._type, self.network, self.transaction = (
+            refund_transaction["fee"], refund_transaction["type"],
+            refund_transaction["network"], refund_transaction
+        )
+
+        # Setting sender wallet
         wallet = solver.solve()
-        wallet.clean_derivation()
-        for index, unsigned in enumerate(self.unsigned()):
+        wallet.clean_derivation()  # Cleaning any derivation indexes/path
+        # Signing refund transaction
+        for index, unsigned in enumerate(self.unsigned_datas()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
             if unsigned["path"]:
@@ -352,16 +455,19 @@ class RefundSignature(Signature):
                     signed_data.append(solver.witness(self.network, False))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
-            self.signatures.append(signed_data)
+            self._signatures.append(signed_data)
             wallet.clean_derivation()
-        self.signed = b64encode(str(json.dumps(dict(
-            fee=self.fee,
+
+        # Encoding refund transaction raw
+        self._type = "bytom_refund_signed"
+        self._signed_raw = b64encode(str(json.dumps(dict(
+            fee=self.fee(),
             guid=self.transaction["guid"],
             raw=self.raw(),
             hash=self.hash(),
-            unsigned=self.unsigned(),
+            unsigned_datas=self.unsigned_datas(),
             network=self.network,
-            signatures=self.signatures,
-            type="bytom_refund_signed"
+            signatures=self.signatures(),
+            type=self.type()
         ))).encode()).decode()
         return self

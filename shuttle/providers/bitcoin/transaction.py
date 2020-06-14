@@ -83,6 +83,7 @@ class Transaction:
         "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7"
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first.")
         return self.transaction.txid
@@ -96,13 +97,14 @@ class Transaction:
 
         >>> from shuttle.providers.bitcoin.transaction import RefundTransaction
         >>> from shuttle.providers.bitcoin.wallet import Wallet
-        >>> sender_wallet = Wallet(network="testnet").from_passphrase("meherett")
+        >>> wallet = Wallet(network="testnet").from_passphrase("meherett")
         >>> refund_transaction = RefundTransaction(network="testnet")
-        >>> refund_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", sender_wallet, 10000)
+        >>> refund_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", wallet, 10000)
         >>> refund_transaction.json()
         {"hex": "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000", "txid": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "hash": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "size": 117, "vsize": 117, "version": 2, "locktime": 0, "vin": [{"txid": "be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c", "vout": 1, "scriptSig": {"asm": "", "hex": ""}, "sequence": "4294967295"}], "vout": [{"value": "0.00001000", "n": 0, "scriptPubKey": {"asm": "OP_HASH160 971894c58d85981c16c2059d422bcde0b156d044 OP_EQUAL", "hex": "a914971894c58d85981c16c2059d422bcde0b156d04487", "type": "p2sh", "address": "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"}}, {"value": "0.00010662", "n": 1, "scriptPubKey": {"asm": "OP_DUP OP_HASH160 6bce65e58a50b97989930e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG", "hex": "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac", "type": "p2pkh", "address": "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"}}]}
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first.")
         return self.transaction.to_json()
@@ -123,6 +125,7 @@ class Transaction:
         "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000"
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first.")
         return self.transaction.hexlify()
@@ -142,6 +145,7 @@ class Transaction:
         "bitcoin_claim_unsigned"
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first.")
         return self._type
@@ -186,17 +190,17 @@ class FundTransaction(Transaction):
     def __init__(self, version=2, network="testnet"):
         super().__init__(version=version, network=network)
         # Initialization wallet, htlc, amount and unspent
-        self.sender_wallet, self.htlc, self.amount, self.unspent = None, None, None, None
+        self.wallet, self.htlc, self.amount, self.unspent = None, None, None, None
         # Getting previous transaction indexes using funding amount
         self.previous_transaction_indexes = None
 
     # Building transaction
-    def build_transaction(self, sender_wallet, htlc, amount, locktime=0):
+    def build_transaction(self, wallet, htlc, amount, locktime=0):
         """
         Build Bitcoin fund transaction.
 
-        :param sender_wallet: Bitcoin sender wallet.
-        :type sender_wallet: bitcoin.wallet.Wallet
+        :param wallet: Bitcoin sender wallet.
+        :type wallet: bitcoin.wallet.Wallet
         :param htlc: Bitcoin hash time lock contract (HTLC).
         :type htlc: bitcoin.htlc.HTLC
         :param amount: Bitcoin amount to fund.
@@ -211,22 +215,22 @@ class FundTransaction(Transaction):
         >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> sender_wallet = Wallet(network="testnet").from_passphrase("meherett")
         >>> fund_transaction = FundTransaction(network="testnet")
-        >>> fund_transaction.build_transaction(sender_wallet=sender_wallet, htlc=htlc, amount=10000)
+        >>> fund_transaction.build_transaction(wallet=sender_wallet, htlc=htlc, amount=10000)
         <shuttle.providers.bitcoin.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Checking parameter instances
-        if not isinstance(sender_wallet, Wallet):
-            raise TypeError("invalid sender wallet instance, only takes Bitcoin Wallet class")
+        if not isinstance(wallet, Wallet):
+            raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
         if not isinstance(htlc, HTLC):
             raise TypeError("invalid htlc instance, only takes Bitcoin HTLC class")
         if not isinstance(amount, int):
             raise TypeError("invalid amount instance, only takes integer type")
 
         # Setting wallet, htlc, amount and unspent
-        self.sender_wallet, self.htlc, self.amount = sender_wallet, htlc, amount
+        self.wallet, self.htlc, self.amount = wallet, htlc, amount
         # Getting unspent transaction output
-        self.unspent = self.sender_wallet.unspent()
+        self.unspent = self.wallet.unspent()
         # Setting previous transaction indexes
         self.previous_transaction_indexes = \
             self.get_previous_transaction_indexes(amount=self.amount)
@@ -260,7 +264,7 @@ class FundTransaction(Transaction):
                     value=(amount - (self._fee + self.amount)),
                     n=1,
                     script_pubkey=P2pkhScript.unhexlify(
-                        hex_string=self.sender_wallet.p2pkh()
+                        hex_string=self.wallet.p2pkh()
                     )
                 )
             ], locktime=Locktime(locktime))
@@ -377,7 +381,7 @@ class ClaimTransaction(Transaction):
     def __init__(self, network="testnet", version=2):
         super().__init__(network=network, version=version)
         # Initialization transaction_id, recipient wallet and amount
-        self.transaction_id, self.recipient_wallet, \
+        self.transaction_id, self.wallet, \
             self.amount = None, None, None
         # Getting transaction detail by id
         self.transaction_detail = None
@@ -385,14 +389,14 @@ class ClaimTransaction(Transaction):
         self.htlc_detail, self.sender_detail = None, None
 
     # Building claim transaction
-    def build_transaction(self, transaction_id, recipient_wallet, amount, locktime=0):
+    def build_transaction(self, transaction_id, wallet, amount, locktime=0):
         """
         Build Bitcoin claim transaction.
 
         :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
-        :param recipient_wallet: Bitcoin recipient wallet.
-        :type recipient_wallet: bitcoin.wallet.Wallet
+        :param wallet: Bitcoin recipient wallet.
+        :type wallet: bitcoin.wallet.Wallet
         :param amount: Bitcoin amount to withdraw.
         :type amount: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -403,18 +407,18 @@ class ClaimTransaction(Transaction):
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> recipient_wallet = Wallet(network="testnet").from_passphrase("meherett")
         >>> claim_transaction = ClaimTransaction(network="testnet")
-        >>> claim_transaction.build_transaction(transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet=recipient_wallet, amount=10000)
+        >>> claim_transaction.build_transaction(transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", wallet=recipient_wallet, amount=10000)
         <shuttle.providers.bitcoin.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
         # Checking parameter instances
         if not isinstance(transaction_id, str):
             raise TypeError("invalid amount instance, only takes string type")
-        if not isinstance(recipient_wallet, Wallet):
-            raise TypeError("invalid recipient wallet instance, only takes Bitcoin Wallet class")
+        if not isinstance(wallet, Wallet):
+            raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
 
         # Setting transaction_id and wallet
-        self.transaction_id, self.recipient_wallet = transaction_id, transaction_id
+        self.transaction_id, self.wallet = transaction_id, transaction_id
         # Getting transaction detail by id
         self.transaction_detail = get_transaction_detail(self.transaction_id)
         # Getting Hash time lock contract output detail
@@ -445,7 +449,7 @@ class ClaimTransaction(Transaction):
                     value=(amount - self._fee),
                     n=0,
                     script_pubkey=P2pkhScript.unhexlify(
-                        hex_string=self.recipient_wallet.p2pkh()
+                        hex_string=self.wallet.p2pkh()
                     )
                 )
             ], locktime=Locktime(locktime))
@@ -548,7 +552,7 @@ class RefundTransaction(Transaction):
     def __init__(self, version=2, network="testnet"):
         super().__init__(version=version, network=network)
         # Initialization transaction_id, sender wallet and amount
-        self.transaction_id, self.sender_wallet, \
+        self.transaction_id, self.wallet, \
             self.amount = None, None, None
         # Get transaction detail
         self.transaction_detail = None
@@ -556,14 +560,14 @@ class RefundTransaction(Transaction):
         self.htlc_detail, self.sender_detail = None, None
 
     # Building transaction
-    def build_transaction(self, transaction_id, sender_wallet, amount, locktime=0):
+    def build_transaction(self, transaction_id, wallet, amount, locktime=0):
         """
         Build Bitcoin refund transaction.
 
         :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
-        :param sender_wallet: Bitcoin sender wallet.
-        :type sender_wallet: bitcoin.wallet.Wallet
+        :param wallet: Bitcoin sender wallet.
+        :type wallet: bitcoin.wallet.Wallet
         :param amount: Bitcoin amount to withdraw.
         :type amount: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -574,18 +578,18 @@ class RefundTransaction(Transaction):
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> sender_wallet = Wallet(network="testnet").from_passphrase("meherett")
         >>> refund_transaction = RefundTransaction(network="testnet")
-        >>> refund_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", sender_wallet, 10000)
+        >>> refund_transaction.build_transaction(transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", wallet=sender_wallet, amount=10000)
         <shuttle.providers.bitcoin.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Checking parameter instances
         if not isinstance(transaction_id, str):
             raise TypeError("invalid amount instance, only takes string type")
-        if not isinstance(sender_wallet, Wallet):
-            raise TypeError("invalid sender wallet instance, only takes Bitcoin Wallet class")
+        if not isinstance(wallet, Wallet):
+            raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
 
         # Setting transaction_id and wallet
-        self.transaction_id, self.sender_wallet = transaction_id, sender_wallet
+        self.transaction_id, self.wallet = transaction_id, wallet
         # Getting transaction detail by id
         self.transaction_detail = get_transaction_detail(self.transaction_id)
         # Getting Hash time lock contract output detail
@@ -616,7 +620,7 @@ class RefundTransaction(Transaction):
                     value=(amount - self._fee),
                     n=0,
                     script_pubkey=P2pkhScript.unhexlify(
-                        hex_string=self.sender_wallet.p2pkh()
+                        hex_string=self.wallet.p2pkh()
                     )
                 )
             ], locktime=Locktime(locktime))

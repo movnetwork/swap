@@ -8,9 +8,7 @@ from btcpy.setup import setup
 
 import json
 
-from .utils import sha256
 from .solver import FundSolver, ClaimSolver, RefundSolver
-from .htlc import HTLC
 
 
 # Signature
@@ -29,19 +27,15 @@ class Signature:
     """
 
     def __init__(self, network="testnet", version=2):
-        # Transaction build version
-        self.version: int = version
-        # Transaction
+        # Bitcoin transaction
         self.transaction = None
-        # Bitcoin fee
-        self._fee: int = 0
-        # Signed and type
-        self.signed, self._type = None, None
+        # Signed raw, type and fee
+        self._signed_raw, self._type, self._fee = None, None, 0
 
-        if network not in ["mainnet", "testnet"]:
-            raise ValueError("invalid network, please choose only mainnet or testnet")
         # Bitcoin setup network
-        self.network: str = network
+        if network not in ["mainnet", "testnet"]:
+            raise ValueError("invalid network, please choose only mainnet or testnet networks")
+        self.network, self.version = network, version
         setup(self.network, strict=True)
 
     # Transaction fee
@@ -195,9 +189,9 @@ class Signature:
         "eyJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDZiNDgzMDQ1MDIyMTAwYzkwZjA3MmNhM2NkMWFjNDQ2YmJjOTUyZjAwN2RkZDgyYjkzMGU0MTZjZmI3ZTA3YjBiNTZlYzUwNjU5NzBiMTAyMjAyZGNkMjhjOTJkOWRmZTZhNjcyNTE2MDJlNTA3NWNmMjFjM2VjMGJiZTQzZWQwNzQyZGJmOWNkYmZlMmQwZDgwMDEyMTAzYzU2YTYwMDVkNGE4ODkyZDI4Y2MzZjcyNjVlNTY4NWI1NDg2MjdkNTkxMDg5NzNlNDc0YzRlMjZmNjlhNGM4NGZmZmZmZmZmMDIxMDI3MDAwMDAwMDAwMDAwMTdhOTE0MmJiMDEzYzNlNGJlYjA4NDIxZGVkY2Y4MTVjYjY1YTVjMzg4MTc4Yjg3YmNkZDBlMDAwMDAwMDAwMDE5NzZhOTE0NjRhODM5MGIwYjE2ODVmY2JmMmQ0YjQ1NzExOGRjOGRhOTJkNTUzNDg4YWMwMDAwMDAwMCIsICJmZWUiOiA2NzgsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfc2lnbmVkIn0"
         """
 
-        if self.signed is None:
+        if self._signed_raw is None:
             raise ValueError("there is no signed data, sign first")
-        return self.signed
+        return self._signed_raw
 
 
 # Fund signature
@@ -246,10 +240,12 @@ class FundSignature(Signature):
         if not isinstance(solver, FundSolver):
             raise TypeError("invalid solver error, only takes Bitcoin FundSolver class")
 
-        # Setting transaction fee and type
-        self._fee, self._type = fund_transaction["fee"], fund_transaction["type"]
-        # Initializing Bitcoin mutable transaction from raw
-        self.transaction = MutableTransaction.unhexlify(fund_transaction["raw"])
+        # Setting transaction fee, type, network and transaction
+        self._fee, self._type, self.network, self.transaction = (
+            fund_transaction["fee"], fund_transaction["type"],
+            fund_transaction["network"], MutableTransaction.unhexlify(fund_transaction["raw"])
+        )
+
         # Organizing outputs
         outputs = []
         for output in fund_transaction["outputs"]:
@@ -267,7 +263,7 @@ class FundSignature(Signature):
 
         # Encoding fund transaction raw
         self._type = "bitcoin_fund_signed"
-        self.signed = b64encode(str(json.dumps(dict(
+        self._signed_raw = b64encode(str(json.dumps(dict(
             raw=self.transaction.hexlify(),
             fee=fund_transaction["fee"],
             network=fund_transaction["network"],
@@ -322,10 +318,12 @@ class ClaimSignature(Signature):
         if not isinstance(solver, ClaimSolver):
             raise TypeError("invalid solver error, only takes Bitcoin ClaimSolver class")
 
-        # Setting transaction fee and type
-        self._fee, self._type = claim_transaction["fee"], claim_transaction["type"]
-        # Initializing Bitcoin mutable transaction from raw
-        self.transaction = MutableTransaction.unhexlify(claim_transaction["raw"])
+        # Setting transaction fee, type, network and transaction
+        self._fee, self._type, self.network, self.transaction = (
+            claim_transaction["fee"], claim_transaction["type"],
+            claim_transaction["network"], MutableTransaction.unhexlify(claim_transaction["raw"])
+        )
+
         # Signing claim transaction
         self.transaction.spend([
             TxOut(
@@ -345,7 +343,7 @@ class ClaimSignature(Signature):
 
         # Encoding refund transaction raw
         self._type = "bitcoin_claim_signed"
-        self.signed = b64encode(str(json.dumps(dict(
+        self._signed_raw = b64encode(str(json.dumps(dict(
             raw=self.transaction.hexlify(),
             fee=claim_transaction["fee"],
             network=claim_transaction["network"],
@@ -393,17 +391,19 @@ class RefundSignature(Signature):
         # Checking refund transaction keys
         for key in ["raw", "outputs", "type", "fee", "network"]:
             if key not in refund_transaction:
-                raise ValueError("invalid unsigned refund transaction raw")
+                raise ValueError("invalid Bitcoin unsigned refund transaction raw")
         if not refund_transaction["type"] == "bitcoin_refund_unsigned":
-            raise TypeError(f"invalid transaction type, "
-                            f"you can't sign this {refund_transaction['type']} transaction by using RefundSignature")
+            raise TypeError(f"invalid transaction type, you can't sign this "
+                            f"{refund_transaction['type']} transaction by using Bitcoin RefundSignature")
         if not isinstance(solver, RefundSolver):
             raise TypeError("invalid solver error, only takes Bitcoin RefundSolver class")
 
-        # Setting transaction fee and type
-        self._fee, self._type = refund_transaction["fee"], refund_transaction["type"]
-        # Initializing Bitcoin mutable transaction from raw
-        self.transaction = MutableTransaction.unhexlify(refund_transaction["raw"])
+        # Setting transaction fee, type, network and transaction
+        self._fee, self._type, self.network, self.transaction = (
+            refund_transaction["fee"], refund_transaction["type"],
+            refund_transaction["network"], MutableTransaction.unhexlify(refund_transaction["raw"])
+        )
+
         # Signing refund transaction
         self.transaction.spend([
             TxOut(
@@ -424,7 +424,7 @@ class RefundSignature(Signature):
 
         # Encoding refund transaction raw
         self._type = "bitcoin_refund_signed"
-        self.signed = b64encode(str(json.dumps(dict(
+        self._signed_raw = b64encode(str(json.dumps(dict(
             raw=self.transaction.hexlify(),
             fee=refund_transaction["fee"],
             network=refund_transaction["network"],

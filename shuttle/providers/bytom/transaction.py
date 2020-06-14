@@ -89,6 +89,8 @@ class Transaction:
         10000000
         """
 
+        return self._fee
+
     # Transaction hash
     def hash(self):
         """
@@ -107,6 +109,7 @@ class Transaction:
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
         return self.transaction["tx"]["hash"]
@@ -126,6 +129,8 @@ class Transaction:
         >>> refund_transaction.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
+
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
         return decode_tx_raw(tx_raw=self.transaction["raw_transaction"])
@@ -146,6 +151,7 @@ class Transaction:
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
         return self.transaction["raw_transaction"]
@@ -165,6 +171,7 @@ class Transaction:
         "bitcoin_claim_unsigned"
         """
 
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction script is none, build transaction first.")
         return self._type
@@ -188,9 +195,11 @@ class Transaction:
         [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
         """
 
-        unsigned_datas = list()
+        # Checking transaction
         if self.transaction is None:
             raise ValueError("transaction is none, build transaction first.")
+
+        unsigned_datas = []
         for signing_instruction in self.transaction["signing_instructions"]:
             unsigned_data = dict(datas=signing_instruction["sign_data"])
             if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
@@ -244,6 +253,9 @@ class Transaction:
         [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
         """
 
+        # Checking transaction
+        if self.transaction is None:
+            raise ValueError("transaction is none, build transaction first.")
         return self._signatures
 
 
@@ -283,11 +295,11 @@ class FundTransaction(Transaction):
         >>> htlc = HTLC(network="testnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> fund_transaction = FundTransaction(network="testnet")
-        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> fund_transaction.build_transaction(wallet=sender_wallet, htlc=htlc, amount=10000)
         <shuttle.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
-        # Checking build transaction arguments instance
+        # Checking parameter instances
         if not isinstance(wallet, Wallet):
             raise TypeError("invalid wallet instance, only takes Bytom Wallet class")
         if not isinstance(htlc, HTLC):
@@ -296,28 +308,28 @@ class FundTransaction(Transaction):
             raise TypeError("invalid amount instance, only takes integer type")
         if not isinstance(asset, str):
             raise TypeError("invalid asset instance, only takes string type")
+
         # Setting wallet GUID
-        self.guid = wallet.guid()
-        # Actions
-        inputs, outputs = list(), list()
-        # Input action
+        self.guid, inputs, outputs = wallet.guid(), list(), list()
+
+        # Building input actions
         inputs.append(
             spend_wallet_action(
                 asset=asset,
                 amount=amount
             )
         )
-        # Output action
+        # Building output actions
         outputs.append(
             control_program_action(
                 asset=asset,
                 amount=amount,
-                control_program=p2wsh_program(
+                control_program=p2wsh_program(  # Changing script hash to P2WSH
                     script_hash=htlc.hash()
                 )
             )
         )
-        # Transaction
+        # Blockcenter transaction
         tx = dict(
             guid=self.guid,
             inputs=inputs,
@@ -327,6 +339,7 @@ class FundTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
+        self._type = "bytom_fund_unsigned"
         return self
 
     # Signing transaction using xprivate keys
@@ -351,10 +364,14 @@ class FundTransaction(Transaction):
         <shuttle.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
+        # Checking parameter instances
         if not isinstance(solver, FundSolver):
             raise TypeError("Solver must be FundSolver format.")
+
+        # Setting sender wallet
         wallet = solver.solve()
-        wallet.clean_derivation()
+        wallet.clean_derivation()  # Cleaning any derivation indexes/path
+        # Signing refund transaction
         for unsigned in self.unsigned_datas(detail=True):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -368,6 +385,7 @@ class FundTransaction(Transaction):
                 signed_data.append(wallet.sign(unsigned_data))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
+        self._type = "bytom_fund_signed"
         return self
 
     def unsigned_raw(self):
@@ -387,16 +405,18 @@ class FundTransaction(Transaction):
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
+        # Checking transaction
         if not self.transaction:
             raise ValueError("transaction script is none, build transaction first")
 
+        # Encoding claim transaction raw and return
         return b64encode(str(json.dumps(dict(
-            fee=self._fee,
+            fee=self.fee(),
             guid=self.guid,
             unsigned_datas=self.unsigned_datas(detail=False),
-            hash=self.transaction["tx"]["hash"],
-            raw=self.transaction["raw_transaction"],
-            signatures=list(),
+            hash=self.hash(),
+            raw=self.raw(),
+            signatures=[],
             network=self.network,
             type="bytom_fund_unsigned"
         ))).encode()).decode()
@@ -436,13 +456,11 @@ class ClaimTransaction(Transaction):
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
         >>> claim_transaction = ClaimTransaction(network="testnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction(transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", wallet=recipient_wallet, amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <shuttle.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
-        # Checking transaction and utxo id
-
-        # Checking build transaction arguments instance
+        # Checking parameter instances
         if not isinstance(transaction_id, str):
             raise TypeError("invalid transaction id instance, only takes Bytom string type")
         if not isinstance(wallet, Wallet):
@@ -488,6 +506,7 @@ class ClaimTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
+        self._type = "bytom_claim_unsigned"
         return self
 
     # Signing transaction using private keys
@@ -503,17 +522,21 @@ class ClaimTransaction(Transaction):
         >>> from shuttle.providers.bytom.solver import ClaimSolver
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_solver = ClaimSolver("58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f", "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> claim_solver = ClaimSolver(wallet.xprivate_key(), "Hello Meheret!", wallet.public_key(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> claim_transaction = ClaimTransaction(network="testnet")
         >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.sign(solver=claim_solver)
         <shuttle.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
+        # Checking parameter instances
         if not isinstance(solver, ClaimSolver):
             raise TypeError("solver must be ClaimSolver format.")
+
+        # Setting recipient wallet
         wallet = solver.solve()
-        wallet.clean_derivation()
+        wallet.clean_derivation()  # Cleaning any derivation indexes/path
+        # Signing claim transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -533,6 +556,7 @@ class ClaimTransaction(Transaction):
                     signed_data.append(wallet.sign(unsigned_data))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
+        self._type = "bytom_claim_signed"
         return self
 
     def unsigned_raw(self):
@@ -543,22 +567,24 @@ class ClaimTransaction(Transaction):
 
         >>> from shuttle.providers.bytom.transaction import ClaimTransaction
         >>> from shuttle.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
+        >>> wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
         >>> claim_transaction = ClaimTransaction(network="testnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.unsigned_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
+        # Checking transaction
         if not self.transaction:
             raise ValueError("transaction script is none, build transaction first")
 
+        # Encoding claim transaction raw and return
         return b64encode(str(json.dumps(dict(
-            fee=self._fee,
+            fee=self.fee(),
             guid=self.guid,
             unsigned_datas=self.unsigned_datas(detail=False),
-            hash=self.transaction["tx"]["hash"],
-            raw=self.transaction["raw_transaction"],
+            hash=self.hash(),
+            raw=self.raw(),
             network=self.network,
             signatures=[],
             type="bytom_claim_unsigned"
@@ -599,11 +625,11 @@ class RefundTransaction(Transaction):
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
         >>> refund_transaction = RefundTransaction(network="testnet")
-        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction(transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", wallet=sender_wallet, amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <shuttle.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
-        # Checking
+        # Checking parameter instances
         if not isinstance(transaction_id, str):
             raise TypeError("invalid transaction id instance, only takes Bytom string type")
         if not isinstance(wallet, Wallet):
@@ -647,6 +673,7 @@ class RefundTransaction(Transaction):
         )
         # Building transaction
         self.transaction = build_transaction(tx=tx, network=self.network)
+        self._type = "bytom_refund_unsigned"
         return self
 
     # Signing transaction using private keys
@@ -662,18 +689,21 @@ class RefundTransaction(Transaction):
         >>> from shuttle.providers.bytom.solver import RefundSolver
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> refund_solver = RefundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b", "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> refund_solver = RefundSolver(wallet.xprivate_key(), "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", wallet.public_key(), 1000)
         >>> refund_transaction = RefundTransaction(network="testnet")
         >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.sign(solver=refund_solver)
         <shuttle.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
+        # Checking parameter instances
         if not isinstance(solver, RefundSolver):
             raise TypeError("solver must be RefundSolver format.")
 
+        # Setting recipient wallet
         wallet = solver.solve()
-        wallet.clean_derivation()
+        wallet.clean_derivation()  # Cleaning any derivation indexes/path
+        # Signing claim transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -692,6 +722,7 @@ class RefundTransaction(Transaction):
                     signed_data.append(wallet.sign(unsigned_data))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
+        self._type = "bytom_refund_signed"
         return self
 
     def unsigned_raw(self):
@@ -709,16 +740,18 @@ class RefundTransaction(Transaction):
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
+        # Checking transaction
         if not self.transaction:
             raise ValueError("transaction script is none, build transaction first")
 
+        # Encoding claim transaction raw and return
         return b64encode(str(json.dumps(dict(
-            fee=self._fee,
+            fee=self.fee(),
             guid=self.guid,
             unsigned_datas=self.unsigned_datas(detail=False),
-            hash=self.transaction["tx"]["hash"],
-            raw=self.transaction["raw_transaction"],
-            signatures=list(),
+            hash=self.hash(),
+            raw=self.raw(),
+            signatures=[],
             network=self.network,
             type="bytom_refund_unsigned"
         ))).encode()).decode()
