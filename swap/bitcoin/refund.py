@@ -9,7 +9,7 @@ import json
 
 # Bitcoin network
 NETWORK = "testnet"
-# Transaction id/hash
+# Bitcoin transaction id/hash
 TRANSACTION_ID = "285ffc86ebece50f208bbfc1e72fb7c99991a3cf4d1b43cf93657838a4ae23ad"
 # Sender passphrase/password
 SENDER_PASSPHRASE = "meheret tesfaye batu bayou"
