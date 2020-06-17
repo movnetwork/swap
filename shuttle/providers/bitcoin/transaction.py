@@ -418,7 +418,7 @@ class ClaimTransaction(Transaction):
             raise TypeError("invalid wallet instance, only takes Bitcoin Wallet class")
 
         # Setting transaction_id and wallet
-        self.transaction_id, self.wallet = transaction_id, transaction_id
+        self.transaction_id, self.wallet = transaction_id, wallet
         # Getting transaction detail by id
         self.transaction_detail = get_transaction_detail(self.transaction_id)
         # Getting Hash time lock contract output detail
