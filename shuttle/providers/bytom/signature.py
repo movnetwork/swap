@@ -71,7 +71,7 @@ class Signature(Transaction):
         """
 
         if self.transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("transaction script is none, sign first")
         return self.transaction["hash"]
 
     # Transaction json
@@ -91,7 +91,7 @@ class Signature(Transaction):
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
         if self.transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("transaction script is none, sign first")
         return decode_tx_raw(tx_raw=self.transaction["raw"])
 
     # Transaction raw
@@ -112,7 +112,7 @@ class Signature(Transaction):
         """
 
         if self.transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("transaction script is none, build transaction first")
         return self.transaction["raw"]
 
     def type(self):
@@ -154,17 +154,18 @@ class Signature(Transaction):
         <shuttle.providers.bytom.signature.FundSignature object at 0x0409DAF0>
         """
 
-        tx_raw = json.loads(b64decode(str(unsigned_raw).encode()).decode())
-        if "type" not in tx_raw:
-            raise ValueError("invalid unsigned transaction raw")
-        self._type = tx_raw["type"]
-        if tx_raw["type"] == "bytom_fund_unsigned":
+        transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
+        if "type" not in transaction:
+            raise ValueError("invalid Bytom unsigned transaction raw")
+        self._type = transaction["type"]
+        if transaction["type"] == "bytom_fund_unsigned":
             return FundSignature(network=self.network)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
-        elif tx_raw["type"] == "bytom_claim_unsigned":
+        elif transaction["type"] == "bytom_claim_unsigned":
             return ClaimSignature(network=self.network)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
-        elif tx_raw["type"] == "bytom_refund_unsigned":
+        elif transaction["type"] == "bytom_refund_unsigned":
             return RefundSignature(network=self.network)\
                 .sign(unsigned_raw=unsigned_raw, solver=solver)
 
@@ -187,7 +188,7 @@ class Signature(Transaction):
         """
 
         if self.transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("transaction script is none, build transaction first")
         return self.transaction["unsigned_datas"]
 
     def signed_raw(self):
@@ -244,16 +245,17 @@ class FundSignature(Signature):
         """
         
         # Decoding and loading fund transaction
-        fund_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        fund_transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         # Checking fund transaction keys
         for key in ["raw", "unsigned_datas", "type", "fee", "network"]:
             if key not in fund_transaction:
                 raise ValueError("invalid Bytom unsigned fund transaction raw")
         if not fund_transaction["type"] == "bytom_fund_unsigned":
-            raise TypeError(f"invalid transaction type, you can't sign this "
-                            f"{fund_transaction['type']} transaction by using Bytom FundSignature")
+            raise TypeError(f"invalid Bytom fund unsigned transaction type, "
+                            f"you can't sign this {fund_transaction['type']} type by using FundSignature")
         if not isinstance(solver, FundSolver):
-            raise TypeError("invalid solver error, only takes Bytom FundSolver class")
+            raise TypeError("invalid Bytom solver, it's only takes Bytom FundSolver class")
 
         # Setting transaction fee, type, network and transaction
         self._fee, self._type, self.network, self.transaction = (
@@ -328,16 +330,17 @@ class ClaimSignature(Signature):
         """
 
         # Decoding and loading claim transaction
-        claim_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        claim_transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         # Checking claim transaction keys
         for key in ["raw", "unsigned_datas", "type", "fee", "network"]:
             if key not in claim_transaction:
                 raise ValueError("invalid Bytom unsigned claim transaction raw")
         if not claim_transaction["type"] == "bytom_claim_unsigned":
-            raise TypeError(f"invalid transaction type, you can't sign this "
-                            f"{claim_transaction['type']} transaction by using Bytom ClaimSignature")
+            raise TypeError(f"invalid Bytom claim unsigned transaction type, "
+                            f"you can't sign this {claim_transaction['type']} type by using ClaimSignature")
         if not isinstance(solver, ClaimSolver):
-            raise TypeError("invalid solver error, only takes Bytom ClaimSolver class")
+            raise TypeError("invalid Bytom solver, it's only takes Bytom ClaimSolver class")
 
         # Setting transaction fee, type, network and transaction
         self._fee, self._type, self.network, self.transaction = (
@@ -418,16 +421,17 @@ class RefundSignature(Signature):
         """
 
         # Decoding and loading refund transaction
-        refund_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        refund_transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         # Checking refund transaction keys
         for key in ["raw", "unsigned_datas", "type", "fee", "network"]:
             if key not in refund_transaction:
                 raise ValueError("invalid Bytom unsigned refund transaction raw")
         if not refund_transaction["type"] == "bytom_refund_unsigned":
-            raise TypeError(f"invalid transaction type, you can't sign this "
-                            f"{refund_transaction['type']} transaction by using Bytom RefundSignature")
+            raise TypeError(f"invalid Bytom refund unsigned transaction type, "
+                            f"you can't sign this {refund_transaction['type']} type by using RefundSignature")
         if not isinstance(solver, RefundSolver):
-            raise TypeError("invalid solver error, only takes Bytom RefundSolver class")
+            raise TypeError("invalid Bytom solver, it's only takes Bytom RefundSolver class")
 
         # Setting transaction fee, type, network and transaction
         self._fee, self._type, self.network, self.transaction = (
