@@ -159,9 +159,10 @@ class Signature:
         <shuttle.providers.bitcoin.signature.FundSignature object at 0x0409DAF0>
         """
 
-        transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         if "type" not in transaction:
-            raise ValueError("invalid unsigned transaction raw")
+            raise ValueError("invalid Bitcoin unsigned transaction raw")
         self._type = transaction["type"]
         if transaction["type"] == "bitcoin_fund_unsigned":
             return FundSignature(network=self.network, version=self.version)\
@@ -229,16 +230,17 @@ class FundSignature(Signature):
         """
 
         # Decoding and loading refund transaction
-        fund_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        fund_transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         # Checking refund transaction keys
         for key in ["raw", "outputs", "type", "fee", "network"]:
             if key not in fund_transaction:
-                raise ValueError("invalid unsigned fund transaction raw")
+                raise ValueError("invalid Bitcoin unsigned fund transaction raw")
         if not fund_transaction["type"] == "bitcoin_fund_unsigned":
-            raise TypeError(f"invalid transaction type, "
-                            f"you can't sign this {fund_transaction['type']} transaction by using FundSignature")
+            raise TypeError(f"invalid Bitcoin fund unsigned transaction type, "
+                            f"you can't sign this {fund_transaction['type']} type by using FundSignature")
         if not isinstance(solver, FundSolver):
-            raise TypeError("invalid solver error, only takes Bitcoin FundSolver class")
+            raise TypeError("invalid Bitcoin solver, it's only takes Bitcoin FundSolver class")
 
         # Setting transaction fee, type, network and transaction
         self._fee, self._type, self.network, self.transaction = (
@@ -307,16 +309,17 @@ class ClaimSignature(Signature):
         """
 
         # Decoding and loading claim transaction
-        claim_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        claim_transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         # Checking claim transaction keys
         for key in ["raw", "outputs", "type", "fee", "network"]:
             if key not in claim_transaction:
-                raise ValueError("invalid unsigned claim transaction raw")
+                raise ValueError("invalid Bitcoin unsigned claim transaction raw")
         if not claim_transaction["type"] == "bitcoin_claim_unsigned":
-            raise TypeError(f"invalid transaction type, "
-                            f"you can't sign this {claim_transaction['type']} transaction by using ClaimSignature")
+            raise TypeError(f"invalid Bitcoin claim unsigned transaction type, "
+                            f"you can't sign this {claim_transaction['type']} type by using ClaimSignature")
         if not isinstance(solver, ClaimSolver):
-            raise TypeError("invalid solver error, only takes Bitcoin ClaimSolver class")
+            raise TypeError("invalid Bitcoin solver, it's only takes Bitcoin ClaimSolver class")
 
         # Setting transaction fee, type, network and transaction
         self._fee, self._type, self.network, self.transaction = (
@@ -387,16 +390,17 @@ class RefundSignature(Signature):
         """
 
         # Decoding and loading refund transaction
-        refund_transaction = json.loads(b64decode(str(unsigned_raw).encode()).decode())
+        refund_transaction = json.loads(b64decode(
+            str(unsigned_raw + "=" * (-len(unsigned_raw) % 4)).encode()).decode())
         # Checking refund transaction keys
         for key in ["raw", "outputs", "type", "fee", "network"]:
             if key not in refund_transaction:
                 raise ValueError("invalid Bitcoin unsigned refund transaction raw")
         if not refund_transaction["type"] == "bitcoin_refund_unsigned":
-            raise TypeError(f"invalid transaction type, you can't sign this "
-                            f"{refund_transaction['type']} transaction by using Bitcoin RefundSignature")
+            raise TypeError(f"invalid Bitcoin refund unsigned transaction type, "
+                            f"you can't sign this {refund_transaction['type']} type by using RefundSignature")
         if not isinstance(solver, RefundSolver):
-            raise TypeError("invalid solver error, only takes Bitcoin RefundSolver class")
+            raise TypeError("invalid Bitcoin solver, it's only takes Bitcoin RefundSolver class")
 
         # Setting transaction fee, type, network and transaction
         self._fee, self._type, self.network, self.transaction = (
