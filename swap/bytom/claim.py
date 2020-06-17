@@ -78,12 +78,12 @@ unsigned_claim_transaction.build_transaction(
     asset=ASSET
 )
 
-print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee)
+print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee())
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction.raw())
 # print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
 print("Unsigned Claim Transaction Unsigned:", json.dumps(unsigned_claim_transaction.unsigned_datas(), indent=4))
-print("Unsigned Claim Transaction Signatures:", json.dumps(unsigned_claim_transaction.signatures, indent=4))
+print("Unsigned Claim Transaction Signatures:", json.dumps(unsigned_claim_transaction.signatures(), indent=4))
 
 unsigned_claim_raw = unsigned_claim_transaction.unsigned_raw()
 print("Unsigned Claim Transaction Unsigned Raw:", unsigned_claim_raw)
