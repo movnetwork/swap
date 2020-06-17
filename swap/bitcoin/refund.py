@@ -79,7 +79,7 @@ unsigned_refund_transaction.build_transaction(
     amount=AMOUNT
 )
 
-print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee)
+print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee())
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
 print("Unsigned Refund Transaction Raw:", unsigned_refund_transaction.raw())
 # print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
@@ -102,7 +102,7 @@ refund_solver = RefundSolver(
 # Singing unsigned claim transaction
 signed_refund_transaction = unsigned_refund_transaction.sign(refund_solver)
 
-print("Signed Refund Transaction Fee:", signed_refund_transaction.fee)
+print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
 print("Signed Refund Transaction Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
@@ -118,7 +118,7 @@ refund_signature.sign(
     solver=refund_solver
 )
 
-print("Refund Signature Fee:", refund_signature.fee)
+print("Refund Signature Fee:", refund_signature.fee())
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
