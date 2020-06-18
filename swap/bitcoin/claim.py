@@ -4,6 +4,7 @@ from shuttle.providers.bitcoin.wallet import Wallet
 from shuttle.providers.bitcoin.transaction import ClaimTransaction
 from shuttle.providers.bitcoin.solver import ClaimSolver
 from shuttle.providers.bitcoin.signature import ClaimSignature
+from shuttle.utils import sha256
 
 import json
 
@@ -94,6 +95,7 @@ print("=" * 10, "Signed Claim Transaction")
 claim_solver = ClaimSolver(
     private_key=recipient_private_key,
     secret="Hello Meheret!",
+    secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_address=recipient_address,
     sender_address=sender_address,
     sequence=1000

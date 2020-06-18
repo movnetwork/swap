@@ -4,6 +4,7 @@ from shuttle.providers.bytom.wallet import Wallet
 from shuttle.providers.bytom.transaction import RefundTransaction
 from shuttle.providers.bytom.solver import RefundSolver
 from shuttle.providers.bytom.signature import RefundSignature
+from shuttle.utils import sha256
 
 import json
 
@@ -93,7 +94,7 @@ print("=" * 10, "Signed Refund Transaction")
 # Initializing refund solver
 refund_solver = RefundSolver(
     xprivate_key=sender_xprivate_key,
-    secret="Hello Meheret!",
+    secret_hash=sha256("Hello Meheret!".encode()).hex(),
     recipient_public=recipient_public_key,
     sender_public=sender_public_key,
     sequence=1000
