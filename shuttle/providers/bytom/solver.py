@@ -36,21 +36,23 @@ class FundSolver:
 
     def __init__(self, xprivate_key,
                  account=1, change=False, address=1, path=None, indexes=None):
+        # Checking parameter instances
+        if not isinstance(xprivate_key, str):
+            raise TypeError("xprivate key must be string format")
         # Checking path and indexes
         if not path and not indexes:
             path = f"m/44/153/{account}/{1 if change else 0}/{address}"
 
-        # Initialization Bytom wallet
-        self.wallet = Wallet()
-        # XPrivate key of sender to sign signature
+        # Setting Bytom private key
         self.xprivate_key = xprivate_key
-        # Setting derivation key
+        # Setting Bytom derivation key
         self.path, self.indexes = path, indexes
 
     # Signature solve
     def solve(self):
-        return self.wallet\
-            .from_xprivate_key(xprivate_key=self.xprivate_key)
+        return Wallet().from_xprivate_key(
+            xprivate_key=self.xprivate_key
+        )
 
 
 # Claim HTLC Solver
@@ -60,14 +62,18 @@ class ClaimSolver:
 
     :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
-    :param secret: secret key.
+    :param secret: Secret password/passphrase.
     :type secret: str
-    :param recipient_public: Bytom recipient public key.
+    :param secret_hash: Secret password/passphrase hash, defaults to None.
+    :type secret_hash: str
+    :param recipient_public: Bytom recipient public key, defaults to None.
     :type recipient_public: str
-    :param sender_public: Bytom sender public key.
+    :param sender_public: Bytom sender public key, defaults to None.
     :type sender_public: str
-    :param sequence: Bytom sequence number(expiration block), defaults to Bytom config sequence.
+    :param sequence: Bytom sequence number(expiration block), defaults to 1000.
     :type sequence: int
+    :param bytecode: Bytom witness HTLC bytecode, defaults to None.
+    :type bytecode: str
     :param account: Bytom derivation account, defaults to 1.
     :type account: int
     :param change: Bytom derivation change, defaults to False.
@@ -86,35 +92,60 @@ class ClaimSolver:
     <shuttle.providers.bytom.solver.ClaimSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key, secret, recipient_public, sender_public,
-                 sequence=bytom["sequence"], account=1, change=False, address=1, path=None, indexes=None):
+    def __init__(self, xprivate_key, secret, secret_hash=None, recipient_public=None,
+                 sender_public=None, sequence=bytom["sequence"], bytecode=None,
+                 account=1, change=False, address=1, path=None, indexes=None):
+        # Checking parameter instances
+        if not isinstance(xprivate_key, str):
+            raise TypeError("recipient xprivate key must be string format")
+        if not isinstance(secret, str):
+            raise TypeError("secret must be string format")
+        if bytecode is None:
+            if not isinstance(secret_hash, str):
+                raise TypeError("secret hash must be string format")
+            if len(secret_hash) != 64:
+                raise ValueError("invalid secret hash, length must be 64")
+            if not isinstance(recipient_public, str):
+                raise TypeError("recipient public key must be string format")
+            if len(recipient_public) != 64:
+                raise ValueError("invalid recipient public key, length must be 64")
+            if not isinstance(sender_public, str):
+                raise TypeError("sender public key must be string format")
+            if len(sender_public) != 64:
+                raise ValueError("invalid sender public key, length must be 64")
+            if not isinstance(sequence, int):
+                raise TypeError("sequence must be integer format")
+        else:
+            if not isinstance(bytecode, str):
+                raise TypeError("bytecode must be string format")
+
         # Checking path and indexes
         if not path and not indexes:
             path = f"m/44/153/{account}/{1 if change else 0}/{address}"
-
-        # Initialization Bytom wallet
-        self.wallet = Wallet()
-        # XPrivate key of recipient to sign signature
-        self.xprivate_key = xprivate_key
-        # Secret key to unlock HTLC
-        self.secret = secret.encode()
+        # Setting Bytom xprivate key and secret password/passphrase
+        self.xprivate_key, self.secret = xprivate_key, secret
         # Setting derivation key
         self.path, self.indexes = path, indexes
-        # HTLC witness agreements
-        self.htlc_args = [
-            sha256(self.secret).hex(),
-            recipient_public,
-            sender_public,
-            sequence
+        # Setting witness from bytecode or HTLC
+        self.bytecode, self.htlc_args = bytecode, [
+            secret_hash,  # Secret password/passphrase
+            recipient_public,  # Bitcoin recipient public key
+            sender_public,  # Bitcoin sender public key
+            sequence  # Sequence/Expiration block
         ]
 
     # Signature solve
     def solve(self):
-        return self.wallet.from_xprivate_key(
-            xprivate_key=self.xprivate_key)
+        return Wallet().from_xprivate_key(
+            xprivate_key=self.xprivate_key
+        )
 
     # HTLC witnesses bytecode
     def witness(self, network=bytom["network"], use_script=False):
+        if self.bytecode:
+            return HTLC(network=network).from_bytecode(
+                bytecode=self.bytecode
+            ).bytecode()
         return HTLC(network=network).init(
             secret_hash=self.htlc_args[0],
             recipient_public=self.htlc_args[1],
@@ -131,14 +162,16 @@ class RefundSolver:
 
     :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
-    :param secret: secret key.
-    :type secret: str
-    :param recipient_public: Bytom recipient public key.
+    :param secret_hash: Secret password/passphrase hash, defaults to None.
+    :type secret_hash: str
+    :param recipient_public: Bytom recipient public key, defaults to None.
     :type recipient_public: str
-    :param sender_public: Bytom sender public key.
+    :param sender_public: Bytom sender public key, defaults to None.
     :type sender_public: str
-    :param sequence: Bytom sequence number(expiration block), defaults to Bytom config sequence.
+    :param sequence: Bytom sequence number(expiration block), defaults to 1000.
     :type sequence: int
+    :param bytecode: Bytom witness HTLC bytecode, defaults to None.
+    :type bytecode: str
     :param account: Bytom derivation account, defaults to 1.
     :type account: int
     :param change: Bytom derivation change, defaults to False.
@@ -157,35 +190,58 @@ class RefundSolver:
     <shuttle.providers.bytom.solver.RefundSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key, secret, recipient_public, sender_public,
-                 sequence=bytom["sequence"], account=1, change=False, address=1, path=None, indexes=None):
+    def __init__(self, xprivate_key, secret_hash=None, recipient_public=None,
+                 sender_public=None, sequence=bytom["sequence"], bytecode=None,
+                 account=1, change=False, address=1, path=None, indexes=None):
+        # Checking parameter instances
+        if not isinstance(xprivate_key, str):
+            raise TypeError("recipient xprivate key must be string format")
+        if bytecode is None:
+            if not isinstance(secret_hash, str):
+                raise TypeError("secret hash must be string format")
+            if len(secret_hash) != 64:
+                raise ValueError("invalid secret hash, length must be 64.")
+            if not isinstance(recipient_public, str):
+                raise TypeError("recipient public key must be string format")
+            if len(recipient_public) != 64:
+                raise ValueError("invalid recipient public key, length must be 64.")
+            if not isinstance(sender_public, str):
+                raise TypeError("sender public key must be string format")
+            if len(sender_public) != 64:
+                raise ValueError("invalid sender public key, length must be 64.")
+            if not isinstance(sequence, int):
+                raise TypeError("sequence must be integer format")
+        else:
+            if not isinstance(bytecode, str):
+                raise TypeError("bytecode must be string format")
+
         # Checking path and indexes
         if not path and not indexes:
             path = f"m/44/153/{account}/{1 if change else 0}/{address}"
-
-        # Initialization Bytom wallet
-        self.wallet = Wallet()
-        # XPrivate key of recipient to sign signature
+        # Setting Bytom xprivate key
         self.xprivate_key = xprivate_key
-        # Secret key to unlock HTLC
-        self.secret = secret.encode()
         # Setting derivation key
         self.path, self.indexes = path, indexes
-        # HTLC witness agreements
-        self.htlc_args = [
-            sha256(self.secret).hex(),
-            recipient_public,
-            sender_public,
-            sequence
+        # Setting witness from bytecode or HTLC
+        self.bytecode, self.htlc_args = bytecode, [
+            secret_hash,  # Secret password/passphrase
+            recipient_public,  # Bytom recipient public key
+            sender_public,  # Bytom sender public key
+            sequence  # Sequence/Expiration block
         ]
 
     # Signature solve
     def solve(self):
-        return self.wallet.from_xprivate_key(
-            xprivate_key=self.xprivate_key)
+        return Wallet().from_xprivate_key(
+            xprivate_key=self.xprivate_key
+        )
 
     # HTLC witnesses bytecode
     def witness(self, network=bytom["network"], use_script=False):
+        if self.bytecode:
+            return HTLC(network=network).from_bytecode(
+                bytecode=self.bytecode
+            ).bytecode()
         return HTLC(network=network).init(
             secret_hash=self.htlc_args[0],
             recipient_public=self.htlc_args[1],

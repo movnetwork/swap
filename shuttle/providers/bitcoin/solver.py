@@ -36,7 +36,7 @@ class FundSolver:
         if not isinstance(private_key, str):
             raise TypeError("private key must be string format")
 
-        # Private key of sender to sign signature
+        # Setting Bitcoin private key
         self.private_key = PrivateKey.unhexlify(private_key)
 
     # Bitcoin signature solve
