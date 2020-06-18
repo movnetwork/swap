@@ -363,7 +363,7 @@ class ClaimSignature(Signature):
                 wallet.from_indexes(solver.indexes)
             for unsigned_data in unsigned_datas:
                 if index == 0:
-                    signed_data.append(bytearray(solver.secret).hex())
+                    signed_data.append(bytearray(solver.secret.encode()).hex())
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str("00"))
                     signed_data.append(solver.witness(self.network, False))
