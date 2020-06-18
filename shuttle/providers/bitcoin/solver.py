@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 from btcpy.structs.crypto import PrivateKey
-from btcpy.structs.sig import P2pkhSolver, \
-    IfElseSolver, HashlockSolver, Branch, RelativeTimelockSolver
+from btcpy.structs.sig import (
+    P2pkhSolver, IfElseSolver, HashlockSolver, Branch, RelativeTimelockSolver
+)
 from btcpy.structs.transaction import Sequence
 
 from ...utils import sha256
+from ...utils.exceptions import AddressError
 from ..config import bitcoin
+from .utils import is_address
 from .htlc import HTLC
 
 # Bitcoin config
@@ -28,13 +31,19 @@ class FundSolver:
     """
 
     # Initialization fund solver
-    def __init__(self, private_key: str):
+    def __init__(self, private_key):
+        # Checking parameter instances
+        if not isinstance(private_key, str):
+            raise TypeError("private key must be string format")
+
         # Private key of sender to sign signature
         self.private_key = PrivateKey.unhexlify(private_key)
 
     # Bitcoin signature solve
     def solve(self):
-        return P2pkhSolver(self.private_key)
+        return P2pkhSolver(
+            privk=self.private_key
+        )
 
 
 # Claim Solver
@@ -46,12 +55,16 @@ class ClaimSolver:
     :type private_key: str
     :param secret: Secret password/passphrase.
     :type secret: str
-    :param recipient_address: Bitcoin recipient address.
+    :param secret_hash: Secret witness password/passphrase hash, defaults to None.
+    :type secret_hash: str
+    :param recipient_address: Bitcoin witness recipient address, defaults to None.
     :type recipient_address: str
-    :param sender_address: Bitcoin sender address.
+    :param sender_address: Bitcoin witness sender address, defaults to None.
     :type sender_address: str
-    :param sequence: Bitcoin sequence number(expiration block), defaults to 1000.
+    :param sequence: Bitcoin witness sequence number(expiration block), defaults to 1000.
     :type sequence: int
+    :param bytecode: Bitcoin witness HTLC bytecode, defaults to None.
+    :type bytecode: str
     :returns:  ClaimSolver -- Bitcoin claim solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import ClaimSolver
@@ -60,13 +73,34 @@ class ClaimSolver:
     """
 
     # Initialization claim solver
-    def __init__(self, private_key: str, secret: str,
-                 recipient_address: str, sender_address: str, sequence=bitcoin["sequence"]):
-        # Private key of recipient to sign signature
-        self.private_key = PrivateKey.unhexlify(private_key)
-        # HTLC witness agreements
-        self.htlc_args = [
-            secret.encode(),  # Secret password/passphrase
+    def __init__(self, private_key, secret, secret_hash=None, recipient_address=None,
+                 sender_address=None, sequence=bitcoin["sequence"], bytecode=None):
+
+        # Checking parameter instances
+        if not isinstance(private_key, str):
+            raise TypeError("private key must be string format")
+        if not isinstance(secret, str):
+            raise TypeError("secret must be string format")
+        if bytecode is None:
+            if not isinstance(secret_hash, str):
+                raise TypeError("secret hash must be string format")
+            if len(secret_hash) != 64:
+                raise ValueError("invalid secret hash, length must be 64")
+            if not is_address(recipient_address):
+                raise AddressError(f"invalid recipient {recipient_address} address")
+            if not is_address(sender_address):
+                raise AddressError(f"invalid sender {sender_address} address")
+            if not isinstance(sequence, int):
+                raise TypeError("sequence must be integer format")
+        else:
+            if not isinstance(bytecode, str):
+                raise TypeError("bytecode must be string format")
+
+        # Setting Bitcoin private key and secret password/passphrase
+        self.private_key, self.secret = PrivateKey.unhexlify(private_key), secret
+        # Setting witness from bytecode or HTLC
+        self.bytecode, self.htlc_args = bytecode, [
+            secret_hash,  # Secret password/passphrase
             recipient_address,  # Bitcoin recipient address
             sender_address,  # Bitcoin sender address
             sequence  # Sequence/Expiration block
@@ -75,17 +109,21 @@ class ClaimSolver:
     # Bitcoin signature solve
     def solve(self):
         return IfElseSolver(
-            Branch.IF,
-            HashlockSolver(
-                self.htlc_args[0],
-                P2pkhSolver(self.private_key)
+            branch=Branch.IF,
+            inner_solver=HashlockSolver(
+                preimage=self.secret.encode(),
+                inner_solver=P2pkhSolver(self.private_key)
             )
         )
 
     # Bitcoin HTLC witnesses script
     def witness(self, network=bitcoin["network"]):
+        if self.bytecode:
+            return HTLC(network=network).from_bytecode(
+                bytecode=self.bytecode
+            ).script
         return HTLC(network=network).init(
-            secret_hash=sha256(self.htlc_args[0]).hex(),
+            secret_hash=self.htlc_args[0],
             recipient_address=self.htlc_args[1],
             sender_address=self.htlc_args[2],
             sequence=self.htlc_args[3]
@@ -99,14 +137,16 @@ class RefundSolver:
 
     :param private_key: Bitcoin sender private key.
     :type private_key: str
-    :param secret: Secret password/passphrase.
-    :type secret: str
-    :param recipient_address: Bitcoin recipient address.
+    :param secret_hash: Secret witness password/passphrase hash, defaults to None.
+    :type secret_hash: str
+    :param recipient_address: Bitcoin witness recipient address, defaults to None.
     :type recipient_address: str
-    :param sender_address: Bitcoin sender address.
+    :param sender_address: Bitcoin witness sender address, defaults to None.
     :type sender_address: str
-    :param sequence: Bitcoin sequence number(expiration block), defaults to 1000.
+    :param sequence: Bitcoin witness sequence number(expiration block), defaults to 1000.
     :type sequence: int
+    :param bytecode: Bitcoin witness HTLC bytecode, defaults to None.
+    :type bytecode: str
     :returns:  RefundSolver -- Bitcoin refund solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import RefundSolver
@@ -115,13 +155,31 @@ class RefundSolver:
     """
 
     # Initialization refund solver
-    def __init__(self, private_key: str, secret: str,
-                 recipient_address: str, sender_address: str, sequence=bitcoin["sequence"]):
-        # Private key of recipient to sign signature
+    def __init__(self, private_key, secret_hash=None, recipient_address=None,
+                 sender_address=None, sequence=bitcoin["sequence"], bytecode=None):
+        # Checking parameter instances
+        if not isinstance(private_key, str):
+            raise TypeError("private key must be string format")
+        if bytecode is None:
+            if not isinstance(secret_hash, str):
+                raise TypeError("secret hash must be string format")
+            if len(secret_hash) != 64:
+                raise ValueError("invalid secret hash, length must be 64")
+            if not is_address(recipient_address):
+                raise AddressError(f"invalid recipient {recipient_address} address")
+            if not is_address(sender_address):
+                raise AddressError(f"invalid sender {sender_address} address")
+            if not isinstance(sequence, int):
+                raise TypeError("sequence must be integer format")
+        else:
+            if not isinstance(bytecode, str):
+                raise TypeError("bytecode must be string format")
+
+        # Setting Bitcoin private key
         self.private_key = PrivateKey.unhexlify(private_key)
-        # HTLC witness agreements
-        self.htlc_args = [
-            secret.encode(),  # Secret password/passphrase
+        # Setting witness from bytecode or HTLC
+        self.bytecode, self.htlc_args = bytecode, [
+            secret_hash,  # Secret password/passphrase
             recipient_address,  # Bitcoin recipient address
             sender_address,  # Bitcoin sender address
             sequence  # Sequence/Expiration block
@@ -130,19 +188,22 @@ class RefundSolver:
     # Bitcoin signature solve
     def solve(self):
         return IfElseSolver(
-            Branch.ELSE,
-            RelativeTimelockSolver(
-                Sequence(self.htlc_args[3]),
-                P2pkhSolver(self.private_key)
+            branch=Branch.ELSE,
+            inner_solver=RelativeTimelockSolver(
+                sequence=Sequence(self.htlc_args[3]),
+                inner_solver=P2pkhSolver(self.private_key)
             )
         )
 
     # Bitcoin HTLC witnesses script
     def witness(self, network=bitcoin["network"]):
+        if self.bytecode:
+            return HTLC(network=network).from_bytecode(
+                bytecode=self.bytecode
+            ).script
         return HTLC(network=network).init(
-            secret_hash=sha256(self.htlc_args[0]).hex(),
+            secret_hash=self.htlc_args[0],
             recipient_address=self.htlc_args[1],
             sender_address=self.htlc_args[2],
             sequence=self.htlc_args[3]
         ).script
-

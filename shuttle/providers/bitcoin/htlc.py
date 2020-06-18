@@ -62,7 +62,7 @@ class HTLC:
         <shuttle.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
-        # Checking parameters
+        # Checking parameter instances
         if not isinstance(secret_hash, str):
             raise TypeError("secret hash must be string format")
         if len(secret_hash) != 64:
@@ -77,6 +77,7 @@ class HTLC:
             raise AddressError("invalid %s sender %s address" % (self.network, sender_address))
         if not isinstance(sequence, int):
             raise TypeError("sequence must be integer format")
+
         # HASH TIME LOCK CONTRACT SCRIPT
         self.script = IfElseScript(
             # If branch
