@@ -175,8 +175,8 @@ class RefundSolver:
             if not isinstance(bytecode, str):
                 raise TypeError("bytecode must be string format")
 
-        # Setting Bitcoin private key
-        self.private_key = PrivateKey.unhexlify(private_key)
+        # Setting Bitcoin private key and Bitcoin sequence/expiration block
+        self.private_key, self.sequence = PrivateKey.unhexlify(private_key), sequence
         # Setting witness from bytecode or HTLC
         self.bytecode, self.htlc_args = bytecode, [
             secret_hash,  # Secret password/passphrase
@@ -190,7 +190,7 @@ class RefundSolver:
         return IfElseSolver(
             branch=Branch.ELSE,
             inner_solver=RelativeTimelockSolver(
-                sequence=Sequence(self.htlc_args[3]),
+                sequence=Sequence(self.sequence),
                 inner_solver=P2pkhSolver(self.private_key)
             )
         )
