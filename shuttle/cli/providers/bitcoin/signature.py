@@ -1,39 +1,44 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from base64 import b64encode, b64decode
+from base64 import b64decode
 
 import json
 import sys
 import binascii
 
 from shuttle.cli import click
-from shuttle.providers.bitcoin.solver \
-    import FundSolver, ClaimSolver, RefundSolver
-from shuttle.providers.bitcoin.signature \
-    import FundSignature, ClaimSignature, RefundSignature
+from shuttle.providers.bitcoin.solver import (
+    FundSolver, ClaimSolver, RefundSolver
+)
+from shuttle.providers.bitcoin.signature import (
+    FundSignature, ClaimSignature, RefundSignature
+)
+from shuttle.providers.config import bitcoin
 
-# Bitcoin network.
-NETWORK = "mainnet"  # testnet
-# Bitcoin transaction version.
-VERSION = 2  # 1
+# Bitcoin config
+bitcoin = bitcoin()
+# Bitcoin version
+VERSION = 2  # Default
 
 
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Bitcoin transaction raw signer.")
 @click.option("-p", "--private", type=str, required=True, help="Set Bitcoin private key.")
 @click.option("-r", "--raw", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
+@click.option("-b", "--bytecode", type=str, default=None, help="Set Bitcoin witness HTLC bytecode.")
 @click.option("-s", "--secret", type=str, default=None, help="Set secret key.")
+@click.option("-sq", "--sequence", type=int, default=bitcoin["sequence"],
+              help="Set Bitcoin sequence/expiration block.")
 @click.option("-v", "--version", type=int, default=VERSION,
               help="Set Bitcoin transaction version.", show_default=True)
-def sign(private, raw, secret, version):
-    if secret is None:
-        secret = str()
+def sign(private, raw, bytecode, secret, sequence, version):
     if len(private) != 64:
         click.echo(click.style("Error: {}")
                    .format("invalid bitcoin private key"), err=True)
         sys.exit()
 
+    # Cleaning unsigned raw
     unsigned_raw = str(raw + "=" * (-len(raw) % 4))
     try:
         transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
@@ -49,9 +54,9 @@ def sign(private, raw, secret, version):
         sys.exit()
 
     if transaction["type"] == "bitcoin_fund_unsigned":
-        # Fund HTLC solver
-        fund_solver = FundSolver(private_key=private)
         try:
+            # Fund HTLC solver
+            fund_solver = FundSolver(private_key=private)
             # Fund signature
             fund_signature = FundSignature(network=transaction["network"], version=version)
             fund_signature.sign(unsigned_raw=unsigned_raw, solver=fund_solver)
@@ -61,20 +66,19 @@ def sign(private, raw, secret, version):
             sys.exit()
 
     elif transaction["type"] == "bitcoin_claim_unsigned":
-        if secret != str():
-            _secret = secret
-        elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo(click.style("Warning: {}")
-                       .format("secret key is empty, use -s or --secret \"Hello Meheret!\""), err=False)
-            _secret = str()
-        else:
-            _secret = transaction["secret"]
-        # Claim HTLC solver
-        claim_solver = ClaimSolver(
-            secret=_secret,
-            private_key=private
-        )
+        if secret is None:
+            click.echo(click.style("Error: {}")
+                       .format("secret key is required for claim, use -s or --secret \"Hello Meheret!\""), err=True)
+            sys.exit()
+        if bytecode is None:
+            click.echo(click.style("Error: {}")
+                       .format("witness bytecode is required for claim, use -b or --bytecode \"016...\""), err=True)
+            sys.exit()
         try:
+            # Claim HTLC solver
+            claim_solver = ClaimSolver(
+                private_key=private, secret=secret, bytecode=bytecode
+            )
             # Claim signature
             claim_signature = ClaimSignature(network=transaction["network"], version=version)
             claim_signature.sign(unsigned_raw=unsigned_raw, solver=claim_solver)
@@ -84,20 +88,15 @@ def sign(private, raw, secret, version):
             sys.exit()
 
     elif transaction["type"] == "bitcoin_refund_unsigned":
-        if secret != str():
-            _secret = secret
-        elif "secret" not in transaction or transaction["secret"] is None:
-            click.echo(click.style("Warning: {}")
-                       .format("secret key is empty, use -s or --secret \"Hello Meheret!\""), err=False)
-            _secret = str()
-        else:
-            _secret = transaction["secret"]
-        # Refunding HTLC solver
-        refund_solver = RefundSolver(
-            secret=_secret,
-            private_key=private
-        )
+        if bytecode is None:
+            click.echo(click.style("Error: {}")
+                       .format("witness bytecode is required for claim, use -b or --bytecode \"016...\""), err=True)
+            sys.exit()
         try:
+            # Refunding HTLC solver
+            refund_solver = RefundSolver(
+                private_key=private, sequence=int(sequence), bytecode=bytecode
+            )
             # Refund signature
             refund_signature = RefundSignature(network=transaction["network"], version=version)
             refund_signature.sign(unsigned_raw=unsigned_raw, solver=refund_solver)
@@ -105,3 +104,7 @@ def sign(private, raw, secret, version):
         except Exception as exception:
             click.echo(click.style("Error: {}").format(str(exception)), err=True)
             sys.exit()
+    else:
+        click.echo(click.style("Error: {}")
+                   .format("unknown Bitcoin unsigned raw type"), err=True)
+        sys.exit()
