@@ -16,7 +16,7 @@ def submit(raw):
     try:
         click.echo(
             json.dumps(
-                submit_transaction_raw(tx_raw=raw),
+                submit_transaction_raw(transaction_raw=raw),
                 indent=4
             )
         )
