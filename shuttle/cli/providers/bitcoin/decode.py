@@ -22,7 +22,7 @@ def decode(raw):
         )
     except UnicodeDecodeError:
         click.echo(click.style("Error: {}")
-                   .format("invalid bitcoin transaction raw"), err=True)
+                   .format("invalid Bitcoin transaction raw"), err=True)
         sys.exit()
     except Exception as exception:
         click.echo(click.style("Error: {}")
