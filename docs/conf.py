@@ -20,11 +20,11 @@ sys.path.insert(1, os.path.abspath('./extensions'))
 # -- Project information -----------------------------------------------------
 
 project = 'Shuttle'
-copyright = '{year}, meherett@zoho.com'.format(year=datetime.datetime.now().year)
+copyright = '{year}, Meheret Tesfaye'.format(year=datetime.datetime.now().year)
 author = 'Meheret Tesfaye'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.2.0'
+release = 'v0.3.0'
 
 # The master toctree document.
 master_doc = "toctree"
