@@ -51,12 +51,12 @@ def find_contract_utxo_id(tx_id, network):
     return utxo_id
 
 
-def decode_transaction_raw(tx_raw):
+def decode_transaction_raw(transaction_raw):
     """
     Decode Bytom transaction raw.
 
-    :param tx_raw: Bytom transaction raw.
-    :type tx_raw: str
+    :param transaction_raw: Bytom transaction raw.
+    :type transaction_raw: str
     :returns: dict -- decoded Bytom transaction.
 
     >>> from shuttle.providers.bytom.utils import decode_transaction_raw
@@ -64,31 +64,31 @@ def decode_transaction_raw(tx_raw):
     {...}
     """
 
-    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
     try:
         # Decoding transaction raw.
-        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+        decoded_transaction_raw = json.loads(b64decode(str(transaction_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid Bytom transaction raw")
-    if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bytom"):
+    if "type" not in decoded_transaction_raw or not str(decoded_transaction_raw["type"]).startswith("bytom"):
         raise ValueError("invalid Bytom transaction raw")
     return dict(
-        fee=decoded_tx_raw["fee"],
-        guid=decoded_tx_raw["guid"],
-        type=decoded_tx_raw["type"],
-        tx=decode_tx_raw(tx_raw=decoded_tx_raw["raw"]),
-        unsigned=decoded_tx_raw["unsigned"],
-        signatures=decoded_tx_raw["signatures"],
-        network=decoded_tx_raw["network"]
+        fee=decoded_transaction_raw["fee"],
+        guid=decoded_transaction_raw["guid"],
+        type=decoded_transaction_raw["type"],
+        tx=decode_tx_raw(tx_raw=decoded_transaction_raw["raw"]),
+        unsigned=decoded_transaction_raw["unsigned"],
+        signatures=decoded_transaction_raw["signatures"],
+        network=decoded_transaction_raw["network"]
     )
 
 
-def submit_transaction_raw(tx_raw):
+def submit_transaction_raw(transaction_raw):
     """
     Submit transaction raw to Bytom blockchain.
 
-    :param tx_raw: Bytom transaction raw.
-    :type tx_raw: str
+    :param transaction_raw: Bytom transaction raw.
+    :type transaction_raw: str
     :returns: dict -- Bytom transaction id, fee, type and date.
 
     >>> from shuttle.providers.bytom.utils import submit_transaction_raw
@@ -96,10 +96,10 @@ def submit_transaction_raw(tx_raw):
     {...}
     """
 
-    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
     try:
         # Decoding transaction raw.
-        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+        decoded_tx_raw = json.loads(b64decode(str(transaction_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid Bytom transaction raw")
     if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bytom"):
