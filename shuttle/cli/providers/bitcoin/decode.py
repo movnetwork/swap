@@ -16,7 +16,7 @@ def decode(raw):
     try:
         click.echo(
             json.dumps(
-                decode_transaction_raw(tx_raw=raw),
+                decode_transaction_raw(transaction_raw=raw),
                 indent=4
             )
         )
