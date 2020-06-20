@@ -23,7 +23,7 @@ setup(
     author_email=shuttle.__email__,
     url="https://github.com/meherett/shuttle",
     packages=find_packages(),
-    keywords=["cross-chain", "atomic-swap", "cryptocurrencies"],
+    keywords=["cross-chain", "atomic-swap", "htlc", "cryptocurrencies"],
     entry_points={
         "console_scripts": ["shuttle=shuttle.cli.__main__:main"]
     },
@@ -41,7 +41,7 @@ setup(
         ]
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
