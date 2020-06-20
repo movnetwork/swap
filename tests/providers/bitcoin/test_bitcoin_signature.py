@@ -7,6 +7,7 @@ from shuttle.providers.bitcoin.signature import (
 from shuttle.providers.bitcoin.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
+from shuttle.utils import sha256
 
 import pytest
 
@@ -51,6 +52,7 @@ def test_bitcoin_claim_signature():
         solver=ClaimSolver(
             private_key=recipient_wallet.private_key(),
             secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -62,6 +64,7 @@ def test_bitcoin_claim_signature():
         solver=ClaimSolver(
             private_key=recipient_wallet.private_key(),
             secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -84,7 +87,7 @@ def test_bitcoin_refund_signature():
         unsigned_raw=unsigned_refund_transaction_raw,
         solver=RefundSolver(
             private_key=sender_wallet.private_key(),
-            secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -95,7 +98,7 @@ def test_bitcoin_refund_signature():
         unsigned_raw=unsigned_refund_transaction_raw,
         solver=RefundSolver(
             private_key=sender_wallet.private_key(),
-            secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -144,6 +147,7 @@ def test_signature_exceptions():
             solver=ClaimSolver(
                 private_key=recipient_wallet.private_key(),
                 secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000
@@ -155,7 +159,7 @@ def test_signature_exceptions():
             unsigned_raw="eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMDAwZmZmZmZmZmYwMWQwMjQwMDAwMDAwMDAwMDAxOTc2YTkxNDk4Zjg3OWZiN2Y4YjQ5NTFkZWU5YmM4YTAzMjdiNzkyZmJlMzMyYjg4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsiYW1vdW50IjogMTAwMDAsICJuIjogMCwgInNjcmlwdCI6ICJhOTE0MmJiMDEzYzNlNGJlYjA4NDIxZGVkY2Y4MTVjYjY1YTVjMzg4MTc4Yjg3In0sICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2NsYWltX3Vuc2lnbmVkIn0",
             solver=RefundSolver(
                 private_key=sender_wallet.private_key(),
-                secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000
@@ -179,7 +183,7 @@ def test_signature_exceptions():
             unsigned_raw="eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODc1MDhhMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5NjM1OTAsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9",
             solver=RefundSolver(
                 private_key=sender_wallet.private_key(),
-                secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000
@@ -200,6 +204,7 @@ def test_signature_exceptions():
             solver=ClaimSolver(
                 private_key=recipient_wallet.private_key(),
                 secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000

@@ -79,6 +79,7 @@ def test_bitcoin_claim_transaction():
         solver=ClaimSolver(
             private_key=recipient_wallet.private_key(),
             secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -114,7 +115,7 @@ def test_bitcoin_refund_transaction():
     signed_refund_transaction = unsigned_refund_transaction.sign(
         solver=RefundSolver(
             private_key=sender_wallet.private_key(),
-            secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
