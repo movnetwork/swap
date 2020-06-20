@@ -24,12 +24,12 @@ headers.setdefault("Content-Type", "application/json")
 bitcoin = bitcoin()
 
 
-def decode_transaction_raw(tx_raw):
+def decode_transaction_raw(transaction_raw):
     """
     Decode Bitcoin transaction raw.
 
-    :param tx_raw: Bitcoin transaction raw.
-    :type tx_raw: str
+    :param transaction_raw: Bitcoin transaction raw.
+    :type transaction_raw: str
     :returns: dict -- decoded Bitcoin transaction.
 
     >>> from shuttle.providers.bitcoin.utils import decode_transaction_raw
@@ -37,21 +37,21 @@ def decode_transaction_raw(tx_raw):
     {...}
     """
 
-    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
     try:
-        tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+        decoded_transaction_raw = json.loads(b64decode(str(transaction_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
         raise ValueError("invalid Bitcoin transaction raw")
-    if "type" not in tx_raw or not str(tx_raw["type"]).startswith("bitcoin"):
+    if "type" not in decoded_transaction_raw or not str(decoded_transaction_raw["type"]).startswith("bitcoin"):
         raise ValueError("invalid Bitcoin transaction raw")
     # Setting testnet
-    stp(tx_raw["network"], strict=True)
-    tx = MutableTransaction.unhexlify(tx_raw["raw"])
+    stp(decoded_transaction_raw["network"], strict=True)
+    tx = MutableTransaction.unhexlify(decoded_transaction_raw["raw"])
     return dict(
-        fee=tx_raw["fee"],
-        type=tx_raw["type"],
+        fee=decoded_transaction_raw["fee"],
+        type=decoded_transaction_raw["type"],
         tx=tx.to_json(),
-        network=tx_raw["network"]
+        network=decoded_transaction_raw["network"]
     )
 
 
