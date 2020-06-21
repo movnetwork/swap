@@ -22,7 +22,7 @@ def submit(raw):
         )
     except UnicodeDecodeError:
         click.echo(click.style("Error: {}")
-                   .format("invalid bytom signed transaction raw"), err=True)
+                   .format("invalid Bytom signed transaction raw"), err=True)
         sys.exit()
     except Exception as exception:
         click.echo(click.style("Error: {}")
