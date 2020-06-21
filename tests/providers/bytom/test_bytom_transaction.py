@@ -25,6 +25,8 @@ recipient_wallet = Wallet(network=network).from_mnemonic(
     guid="f0ed6ddd-9d6b-49fd-8866-a52d1083a13b"
 )
 transaction_id = "049d4c26bb15885572c16e0eefac5b2f4d0fde50eaf90f002272d39507ff315b"
+asset = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+amount = 10_000
 
 
 def test_bytom_fund_transaction():
@@ -39,8 +41,8 @@ def test_bytom_fund_transaction():
             sender_public=sender_wallet.public_key(),
             sequence=1000
         ),
-        amount=10_000,
-        asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        amount=amount,
+        asset=asset
     )
 
     assert unsigned_fund_transaction.type() == "bytom_fund_unsigned"
@@ -74,18 +76,19 @@ def test_bytom_claim_transaction():
     unsigned_claim_transaction.build_transaction(
         transaction_id=transaction_id,
         wallet=recipient_wallet,
-        amount=10_000,
-        asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        amount=amount,
+        asset=asset
     )
 
     assert unsigned_claim_transaction.type() == "bytom_claim_unsigned"
-    assert unsigned_claim_transaction.unsigned_raw() == "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImRjOTdiYjAzYjU1ODE0MzUzYjBiODAyNmUxNTZiZjZhNTI5ZGJlYzcyOTA1NmI3MTIwNzkwY2JjNzcwMDIzYzUiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbImEwNmVlZWIzODZlYTkxNjZkYjMwMTM1YmQ0YjQ1Nzk1ZjE5OWQxZDNlODlmNjVhNzlkMTVlN2E1NmQ2ZmFmMmQiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiMjU1NGM2OTU0YjczNWIwOTJmNjRiOWFhM2QzMWQ3NDVmMTRhYmVlYTc1NWQ3NWY5Y2RmYzBlMjUzMWQ3NWYxYiIsICJyYXciOiAiMDcwMTAwMDIwMTY5MDE2NzAyZTBiMWFkMjEwNzIyMmNmYzEzYWI2YzMzNjVkMzY2YjVkMTNiMTFlNmRjN2UxZTBjYzRhZTU2NzZjZGVlNDRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAwMDEyMjAwMjBhNWFkZGI3ZWI1NjQ5ZDEwMDMxMzA0ZWNlNzJkOWNjYzlkYzQyNGFiY2RhODk1ZDkwNGEzMDk3Mjc0MjRlNDBlMDEwMDAxNjAwMTVlNThjMmZjODFjNDY5ZWM3YTljOWQ5MjhiNzhkZWMxOGNjZTEwYmQwMjUwNGRhYWQxYWI5ZjRlMGFjYmM3NzYxY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZlMDlhYmJlNTAzMDEwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEyMjAxMjA5MWZmN2Y1MjVmZjQwODc0YzRmNDdmMGNhYjQyZTQ2ZTNiZjUzYWRhZDU5YWRlZjk1NThhZDFiNjQ0OGYyMmUyMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMDAxM2RmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBlZGQ4ZTAwMzAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJzaWduYXR1cmVzIjogW10sICJ0eXBlIjogImJ5dG9tX2NsYWltX3Vuc2lnbmVkIn0="
+    assert unsigned_claim_transaction.unsigned_raw() == "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjgzNGRkZjFkNjk3MmJlNzlhODhjYmVlNTc0YjQ1MmI1ZGRmZGFlZmYwZjg0OWJhNDFlMTk2OGZhOGQ4MjBlYWIiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjcyZGY2N2U5OWY3ZTI0OWM2YjJmN2JjNzA4MTgzODcyM2ExNDJlMWIzY2Y5YmIxZDRkODIzNTE5MDYwMTljMGYiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogImQ1NTUwZGQxM2IxMGRhOTdiN2NkMjgyM2E2YTdjYmRlODgyYmQwMWI0MThjZjJjZDkyZmRjMjA3MzA5MDM3NDkiLCAicmF3IjogIjA3MDEwMDAyMDE2OTAxNjcwMmUwYjFhZDIxMDcyMjJjZmMxM2FiNmMzMzY1ZDM2NmI1ZDEzYjExZTZkYzdlMWUwY2M0YWU1Njc2Y2RlZTQ0ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMDAxMjIwMDIwYTVhZGRiN2ViNTY0OWQxMDAzMTMwNGVjZTcyZDljY2M5ZGM0MjRhYmNkYTg5NWQ5MDRhMzA5NzI3NDI0ZTQwZTAxMDAwMTVmMDE1ZDdmMmQ3ZWNlYzNmNjFkMzBkMGIyOTY4OTczYTNhYzg0NDhmMDU5OWVhMjBkY2U4ODNiNDhjOTAzYzRkNmU4N2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYzBmMmZkMTYwMDAxMTYwMDE0MmI1ZDExMGE4OWQxOTNlYThmMmYxZTU1M2E4OTIwODQ5YTU4ZTY4OTIyMDEyMDY5Mjk3ZTliNzVlYzg4YTRjYTdmMGM3YTFiYjYxZDY0ZWE5MzkxYjE0YTkwMmNkYTQ4NTgwZmUzZTEyYTgyYWIwMjAxM2FmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwMDEzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjMGM1OWIxMjAxMTYwMDE0MmI1ZDExMGE4OWQxOTNlYThmMmYxZTU1M2E4OTIwODQ5YTU4ZTY4OTAwIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJzaWduYXR1cmVzIjogW10sICJ0eXBlIjogImJ5dG9tX2NsYWltX3Vuc2lnbmVkIn0="
     assert unsigned_claim_transaction.signatures() == []
 
     signed_claim_transaction = unsigned_claim_transaction.sign(
         solver=ClaimSolver(
             xprivate_key=recipient_wallet.xprivate_key(),
             secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -94,16 +97,16 @@ def test_bytom_claim_transaction():
 
     assert unsigned_claim_transaction.fee() == signed_claim_transaction.fee() == 10000000
     assert unsigned_claim_transaction.hash() == signed_claim_transaction.hash() == \
-        "2554c6954b735b092f64b9aa3d31d745f14abeea755d75f9cdfc0e2531d75f1b"
+        "d5550dd13b10da97b7cd2823a6a7cbde882bd01b418cf2cd92fdc20730903749"
     assert unsigned_claim_transaction.raw() == signed_claim_transaction.raw() == \
-        "070100020169016702e0b1ad2107222cfc13ab6c3365d366b5d13b11e6dc7e1e0cc4ae5676cdee44ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff904e0001220020a5addb7eb5649d10031304ece72d9ccc9dc424abcda895d904a309727424e40e01000160015e58c2fc81c469ec7a9c9d928b78dec18cce10bd02504daad1ab9f4e0acbc7761cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe09abbe50301011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e202013affffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff904e011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0edd8e003011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
+        "070100020169016702e0b1ad2107222cfc13ab6c3365d366b5d13b11e6dc7e1e0cc4ae5676cdee44ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff904e0001220020a5addb7eb5649d10031304ece72d9ccc9dc424abcda895d904a309727424e40e0100015f015d7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0f2fd1600011600142b5d110a89d193ea8f2f1e553a8920849a58e68922012069297e9b75ec88a4ca7f0c7a1bb61d64ea9391b14a902cda48580fe3e12a82ab02013affffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff904e011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00013cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc0c59b12011600142b5d110a89d193ea8f2f1e553a8920849a58e68900"
     # assert unsigned_claim_transaction.json() == signed_claim_transaction.json() == \
-    #     {'tx_id': '2554c6954b735b092f64b9aa3d31d745f14abeea755d75f9cdfc0e2531d75f1b', 'version': 1, 'size': 372, 'time_range': 0, 'inputs': [{'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 10000, 'control_program': '0020a5addb7eb5649d10031304ece72d9ccc9dc424abcda895d904a309727424e40e', 'address': 'bm1q5kkakl44vjw3qqcnqnkwwtvuejwugf9tek5ftkgy5vyhyapyus8qgcttcs', 'spent_output_id': '98a553b8cb08b8f6e0ded3c88a18841952d8cad7afdea41206881c5fa7a03548', 'input_id': '75565b5d1ff36b7898046d210ce53dbdff61322f4ed1e0e2a8943a99edb5b6b0', 'witness_arguments': None, 'sign_data': 'dc97bb03b55814353b0b8026e156bf6a529dbec729056b7120790cbc770023c5'}, {'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 1018088800, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7', 'spent_output_id': '07ae20665bf1e00a8f513ea7f6ba345f368d98fe8419749ca5781cbe1283bb33', 'input_id': 'f68bef8e56badf7f72ae23b71f0a13be8d6f1a2a3e08b6998354f5e7c97bd02f', 'witness_arguments': ['91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2'], 'sign_data': 'a06eeeb386ea9166db30135bd4b45795f199d1d3e89f65a79d15e7a56d6faf2d'}], 'outputs': [{'type': 'control', 'id': '5c26468dbf810f007554233c838aca1b5faac6785e9586b7d92d79c17571d5f7', 'position': 0, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 10000, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7'}, {'type': 'control', 'id': 'b091a3f07b44ef3c2794ad26991ec2629a31daf9b31e80d3bb82ed75c9969444', 'position': 1, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 1008088800, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7'}], 'fee': 10000000}
+    #     {'tx_id': 'd5550dd13b10da97b7cd2823a6a7cbde882bd01b418cf2cd92fdc20730903749', 'version': 1, 'size': 370, 'time_range': 0, 'inputs': [{'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 10000, 'control_program': '0020a5addb7eb5649d10031304ece72d9ccc9dc424abcda895d904a309727424e40e', 'address': 'bm1q5kkakl44vjw3qqcnqnkwwtvuejwugf9tek5ftkgy5vyhyapyus8qgcttcs', 'spent_output_id': '98a553b8cb08b8f6e0ded3c88a18841952d8cad7afdea41206881c5fa7a03548', 'input_id': '75565b5d1ff36b7898046d210ce53dbdff61322f4ed1e0e2a8943a99edb5b6b0', 'witness_arguments': None, 'sign_data': '834ddf1d6972be79a88cbee574b452b5ddfdaeff0f849ba41e1968fa8d820eab'}, {'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 48200000, 'control_program': '00142b5d110a89d193ea8f2f1e553a8920849a58e689', 'address': 'bm1q9dw3zz5f6xf74re0re2n4zfqsjd93e5f9l4jxl', 'spent_output_id': '7e86b3f635595de17686c6d8d9d4f0281239d0db6af0bf0eaca763c46c2d455b', 'input_id': '5c49cf1f42e72aa418cd143628fcd321557fdda52da5249eb13cb2c57eb8d76e', 'witness_arguments': ['69297e9b75ec88a4ca7f0c7a1bb61d64ea9391b14a902cda48580fe3e12a82ab'], 'sign_data': '72df67e99f7e249c6b2f7bc7081838723a142e1b3cf9bb1d4d82351906019c0f'}], 'outputs': [{'type': 'control', 'id': 'a274d332fa3691ea34529d3f01949dd9bbc954978d6ea904916ea9ab5c3f17e7', 'position': 0, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 10000, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7'}, {'type': 'control', 'id': '0ce43636740fa0c9939b3dd1ad64afe9669c1af6b3cf7538a035bfe7aacd94e1', 'position': 1, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 38200000, 'control_program': '00142b5d110a89d193ea8f2f1e553a8920849a58e689', 'address': 'bm1q9dw3zz5f6xf74re0re2n4zfqsjd93e5f9l4jxl'}], 'fee': 10000000}
     assert unsigned_claim_transaction.unsigned_datas() == signed_claim_transaction.unsigned_datas() == \
-        [{'datas': ['dc97bb03b55814353b0b8026e156bf6a529dbec729056b7120790cbc770023c5'], 'network': 'mainnet', 'path': None}, {'datas': ['a06eeeb386ea9166db30135bd4b45795f199d1d3e89f65a79d15e7a56d6faf2d'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
+        [{'datas': ['834ddf1d6972be79a88cbee574b452b5ddfdaeff0f849ba41e1968fa8d820eab'], 'network': 'mainnet', 'path': None}, {'datas': ['72df67e99f7e249c6b2f7bc7081838723a142e1b3cf9bb1d4d82351906019c0f'], 'public_key': '69297e9b75ec88a4ca7f0c7a1bb61d64ea9391b14a902cda48580fe3e12a82ab', 'network': 'mainnet', 'path': 'm/44/153/1/1/12'}]
 
     assert signed_claim_transaction.type() == "bytom_claim_signed"
-    assert signed_claim_transaction.signatures() == [['48656c6c6f204d65686572657421', '833cb7e944688b0a7b8c09fbb920bcc67e39f4435a69e87d67c386004674c23e80ec95c62195e2e564c7ffc5c48d95a2dd261e1ce2a1d697aaed6e5ce7567f03', '00', '02e803203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e2091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0'], ['1f8bc09c404b1a6e67415690ff56059c754c88f6747ca06d99da45527bee1f7d3c4ce36a08db3b3b25f61e923a055289ff226161bf87cda3e7ad2d710ecd2201']]
+    assert signed_claim_transaction.signatures() == [['48656c6c6f204d65686572657421', 'd1161ad0379968958bbbbfd84e46910269f95c8d1dacb1bb362494439d71ab91113c237631936b1a10d987e879a14706f7117779c21b8a3792b9bfad37f9dc02', '00', '02e803203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e2091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0'], ['ea93bd2fe334088e139156e843d828992a5dddc7e85d16eb2b711b86368b5cb61a4ba8428c89674f71e993c451e2bfa87cbb257592adfae512e527d26f6cc60c']]
 
 
 def test_bytom_refund_transaction():
@@ -113,8 +116,8 @@ def test_bytom_refund_transaction():
     unsigned_refund_transaction.build_transaction(
         transaction_id=transaction_id,
         wallet=sender_wallet,
-        amount=10_000,
-        asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        amount=amount,
+        asset=asset
     )
 
     assert unsigned_refund_transaction.type() == "bytom_refund_unsigned"
@@ -124,7 +127,7 @@ def test_bytom_refund_transaction():
     signed_refund_transaction = unsigned_refund_transaction.sign(
         solver=RefundSolver(
             xprivate_key=sender_wallet.xprivate_key(),
-            secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000

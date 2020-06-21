@@ -7,6 +7,7 @@ from shuttle.providers.bytom.signature import (
 from shuttle.providers.bytom.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
+from shuttle.utils import sha256
 
 import pytest
 
@@ -67,6 +68,7 @@ def test_bytom_claim_signature():
         solver=ClaimSolver(
             xprivate_key=recipient_wallet.xprivate_key(),
             secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -78,6 +80,7 @@ def test_bytom_claim_signature():
         solver=ClaimSolver(
             xprivate_key=recipient_wallet.xprivate_key(),
             secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -108,7 +111,7 @@ def test_bytom_refund_signature():
         unsigned_raw=unsigned_refund_transaction_raw,
         solver=RefundSolver(
             xprivate_key=sender_wallet.xprivate_key(),
-            secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -119,7 +122,7 @@ def test_bytom_refund_signature():
         unsigned_raw=unsigned_refund_transaction_raw,
         solver=RefundSolver(
             xprivate_key=sender_wallet.xprivate_key(),
-            secret="Hello Meheret!",
+            secret_hash=sha256("Hello Meheret!".encode()).hex(),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -179,6 +182,7 @@ def test_signature_exceptions():
             solver=ClaimSolver(
                 xprivate_key=recipient_wallet.xprivate_key(),
                 secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_public=recipient_wallet.public_key(),
                 sender_public=sender_wallet.public_key(),
                 sequence=1000
@@ -190,7 +194,7 @@ def test_signature_exceptions():
             unsigned_raw="eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImRjOTdiYjAzYjU1ODE0MzUzYjBiODAyNmUxNTZiZjZhNTI5ZGJlYzcyOTA1NmI3MTIwNzkwY2JjNzcwMDIzYzUiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbImEwNmVlZWIzODZlYTkxNjZkYjMwMTM1YmQ0YjQ1Nzk1ZjE5OWQxZDNlODlmNjVhNzlkMTVlN2E1NmQ2ZmFmMmQiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiMjU1NGM2OTU0YjczNWIwOTJmNjRiOWFhM2QzMWQ3NDVmMTRhYmVlYTc1NWQ3NWY5Y2RmYzBlMjUzMWQ3NWYxYiIsICJyYXciOiAiMDcwMTAwMDIwMTY5MDE2NzAyZTBiMWFkMjEwNzIyMmNmYzEzYWI2YzMzNjVkMzY2YjVkMTNiMTFlNmRjN2UxZTBjYzRhZTU2NzZjZGVlNDRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAwMDEyMjAwMjBhNWFkZGI3ZWI1NjQ5ZDEwMDMxMzA0ZWNlNzJkOWNjYzlkYzQyNGFiY2RhODk1ZDkwNGEzMDk3Mjc0MjRlNDBlMDEwMDAxNjAwMTVlNThjMmZjODFjNDY5ZWM3YTljOWQ5MjhiNzhkZWMxOGNjZTEwYmQwMjUwNGRhYWQxYWI5ZjRlMGFjYmM3NzYxY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZlMDlhYmJlNTAzMDEwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEyMjAxMjA5MWZmN2Y1MjVmZjQwODc0YzRmNDdmMGNhYjQyZTQ2ZTNiZjUzYWRhZDU5YWRlZjk1NThhZDFiNjQ0OGYyMmUyMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDJjZGE0Zjk5ZWE4MTEyZTZmYTYxY2RkMjYxNTdlZDZkYzQwODMzMmEwMDAxM2RmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZTBlZGQ4ZTAwMzAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJzaWduYXR1cmVzIjogW10sICJ0eXBlIjogImJ5dG9tX2NsYWltX3Vuc2lnbmVkIn0",
             solver=RefundSolver(
                 xprivate_key=sender_wallet.xprivate_key(),
-                secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_public=recipient_wallet.public_key(),
                 sender_public=sender_wallet.public_key(),
                 sequence=1000
@@ -214,7 +218,7 @@ def test_signature_exceptions():
             unsigned_raw="eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiNTcxNzg0YTgtMDk0NS00ZDc4LWI5NzMtYWFjNGIwOWQ2NDM5IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImI1NTgxODRiZDJjNWNmMWQ3YWY5NTIyN2Y4OTk2Nzc3ZDQ2ZDQxMDY5YTgyZjc4YzExYzYxODBhNTMyZWViODUiXSwgInB1YmxpY19rZXkiOiAiM2UwYTM3N2FlNGFmYTAzMWQ0NTUxNTk5ZDliYjdkNWIyN2Y0NzM2ZDc3Zjc4Y2FjNGQ0NzZmMGZmYmE1YWUzZSIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiODljOTU0NDA0YmRiM2U2MTIzZWQ4YTQxM2ZlM2JkNTI2YmY3YjU1MjkzNmQ4MGZkOGMzN2MyZDdlYWU2ZDBjMCIsICJyYXciOiAiMDcwMTAwMDEwMTYwMDE1ZTAyZTBiMWFkMjEwNzIyMmNmYzEzYWI2YzMzNjVkMzY2YjVkMTNiMTFlNmRjN2UxZTBjYzRhZTU2NzZjZGVlNDRmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjA5ODg4ZDgwMzAxMDExNjAwMTQ4ODdlZTY2ZDg0YTgyZjJkODY4MjRhNDViYjUxZmRlYTAzYzkyZjQ5MjIwMTIwM2UwYTM3N2FlNGFmYTAzMWQ0NTUxNTk5ZDliYjdkNWIyN2Y0NzM2ZDc3Zjc4Y2FjNGQ0NzZmMGZmYmE1YWUzZTAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjBhNWFkZGI3ZWI1NjQ5ZDEwMDMxMzA0ZWNlNzJkOWNjYzlkYzQyNGFiY2RhODk1ZDkwNGEzMDk3Mjc0MjRlNDBlMDAwMTNkZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmUwOWRhNWQzMDMwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0",
             solver=RefundSolver(
                 xprivate_key=sender_wallet.xprivate_key(),
-                secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_public=recipient_wallet.public_key(),
                 sender_public=sender_wallet.public_key(),
                 sequence=1000
@@ -235,6 +239,7 @@ def test_signature_exceptions():
             solver=ClaimSolver(
                 xprivate_key=recipient_wallet.xprivate_key(),
                 secret="Hello Meheret!",
+                secret_hash=sha256("Hello Meheret!".encode()).hex(),
                 recipient_public=recipient_wallet.public_key(),
                 sender_public=sender_wallet.public_key(),
                 sequence=1000
