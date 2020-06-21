@@ -77,7 +77,7 @@ def decode_transaction_raw(transaction_raw):
         guid=decoded_transaction_raw["guid"],
         type=decoded_transaction_raw["type"],
         tx=decode_tx_raw(tx_raw=decoded_transaction_raw["raw"]),
-        unsigned=decoded_transaction_raw["unsigned"],
+        unsigned_datas=decoded_transaction_raw["unsigned_datas"],
         signatures=decoded_transaction_raw["signatures"],
         network=decoded_transaction_raw["network"]
     )

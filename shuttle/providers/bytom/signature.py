@@ -173,8 +173,6 @@ class Signature(Transaction):
         """
         Get Bytom transaction unsigned datas with instruction.
 
-        :param detail: Bytom unsigned datas to see detail, defaults to False.
-        :type detail: bool
         :returns: list -- Bytom transaction unsigned datas.
 
         >>> from shuttle.providers.bytom.signature import Signature
