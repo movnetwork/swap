@@ -85,15 +85,15 @@ class HTLC:
         if not isinstance(secret_hash, str):
             raise TypeError("secret hash must be string format")
         if len(secret_hash) != 64:
-            raise ValueError("invalid secret hash, length must be 64.")
+            raise ValueError("invalid secret hash, length must be 64")
         if not isinstance(recipient_public, str):
             raise TypeError("recipient public key must be string format")
         if len(recipient_public) != 64:
-            raise ValueError("invalid recipient public key, length must be 64.")
+            raise ValueError("invalid recipient public key, length must be 64")
         if not isinstance(sender_public, str):
             raise TypeError("sender public key must be string format")
         if len(sender_public) != 64:
-            raise ValueError("invalid sender public key, length must be 64.")
+            raise ValueError("invalid sender public key, length must be 64")
         if not isinstance(sequence, int):
             raise TypeError("sequence must be integer format")
 
