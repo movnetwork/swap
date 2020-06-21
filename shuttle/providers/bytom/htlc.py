@@ -186,7 +186,7 @@ class HTLC:
         "b3c67ffb38fa981ee368aa9dfc856bd62c6b93df9069deccd8159911c46c216a"
         """
 
-        if not self.equity or "opcodes" not in self.equity:
+        if not self.equity or "program" not in self.equity:
             raise ValueError("htlc script is none, initialization htlc first")
         return script_hash(bytecode=self.bytecode())
 
@@ -205,6 +205,6 @@ class HTLC:
         "bm1qk0r8l7ecl2vpacmg42wleptt6ckxhy7ljp5aanxczkv3r3rvy94q4a2zpc"
         """
 
-        if not self.equity or "opcodes" not in self.equity:
+        if not self.equity or "program" not in self.equity:
             raise ValueError("htlc script is none, initialization htlc first")
         return p2wsh_address(script_hash=script_hash(bytecode=self.bytecode()), network=self.network)
