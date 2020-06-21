@@ -15,10 +15,7 @@ amount = 10_000
 
 
 def test_bitcoin_cli_fund(cli_tester):
-    assert cli_tester.invoke(cli_main,
-                             ["bitcoin"]).exit_code == 0
 
-    # Testing bitcoin fund command.
     fund = cli_tester.invoke(
         cli_main, [
             "bitcoin",
@@ -30,7 +27,6 @@ def test_bitcoin_cli_fund(cli_tester):
             "--network", network
         ]
     )
-
     assert fund.exit_code == 0
     assert fund.output == "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0" \
                           "OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMTAwMDAwMDAwZmZm" \
@@ -52,6 +48,5 @@ def test_bitcoin_cli_fund(cli_tester):
             "--network", network
         ]
     )
-
     assert fund.exit_code == 0
     assert fund.output == "Error: invalid testnet L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q address" + "\n"

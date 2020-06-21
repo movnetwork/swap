@@ -13,11 +13,8 @@ amount = 10_000
 
 
 def test_bitcoin_cli_refund(cli_tester):
-    assert cli_tester.invoke(cli_main,
-                             ["bitcoin"]).exit_code == 0
 
-    # Testing bitcoin claim command.
-    claim = cli_tester.invoke(
+    refund = cli_tester.invoke(
         cli_main, [
             "bitcoin",
             "refund",
@@ -28,8 +25,8 @@ def test_bitcoin_cli_refund(cli_tester):
             "--network", network
         ]
     )
-    assert claim.exit_code == 0
-    assert claim.output == "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OT" \
+    assert refund.exit_code == 0
+    assert refund.output == "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OT" \
                            "E4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMDAwZmZmZmZm" \
                            "ZmYwMWQwMjQwMDAwMDAwMDAwMDAxOTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMT" \
                            "hkYzhkYTkyZDU1MzQ4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsidmFsdWUiOiAxMDAwMCwg" \
@@ -37,7 +34,7 @@ def test_bitcoin_cli_refund(cli_tester):
                            "VjYjY1YTVjMzg4MTc4Yjg3In0sICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRj" \
                            "b2luX3JlZnVuZF91bnNpZ25lZCJ9" + "\n"
 
-    claim = cli_tester.invoke(
+    refund = cli_tester.invoke(
         cli_main, [
             "bitcoin",
             "refund",
@@ -49,5 +46,5 @@ def test_bitcoin_cli_refund(cli_tester):
         ]
     )
 
-    assert claim.exit_code == 0
-    assert claim.output == "Error: invalid testnet L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q address" + "\n"
+    assert refund.exit_code == 0
+    assert refund.output == "Error: invalid testnet L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q address" + "\n"

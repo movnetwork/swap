@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.wallet import Wallet
 from shuttle.cli.__main__ import main as cli_main
 
-version = 2
-network = "testnet"
-sender_wallet = Wallet(network=network).from_passphrase("meheret tesfaye batu bayou")
-recipient_wallet = Wallet(network=network).from_passphrase("meheret")
+
 fund_transaction_raw = "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMTUyYzIzZGM2NDU2N2IxY2ZhZjRkNzc2NjBj" \
                        "NzFjNzUxZjkwZTliYTVjMzc0N2ZhYzFkMDA1MTgwOGVhMGQ2NTEwMDAwMDAwMDAwZmZmZmZmZmYw" \
                        "MWE4MDEwMDAwMDAwMDAwMDAxOTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhk" \

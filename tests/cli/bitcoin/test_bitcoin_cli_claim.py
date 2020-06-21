@@ -13,10 +13,7 @@ amount = 10_000
 
 
 def test_bitcoin_cli_claim(cli_tester):
-    assert cli_tester.invoke(cli_main,
-                             ["bitcoin"]).exit_code == 0
 
-    # Testing bitcoin claim command.
     claim = cli_tester.invoke(
         cli_main, [
             "bitcoin",
@@ -48,6 +45,5 @@ def test_bitcoin_cli_claim(cli_tester):
             "--network", network
         ]
     )
-
     assert claim.exit_code == 0
     assert claim.output == "Error: invalid testnet L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q address" + "\n"

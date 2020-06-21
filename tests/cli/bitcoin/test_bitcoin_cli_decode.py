@@ -20,7 +20,6 @@ unsigned_transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTky
 
 def test_bitcoin_cli_decode(cli_tester):
 
-    # Testing bitcoin decode command.
     decode = cli_tester.invoke(
         cli_main, [
             "bitcoin",
@@ -28,7 +27,6 @@ def test_bitcoin_cli_decode(cli_tester):
             "--raw", unsigned_transaction_raw
         ]
     )
-
     assert decode.exit_code == 0
     assert decode.output != {
         "fee": 576,
