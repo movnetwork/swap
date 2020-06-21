@@ -2,6 +2,7 @@
 
 from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.wallet.tools import indexes_to_path, get_program, get_address
+from pybytom.rpc import list_address
 from pybytom.script import p2wsh_program
 from base64 import b64encode
 
@@ -477,6 +478,10 @@ class ClaimTransaction(Transaction):
         )
         if utxo_id is None:
             raise ValueError("invalid transaction id, there is no pay to witness script hash")
+        if not wallet.guid():
+            raise ValueError("can't find recipient wallet guid from wallet")
+        elif not isinstance(wallet.guid(), str):
+            raise TypeError("invalid recipient guid type, only takes string type")
 
         # Setting wallet GUID
         self.guid = wallet.guid()
@@ -493,7 +498,9 @@ class ClaimTransaction(Transaction):
             control_address_action(
                 asset=asset,
                 amount=amount,
-                address=wallet.address()
+                address=wallet.address() if wallet.address() else list_address(
+                    guid=wallet.guid(), limit=1, network=self.network
+                )["result"]["data"][0]["address"]
             )
         )
         # Transaction
@@ -644,6 +651,10 @@ class RefundTransaction(Transaction):
             transaction_id=transaction_id, network=self.network)
         if utxo_id is None:
             raise ValueError("invalid transaction id, there is no smart contact")
+        if not wallet.guid():
+            raise ValueError("can't find sender wallet guid from wallet")
+        elif not isinstance(wallet.guid(), str):
+            raise TypeError("invalid sender guid type, only takes string type")
 
         # Setting wallet GUID
         self.guid = wallet.guid()
@@ -660,7 +671,9 @@ class RefundTransaction(Transaction):
             control_address_action(
                 asset=asset,
                 amount=amount,
-                address=wallet.address()
+                address=wallet.address() if wallet.address() else list_address(
+                    guid=wallet.guid(), limit=1, network=self.network
+                )["result"]["data"][0]["address"]
             )
         )
         # Transaction
