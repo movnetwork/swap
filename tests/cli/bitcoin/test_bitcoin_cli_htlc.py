@@ -2,12 +2,13 @@
 
 from shuttle.providers.bitcoin.wallet import Wallet
 from shuttle.cli.__main__ import main as cli_main
+from shuttle.utils import sha256
 
 
 network = "testnet"
 sender_wallet = Wallet(network=network).from_passphrase("meheret tesfaye batu bayou")
 recipient_wallet = Wallet(network=network).from_passphrase("meheret")
-secret_hash = "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb"
+secret_hash = sha256("Hello Meheret!".encode()).hex()
 sequence = 1000
 
 

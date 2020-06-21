@@ -47,7 +47,7 @@ def test_bytom_htlc_exception():
     with pytest.raises(TypeError, match="secret hash must be string format"):
         HTLC(network="mainnet").init(int(), str(), str(), int())
 
-    with pytest.raises(ValueError, match="invalid secret hash, length must be 64."):
+    with pytest.raises(ValueError, match="invalid secret hash, length must be 64"):
         HTLC(network="mainnet").init(str(), str(), str(), int())
 
     with pytest.raises(ValueError, match="htlc script is none, initialization htlc first"):
@@ -66,7 +66,7 @@ def test_bytom_htlc_exception():
         HTLC(network="mainnet").init("3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",
                                      float(), str(), int())
 
-    with pytest.raises(ValueError, match="invalid recipient public key, length must be 64."):
+    with pytest.raises(ValueError, match="invalid recipient public key, length must be 64"):
         HTLC(network="mainnet").init("3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",
                                      str(), str(), int())
 
@@ -75,7 +75,7 @@ def test_bytom_htlc_exception():
                                      "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
                                      bool(), int())
 
-    with pytest.raises(ValueError, match="invalid sender public key, length must be 64."):
+    with pytest.raises(ValueError, match="invalid sender public key, length must be 64"):
         HTLC(network="mainnet").init("3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",
                                      "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
                                      str(), int())
