@@ -87,8 +87,9 @@ class ClaimSolver:
     :returns:  ClaimSolver -- Bytom claim solver instance.
 
     >>> from shuttle.providers.bytom.solver import ClaimSolver
+    >>> from shuttle.utils import sha256
     >>> recipient_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-    >>> claim_solver = ClaimSolver(xprivate_key=recipient_xprivate_key, secret="Hello Meheret!", recipient_public="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sequence=1000)
+    >>> claim_solver = ClaimSolver(xprivate_key=recipient_xprivate_key, secret="Hello Meheret!", secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_public="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sequence=1000)
     <shuttle.providers.bytom.solver.ClaimSolver object at 0x03FCCA60>
     """
 
@@ -185,8 +186,9 @@ class RefundSolver:
     :returns:  RefundSolver -- Bytom refund solver instance.
 
     >>> from shuttle.providers.bytom.solver import RefundSolver
+    >>> from shuttle.utils import sha256
     >>> sender_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-    >>> refund_solver = RefundSolver(xprivate_key=sender_xprivate_key, secret="Hello Meheret!", recipient_public="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sequence=1000)
+    >>> refund_solver = RefundSolver(xprivate_key=sender_xprivate_key, secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_public="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sequence=1000)
     <shuttle.providers.bytom.solver.RefundSolver object at 0x03FCCA60>
     """
 

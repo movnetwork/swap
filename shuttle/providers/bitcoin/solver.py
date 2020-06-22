@@ -68,7 +68,8 @@ class ClaimSolver:
     :returns:  ClaimSolver -- Bitcoin claim solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import ClaimSolver
-    >>> claim_solver = ClaimSolver(private_key="6bc3b581f3dea1963f9257ec2a0195969babee3704e6ba7cd2ec535140b9816f", secret="Hello Meheret!", recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+    >>> from shuttle.utils import sha256
+    >>> claim_solver = ClaimSolver(private_key="6bc3b581f3dea1963f9257ec2a0195969babee3704e6ba7cd2ec535140b9816f", secret="Hello Meheret!", secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
     <shuttle.providers.bitcoin.solver.ClaimSolver object at 0x03FCCA60>
     """
 
@@ -150,7 +151,8 @@ class RefundSolver:
     :returns:  RefundSolver -- Bitcoin refund solver instance.
 
     >>> from shuttle.providers.bitcoin.solver import RefundSolver
-    >>> refund_solver = RefundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b", secret="Hello Meheret!", recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+    >>> from shuttle.utils import sha256
+    >>> refund_solver = RefundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b", secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
     <shuttle.providers.bitcoin.solver.RefundSolver object at 0x03FCCA60>
     """
 
