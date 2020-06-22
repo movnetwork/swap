@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import json
 import sys
-
 
 from shuttle.cli import click
 from shuttle.providers.bitcoin.utils import submit_transaction_raw
@@ -14,12 +12,7 @@ from shuttle.providers.bitcoin.utils import submit_transaction_raw
 @click.option("-r", "--raw", type=str, required=True, help="Set signed Bitcoin transaction raw.")
 def submit(raw):
     try:
-        click.echo(
-            json.dumps(
-                submit_transaction_raw(transaction_raw=raw),
-                indent=4
-            )
-        )
+        click.echo(submit_transaction_raw(transaction_raw=raw)["tx_id"])
     except UnicodeDecodeError:
         click.echo(click.style("Error: {}")
                    .format("invalid Bitcoin signed transaction raw"), err=True)
