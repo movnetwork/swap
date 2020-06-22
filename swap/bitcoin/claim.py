@@ -11,11 +11,11 @@ import json
 # Bitcoin network
 NETWORK = "testnet"
 # Bitcoin transaction id/hash
-TRANSACTION_ID = "285ffc86ebece50f208bbfc1e72fb7c99991a3cf4d1b43cf93657838a4ae23ad"
+TRANSACTION_ID = "31507decc14a0f334f5de2329f828f4e22017f7333add9579bb2e889203b7135"
 # Recipient passphrase/password
-RECIPIENT_PASSPHRASE = "meheret"
+RECIPIENT_PASSPHRASE = "Woo!"
 # Sender Bitcoin address
-SENDER_ADDRESS = "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q"
+SENDER_ADDRESS = "miAcLpYbaqE8KowBu2PwvqXG6y6vpQcfTJ"
 # Bitcoin claim amount
 AMOUNT = 10_000
 

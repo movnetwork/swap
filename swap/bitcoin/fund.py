@@ -12,9 +12,9 @@ import json
 # Bitcoin network
 NETWORK = "testnet"
 # Sender passphrase/password
-SENDER_PASSPHRASE = "meheret tesfaye batu bayou"
+SENDER_PASSPHRASE = "Boom!"
 # Recipient Bitcoin address
-RECIPIENT_ADDRESS = "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB"
+RECIPIENT_ADDRESS = "mwHXvCcug5Rn24c2rpgcRDSo3PyfxZJQQT"
 # Bitcoin fund amount
 AMOUNT = 10_000
 
