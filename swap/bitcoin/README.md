@@ -49,7 +49,7 @@ Options:
   -sh, --secret-hash TEXT        Set secret 256 hash.  [required]
   -ra, --recipient-address TEXT  Set Bitcoin recipient address.  [required]
   -sa, --sender-address TEXT     Set Bitcoin sender address.  [required]
-  -s, --sequence INTEGER         Set Bitcoin expiration block (sequence).
+  -sq, --sequence INTEGER        Set Bitcoin sequence/expiration block.
   -n, --network TEXT             Set Bitcoin network.
   -h, --help                     Show this message and exit.
 ```
