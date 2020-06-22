@@ -15,7 +15,7 @@ from shuttle.providers.bytom.wallet import Wallet
 @click.option("-sg", "--sender-guid", type=str, required=True, help="Set Bytom sender GUID.")
 @click.option("-a", "--amount", type=int, required=True, help="Set Bytom amount to refund.")
 @click.option("-as", "--asset", type=str, required=True, help="Set Bytom asset id.")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bytom network.")
+@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
 def refund(transaction, sender_guid, amount, asset,  network):
     try:
         click.echo(

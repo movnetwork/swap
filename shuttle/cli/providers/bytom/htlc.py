@@ -19,7 +19,7 @@ bytom = bytom()
 @click.option("-sp", "--sender-public", type=str, required=True, help="Set Bytom sender public key.")
 @click.option("-sq", "--sequence", type=int, default=bytom["sequence"],
               help="Set Bytom sequence/expiration block.")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bytom network.")
+@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
 def htlc(secret_hash, recipient_public, sender_public, sequence, network):
     try:
         click.echo(

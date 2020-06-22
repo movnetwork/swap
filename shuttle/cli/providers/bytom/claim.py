@@ -15,7 +15,7 @@ from shuttle.providers.bytom.wallet import Wallet
 @click.option("-rg", "--recipient-guid", type=str, required=True, help="Set Bytom recipient GUID.")
 @click.option("-a", "--amount", type=int, required=True, help="Set Bytom amount to claim.")
 @click.option("-as", "--asset", type=str, required=True, help="Set Bytom asset id.")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bytom network.")
+@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
 def claim(transaction, recipient_guid, amount, asset,  network):
     try:
         click.echo(
