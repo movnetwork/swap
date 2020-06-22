@@ -469,7 +469,7 @@ class ClaimTransaction(Transaction):
         >>> from shuttle.providers.bitcoin.solver import ClaimSolver
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> recipient_wallet = Wallet(network="testnet").from_passphrase("meherett")
-        >>> claim_solver = ClaimSolver("6bc3b581f3dea1963f9257ec2a0195969babee3704e6ba7cd2ec535140b9816f", "Hello Meheret!",  "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
+        >>> claim_solver = ClaimSolver(recipient_wallet.private_key(), "Hello Meheret!", "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_wallet.address(), "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> claim_transaction = ClaimTransaction(network="testnet")
         >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000)
         >>> claim_transaction.sign(solver=claim_solver)
@@ -640,7 +640,7 @@ class RefundTransaction(Transaction):
         >>> from shuttle.providers.bitcoin.solver import RefundSolver
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> sender_wallet = Wallet(network="testnet").from_passphrase("meherett1234")
-        >>> refund_solver = RefundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b", secret="Hello Meheret!",  recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+        >>> refund_solver = RefundSolver(sender_wallet.private_key(), "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",  "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_wallet.address(), 1000)
         >>> refund_transaction = RefundTransaction(network="testnet")
         >>> refund_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", sender_wallet, 10000)
         >>> refund_transaction.sign(solver=refund_solver)

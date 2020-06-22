@@ -529,7 +529,7 @@ class ClaimTransaction(Transaction):
         >>> from shuttle.providers.bytom.solver import ClaimSolver
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> recipient_wallet = Wallet(network="testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_solver = ClaimSolver(wallet.xprivate_key(), "Hello Meheret!", wallet.public_key(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_wallet.public_key(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> claim_transaction = ClaimTransaction(network="testnet")
         >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.sign(solver=claim_solver)
@@ -702,7 +702,7 @@ class RefundTransaction(Transaction):
         >>> from shuttle.providers.bytom.solver import RefundSolver
         >>> from shuttle.providers.bytom.wallet import Wallet
         >>> sender_wallet = Wallet(network="testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> refund_solver = RefundSolver(wallet.xprivate_key(), "Hello Meheret!", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", wallet.public_key(), 1000)
+        >>> refund_solver = RefundSolver(wallet.xprivate_key(), "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", wallet.public_key(), 1000)
         >>> refund_transaction = RefundTransaction(network="testnet")
         >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.sign(solver=refund_solver)

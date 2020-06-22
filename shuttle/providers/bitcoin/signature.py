@@ -223,7 +223,7 @@ class FundSignature(Signature):
         >>> from shuttle.providers.bitcoin.signature import FundSignature
         >>> from shuttle.providers.bitcoin.solver import FundSolver
         >>> bitcoin_fund_unsigned_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODdiY2RkMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
-        >>> fund_solver = FundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
+        >>> fund_solver = FundSolver("92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
         >>> fund_signature = FundSignature(network="testnet")
         >>> fund_signature.sign(bitcoin_fund_unsigned_raw, fund_solver)
         <shuttle.providers.bitcoin.signature.FundSignature object at 0x0409DAF0>
@@ -302,7 +302,7 @@ class ClaimSignature(Signature):
         >>> from shuttle.providers.bitcoin.signature import ClaimSignature
         >>> from shuttle.providers.bitcoin.solver import ClaimSolver
         >>> bitcoin_claim_unsigned_raw = "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMTUyYzIzZGM2NDU2N2IxY2ZhZjRkNzc2NjBjNzFjNzUxZjkwZTliYTVjMzc0N2ZhYzFkMDA1MTgwOGVhMGQ2NTEwMDAwMDAwMDAwZmZmZmZmZmYwMTQ4MTEwMDAwMDAwMDAwMDAxOTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhkYTkyZDU1MzQ4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsidmFsdWUiOiA1MDAwLCAibiI6IDAsICJzY3JpcHRfcHVia2V5IjogImE5MTQ0MzNlOGVkNTliOWE2N2YwZjE4N2M2M2ViNDUwYjBkNTZlMjU2ZWMyODcifSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fcmVmdW5kX3Vuc2lnbmVkIn0"
-        >>> claim_solver = ClaimSolver(private_key="6bc3b581f3dea1963f9257ec2a0195969babee3704e6ba7cd2ec535140b9816f", secret="Hello Meheret!",  recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+        >>> claim_solver = ClaimSolver("6bc3b581f3dea1963f9257ec2a0195969babee3704e6ba7cd2ec535140b9816f", "Hello Meheret!", "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",  "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> claim_signature = ClaimSignature(network="testnet")
         >>> claim_signature.sign(unsigned_raw=bitcoin_claim_unsigned_raw, solver=claim_solver)
         <shuttle.providers.bitcoin.signature.ClaimSignature object at 0x0409DAF0>
@@ -383,7 +383,7 @@ class RefundSignature(Signature):
         >>> from shuttle.providers.bitcoin.signature import RefundSignature
         >>> from shuttle.providers.bitcoin.solver import RefundSolver
         >>> bitcoin_refund_unsigned_raw = "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMTUyYzIzZGM2NDU2N2IxY2ZhZjRkNzc2NjBjNzFjNzUxZjkwZTliYTVjMzc0N2ZhYzFkMDA1MTgwOGVhMGQ2NTEwMDAwMDAwMDAwZmZmZmZmZmYwMTQ4MTEwMDAwMDAwMDAwMDAxOTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhkYTkyZDU1MzQ4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsidmFsdWUiOiA1MDAwLCAibiI6IDAsICJzY3JpcHRfcHVia2V5IjogImE5MTQ0MzNlOGVkNTliOWE2N2YwZjE4N2M2M2ViNDUwYjBkNTZlMjU2ZWMyODcifSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fcmVmdW5kX3Vuc2lnbmVkIn0"
-        >>> refund_solver = RefundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b", secret="Hello Meheret!",  recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+        >>> refund_solver = RefundSolver("92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b", "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",  "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> refund_signature = RefundSignature(network="testnet")
         >>> refund_signature.sign(unsigned_raw=bitcoin_refund_unsigned_raw, solver=refund_solver)
         <shuttle.providers.bitcoin.signature.RefundSignature object at 0x0409DAF0>
