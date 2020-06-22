@@ -11,7 +11,7 @@ import json
 # Bytom network
 NETWORK = "mainnet"
 # Bytom transaction id/hash
-TRANSACTION_ID = "dcb3423e71206a368368d65074077b4e5e7b723ee1bc84cd2a47fffa1544450a"
+TRANSACTION_ID = "5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd"
 # Recipient 12 word mnemonic
 RECIPIENT_MNEMONIC = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Sender Bytom public key
