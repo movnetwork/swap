@@ -23,7 +23,8 @@ def bitcoin(blockcypher_token=None):
             }
         },
         "timeout": 60,
-        "sequence": 100
+        "network": "testnet",
+        "sequence": 1000
     }
 
 
@@ -49,5 +50,6 @@ def bytom():
         "BTM_asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "fee": 10000000,
         "confirmations": 1,
-        "sequence": 100
+        "network": "solonet",
+        "sequence": 1000
     }

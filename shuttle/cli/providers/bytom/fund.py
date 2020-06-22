@@ -16,7 +16,7 @@ from shuttle.providers.bytom.htlc import HTLC
 @click.option("-a", "--amount", type=int, required=True, help="Set Bytom amount to fund on HTLC.")
 @click.option("-as", "--asset", type=str, required=True, help="Set Bytom asset id.")
 @click.option("-b", "--bytecode", type=str, required=True, help="Set Bytom HTLC bytecode.")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bytom network.")
+@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
 def fund(sender_guid, amount, asset, bytecode, network):
     try:
         click.echo(

@@ -19,15 +19,15 @@ bitcoin = bitcoin()
 # Get balance by address
 def get_balance(address, network="testnet", timeout=bitcoin["timeout"]):
     """
-    Get bitcoin balance.
+    Get Bitcoin balance.
 
-    :param address: bitcoin address.
+    :param address: Bitcoin address.
     :type address: str
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: int -- bitcoin balance.
+    :returns: int -- Bitcoin balance.
 
     >>> from shuttle.providers.bitcoin.rpc import get_balance
     >>> get_balance(bitcoin_address, "mainnet")
@@ -44,19 +44,19 @@ def get_balance(address, network="testnet", timeout=bitcoin["timeout"]):
 def get_unspent_transactions(address, network="testnet",
                              include_script=True, limit=15, timeout=bitcoin["timeout"]):
     """
-    Get bitcoin unspent transaction output (UTXO).
+    Get Bitcoin unspent transaction output (UTXO).
 
-    :param address: bitcoin address.
+    :param address: Bitcoin address.
     :type address: str
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :param include_script: bitcoin include script, defaults to True.
+    :param include_script: Bitcoin include script, defaults to True.
     :type include_script: bool
-    :param limit: bitcoin utxo's limit, defaults to 15.
+    :param limit: Bitcoin utxo's limit, defaults to 15.
     :type limit: int
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: list -- bitcoin utxo's.
+    :returns: list -- Bitcoin utxo's.
 
     >>> from shuttle.providers.bitcoin.rpc import get_unspent_transactions
     >>> get_unspent_transactions(bitcoin_address, "testnet")
@@ -78,13 +78,13 @@ def get_transaction_detail(transaction_id, network="testnet", timeout=bitcoin["t
     """
     Get transaction detail.
 
-    :param transaction_id: bitcoin transaction hash or transaction id.
+    :param transaction_id: Bitcoin transaction hash or transaction id.
     :type transaction_id: str
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bitcoin transaction detail.
+    :returns: dict -- Bitcoin transaction detail.
 
     >>> from shuttle.providers.bitcoin.rpc import get_transaction_detail
     >>> get_transaction_detail(transaction_id, "testnet")
@@ -102,13 +102,13 @@ def decoded_transaction_raw(transaction_raw, network="testnet", timeout=bitcoin[
     """
     Get decoded transaction raw.
 
-    :param transaction_raw: bitcoin transaction raw.
+    :param transaction_raw: Bitcoin transaction raw.
     :type transaction_raw: str
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bitcoin decoded transaction raw.
+    :returns: dict -- Bitcoin decoded transaction raw.
 
     >>> from shuttle.providers.bitcoin.rpc import decoded_transaction_raw
     >>> decoded_transaction_raw(transaction_raw, "testnet")
@@ -128,13 +128,13 @@ def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     """
     Submit transaction raw to Bitcoin blockchain.
 
-    :param tx_raw: bitcoin transaction raw.
+    :param tx_raw: Bitcoin transaction raw.
     :type tx_raw: str
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bitcoin decoded transaction raw.
+    :returns: dict -- Bitcoin decoded transaction raw.
 
     >>> from shuttle.providers.bitcoin.rpc import submit_payment
     >>> submit_payment(transaction_raw, "testnet")

@@ -17,7 +17,7 @@ def test_config():
     assert btc["testnet"]["blockcypher"]["token"] == "c6ef693d3c024088810e6fac2a1494ee"
 
     assert btc["timeout"] == 60
-    assert btc["sequence"] == 100
+    assert btc["sequence"] == 1000
 
     assert btm["mainnet"]["bytom"] == "http://localhost:9888"
     assert btm["mainnet"]["blockmeta"] == "https://blockmeta.com/api/v2"
@@ -35,4 +35,4 @@ def test_config():
     assert btm["BTM_asset"] == "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     assert btm["fee"] == 10000000
     assert btm["confirmations"] == 1
-    assert btm["sequence"] == 100
+    assert btm["sequence"] == 1000

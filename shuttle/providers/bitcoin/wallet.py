@@ -20,9 +20,9 @@ class Wallet:
     """
     Bitcoin Wallet class.
 
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  Wallet -- bitcoin wallet instance.
+    :returns:  Wallet -- Bitcoin wallet instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
@@ -51,13 +51,13 @@ class Wallet:
 
     def from_private_key(self, private_key, compressed=COMPRESSED):
         """
-        Initiate bitcoin wallet from private key.
+        Initiate Bitcoin wallet from private key.
 
         :param private_key: Bitcoin wallet private key.
         :type private_key: str.
-        :param compressed: bitcoin public key compressed, default is True.
+        :param compressed: Bitcoin public key compressed, default is True.
         :type compressed: bool
-        :returns:  Wallet -- bitcoin wallet instance.
+        :returns:  Wallet -- Bitcoin wallet instance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -76,20 +76,20 @@ class Wallet:
 
     def from_passphrase(self, passphrase, compressed=COMPRESSED):
         """
-        Initiate bitcoin wallet from passphrase.
+        Initiate Bitcoin wallet from passphrase.
 
         :param passphrase: Bitcoin wallet passphrase.
         :type passphrase: str.
-        :param compressed: bitcoin public key compressed, default is True.
+        :param compressed: Bitcoin public key compressed, default is True.
         :type compressed: bool
-        :returns:  Wallet -- bitcoin wallet instance.
+        :returns:  Wallet -- Bitcoin wallet instance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_passphrase("meherett")
         """
         self.is_compressed = compressed
-        private_key = hashlib.sha256(passphrase).hexdigest()
+        private_key = hashlib.sha256(passphrase.encode()).hexdigest()
         self._private_key = PrivateKey.unhexlify(private_key)
         public_key = self.bitcoin.privtopub(self._private_key.hexlify())
         self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
@@ -101,11 +101,11 @@ class Wallet:
 
     def from_address(self, address):
         """
-        Initiate bitcoin wallet from address.
+        Initiate Bitcoin wallet from address.
 
         :param address: Bitcoin wallet private key.
         :type address: str.
-        :returns:  Wallet -- bitcoin wallet instance.
+        :returns:  Wallet -- Bitcoin wallet instance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -120,9 +120,9 @@ class Wallet:
     # Bitcoin main private key.
     def private_key(self):
         """
-        Get bitcoin wallet private key.
+        Get Bitcoin wallet private key.
 
-        :returns: str -- bitcoin private key.
+        :returns: str -- Bitcoin private key.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -135,13 +135,13 @@ class Wallet:
     # Bitcoin main public key.
     def public_key(self, private_key=None, compressed=COMPRESSED):
         """
-        Get bitcoin wallet public key.
+        Get Bitcoin wallet public key.
 
-        :param private_key: bitcoin private key, default is None.
+        :param private_key: Bitcoin private key, default is None.
         :type private_key: str
-        :param compressed: bitcoin public key compressed, default is True.
+        :param compressed: Bitcoin public key compressed, default is True.
         :type compressed: bool
-        :return: str -- bitcoin public key.
+        :return: str -- Bitcoin public key.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -158,11 +158,11 @@ class Wallet:
     # Compressed public key.
     def compressed(self, public_key=None):
         """
-        Get bitcoin wallet compressed public key.
+        Get Bitcoin wallet compressed public key.
 
-        :param public_key: bitcoin public key, default is None.
+        :param public_key: Bitcoin public key, default is None.
         :type public_key: str
-        :return: str -- bitcoin compressed public key.
+        :return: str -- Bitcoin compressed public key.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -177,11 +177,11 @@ class Wallet:
     # Uncompressed public key.
     def uncompressed(self, public_key=None):
         """
-        Get bitcoin wallet uncompressed public key.
+        Get Bitcoin wallet uncompressed public key.
 
-        :param public_key: bitcoin public key, default is None.
+        :param public_key: Bitcoin public key, default is None.
         :type public_key: str
-        :return: str -- bitcoin uncompressed public key.
+        :return: str -- Bitcoin uncompressed public key.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -196,11 +196,11 @@ class Wallet:
     # Bitcoin main _address.
     def address(self, public_key=None):
         """
-        Get bitcoin wallet address.
+        Get Bitcoin wallet address.
 
-        :param public_key: bitcoin address, default is None.
+        :param public_key: Bitcoin address, default is None.
         :type public_key: str
-        :return: str -- bitcoin address.
+        :return: str -- Bitcoin address.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -216,11 +216,11 @@ class Wallet:
     # Bitcoin main _address hash.
     def hash(self, public_key=None):
         """
-        Get bitcoin wallet hash.
+        Get Bitcoin wallet hash.
 
-        :param public_key: bitcoin hash, default is None.
+        :param public_key: Bitcoin hash, default is None.
         :type public_key: str
-        :return: str -- bitcoin hash.
+        :return: str -- Bitcoin hash.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -236,11 +236,11 @@ class Wallet:
     # Bitcoin public to public key hash script.
     def p2pkh(self, address=None):
         """
-        Get bitcoin wallet p2pkh.
+        Get Bitcoin wallet p2pkh.
 
-        :param address: bitcoin p2pkh, default is None.
+        :param address: Bitcoin p2pkh, default is None.
         :type address: str
-        :return: str -- bitcoin p2pkh.
+        :return: str -- Bitcoin p2pkh.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -258,11 +258,11 @@ class Wallet:
     # Bitcoin public to script hash script.
     def p2sh(self, address=None):
         """
-        Get bitcoin wallet p2sh.
+        Get Bitcoin wallet p2sh.
 
-        :param address: bitcoin p2sh, default is None.
+        :param address: Bitcoin p2sh, default is None.
         :type address: str
-        :return: str -- bitcoin p2sh.
+        :return: str -- Bitcoin p2sh.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -280,13 +280,13 @@ class Wallet:
     # Bitcoin balance
     def balance(self, address=None, network="testnet"):
         """
-        Get bitcoin wallet balance.
+        Get Bitcoin wallet balance.
 
-        :param address: bitcoin balance, default is None.
+        :param address: Bitcoin balance, default is None.
         :type address: str
-        :param network: bitcoin balance, default is testnet.
+        :param network: Bitcoin balance, default is testnet.
         :type network: str
-        :return: int -- bitcoin balance.
+        :return: int -- Bitcoin balance.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -300,15 +300,15 @@ class Wallet:
 
     def unspent(self, address=None, network="testnet", limit=15):
         """
-        Get bitcoin wallet unspent transaction output.
+        Get Bitcoin wallet unspent transaction output.
 
-        :param address: bitcoin balance, default is None.
+        :param address: Bitcoin balance, default is None.
         :type address: str
-        :param network: bitcoin balance, default is testnet.
+        :param network: Bitcoin balance, default is testnet.
         :type network: str
-        :param limit: bitcoin balance, default is 15.
+        :param limit: Bitcoin balance, default is 15.
         :type limit: int
-        :return: list -- bitcoin unspent transaction outputs.
+        :return: list -- Bitcoin unspent transaction outputs.
 
         >>> from shuttle.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")

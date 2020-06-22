@@ -2,7 +2,7 @@
 
 
 # Shuttle Information's
-__version__ = "0.2.2"
+__version__ = "0.3.0b1"
 __license__ = "AGPL-3.0"
 __author__ = "Meheret Tesfaye"
 __email__ = "meherett@zoho.com"

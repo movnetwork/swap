@@ -30,9 +30,9 @@ def find_contract_utxo_id(tx_id, network):
     """
     Find smart contract UTXO id.
 
-    :param tx_id: bytom transaction id or hash.
+    :param tx_id: Bytom transaction id or hash.
     :type tx_id: str
-    :param network: bytom network.
+    :param network: Bytom network.
     :type network: str
     :returns: str -- UTXO id.
 
@@ -51,59 +51,59 @@ def find_contract_utxo_id(tx_id, network):
     return utxo_id
 
 
-def decode_transaction_raw(tx_raw):
+def decode_transaction_raw(transaction_raw):
     """
-    Decode bytom transaction raw.
+    Decode Bytom transaction raw.
 
-    :param tx_raw: bytom transaction raw.
-    :type tx_raw: str
-    :returns: dict -- decoded bytom transaction.
+    :param transaction_raw: Bytom transaction raw.
+    :type transaction_raw: str
+    :returns: dict -- decoded Bytom transaction.
 
     >>> from shuttle.providers.bytom.utils import decode_transaction_raw
     >>> decode_transaction_raw(transaction_raw)
     {...}
     """
 
-    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
     try:
         # Decoding transaction raw.
-        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+        decoded_transaction_raw = json.loads(b64decode(str(transaction_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
-        raise ValueError("invalid bytom transaction raw")
-    if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bytom"):
-        raise ValueError("invalid bytom transaction raw")
+        raise ValueError("invalid Bytom transaction raw")
+    if "type" not in decoded_transaction_raw or not str(decoded_transaction_raw["type"]).startswith("bytom"):
+        raise ValueError("invalid Bytom transaction raw")
     return dict(
-        fee=decoded_tx_raw["fee"],
-        guid=decoded_tx_raw["guid"],
-        type=decoded_tx_raw["type"],
-        tx=decode_tx_raw(tx_raw=decoded_tx_raw["raw"]),
-        unsigned=decoded_tx_raw["unsigned"],
-        signatures=decoded_tx_raw["signatures"],
-        network=decoded_tx_raw["network"]
+        fee=decoded_transaction_raw["fee"],
+        guid=decoded_transaction_raw["guid"],
+        type=decoded_transaction_raw["type"],
+        tx=decode_tx_raw(tx_raw=decoded_transaction_raw["raw"]),
+        unsigned_datas=decoded_transaction_raw["unsigned_datas"],
+        signatures=decoded_transaction_raw["signatures"],
+        network=decoded_transaction_raw["network"]
     )
 
 
-def submit_transaction_raw(tx_raw):
+def submit_transaction_raw(transaction_raw):
     """
     Submit transaction raw to Bytom blockchain.
 
-    :param tx_raw: bytom transaction raw.
-    :type tx_raw: str
-    :returns: dict -- bytom transaction id, fee, type and date.
+    :param transaction_raw: Bytom transaction raw.
+    :type transaction_raw: str
+    :returns: dict -- Bytom transaction id, fee, type and date.
 
     >>> from shuttle.providers.bytom.utils import submit_transaction_raw
     >>> submit_transaction_raw(transaction_raw)
     {...}
     """
 
-    tx_raw = str(tx_raw + "=" * (-len(tx_raw) % 4))
+    transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
     try:
         # Decoding transaction raw.
-        decoded_tx_raw = json.loads(b64decode(str(tx_raw).encode()).decode())
+        decoded_tx_raw = json.loads(b64decode(str(transaction_raw).encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as _error:
-        raise ValueError("invalid bytom transaction raw")
+        raise ValueError("invalid Bytom transaction raw")
     if "type" not in decoded_tx_raw or not str(decoded_tx_raw["type"]).startswith("bytom"):
-        raise ValueError("invalid bytom transaction raw")
+        raise ValueError("invalid Bytom transaction raw")
     submitted = submit_payment(
         guid=decoded_tx_raw["guid"],
         tx_raw=decoded_tx_raw["raw"],
@@ -123,9 +123,9 @@ def spend_utxo_action(utxo):
     """
     Get spend UTXO action
 
-    :param utxo: bytom butxo id.
+    :param utxo: Bytom butxo id.
     :type utxo: str
-    :returns: dict -- bytom spend utxo action.
+    :returns: dict -- Bytom spend utxo action.
 
     >>> from shuttle.providers.bytom.utils import spend_utxo_action
     >>> spend_utxo_action(bytom_utxo_id)
@@ -139,11 +139,11 @@ def contract_arguments(amount, address):
     """
     Get contract arguments.
 
-    :param amount: bytom amount.
+    :param amount: Bytom amount.
     :type amount: int
-    :param address: bytom address.
+    :param address: Bytom address.
     :type address: str
-    :returns: list -- bytom contract arguments.
+    :returns: list -- Bytom contract arguments.
 
     >>> from shuttle.providers.bytom.utils import contract_arguments
     >>> contract_arguments(bytom_amount, bytom_address)
@@ -158,11 +158,11 @@ def spend_wallet_action(amount, asset):
     """
     Get spend wallet action.
 
-    :param amount: bytom amount.
+    :param amount: Bytom amount.
     :type amount: int
-    :param asset: bytom asset.
+    :param asset: Bytom asset.
     :type asset: str
-    :returns: dict -- bytom spend wallet action.
+    :returns: dict -- Bytom spend wallet action.
 
     >>> from shuttle.providers.bytom.utils import spend_wallet_action
     >>> spend_wallet_action(bytom_amount, bytom_asset)
@@ -177,13 +177,13 @@ def spend_account_action(account, amount, asset):
     """
     Get spend account action.
 
-    :param account: bytom account.
+    :param account: Bytom account.
     :type account: str
-    :param amount: bytom amount.
+    :param amount: Bytom amount.
     :type amount: int
-    :param asset: bytom asset.
+    :param asset: Bytom asset.
     :type asset: str
-    :returns: dict -- bytom spend account action.
+    :returns: dict -- Bytom spend account action.
 
     >>> from shuttle.providers.bytom.utils import spend_account_action
     >>> spend_account_action(bytom_account, bytom_amount, bytom_asset)
@@ -198,13 +198,13 @@ def control_program_action(amount, asset, control_program):
     """
     Get control program action.
 
-    :param amount: bytom amount.
+    :param amount: Bytom amount.
     :type amount: int
-    :param asset: bytom asset.
+    :param asset: Bytom asset.
     :type asset: str
-    :param control_program: bytom control program.
+    :param control_program: Bytom control program.
     :type control_program: str
-    :returns: dict -- bytom control program action.
+    :returns: dict -- Bytom control program action.
 
     >>> from shuttle.providers.bytom.utils import control_program_action
     >>> control_program_action(bytom_amount, bytom_asset, bytom_control_program)
@@ -219,13 +219,13 @@ def control_address_action(amount, asset, address):
     """
     Get control address action.
 
-    :param amount: bytom amount.
+    :param amount: Bytom amount.
     :type amount: int
-    :param asset: bytom asset.
+    :param asset: Bytom asset.
     :type asset: str
-    :param address: bytom address.
+    :param address: Bytom address.
     :type address: str
-    :returns: dict -- bytom control address action.
+    :returns: dict -- Bytom control address action.
 
     >>> from shuttle.providers.bytom.utils import control_address_action
     >>> control_address_action(bytom_amount, bytom_asset, bytom_address)

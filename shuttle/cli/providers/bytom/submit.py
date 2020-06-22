@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import json
 import sys
-
 
 from shuttle.cli import click
 from shuttle.providers.bytom.utils import submit_transaction_raw
@@ -14,15 +12,10 @@ from shuttle.providers.bytom.utils import submit_transaction_raw
 @click.option("-r", "--raw", type=str, required=True, help="Set signed Bytom transaction raw.")
 def submit(raw):
     try:
-        click.echo(
-            json.dumps(
-                submit_transaction_raw(tx_raw=raw),
-                indent=4
-            )
-        )
+        click.echo(submit_transaction_raw(transaction_raw=raw)["tx_id"])
     except UnicodeDecodeError:
         click.echo(click.style("Error: {}")
-                   .format("invalid bytom signed transaction raw"), err=True)
+                   .format("invalid Bytom signed transaction raw"), err=True)
         sys.exit()
     except Exception as exception:
         click.echo(click.style("Error: {}")

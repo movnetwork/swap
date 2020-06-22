@@ -19,9 +19,9 @@ class HTLC:
     """
     Bitcoin Hash Time Lock Contract (HTLC) class.
 
-    :param network: bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to testnet.
     :type network: str
-    :returns:  HTLC -- bitcoin HTLC instance.
+    :returns:  HTLC -- Bitcoin HTLC instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
@@ -44,17 +44,17 @@ class HTLC:
     # Initialize new HTLC Contract script
     def init(self, secret_hash, recipient_address, sender_address, sequence=bitcoin["sequence"]):
         """
-        Initialize bitcoin Hash Time Lock Contract (HTLC).
+        Initialize Bitcoin Hash Time Lock Contract (HTLC).
 
         :param secret_hash: secret sha-256 hash.
         :type secret_hash: hash
-        :param recipient_address: bitcoin recipient address.
+        :param recipient_address: Bitcoin recipient address.
         :type recipient_address: str
-        :param sender_address: bitcoin sender address.
+        :param sender_address: Bitcoin sender address.
         :type sender_address: str
-        :param sequence: bitcoin sequence number of expiration block, defaults to bitcoin config sequence (15).
+        :param sequence: Bitcoin sequence number of expiration block, defaults to Bitcoin config sequence (15).
         :type sequence: int
-        :returns: HTLC -- bitcoin Hash Time Lock Contract (HTLC) instance.
+        :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -62,7 +62,7 @@ class HTLC:
         <shuttle.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
-        # Checking parameters
+        # Checking parameter instances
         if not isinstance(secret_hash, str):
             raise TypeError("secret hash must be string format")
         if len(secret_hash) != 64:
@@ -77,6 +77,7 @@ class HTLC:
             raise AddressError("invalid %s sender %s address" % (self.network, sender_address))
         if not isinstance(sequence, int):
             raise TypeError("sequence must be integer format")
+
         # HASH TIME LOCK CONTRACT SCRIPT
         self.script = IfElseScript(
             # If branch
@@ -97,11 +98,11 @@ class HTLC:
     # Hash time lock contract form opcode script
     def from_opcode(self, opcode):
         """
-        Initiate bitcoin Hash Time Lock Contract (HTLC) from opcode script.
+        Initiate Bitcoin Hash Time Lock Contract (HTLC) from opcode script.
 
         :param opcode: Bitcoin opcode script.
         :type opcode: str.
-        :returns: HTLC -- bitcoin Hash Time Lock Contract (HTLC) instance.
+        :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -118,11 +119,11 @@ class HTLC:
     # Hash time lock contract form bytecode
     def from_bytecode(self, bytecode):
         """
-        Initiate bitcoin Hash Time Lock Contract (HTLC) from bytecode.
+        Initiate Bitcoin Hash Time Lock Contract (HTLC) from bytecode.
 
         :param bytecode: Bitcoin bytecode.
         :type bytecode: str.
-        :returns: HTLC -- bitcoin Hash Time Lock Contract (HTLC) instance.
+        :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -138,9 +139,9 @@ class HTLC:
     # Bytecode HTLC script
     def bytecode(self):
         """
-        Get bitcoin htlc bytecode.
+        Get Bitcoin htlc bytecode.
 
-        :returns: str -- bitcoin Hash Time Lock Contract (HTLC) bytecode.
+        :returns: str -- Bitcoin Hash Time Lock Contract (HTLC) bytecode.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -156,9 +157,9 @@ class HTLC:
     # Decompiled HTLC script
     def opcode(self):
         """
-        Get bitcoin htlc opcode.
+        Get Bitcoin htlc opcode.
 
-        :returns: str -- bitcoin Hash Time Lock Contract (HTLC) opcode.
+        :returns: str -- Bitcoin Hash Time Lock Contract (HTLC) opcode.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -174,9 +175,9 @@ class HTLC:
     # HTLC script hash
     def hash(self):
         """
-        Get bitcoin Hash Time Lock Contract (HTLC) hash.
+        Get Bitcoin Hash Time Lock Contract (HTLC) hash.
 
-        :returns: str -- bitcoin Hash Time Lock Contract (HTLC) hash.
+        :returns: str -- Bitcoin Hash Time Lock Contract (HTLC) hash.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
@@ -192,9 +193,9 @@ class HTLC:
     # HTLC script address
     def address(self):
         """
-        Get bitcoin Hash Time Lock Contract (HTLC) address.
+        Get Bitcoin Hash Time Lock Contract (HTLC) address.
 
-        :returns: str -- bitcoin Hash Time Lock Contract (HTLC) address.
+        :returns: str -- Bitcoin Hash Time Lock Contract (HTLC) address.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")

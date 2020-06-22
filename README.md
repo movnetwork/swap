@@ -25,14 +25,17 @@ Shuttle has the following available cryptocurrencies to swap:
 ## Installation
 
 PIP to install shuttle globally. For Linux sudo may be required.
+
 ```
 $ pip install pyshuttle
 ```
+
 For the versions available, see the [tags on this repository](https://github.com/meherett/shuttle/tags).
 
 ## Development
 
 We welcome pull requests. To get started, just fork this repo, clone it locally, and run:
+
 ```
 $ pip install -e .[tests] -r requirements.txt
 ```

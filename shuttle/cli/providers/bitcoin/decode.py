@@ -16,13 +16,13 @@ def decode(raw):
     try:
         click.echo(
             json.dumps(
-                decode_transaction_raw(tx_raw=raw),
+                decode_transaction_raw(transaction_raw=raw),
                 indent=4
             )
         )
     except UnicodeDecodeError:
         click.echo(click.style("Error: {}")
-                   .format("invalid bitcoin transaction raw"), err=True)
+                   .format("invalid Bitcoin transaction raw"), err=True)
         sys.exit()
     except Exception as exception:
         click.echo(click.style("Error: {}")

@@ -18,19 +18,19 @@ bytom = bytom()
 # Get balance by address
 def get_balance(address, network="testnet", limit=1, page=1, timeout=bytom["timeout"]):
     """
-    Get bytom balance.
+    Get Bytom balance.
 
-    :param address: bytom address.
+    :param address: Bytom address.
     :type address: str
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
-    :param limit: bytom limit, defaults to 1.
+    :param limit: Bytom limit, defaults to 1.
     :type limit: str
-    :param page: bytom network, defaults to 1.
+    :param page: Bytom network, defaults to 1.
     :type page: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: int -- bytom balance.
+    :returns: int -- Bytom balance.
 
     >>> from shuttle.providers.bytom.rpc import get_balance
     >>> get_balance(bytom_address, "mainnet")
@@ -52,17 +52,17 @@ def account_create(xpublic_key, label="1st address", email=None,
     """
     Create account in blockcenter.
 
-    :param xpublic_key: bytom xpublic key.
+    :param xpublic_key: Bytom xpublic key.
     :type xpublic_key: str
-    :param label: bytom limit, defaults to 1st address.
+    :param label: Bytom limit, defaults to 1st address.
     :type label: str
     :param email: email address, defaults to None.
     :type email: str
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bytom blockcenter guid, address and label.
+    :returns: dict -- Bytom blockcenter guid, address and label.
 
     >>> from shuttle.providers.bytom.rpc import account_create
     >>> account_create(xpublic_key, "mainnet")
@@ -83,15 +83,15 @@ def list_address(guid, limit=10, network="testnet", timeout=bytom["timeout"]):
     """
     List address from blockcenter.
 
-    :param guid: bytom blockcenter guid.
+    :param guid: Bytom blockcenter guid.
     :type guid: str
     :param limit: blockcenter limit default to 10.
     :type limit: int
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: list -- bytom blockcenter list of addresses.
+    :returns: list -- Bytom blockcenter list of addresses.
 
     >>> from shuttle.providers.bytom.rpc import list_address
     >>> list_address(guid, 5 "mainnet")
@@ -109,15 +109,15 @@ def list_address(guid, limit=10, network="testnet", timeout=bytom["timeout"]):
 # Build transaction in blockcenter
 def build_transaction(tx, network="testnet", timeout=bytom["timeout"]):
     """
-    Build bytom transaction in blockcenter.
+    Build Bytom transaction in blockcenter.
 
-    :param tx: bytom transaction.
+    :param tx: Bytom transaction.
     :type tx: dict
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bytom built transaction.
+    :returns: dict -- Bytom built transaction.
 
     >>> from shuttle.providers.bytom.rpc import build_transaction
     >>> build_transaction(transaction, "mainnet")
@@ -137,15 +137,15 @@ def build_transaction(tx, network="testnet", timeout=bytom["timeout"]):
 # Get transaction from blockcenter
 def get_transaction(tx_id, network="testnet", timeout=bytom["timeout"]):
     """
-    Get bytom transaction detail.
+    Get Bytom transaction detail.
 
-    :param tx_id: bytom transaction id.
+    :param tx_id: Bytom transaction id.
     :type tx_id: str
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bytom built transaction.
+    :returns: dict -- Bytom built transaction.
 
     >>> from shuttle.providers.bytom.rpc import get_transaction
     >>> get_transaction(transaction_id, "mainnet")
@@ -166,19 +166,19 @@ def submit_payment(guid, tx_raw, signatures,
     """
      Submit transaction raw to Bytom blockchain.
 
-    :param guid: bytom blockcenter id.
+    :param guid: Bytom blockcenter id.
     :type guid: str
-    :param tx_raw: bytom transaction raw.
+    :param tx_raw: Bytom transaction raw.
     :type tx_raw: str
-    :param signatures: bytom signed datas.
+    :param signatures: Bytom signed datas.
     :type signatures: list
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
     :param memo: memo, defaults to mock.
     :type memo: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bytom transaction id, fee, type and date.
+    :returns: dict -- Bytom transaction id, fee, type and date.
 
     >>> from shuttle.providers.bytom.rpc import submit_payment
     >>> submit_payment("guid", transaction_raw, [[...]], "mainent")
@@ -200,13 +200,13 @@ def decode_tx_raw(tx_raw, network="testnet", timeout=bytom["timeout"]):
     """
     Get decoded transaction raw.
 
-    :param tx_raw: bytom transaction raw.
+    :param tx_raw: Bytom transaction raw.
     :type tx_raw: str
-    :param network: bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to testnet.
     :type network: str
     :param timeout: request timeout, default to 15.
     :type timeout: int
-    :returns: dict -- bytom decoded transaction raw.
+    :returns: dict -- Bytom decoded transaction raw.
 
     >>> from shuttle.providers.bytom.rpc import decode_tx_raw
     >>> decode_tx_raw(transaction_raw, "testnet")

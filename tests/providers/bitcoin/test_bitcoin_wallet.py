@@ -4,7 +4,7 @@ from shuttle.providers.bitcoin.wallet import Wallet
 
 
 def test_from_passphrase():
-    passphrase = "meheret tesfaye batu bayou".encode()
+    passphrase = "meheret tesfaye batu bayou"
     # Initialize bitcoin wallet
     bitcoin_from_passphrase = Wallet(network="testnet") \
         .from_passphrase(passphrase)

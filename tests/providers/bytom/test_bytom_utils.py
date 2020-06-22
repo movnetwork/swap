@@ -29,16 +29,16 @@ def test_bytom_tools():
     assert spend_account_action("account", 123, "401a6df9cffbed37d1aecababcf23b91b3c84ec7aa9411d481cbef2e437ef7b1")
 
 
-def test_bytom_utils_error():
+def test_bytom_utils_exceptions():
 
-    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bytom transaction raw"):
         decode_transaction_raw("YXNkZg==")
 
-    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bytom transaction raw"):
         decode_transaction_raw("eyJub25lIjogbnVsbH0=")
 
-    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bytom transaction raw"):
         submit_transaction_raw("YXNkZg==")
 
-    with pytest.raises(ValueError, match="invalid bytom transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bytom transaction raw"):
         submit_transaction_raw("eyJub25lIjogbnVsbH0=")

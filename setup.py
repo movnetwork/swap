@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 import shuttle
 
 # README.md
-with open("README.md", "r", encoding="utf-8") as readme:
+with open("README.md", "r") as readme:
     long_description = readme.read()
 
 # requirements.txt
@@ -23,7 +23,7 @@ setup(
     author_email=shuttle.__email__,
     url="https://github.com/meherett/shuttle",
     packages=find_packages(),
-    keywords=["cross-chain", "atomic-swap", "cryptocurrencies"],
+    keywords=["cross-chain", "atomic-swap", "htlc", "cryptocurrencies"],
     entry_points={
         "console_scripts": ["shuttle=shuttle.cli.__main__:main"]
     },
@@ -35,13 +35,13 @@ setup(
             "pytest-cov>=2.8.1,<3"
         ],
         "docs": [
-            "sphinx>=2.4.4,<3",
-            "sphinx_rtd_theme>=0.4.3,<1",
+            "sphinx>=3.1.1,<4",
+            "sphinx_rtd_theme>=0.5.0,<1",
             "sphinx_click>=2.3.1,<3"
         ]
     },
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",

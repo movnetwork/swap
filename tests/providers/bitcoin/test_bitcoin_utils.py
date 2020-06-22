@@ -26,21 +26,21 @@ def test_bitcoin_utils():
     assert expiration_to_script(17)
 
 
-def test_bitcoin_utils_error():
+def test_bitcoin_utils_exceptions():
 
-    with pytest.raises(ValueError, match="invalid bitcoin transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bitcoin transaction raw"):
         decode_transaction_raw("YXNkZg==")
 
-    with pytest.raises(ValueError, match="invalid bitcoin transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bitcoin transaction raw"):
         decode_transaction_raw("eyJub25lIjogbnVsbH0=")
 
     with pytest.raises(TypeError, match="transaction raw must be string format!"):
         submit_payment(int(123))
 
-    with pytest.raises(ValueError, match="invalid bitcoin transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bitcoin transaction raw"):
         submit_transaction_raw("YXNkZg==")
 
-    with pytest.raises(ValueError, match="invalid bitcoin transaction raw"):
+    with pytest.raises(ValueError, match="invalid Bitcoin transaction raw"):
         submit_transaction_raw("eyJub25lIjogbnVsbH0=")
 
     with pytest.raises(TypeError, match="address must be string format!"):

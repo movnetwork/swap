@@ -6,6 +6,10 @@ import sys
 
 from shuttle.cli import click
 from shuttle.providers.bytom.htlc import HTLC
+from shuttle.providers.config import bytom
+
+# Bytom config
+bytom = bytom()
 
 
 @click.command("htlc", options_metavar="[OPTIONS]",
@@ -13,8 +17,9 @@ from shuttle.providers.bytom.htlc import HTLC
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-rp", "--recipient-public", type=str, required=True, help="Set Bytom recipient public key.")
 @click.option("-sp", "--sender-public", type=str, required=True, help="Set Bytom sender public key.")
-@click.option("-s", "--sequence", type=int, default=100, help="Set Bytom expiration block (sequence).")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bytom network.")
+@click.option("-sq", "--sequence", type=int, default=bytom["sequence"],
+              help="Set Bytom sequence/expiration block.")
+@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
 def htlc(secret_hash, recipient_public, sender_public, sequence, network):
     try:
         click.echo(
