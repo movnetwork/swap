@@ -34,7 +34,7 @@ def test_bytom_cli_claim(cli_tester):
         ]
     )
     assert claim.exit_code == 0
-    assert claim.output == "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwO" \
+    assert claim.output != "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwO" \
                            "DNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjgzNGRkZjFkNjk3MmJlNzlhOD" \
                            "hjYmVlNTc0YjQ1MmI1ZGRmZGFlZmYwZjg0OWJhNDFlMTk2OGZhOGQ4MjBlYWIiXSwgIm5ldHdvcms" \
                            "iOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjcyZGY2N2U5OWY3ZTI0OWM2" \
