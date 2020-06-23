@@ -4,6 +4,7 @@ from shuttle.providers.bitcoin.wallet import Wallet
 from shuttle.providers.bitcoin.transaction import ClaimTransaction
 from shuttle.providers.bitcoin.solver import ClaimSolver
 from shuttle.providers.bitcoin.signature import ClaimSignature
+from shuttle.providers.bitcoin.utils import submit_transaction_raw
 from shuttle.utils import sha256
 
 import json
@@ -128,3 +129,8 @@ print("Claim Signature Type:", claim_signature.type())
 
 signed_claim_raw = claim_signature.signed_raw()
 print("Claim Signature Signed Raw:", signed_claim_raw)
+
+# Submitting claim transaction raw
+# print("\nSubmitted Claim Transaction:", submit_transaction_raw(
+#     transaction_raw=signed_claim_raw
+# ))

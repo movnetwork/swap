@@ -4,6 +4,7 @@ from shuttle.providers.bytom.wallet import Wallet
 from shuttle.providers.bytom.transaction import RefundTransaction
 from shuttle.providers.bytom.solver import RefundSolver
 from shuttle.providers.bytom.signature import RefundSignature
+from shuttle.providers.bytom.utils import submit_transaction_raw
 from shuttle.utils import sha256
 
 import json
@@ -129,3 +130,8 @@ print("Refund Signature Transaction Signatures:", json.dumps(refund_signature.si
 
 signed_refund_raw = refund_signature.signed_raw()
 print("Refund Signature Signed Raw:", signed_refund_raw)
+
+# Submitting refund transaction raw
+# print("\nSubmitted Refund Transaction:", submit_transaction_raw(
+#     transaction_raw=signed_refund_raw
+# ))

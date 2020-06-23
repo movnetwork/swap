@@ -5,6 +5,7 @@ from shuttle.providers.bytom.htlc import HTLC
 from shuttle.providers.bytom.transaction import FundTransaction
 from shuttle.providers.bytom.solver import FundSolver
 from shuttle.providers.bytom.signature import FundSignature
+from shuttle.providers.bytom.utils import submit_transaction_raw
 from shuttle.utils import sha256
 
 import json
@@ -144,3 +145,8 @@ print("Fund Signature Transaction Signatures:", json.dumps(fund_signature.signat
 
 signed_fund_raw = fund_signature.signed_raw()
 print("Fund Signature Signed Raw:", signed_fund_raw)
+
+# Submitting fund transaction raw
+# print("\nSubmitted Fund Transaction:", submit_transaction_raw(
+#     transaction_raw=signed_fund_raw
+# ))

@@ -5,6 +5,7 @@ from shuttle.providers.bitcoin.htlc import HTLC
 from shuttle.providers.bitcoin.transaction import FundTransaction
 from shuttle.providers.bitcoin.solver import FundSolver
 from shuttle.providers.bitcoin.signature import FundSignature
+from shuttle.providers.bitcoin.utils import submit_transaction_raw
 from shuttle.utils import sha256
 
 import json
@@ -141,3 +142,8 @@ print("Fund Signature Type:", fund_signature.type())
 
 signed_fund_raw = fund_signature.signed_raw()
 print("Fund Signature Signed Raw:", signed_fund_raw)
+
+# Submitting fund transaction raw
+# print("\nSubmitted Fund Transaction:", submit_transaction_raw(
+#     transaction_raw=signed_fund_raw
+# ))

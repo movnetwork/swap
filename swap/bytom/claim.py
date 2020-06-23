@@ -4,6 +4,7 @@ from shuttle.providers.bytom.wallet import Wallet
 from shuttle.providers.bytom.transaction import ClaimTransaction
 from shuttle.providers.bytom.solver import ClaimSolver
 from shuttle.providers.bytom.signature import ClaimSignature
+from shuttle.providers.bytom.utils import submit_transaction_raw
 from shuttle.utils import sha256
 
 import json
@@ -130,3 +131,8 @@ print("Claim Signature Transaction Signatures:", json.dumps(claim_signature.sign
 
 signed_claim_raw = claim_signature.signed_raw()
 print("Claim Signature Signed Raw:", signed_claim_raw)
+
+# Submitting claim transaction raw
+# print("\nSubmitted Claim Transaction:", submit_transaction_raw(
+#     transaction_raw=signed_claim_raw
+# ))

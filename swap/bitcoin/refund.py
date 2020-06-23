@@ -4,6 +4,7 @@ from shuttle.providers.bitcoin.wallet import Wallet
 from shuttle.providers.bitcoin.transaction import RefundTransaction
 from shuttle.providers.bitcoin.solver import RefundSolver
 from shuttle.providers.bitcoin.signature import RefundSignature
+from shuttle.providers.bitcoin.utils import submit_transaction_raw
 from shuttle.utils import sha256
 
 import json
@@ -127,3 +128,8 @@ print("Refund Signature Type:", refund_signature.type())
 
 signed_refund_raw = refund_signature.signed_raw()
 print("Refund Signature Signed Raw:", signed_refund_raw)
+
+# Submitting refund transaction raw
+# print("\nSubmitted Refund Transaction:", submit_transaction_raw(
+#     transaction_raw=signed_refund_raw
+# ))
