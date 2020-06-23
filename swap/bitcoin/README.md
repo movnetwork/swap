@@ -1,6 +1,6 @@
 # CLI - Bitcoin Commands
 
-<img align="right" height="75" src="https://github.com/meherett/shuttle/blob/master/docs/static/svg/bitcoin.svg">
+<img align="right" height="65" src="https://github.com/meherett/shuttle/blob/master/docs/static/svg/bitcoin.svg">
 
   - [HTLC Command](#htlc-command)
   - [Fund Command](#fund-command)

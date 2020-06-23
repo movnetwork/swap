@@ -1,6 +1,6 @@
 # CLI - Bytom Commands
 
-<img align="right" height="75" src="https://github.com/meherett/shuttle/blob/master/docs/static/svg/bytom.svg">
+<img align="right" height="80" src="https://github.com/meherett/shuttle/blob/master/docs/static/svg/bytom.svg">
 
   - [HTLC Command](#htlc-command)
   - [Fund Command](#fund-command)
