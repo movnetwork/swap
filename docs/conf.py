@@ -13,6 +13,10 @@
 import os
 import sys
 import datetime
+
+from shuttle import __version__
+
+
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(1, os.path.abspath('./extensions'))
 
@@ -24,7 +28,7 @@ copyright = '{year}, Meheret Tesfaye'.format(year=datetime.datetime.now().year)
 author = 'Meheret Tesfaye'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.3.0'
+release = __version__
 
 # The master toctree document.
 master_doc = "toctree"
