@@ -20,11 +20,11 @@ def test_config():
     assert btc["sequence"] == 1000
 
     assert btm["mainnet"]["bytom"] == "http://localhost:9888"
-    assert btm["mainnet"]["blockmeta"] == "https://blockmeta.com/api/v2"
+    assert btm["mainnet"]["blockmeta"] == "https://blockmeta.com/api/v3"
     assert btm["mainnet"]["blockcenter"] == "https://bcapi.bystack.com/api/v2/btm"
 
     assert btm["solonet"]["bytom"] == "http://localhost:9888"
-    assert btm["solonet"]["blockmeta"] == "https://blockmeta.com/api/v2"
+    assert btm["solonet"]["blockmeta"] == "https://blockmeta.com/api/v3"
     assert btm["solonet"]["blockcenter"] == "https://bcapi.bystack.com/api/v2/btm"
 
     assert btm["testnet"]["bytom"] == "http://localhost:9888"
