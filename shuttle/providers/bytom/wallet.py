@@ -4,6 +4,10 @@ from pybytom.wallet import Wallet as BTMWallet
 from pybytom.wallet.tools import get_public_key, get_program, get_address, indexes_to_path, path_to_indexes
 
 from .rpc import get_balance, account_create
+from ..config import bytom
+
+# Bytom configuration
+bytom = bytom()
 
 
 # Bytom Wallet.
@@ -429,10 +433,12 @@ class Wallet:
         return self._guid
 
     # Getting balance
-    def balance(self):
+    def balance(self, asset=bytom["BTM_asset"]):
         """
         Get Bytom wallet balance.
 
+        :param asset: Bytom asset id, defaults to BTM asset.
+        :type asset: str
         :return: int -- Bytom balance.
 
         >>> from shuttle.providers.bytom.wallet import Wallet
@@ -442,4 +448,4 @@ class Wallet:
         2450000000
         """
 
-        return get_balance(address=self.address(), network=self.network)
+        return get_balance(address=self.address(), asset=asset, network=self.network)

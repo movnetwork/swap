@@ -15,35 +15,34 @@ headers = dict()
 bytom = bytom()
 
 
-# Get balance by address
-def get_balance(address, network="testnet", limit=1, page=1, timeout=bytom["timeout"]):
+def get_balance(address, asset=bytom["BTM_asset"],
+                network=bytom["network"], timeout=bytom["timeout"]):
     """
     Get Bytom balance.
 
     :param address: Bytom address.
     :type address: str
-    :param network: Bytom network, defaults to testnet.
+    :param asset: Bytom asset, default to BTM asset.
+    :type asset: str
+    :param network: Bytom network, defaults to solonet.
     :type network: str
-    :param limit: Bytom limit, defaults to 1.
-    :type limit: str
-    :param page: Bytom network, defaults to 1.
-    :type page: str
-    :param timeout: request timeout, default to 15.
+    :param timeout: request timeout, default to 60.
     :type timeout: int
-    :returns: int -- Bytom balance.
+    :returns: int -- Bytom asset balance.
 
     >>> from shuttle.providers.bytom.rpc import get_balance
-    >>> get_balance(bytom_address, "mainnet")
-    25800000
+    >>> get_balance("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "mainnet")
+    2580000000
     """
 
-    parameter = dict(limit=limit, page=page)
-    url = str(bytom[network]["blockmeta"]) + ("/address/%s" % address)
-    response = requests.get(url=url, params=parameter,
-                            headers=headers, timeout=timeout)
-    if response.status_code == 204:
+    url = f"{bytom[network]['blockmeta']}/address/{address}/asset"
+    response = requests.get(url=url, headers=headers, timeout=timeout)
+    if response.json() is None:
         return 0
-    return response.json()["balance"]
+    for _asset in response.json():
+        if asset == _asset["asset_id"]:
+            return int(_asset["balance"])
+    return 0
 
 
 # Create account in blockcenter
