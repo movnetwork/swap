@@ -95,7 +95,7 @@ def submit_transaction_raw(transaction_raw):
     return dict(
         fee=decoded_tx_raw["fee"],
         type=decoded_tx_raw["type"],
-        tx_id=submitted["txid"],
+        transaction_id=submitted["txid"],
         network=decoded_tx_raw["network"],
         date=str(datetime.datetime.utcnow())
     )
