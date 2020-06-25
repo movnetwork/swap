@@ -33,12 +33,12 @@ def bytom():
     return {
         "mainnet": {
             "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/v2",
+            "blockmeta": "https://blockmeta.com/api/v3",
             "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
         },
         "solonet": {
             "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/v2",
+            "blockmeta": "https://blockmeta.com/api/v3",
             "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
         },
         "testnet": {
