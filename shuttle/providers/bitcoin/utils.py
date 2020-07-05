@@ -55,7 +55,6 @@ def decode_transaction_raw(transaction_raw):
     )
 
 
-# Submit payment from blockcypher
 def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     if isinstance(tx_raw, str):
         tx = json.dumps(dict(hex=tx_raw))
@@ -101,14 +100,13 @@ def submit_transaction_raw(transaction_raw):
     )
 
 
-# Checking address
 def is_address(address, network=None):
     """
     Check Bitcoin address.
 
     :param address: Bitcoin address.
     :type address: str
-    :param network: Bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to None.
     :type network: str
     :returns: bool -- Bitcoin valid/invalid address.
 
@@ -125,16 +123,15 @@ def is_address(address, network=None):
                     valid = True
                     break
             return valid
-        if network == "testnet":
-            return cryptos.Bitcoin(testnet=True).is_address(address)
-        elif network == "mainnet":
+        if network == "mainnet":
             return cryptos.Bitcoin(testnet=False).is_address(address)
+        elif network == "testnet":
+            return cryptos.Bitcoin(testnet=True).is_address(address)
         else:
-            raise NetworkError("invalid %s network" % network, "only takes testnet or mainnet")
+            raise NetworkError("invalid %s network" % network, "only takes mainnet or testnet networks.")
     raise TypeError("address must be string format!")
 
 
-# SHA256 hash
 def sha256(data):
     """
     SHA256 hash.
@@ -153,7 +150,6 @@ def sha256(data):
     raise TypeError("data must be bytes format!")
 
 
-# Double SHA256 hash
 def double_sha256(data):
     """
     Double SHA256 hash.
@@ -172,7 +168,6 @@ def double_sha256(data):
     raise TypeError("data must be bytes format!")
 
 
-# Transaction fee calculator
 def fee_calculator(transaction_input=1, transaction_output=1):
     """
     Bitcoin fee calculator.
@@ -194,7 +189,6 @@ def fee_calculator(transaction_input=1, transaction_output=1):
     return transaction_input + transaction_output
 
 
-# Setting expiration to script
 def expiration_to_script(sequence):
     if isinstance(sequence, int):
         if sequence <= 16:
@@ -204,7 +198,6 @@ def expiration_to_script(sequence):
     raise TypeError("Sequence must be integer format!")
 
 
-# Creating script from address
 def script_from_address(address, network="testnet"):
     """
     Get script from address.
@@ -230,7 +223,6 @@ def script_from_address(address, network="testnet"):
         return P2shScript(load_address)
 
 
-# Creating script from address
 def address_to_hash(address, network="testnet"):
     """
     Get hash from address.
