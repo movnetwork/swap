@@ -2,6 +2,7 @@
 
 from base64 import b64encode, b64decode
 from pybytom.signature import sign as btm_sign
+from pybytom.utils import is_address as btm_is_address
 
 import ed25519
 import json
@@ -9,6 +10,7 @@ import binascii
 import datetime
 
 from .rpc import get_transaction, decode_tx_raw, submit_payment
+from ...utils.exceptions import AddressError, NetworkError
 
 
 def sign(private_key, message):
@@ -117,6 +119,27 @@ def submit_transaction_raw(transaction_raw):
         network=decoded_tx_raw["network"],
         date=str(datetime.datetime.utcnow())
     )
+
+
+def is_address(address, network=None):
+    """
+    Check Bytom address.
+
+    :param address: Bytom address.
+    :type address: str
+    :param network: Bytom network, defaults to testnet.
+    :type network: str
+    :returns: bool -- Bytom valid/invalid address.
+
+    >>> from shuttle.providers.bytom.utils import is_address
+    >>> is_address(bytom_address, "testnet")
+    True
+    """
+
+    if not isinstance(network, str) or network not in ["mainnet", "solonet", "testnet"]:
+        raise NetworkError("invalid %s network" % network, "only takes mainnet, solonet or testnet networks.")
+
+    return btm_is_address(address=address, network=network)
 
 
 def spend_utxo_action(utxo):
