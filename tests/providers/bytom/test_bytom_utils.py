@@ -31,6 +31,9 @@ def test_bytom_tools():
 
 def test_bytom_utils_exceptions():
 
+    assert is_address("sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs", "solonet")
+    assert is_address("sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs")
+
     with pytest.raises(ValueError, match="invalid Bytom transaction raw"):
         decode_transaction_raw("YXNkZg==")
 
