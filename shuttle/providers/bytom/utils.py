@@ -136,9 +136,10 @@ def is_address(address, network=None):
     True
     """
 
-    if not isinstance(network, str) or network not in ["mainnet", "solonet", "testnet"]:
+    if network is None:
+        return btm_is_address(address=address)
+    elif not isinstance(network, str) or network not in ["mainnet", "solonet", "testnet"]:
         raise NetworkError("invalid %s network" % network, "only takes mainnet, solonet or testnet networks.")
-
     return btm_is_address(address=address, network=network)
 
 
