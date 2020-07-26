@@ -47,7 +47,7 @@ class HTLC:
         Initialize Bitcoin Hash Time Lock Contract (HTLC).
 
         :param secret_hash: secret sha-256 hash.
-        :type secret_hash: hash
+        :type secret_hash: str
         :param recipient_address: Bitcoin recipient address.
         :type recipient_address: str
         :param sender_address: Bitcoin sender address.
@@ -58,7 +58,7 @@ class HTLC:
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_address, sender_address, 100)
+        >>> htlc.init(secret_hash="4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3", recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
         <shuttle.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -82,7 +82,7 @@ class HTLC:
         self.script = IfElseScript(
             # If branch
             Hashlock256Script(  # Hash lock 250
-                sha256(unhexlify(secret_hash)),  # Secret key
+                unhexlify(sha256(secret_hash)),  # Secret key
                 script_from_address(
                     address=recipient_address, network=self.network)  # Script hash of account two
             ),
@@ -101,12 +101,13 @@ class HTLC:
         Initiate Bitcoin Hash Time Lock Contract (HTLC) from opcode script.
 
         :param opcode: Bitcoin opcode script.
-        :type opcode: str.
+        :type opcode: str
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.from_opcode(htlc_opcode_script)
+        >>> htlc_opcode_script = "OP_IF OP_HASH256 0535b276351b7f7a7fe817ee0927fd7203ccaf68af8ec146486d28ab34d3b7de OP_EQUALVERIFY OP_DUP OP_HASH160 98f879fb7f8b4951dee9bc8a0327b792fbe332b8 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
+        >>> htlc.from_opcode(opcode=htlc_opcode_script)
         <shuttle.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -122,12 +123,13 @@ class HTLC:
         Initiate Bitcoin Hash Time Lock Contract (HTLC) from bytecode.
 
         :param bytecode: Bitcoin bytecode.
-        :type bytecode: str.
+        :type bytecode: str
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.from_bytecode(htlc_bytecode)
+        >>> htlc_bytecode = "63aa200535b276351b7f7a7fe817ee0927fd7203ccaf68af8ec146486d28ab34d3b7de8876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68"
+        >>> htlc.from_bytecode(bytecode=htlc_bytecode)
         <shuttle.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -145,9 +147,9 @@ class HTLC:
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_address, sender_address, 100)
+        >>> htlc.init("4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3", "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> htlc.bytecode()
-        "63aa20b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a55c4d02367fcc2ab8876a9147b7c4431a43b612a72f8229935c469f1f690365888ac6755b27576a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac68"
+        "63aa200535b276351b7f7a7fe817ee0927fd7203ccaf68af8ec146486d28ab34d3b7de8876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68"
         """
 
         if self.script is None:
@@ -163,9 +165,9 @@ class HTLC:
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_address, sender_address, 100)
+        >>> htlc.init("4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3", "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> htlc.opcode()
-        "OP_IF OP_HASH256 b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a55c4d02367fcc2ab OP_EQUALVERIFY OP_DUP OP_HASH160 7b7c4431a43b612a72f8229935c469f1f6903658 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE OP_5 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 6bce65e58a50b97989930e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
+        "OP_IF OP_HASH256 0535b276351b7f7a7fe817ee0927fd7203ccaf68af8ec146486d28ab34d3b7de OP_EQUALVERIFY OP_DUP OP_HASH160 98f879fb7f8b4951dee9bc8a0327b792fbe332b8 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
         """
 
         if self.script is None:
@@ -181,9 +183,9 @@ class HTLC:
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_address, sender_address, 100)
+        >>> htlc.init("4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3", "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> htlc.hash()
-        "a914971894c58d85981c16c2059d422bcde0b156d04487"
+        "a91450dbc89c9a42e55b7995c2aa587631af0193d4b887"
         """
 
         if self.script is None:
@@ -199,9 +201,9 @@ class HTLC:
 
         >>> from shuttle.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.init(secret_hash, recipient_address, sender_address, 100)
+        >>> htlc.init("4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3", "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
         >>> htlc.address()
-        "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"
+        "2MzcmLTwnccUbxdm13MYXvErCXTgs3DuEQ4"
         """
 
         if self.script is None:
