@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
 
 from shuttle.providers.bitcoin.utils import *
-from shuttle.utils.exceptions import AddressError, NetworkError, APIError
+from shuttle.utils.exceptions import AddressError, NetworkError
 
 import pytest
 
 
 def test_bitcoin_utils():
-
-    assert sha256("meherett".encode()).hex() == \
-           "d4f5c55a45c004660b95ec833bb24569eba1559f214e90efa6e8d0b3afa14394"
-
-    assert double_sha256("meherett".encode()).hex() == \
-           "2803bf9ed1e5874825350b1b0753a96c00a99236b686bde337404453b11d3288"
 
     assert expiration_to_script(7) == "OP_7"
 
@@ -48,12 +42,6 @@ def test_bitcoin_utils_exceptions():
 
     with pytest.raises(NetworkError, match=r"invalid .*"):
         is_address("mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH", "unknown")
-
-    with pytest.raises(TypeError, match="data must be bytes format!"):
-        sha256(int(123))
-
-    with pytest.raises(TypeError, match="data must be bytes format!"):
-        double_sha256(int(123))
 
     with pytest.raises(TypeError, match="Sequence must be integer format!"):
         expiration_to_script(str("unknown"))

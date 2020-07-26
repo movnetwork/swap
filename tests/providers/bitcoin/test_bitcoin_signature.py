@@ -52,7 +52,7 @@ def test_bitcoin_claim_signature():
         solver=ClaimSolver(
             private_key=recipient_wallet.private_key(),
             secret="Hello Meheret!",
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -64,7 +64,7 @@ def test_bitcoin_claim_signature():
         solver=ClaimSolver(
             private_key=recipient_wallet.private_key(),
             secret="Hello Meheret!",
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -72,11 +72,11 @@ def test_bitcoin_claim_signature():
     )
 
     assert signature.fee() == claim_signature.fee() == 576
-    assert signature.hash() == claim_signature.hash() == "8f98079b6257d65abc2c1c1a14c3bff50a6be949e75a30c127b3a2c0618012e1"
-    assert signature.raw() == claim_signature.raw() == "0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000d9473044022060291b5a87474f775dda5c244b21fc2716bfa09c4636ea4c707918c9f759374e02201ef5e768af10d01a1031294e952f6a8ed5c0a75e23f58aee062a89fed2134af70121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656c6c6f204d65686572657421514c5d63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68ffffffff01d0240000000000001976a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac00000000"
-    assert signature.json() == claim_signature.json() == {'hex': '0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000d9473044022060291b5a87474f775dda5c244b21fc2716bfa09c4636ea4c707918c9f759374e02201ef5e768af10d01a1031294e952f6a8ed5c0a75e23f58aee062a89fed2134af70121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656c6c6f204d65686572657421514c5d63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68ffffffff01d0240000000000001976a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac00000000', 'txid': '8f98079b6257d65abc2c1c1a14c3bff50a6be949e75a30c127b3a2c0618012e1', 'hash': '8f98079b6257d65abc2c1c1a14c3bff50a6be949e75a30c127b3a2c0618012e1', 'size': 302, 'vsize': 302, 'version': 2, 'locktime': 0, 'vin': [{'txid': 'f34eb8e86f7753e681dc44387f7d14ab624b3418498d23f6157b38d8922e31ec', 'vout': 0, 'scriptSig': {'asm': '3044022060291b5a87474f775dda5c244b21fc2716bfa09c4636ea4c707918c9f759374e02201ef5e768af10d01a1031294e952f6a8ed5c0a75e23f58aee062a89fed2134af701 039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af 48656c6c6f204d65686572657421 OP_1 63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68', 'hex': '473044022060291b5a87474f775dda5c244b21fc2716bfa09c4636ea4c707918c9f759374e02201ef5e768af10d01a1031294e952f6a8ed5c0a75e23f58aee062a89fed2134af70121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656c6c6f204d65686572657421514c5d63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68'}, 'sequence': '4294967295'}], 'vout': [{'value': '0.00009424', 'n': 0, 'scriptPubKey': {'asm': 'OP_DUP OP_HASH160 98f879fb7f8b4951dee9bc8a0327b792fbe332b8 OP_EQUALVERIFY OP_CHECKSIG', 'hex': '76a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac', 'type': 'p2pkh', 'address': 'muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB'}}]}
+    assert signature.hash() == claim_signature.hash() == "5235dba12bc257f0a6b76129b4e2ee6621cdb906c76acb88fc0986731f957bad"
+    assert signature.raw() == claim_signature.raw() == "0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000d9473044022041aed3386ab426810732f700a8f9f2a2749d0e3faa9c2500452f83f3205eac42022072708301b4726b6b7896fff617918a02986f83ec06c6758c71f0830c924d287d0121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656c6c6f204d65686572657421514c5d63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68ffffffff01d0240000000000001976a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac00000000"
+    assert signature.json() == claim_signature.json() == {'hex': '0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000d9473044022041aed3386ab426810732f700a8f9f2a2749d0e3faa9c2500452f83f3205eac42022072708301b4726b6b7896fff617918a02986f83ec06c6758c71f0830c924d287d0121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656c6c6f204d65686572657421514c5d63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68ffffffff01d0240000000000001976a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac00000000', 'txid': '5235dba12bc257f0a6b76129b4e2ee6621cdb906c76acb88fc0986731f957bad', 'hash': '5235dba12bc257f0a6b76129b4e2ee6621cdb906c76acb88fc0986731f957bad', 'size': 302, 'vsize': 302, 'version': 2, 'locktime': 0, 'vin': [{'txid': 'f34eb8e86f7753e681dc44387f7d14ab624b3418498d23f6157b38d8922e31ec', 'vout': 0, 'scriptSig': {'asm': '3044022041aed3386ab426810732f700a8f9f2a2749d0e3faa9c2500452f83f3205eac42022072708301b4726b6b7896fff617918a02986f83ec06c6758c71f0830c924d287d01 039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af 48656c6c6f204d65686572657421 OP_1 63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68', 'hex': '473044022041aed3386ab426810732f700a8f9f2a2749d0e3faa9c2500452f83f3205eac42022072708301b4726b6b7896fff617918a02986f83ec06c6758c71f0830c924d287d0121039213ebcaefdd3e109720c17867ce1bd6d076b0e65e3b6390e6e38548a65e76af0e48656c6c6f204d65686572657421514c5d63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68'}, 'sequence': '4294967295'}], 'vout': [{'value': '0.00009424', 'n': 0, 'scriptPubKey': {'asm': 'OP_DUP OP_HASH160 98f879fb7f8b4951dee9bc8a0327b792fbe332b8 OP_EQUALVERIFY OP_CHECKSIG', 'hex': '76a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac', 'type': 'p2pkh', 'address': 'muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB'}}]}
     assert signature.type() == claim_signature.type() == "bitcoin_claim_signed"
-    assert signature.signed_raw() == claim_signature.signed_raw() == "eyJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMGQ5NDczMDQ0MDIyMDYwMjkxYjVhODc0NzRmNzc1ZGRhNWMyNDRiMjFmYzI3MTZiZmEwOWM0NjM2ZWE0YzcwNzkxOGM5Zjc1OTM3NGUwMjIwMWVmNWU3NjhhZjEwZDAxYTEwMzEyOTRlOTUyZjZhOGVkNWMwYTc1ZTIzZjU4YWVlMDYyYTg5ZmVkMjEzNGFmNzAxMjEwMzkyMTNlYmNhZWZkZDNlMTA5NzIwYzE3ODY3Y2UxYmQ2ZDA3NmIwZTY1ZTNiNjM5MGU2ZTM4NTQ4YTY1ZTc2YWYwZTQ4NjU2YzZjNmYyMDRkNjU2ODY1NzI2NTc0MjE1MTRjNWQ2M2FhMjA4MjExMjRiNTU0ZDEzZjI0N2IxZTVkMTBiODRlNDRmYjEyOTZmMThmMzhiYmFhMWJlYTM0YTEyYzg0M2UwMTU4ODg3NmE5MTQ5OGY4NzlmYjdmOGI0OTUxZGVlOWJjOGEwMzI3Yjc5MmZiZTMzMmI4ODhhYzY3MDJlODAzYjI3NTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhkYTkyZDU1MzQ4OGFjNjhmZmZmZmZmZjAxZDAyNDAwMDAwMDAwMDAwMDE5NzZhOTE0OThmODc5ZmI3ZjhiNDk1MWRlZTliYzhhMDMyN2I3OTJmYmUzMzJiODg4YWMwMDAwMDAwMCIsICJmZWUiOiA1NzYsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2NsYWltX3NpZ25lZCJ9"
+    assert signature.signed_raw() == claim_signature.signed_raw() == "eyJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMGQ5NDczMDQ0MDIyMDQxYWVkMzM4NmFiNDI2ODEwNzMyZjcwMGE4ZjlmMmEyNzQ5ZDBlM2ZhYTljMjUwMDQ1MmY4M2YzMjA1ZWFjNDIwMjIwNzI3MDgzMDFiNDcyNmI2Yjc4OTZmZmY2MTc5MThhMDI5ODZmODNlYzA2YzY3NThjNzFmMDgzMGM5MjRkMjg3ZDAxMjEwMzkyMTNlYmNhZWZkZDNlMTA5NzIwYzE3ODY3Y2UxYmQ2ZDA3NmIwZTY1ZTNiNjM5MGU2ZTM4NTQ4YTY1ZTc2YWYwZTQ4NjU2YzZjNmYyMDRkNjU2ODY1NzI2NTc0MjE1MTRjNWQ2M2FhMjA0NjgzYTIxZmQ1Y2UyNDI1YWRjOTBhMzY3NGI2ZDhkM2Q0MTg5MzU1NDBmYzNhNzFjNmVjM2NiMjQ5OTI1ZGQzODg3NmE5MTQ5OGY4NzlmYjdmOGI0OTUxZGVlOWJjOGEwMzI3Yjc5MmZiZTMzMmI4ODhhYzY3MDJlODAzYjI3NTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhkYTkyZDU1MzQ4OGFjNjhmZmZmZmZmZjAxZDAyNDAwMDAwMDAwMDAwMDE5NzZhOTE0OThmODc5ZmI3ZjhiNDk1MWRlZTliYzhhMDMyN2I3OTJmYmUzMzJiODg4YWMwMDAwMDAwMCIsICJmZWUiOiA1NzYsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2NsYWltX3NpZ25lZCJ9"
 
 
 def test_bitcoin_refund_signature():
@@ -87,7 +87,7 @@ def test_bitcoin_refund_signature():
         unsigned_raw=unsigned_refund_transaction_raw,
         solver=RefundSolver(
             private_key=sender_wallet.private_key(),
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -98,7 +98,7 @@ def test_bitcoin_refund_signature():
         unsigned_raw=unsigned_refund_transaction_raw,
         solver=RefundSolver(
             private_key=sender_wallet.private_key(),
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_address=recipient_wallet.address(),
             sender_address=sender_wallet.address(),
             sequence=1000
@@ -106,11 +106,11 @@ def test_bitcoin_refund_signature():
     )
 
     assert signature.fee() == refund_signature.fee() == 576
-    assert signature.hash() == refund_signature.hash() == "9b429fdff11ccb19e4642521fed4ae7d89129c49a08214f41e709bd3e2a0e4f5"
-    assert signature.raw() == refund_signature.raw() == "0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000ca47304402200b0fc3b3b891761e5cbee5bc1f3c6d7b0904c13475eef5b7965c9bfda1d08a2a02205ebdc72cb763a2e7f290787b8d7defd972b41a2b4dc1c499d69991f0e4506659012103c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84004c5d63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68e803000001d0240000000000001976a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac00000000"
-    assert signature.json() == refund_signature.json() == {'hex': '0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000ca47304402200b0fc3b3b891761e5cbee5bc1f3c6d7b0904c13475eef5b7965c9bfda1d08a2a02205ebdc72cb763a2e7f290787b8d7defd972b41a2b4dc1c499d69991f0e4506659012103c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84004c5d63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68e803000001d0240000000000001976a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac00000000', 'txid': '9b429fdff11ccb19e4642521fed4ae7d89129c49a08214f41e709bd3e2a0e4f5', 'hash': '9b429fdff11ccb19e4642521fed4ae7d89129c49a08214f41e709bd3e2a0e4f5', 'size': 287, 'vsize': 287, 'version': 2, 'locktime': 0, 'vin': [{'txid': 'f34eb8e86f7753e681dc44387f7d14ab624b3418498d23f6157b38d8922e31ec', 'vout': 0, 'scriptSig': {'asm': '304402200b0fc3b3b891761e5cbee5bc1f3c6d7b0904c13475eef5b7965c9bfda1d08a2a02205ebdc72cb763a2e7f290787b8d7defd972b41a2b4dc1c499d69991f0e450665901 03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84 OP_0 63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68', 'hex': '47304402200b0fc3b3b891761e5cbee5bc1f3c6d7b0904c13475eef5b7965c9bfda1d08a2a02205ebdc72cb763a2e7f290787b8d7defd972b41a2b4dc1c499d69991f0e4506659012103c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84004c5d63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68'}, 'sequence': '1000'}], 'vout': [{'value': '0.00009424', 'n': 0, 'scriptPubKey': {'asm': 'OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG', 'hex': '76a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac', 'type': 'p2pkh', 'address': 'mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q'}}]}
+    assert signature.hash() == refund_signature.hash() == "429f99906296e801c2bb0423339208df552463ae5c04d8f13d302281541b0e5b"
+    assert signature.raw() == refund_signature.raw() == "0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000ca47304402203c73c35fe39cf0e030b47c98a7a52e2520ed8bf25d8b58d741968cd80746ac3902203a704cfcf9ea74e113994f25becfac474d0c6cd07169ebe4cb589e44d515bb45012103c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84004c5d63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68e803000001d0240000000000001976a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac00000000"
+    assert signature.json() == refund_signature.json() == {'hex': '0200000001ec312e92d8387b15f6238d4918344b62ab147d7f3844dc81e653776fe8b84ef300000000ca47304402203c73c35fe39cf0e030b47c98a7a52e2520ed8bf25d8b58d741968cd80746ac3902203a704cfcf9ea74e113994f25becfac474d0c6cd07169ebe4cb589e44d515bb45012103c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84004c5d63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68e803000001d0240000000000001976a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac00000000', 'txid': '429f99906296e801c2bb0423339208df552463ae5c04d8f13d302281541b0e5b', 'hash': '429f99906296e801c2bb0423339208df552463ae5c04d8f13d302281541b0e5b', 'size': 287, 'vsize': 287, 'version': 2, 'locktime': 0, 'vin': [{'txid': 'f34eb8e86f7753e681dc44387f7d14ab624b3418498d23f6157b38d8922e31ec', 'vout': 0, 'scriptSig': {'asm': '304402203c73c35fe39cf0e030b47c98a7a52e2520ed8bf25d8b58d741968cd80746ac3902203a704cfcf9ea74e113994f25becfac474d0c6cd07169ebe4cb589e44d515bb4501 03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84 OP_0 63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68', 'hex': '47304402203c73c35fe39cf0e030b47c98a7a52e2520ed8bf25d8b58d741968cd80746ac3902203a704cfcf9ea74e113994f25becfac474d0c6cd07169ebe4cb589e44d515bb45012103c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84004c5d63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68'}, 'sequence': '1000'}], 'vout': [{'value': '0.00009424', 'n': 0, 'scriptPubKey': {'asm': 'OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG', 'hex': '76a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac', 'type': 'p2pkh', 'address': 'mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q'}}]}
     assert signature.type() == refund_signature.type() == "bitcoin_refund_signed"
-    assert signature.signed_raw() == refund_signature.signed_raw() == "eyJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMGNhNDczMDQ0MDIyMDBiMGZjM2IzYjg5MTc2MWU1Y2JlZTViYzFmM2M2ZDdiMDkwNGMxMzQ3NWVlZjViNzk2NWM5YmZkYTFkMDhhMmEwMjIwNWViZGM3MmNiNzYzYTJlN2YyOTA3ODdiOGQ3ZGVmZDk3MmI0MWEyYjRkYzFjNDk5ZDY5OTkxZjBlNDUwNjY1OTAxMjEwM2M1NmE2MDA1ZDRhODg5MmQyOGNjM2Y3MjY1ZTU2ODViNTQ4NjI3ZDU5MTA4OTczZTQ3NGM0ZTI2ZjY5YTRjODQwMDRjNWQ2M2FhMjA4MjExMjRiNTU0ZDEzZjI0N2IxZTVkMTBiODRlNDRmYjEyOTZmMThmMzhiYmFhMWJlYTM0YTEyYzg0M2UwMTU4ODg3NmE5MTQ5OGY4NzlmYjdmOGI0OTUxZGVlOWJjOGEwMzI3Yjc5MmZiZTMzMmI4ODhhYzY3MDJlODAzYjI3NTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhkYTkyZDU1MzQ4OGFjNjhlODAzMDAwMDAxZDAyNDAwMDAwMDAwMDAwMDE5NzZhOTE0NjRhODM5MGIwYjE2ODVmY2JmMmQ0YjQ1NzExOGRjOGRhOTJkNTUzNDg4YWMwMDAwMDAwMCIsICJmZWUiOiA1NzYsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX3JlZnVuZF9zaWduZWQifQ=="
+    assert signature.signed_raw() == refund_signature.signed_raw() == "eyJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMGNhNDczMDQ0MDIyMDNjNzNjMzVmZTM5Y2YwZTAzMGI0N2M5OGE3YTUyZTI1MjBlZDhiZjI1ZDhiNThkNzQxOTY4Y2Q4MDc0NmFjMzkwMjIwM2E3MDRjZmNmOWVhNzRlMTEzOTk0ZjI1YmVjZmFjNDc0ZDBjNmNkMDcxNjllYmU0Y2I1ODllNDRkNTE1YmI0NTAxMjEwM2M1NmE2MDA1ZDRhODg5MmQyOGNjM2Y3MjY1ZTU2ODViNTQ4NjI3ZDU5MTA4OTczZTQ3NGM0ZTI2ZjY5YTRjODQwMDRjNWQ2M2FhMjA0NjgzYTIxZmQ1Y2UyNDI1YWRjOTBhMzY3NGI2ZDhkM2Q0MTg5MzU1NDBmYzNhNzFjNmVjM2NiMjQ5OTI1ZGQzODg3NmE5MTQ5OGY4NzlmYjdmOGI0OTUxZGVlOWJjOGEwMzI3Yjc5MmZiZTMzMmI4ODhhYzY3MDJlODAzYjI3NTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMThkYzhkYTkyZDU1MzQ4OGFjNjhlODAzMDAwMDAxZDAyNDAwMDAwMDAwMDAwMDE5NzZhOTE0NjRhODM5MGIwYjE2ODVmY2JmMmQ0YjQ1NzExOGRjOGRhOTJkNTUzNDg4YWMwMDAwMDAwMCIsICJmZWUiOiA1NzYsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX3JlZnVuZF9zaWduZWQifQ=="
 
 
 def test_signature_exceptions():
@@ -147,7 +147,7 @@ def test_signature_exceptions():
             solver=ClaimSolver(
                 private_key=recipient_wallet.private_key(),
                 secret="Hello Meheret!",
-                secret_hash=sha256("Hello Meheret!".encode()).hex(),
+                secret_hash=sha256("Hello Meheret!"),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000
@@ -159,7 +159,7 @@ def test_signature_exceptions():
             unsigned_raw="eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMDAwZmZmZmZmZmYwMWQwMjQwMDAwMDAwMDAwMDAxOTc2YTkxNDk4Zjg3OWZiN2Y4YjQ5NTFkZWU5YmM4YTAzMjdiNzkyZmJlMzMyYjg4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsiYW1vdW50IjogMTAwMDAsICJuIjogMCwgInNjcmlwdCI6ICJhOTE0MmJiMDEzYzNlNGJlYjA4NDIxZGVkY2Y4MTVjYjY1YTVjMzg4MTc4Yjg3In0sICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2NsYWltX3Vuc2lnbmVkIn0",
             solver=RefundSolver(
                 private_key=sender_wallet.private_key(),
-                secret_hash=sha256("Hello Meheret!".encode()).hex(),
+                secret_hash=sha256("Hello Meheret!"),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000
@@ -183,7 +183,7 @@ def test_signature_exceptions():
             unsigned_raw="eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OTE4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODc1MDhhMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5NjM1OTAsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9",
             solver=RefundSolver(
                 private_key=sender_wallet.private_key(),
-                secret_hash=sha256("Hello Meheret!".encode()).hex(),
+                secret_hash=sha256("Hello Meheret!"),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000
@@ -204,7 +204,7 @@ def test_signature_exceptions():
             solver=ClaimSolver(
                 private_key=recipient_wallet.private_key(),
                 secret="Hello Meheret!",
-                secret_hash=sha256("Hello Meheret!".encode()).hex(),
+                secret_hash=sha256("Hello Meheret!"),
                 recipient_address=recipient_wallet.address(),
                 sender_address=sender_wallet.address(),
                 sequence=1000

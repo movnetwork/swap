@@ -40,7 +40,7 @@ def test_bitcoin_claim_solver():
         private_key=recipient_wallet.private_key(),
         secret="Hello Meheret!",
         # Witness from HTLC agreements
-        secret_hash=sha256("Hello Meheret!".encode()).hex(),
+        secret_hash=sha256("Hello Meheret!"),
         recipient_address=recipient_wallet.address(),
         sender_address=sender_wallet.address(),
         sequence=1000
@@ -71,12 +71,12 @@ def test_bitcoin_claim_solver():
     with pytest.raises(ValueError, match="invalid secret hash, length must be 64"):
         ClaimSolver(str(), str(), str())
     with pytest.raises(AddressError, match=r"invalid recipient *.* address"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(), "adsfsdfsd")
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"), "adsfsdfsd")
     with pytest.raises(AddressError, match=r"invalid sender *.* address"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(),
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"),
                     "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB", "adsfsdfsd")
     with pytest.raises(TypeError, match="sequence must be integer format"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(),
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"),
                     "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB", "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB", float())
     with pytest.raises(TypeError, match="bytecode must be string format"):
         ClaimSolver(str(), str(), bytecode=123423423423)
@@ -87,7 +87,7 @@ def test_bitcoin_refund_solver():
     htlc_refund_solver = RefundSolver(
         private_key=sender_wallet.private_key(),
         # Witness from HTLC agreements
-        secret_hash=sha256("Hello Meheret!".encode()).hex(),
+        secret_hash=sha256("Hello Meheret!"),
         recipient_address=recipient_wallet.address(),
         sender_address=sender_wallet.address(),
         sequence=1000
@@ -115,12 +115,12 @@ def test_bitcoin_refund_solver():
     with pytest.raises(ValueError, match="invalid secret hash, length must be 64"):
         RefundSolver(str(), str())
     with pytest.raises(AddressError, match=r"invalid recipient *.* address"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(), "adsfsdfsd")
+        RefundSolver(str(), sha256("Hello Meheret!"), "adsfsdfsd")
     with pytest.raises(AddressError, match=r"invalid sender *.* address"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(),
+        RefundSolver(str(), sha256("Hello Meheret!"),
                     "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB", "adsfsdfsd")
     with pytest.raises(TypeError, match="sequence must be integer format"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(),
+        RefundSolver(str(), sha256("Hello Meheret!"),
                     "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB", "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB", float())
     with pytest.raises(TypeError, match="bytecode must be string format"):
         RefundSolver(str(), bytecode=123423423423)

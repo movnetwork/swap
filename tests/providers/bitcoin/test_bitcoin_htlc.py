@@ -11,26 +11,26 @@ import pytest
 def test_htlc_init():
     htlc = HTLC(network="testnet")
 
-    htlc.init(secret_hash=sha256("BooOoom!".encode()).hex(), recipient_address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH",
+    htlc.init(secret_hash=sha256("BooOoom!"), recipient_address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH",
               sender_address="mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE", sequence=5)
 
     htlc_bytecode = htlc.bytecode()
-    assert htlc_bytecode == "63aa20b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a55c4d02367" \
-                            "fcc2ab8876a9147b7c4431a43b612a72f8229935c469f1f690365888ac6755b2" \
-                            "7576a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac68"
+    assert htlc_bytecode == "63aa20e5003f47455ed1838198e24414193c8c6fd5c7e945213cf6e471de7be269" \
+                            "d8fe8876a9147b7c4431a43b612a72f8229935c469f1f690365888ac6755b27576" \
+                            "a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac68"
 
     htlc_opcode = htlc.opcode()
-    assert htlc_opcode == "OP_IF OP_HASH256 b9b9a0c47ecee7fd94812573a7b14afa02ec250dbdb5875a5" \
-                          "5c4d02367fcc2ab OP_EQUALVERIFY OP_DUP OP_HASH160 7b7c4431a43b612a7" \
+    assert htlc_opcode == "OP_IF OP_HASH256 e5003f47455ed1838198e24414193c8c6fd5c7e945213cf6e" \
+                          "471de7be269d8fe OP_EQUALVERIFY OP_DUP OP_HASH160 7b7c4431a43b612a7" \
                           "2f8229935c469f1f6903658 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE OP_5 OP" \
                           "_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 6bce65e58a50b979899" \
                           "30e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
 
     htlc_address = htlc.address()
-    assert str(htlc_address) == "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"
+    assert str(htlc_address) == "2N8StxJBdzWUYNxnXZuyTz4xixVWR3f5twR"
 
     htlc_hash = htlc.hash()
-    assert str(htlc_hash) == "a914971894c58d85981c16c2059d422bcde0b156d04487"
+    assert str(htlc_hash) == "a914a6befd42d5d340fe8e1cbcec039810fde045cf8c87"
 
 
 # Testing HTLC from bytecode
