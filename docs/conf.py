@@ -80,6 +80,9 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["static"]
 
+# Autodoc member order
+autodoc_member_order = 'bysource'
+
 
 # Sphinx docs setup.
 def setup(sphinx):
