@@ -36,7 +36,7 @@ def test_bytom_fund_transaction():
     unsigned_fund_transaction.build_transaction(
         wallet=sender_wallet,
         htlc=HTLC(network=network).init(
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -88,7 +88,7 @@ def test_bytom_claim_transaction():
         solver=ClaimSolver(
             xprivate_key=recipient_wallet.xprivate_key(),
             secret="Hello Meheret!",
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000
@@ -127,7 +127,7 @@ def test_bytom_refund_transaction():
     signed_refund_transaction = unsigned_refund_transaction.sign(
         solver=RefundSolver(
             xprivate_key=sender_wallet.xprivate_key(),
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_public=recipient_wallet.public_key(),
             sender_public=sender_wallet.public_key(),
             sequence=1000

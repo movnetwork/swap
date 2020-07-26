@@ -43,7 +43,7 @@ def test_bytom_claim_solver():
         xprivate_key=recipient_wallet.xprivate_key(),
         secret="Hello Meheret!",
         # Witness from HTLC agreements
-        secret_hash=sha256("Hello Meheret!".encode()).hex(),
+        secret_hash=sha256("Hello Meheret!"),
         recipient_public=recipient_wallet.public_key(),
         sender_public=sender_wallet.public_key(),
         sequence=1000
@@ -76,17 +76,17 @@ def test_bytom_claim_solver():
     with pytest.raises(ValueError, match="invalid secret hash, length must be 64"):
         ClaimSolver(str(), str(), str())
     with pytest.raises(TypeError, match="recipient public key must be string format"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(), bool())
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"), bool())
     with pytest.raises(ValueError, match="invalid recipient public key, length must be 64"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(), "asdfsdfasdf")
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"), "asdfsdfasdf")
     with pytest.raises(TypeError, match="sender public key must be string format"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(),
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"),
                     recipient_wallet.public_key(), bool())
     with pytest.raises(ValueError, match="invalid sender public key, length must be 64"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(),
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"),
                     recipient_wallet.public_key(), "asdfsdfasdf")
     with pytest.raises(TypeError, match="sequence must be integer format"):
-        ClaimSolver(str(), str(), sha256(b"Hello Meheret!").hex(),
+        ClaimSolver(str(), str(), sha256("Hello Meheret!"),
                     recipient_wallet.public_key(), sender_wallet.public_key(), float())
     with pytest.raises(TypeError, match="bytecode must be string format"):
         ClaimSolver(str(), str(), bytecode=123423423423)
@@ -97,7 +97,7 @@ def test_bytom_refund_solver():
     htlc_refund_solver = RefundSolver(
         xprivate_key=sender_wallet.xprivate_key(),
         # Witness from HTLC agreements
-        secret_hash=sha256("Hello Meheret!".encode()).hex(),
+        secret_hash=sha256("Hello Meheret!"),
         recipient_public=recipient_wallet.public_key(),
         sender_public=sender_wallet.public_key(),
         sequence=1000
@@ -125,17 +125,17 @@ def test_bytom_refund_solver():
     with pytest.raises(ValueError, match="invalid secret hash, length must be 64"):
         RefundSolver(str(), str())
     with pytest.raises(TypeError, match="recipient public key must be string format"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(), bool())
+        RefundSolver(str(), sha256("Hello Meheret!"), bool())
     with pytest.raises(ValueError, match="invalid recipient public key, length must be 64"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(), "asdfsdfasdf")
+        RefundSolver(str(), sha256("Hello Meheret!"), "asdfsdfasdf")
     with pytest.raises(TypeError, match="sender public key must be string format"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(),
+        RefundSolver(str(), sha256("Hello Meheret!"),
                      recipient_wallet.public_key(), bool())
     with pytest.raises(ValueError, match="invalid sender public key, length must be 64"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(),
+        RefundSolver(str(), sha256("Hello Meheret!"),
                      recipient_wallet.public_key(), "asdfsdfasdf")
     with pytest.raises(TypeError, match="sequence must be integer format"):
-        RefundSolver(str(), sha256(b"Hello Meheret!").hex(),
+        RefundSolver(str(), sha256("Hello Meheret!"),
                      recipient_wallet.public_key(), sender_wallet.public_key(), float())
     with pytest.raises(TypeError, match="bytecode must be string format"):
         RefundSolver(str(), bytecode=123423423423)

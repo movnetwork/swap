@@ -12,7 +12,7 @@ from shuttle.utils import sha256
 def test_bytom_htlc():
 
     htlc = HTLC(network="mainnet").init(
-        secret_hash=sha256("Hello Meheret!".encode()).hex(),
+        secret_hash=sha256("Hello Meheret!"),
         recipient_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
         sender_public="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e",
         sequence=1000,
@@ -37,7 +37,7 @@ def test_bytom_htlc_exception():
 
     with pytest.raises(ConnectionError, match=r".*http://localhost:9888*."):
         HTLC(network="mainnet").init(
-            secret_hash=sha256("Hello Meheret!".encode()).hex(),
+            secret_hash=sha256("Hello Meheret!"),
             recipient_public="ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01",
             sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
             sequence=100,
