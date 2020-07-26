@@ -16,7 +16,7 @@ recipient_wallet = Wallet(network=network).from_mnemonic(
 ).from_guid(
     guid="f0ed6ddd-9d6b-49fd-8866-a52d1083a13b"
 )
-secret_hash = sha256("Hello Meheret!".encode()).hex()
+secret_hash = sha256("Hello Meheret!")
 sequence = 1000
 
 
