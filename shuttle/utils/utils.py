@@ -152,7 +152,6 @@ def sha256(data):
     """
 
     if isinstance(data, str):
-        print(data)
         return hashlib.sha256(data.encode()).digest().hex()
     elif isinstance(data, bytes):
         return hashlib.sha256(data).digest().hex()
@@ -167,7 +166,7 @@ def double_sha256(data):
     :type data: str, bytes
     :returns: bytearray -- hashed double sha256.
 
-    >>> from shuttle.providers.bitcoin.utils import double_sha256
+    >>> from shuttle.utils import double_sha256
     >>> double_sha256("Hello Meheret!")
     "4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3"
     """
