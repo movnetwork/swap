@@ -4,10 +4,9 @@ from btcpy.structs.script import P2pkhScript, P2shScript
 from btcpy.structs.transaction import Sequence, MutableTransaction
 from btcpy.structs.address import Address
 from btcpy.setup import setup as stp
-from base64 import b64encode, b64decode
+from base64 import b64decode
 
 import cryptos
-import hashlib
 import json
 import datetime
 import binascii
@@ -33,8 +32,9 @@ def decode_transaction_raw(transaction_raw):
     :returns: dict -- decoded Bitcoin transaction.
 
     >>> from shuttle.providers.bitcoin.utils import decode_transaction_raw
+    >>> transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODdiY2RkMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
     >>> decode_transaction_raw(transaction_raw)
-    {...}
+    {'fee': 678, 'type': 'bitcoin_fund_unsigned', 'tx': {'hex': '0200000001888be7ec065097d95664763f276d425552d735fb1d974ae78bf72106dca0f3910100000000ffffffff02102700000000000017a9142bb013c3e4beb08421dedcf815cb65a5c388178b87bcdd0e00000000001976a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac00000000', 'txid': 'abc70fd3466aec9478ea3115200a84f993204ad1f614fe08e92ecc5997a0d3ba', 'hash': 'abc70fd3466aec9478ea3115200a84f993204ad1f614fe08e92ecc5997a0d3ba', 'size': 117, 'vsize': 117, 'version': 2, 'locktime': 0, 'vin': [{'txid': '91f3a0dc0621f78be74a971dfb35d75255426d273f766456d9975006ece78b88', 'vout': 1, 'scriptSig': {'asm': '', 'hex': ''}, 'sequence': '4294967295'}], 'vout': [{'value': '0.00010000', 'n': 0, 'scriptPubKey': {'asm': 'OP_HASH160 2bb013c3e4beb08421dedcf815cb65a5c388178b OP_EQUAL', 'hex': 'a9142bb013c3e4beb08421dedcf815cb65a5c388178b87', 'type': 'p2sh', 'address': '2MwEDybGC34949zgzWX4M9FHmE3crDSUydP'}}, {'value': '0.00974268', 'n': 1, 'scriptPubKey': {'asm': 'OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG', 'hex': '76a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac', 'type': 'p2pkh', 'address': 'mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q'}}]}, 'network': 'testnet'}
     """
 
     transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
@@ -75,8 +75,9 @@ def submit_transaction_raw(transaction_raw):
     :returns: dict -- Bitcoin transaction id, fee, type and date.
 
     >>> from shuttle.providers.bitcoin.utils import submit_transaction_raw
+    >>> transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODdiY2RkMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
     >>> submit_transaction_raw(transaction_raw)
-    {...}
+    {'fee': '...', 'type': '...', 'transaction_id': '...', 'network': '...', 'date': '...'}
     """
 
     tx_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
@@ -111,7 +112,7 @@ def is_address(address, network=None):
     :returns: bool -- Bitcoin valid/invalid address.
 
     >>> from shuttle.providers.bitcoin.utils import is_address
-    >>> is_address(bitcoin_address, "testnet")
+    >>> is_address("mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH", "testnet")
     True
     """
 
@@ -130,42 +131,6 @@ def is_address(address, network=None):
         else:
             raise NetworkError("invalid %s network" % network, "only takes mainnet or testnet networks.")
     raise TypeError("address must be string format!")
-
-
-def sha256(data):
-    """
-    SHA256 hash.
-
-    :param data: encoded data.
-    :type data: bytes
-    :returns: bytearray -- hashed sha256.
-
-    >>> from shuttle.providers.bitcoin.utils import sha256
-    >>> sha256("Hello Meheret!".encode())
-    b"..."
-    """
-
-    if isinstance(data, bytes):
-        return hashlib.sha256(data).digest()
-    raise TypeError("data must be bytes format!")
-
-
-def double_sha256(data):
-    """
-    Double SHA256 hash.
-
-    :param data: encoded data.
-    :type data: bytes
-    :returns: bytearray -- hashed double sha256.
-
-    >>> from shuttle.providers.bitcoin.utils import double_sha256
-    >>> double_sha256("Hello Meheret!".encode())
-    b"..."
-    """
-
-    if isinstance(data, bytes):
-        return hashlib.sha256(hashlib.sha256(data).digest()).digest()
-    raise TypeError("data must be bytes format!")
 
 
 def fee_calculator(transaction_input=1, transaction_output=1):
@@ -190,6 +155,7 @@ def fee_calculator(transaction_input=1, transaction_output=1):
 
 
 def expiration_to_script(sequence):
+
     if isinstance(sequence, int):
         if sequence <= 16:
             return "OP_%d" % sequence
@@ -199,22 +165,10 @@ def expiration_to_script(sequence):
 
 
 def script_from_address(address, network="testnet"):
-    """
-    Get script from address.
-
-    :param address: Bitcoin address.
-    :type address: str
-    :param network: Bitcoin network, defaults to testnet.
-    :type network: str
-    :returns: P2pkhScript, P2shScript -- Bitcoin p2pkh or p2sh script instance.
-
-    >>> from shuttle.providers.bitcoin.utils import script_from_address
-    >>> script_from_address("mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH", "testnet")
-    P2pkhScript('7b7c4431a43b612a72f8229935c469f1f6903658')
-    """
 
     if not is_address(address, network):
         raise AddressError("invalid %s %s address!" % (network, address))
+
     load_address = Address.from_string(address)
     get_type = load_address.get_type()
     if str(get_type) == "p2pkh":
