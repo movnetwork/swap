@@ -5,14 +5,15 @@ from shuttle.providers.bitcoin.htlc import HTLC
 from shuttle.providers.bitcoin.rpc import get_balance
 from shuttle.utils import sha256
 
+
 # Bitcoin network
 NETWORK = "testnet"
-# Sender Bitcoin address
-SENDER_ADDRESS = "miAcLpYbaqE8KowBu2PwvqXG6y6vpQcfTJ"
-# Recipient Bitcoin address
-RECIPIENT_ADDRESS = "mwHXvCcug5Rn24c2rpgcRDSo3PyfxZJQQT"
 # Secret password/passphrase hash
 SECRET_HASH = sha256("Hello Meheret!")
+# Recipient Bitcoin address
+RECIPIENT_ADDRESS = "mwHXvCcug5Rn24c2rpgcRDSo3PyfxZJQQT"
+# Sender Bitcoin address
+SENDER_ADDRESS = "miAcLpYbaqE8KowBu2PwvqXG6y6vpQcfTJ"
 # Expiration block (Sequence)
 SEQUENCE = 1000
 
@@ -79,6 +80,6 @@ print("HTLC Hash:", htlc_hash)
 htlc_address = htlc.address()
 print("HTLC Address:", htlc_address)
 
-# Checking HTLC balance
+# Getting HTLC balance
 htlc_balance = get_balance(address=htlc_address, network=NETWORK)
 print("HTLC Balance:", htlc_balance)
