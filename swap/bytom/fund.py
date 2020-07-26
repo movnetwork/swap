@@ -6,7 +6,6 @@ from shuttle.providers.bytom.transaction import FundTransaction
 from shuttle.providers.bytom.solver import FundSolver
 from shuttle.providers.bytom.signature import FundSignature
 from shuttle.providers.bytom.utils import submit_transaction_raw
-from shuttle.utils import sha256
 
 import json
 
@@ -14,8 +13,11 @@ import json
 NETWORK = "mainnet"
 # Sender 12 word mnemonic
 SENDER_MNEMONIC = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Recipient Bytom public key
-RECIPIENT_PUBLIC_KEY = "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e"
+# Hash Time Lock Contract (HTLC) bytecode
+HTLC_BYTECODE = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220" \
+                "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82" \
+                "ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000" \
+                "557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
 # Bytom fund asset id
 ASSET = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 # Bytom fund amount
@@ -51,36 +53,15 @@ print("Sender GUID:", sender_guid)
 # sender_balance = sender_wallet.balance()
 # print("Sender Balance:", sender_balance)
 
-print("=" * 10, "Recipient Bytom Account")
-
-# Initializing Bytom recipient wallet
-recipient_wallet = Wallet(network=NETWORK)
-# Initializing Bytom wallet from public key
-recipient_wallet.from_public_key(public=RECIPIENT_PUBLIC_KEY)
-# Getting recipient wallet information's
-recipient_public_key = recipient_wallet.public_key()
-print("Recipient Public Key:", recipient_public_key)
-recipient_program = recipient_wallet.program()
-print("Recipient Program:", recipient_program)
-recipient_address = recipient_wallet.address()
-print("Recipient Address:", recipient_address)
-# recipient_balance = recipient_wallet.balance()
-# print("Recipient Balance:", recipient_balance)
-
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
 # Initializing Hash Time Lock Contract (HTLC)
-htlc = HTLC(network=NETWORK).init(
-    secret_hash=sha256("Hello Meheret!".encode()).hex(),
-    recipient_public=recipient_public_key,
-    sender_public=sender_public_key,
-    sequence=1000
-)
+htlc = HTLC(network=NETWORK)
+# Initializing HTLC from bytecode
+htlc.from_bytecode(bytecode=HTLC_BYTECODE)
 
 htlc_bytecode = htlc.bytecode()
 print("HTLC Bytecode:", htlc_bytecode)
-htlc_opcode = htlc.opcode()
-print("HTLC OP_Code:", htlc_opcode)
 htlc_hash = htlc.hash()
 print("HTLC Hash:", htlc_hash)
 htlc_address = htlc.address()
