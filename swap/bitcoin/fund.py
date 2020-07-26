@@ -6,7 +6,6 @@ from shuttle.providers.bitcoin.transaction import FundTransaction
 from shuttle.providers.bitcoin.solver import FundSolver
 from shuttle.providers.bitcoin.signature import FundSignature
 from shuttle.providers.bitcoin.utils import submit_transaction_raw
-from shuttle.utils import sha256
 
 import json
 
@@ -14,8 +13,10 @@ import json
 NETWORK = "testnet"
 # Sender passphrase/password
 SENDER_PASSPHRASE = "Boom!"
-# Recipient Bitcoin address
-RECIPIENT_ADDRESS = "mwHXvCcug5Rn24c2rpgcRDSo3PyfxZJQQT"
+# Hash Time Lock Contract (HTLC) bytecode
+HTLC_BYTECODE = "63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a9141d" \
+                "0f671c26a3ef7a865d1eda0fbd085e98adcc2388ac6702e803b27576a914acf8419eecab574c494f" \
+                "ebbe03fd07fdae7bf2f488ac68"
 # Bitcoin fund amount
 AMOUNT = 10_000
 
@@ -48,36 +49,12 @@ print("Sender Balance:", sender_balance)
 # for index, unspent in enumerate(sender_unspent):
 #     print("Sender %d Unspent" % index, unspent)
 
-print("=" * 10, "Recipient Bitcoin Account")
-
-# Initializing recipient Bitcoin wallet
-recipient_wallet = Wallet(network=NETWORK)
-# Initializing Bitcoin wallet from address
-recipient_wallet.from_address(address=RECIPIENT_ADDRESS)
-# Getting recipient wallet information's
-recipient_address = recipient_wallet.address()
-print("Recipient Address:", recipient_address)
-recipient_hash = recipient_wallet.hash()
-print("Recipient Hash:", recipient_hash)
-recipient_p2pkh = recipient_wallet.p2pkh()
-print("Recipient P2PKH:", recipient_p2pkh)
-recipient_p2sh = recipient_wallet.p2sh()
-print("Recipient P2SH:", recipient_p2sh)
-recipient_balance = recipient_wallet.balance()
-print("Recipient Balance:", recipient_balance)
-# recipient_unspent = recipient_wallet.unspent()
-# for index, unspent in enumerate(recipient_unspent):
-#     print("Recipient %d Unspent" % index, unspent)
-
-print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
+print("=" * 10, "Hash Time Lock Contract (HTLC) from Bytecode")
 
 # Initializing Hash Time Lock Contract (HTLC)
-htlc = HTLC(network=NETWORK).init(
-    secret_hash=sha256("Hello Meheret!".encode()).hex(),
-    recipient_address=recipient_address,
-    sender_address=sender_address,
-    sequence=1000,
-)
+htlc = HTLC(network=NETWORK)
+# Initializing HTLC from bytecode
+htlc.from_bytecode(bytecode=HTLC_BYTECODE)
 
 htlc_bytecode = htlc.bytecode()
 print("HTLC Bytecode:", htlc_bytecode)

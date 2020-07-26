@@ -58,7 +58,7 @@ print("Recipient Balance:", recipient_balance)
 # for index, unspent in enumerate(recipient_unspent):
 #     print("Recipient %d Unspent" % index, unspent)
 
-print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient Bitcoin Account")
+print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
 # Initializing Hash Time Lock Contract (HTLC)
 htlc = HTLC(network=NETWORK)
