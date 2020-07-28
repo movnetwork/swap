@@ -14,9 +14,9 @@ NETWORK = "testnet"
 # Sender passphrase/password
 SENDER_PASSPHRASE = "Boom!"
 # Hash Time Lock Contract (HTLC) bytecode
-HTLC_BYTECODE = "63aa204683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd38876a9141d" \
-                "0f671c26a3ef7a865d1eda0fbd085e98adcc2388ac6702e803b27576a914acf8419eecab574c494f" \
-                "ebbe03fd07fdae7bf2f488ac68"
+HTLC_BYTECODE = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876" \
+                "a914acf8419eecab574c494febbe03fd07fdae7bf2f488ac6702e803b27576a9141d0f671c" \
+                "26a3ef7a865d1eda0fbd085e98adcc2388ac68"
 # Bitcoin fund amount
 AMOUNT = 10_000
 
@@ -43,11 +43,8 @@ sender_p2pkh = sender_wallet.p2pkh()
 print("Sender P2PKH:", sender_p2pkh)
 sender_p2sh = sender_wallet.p2sh()
 print("Sender P2SH:", sender_p2sh)
-sender_balance = sender_wallet.balance()
-print("Sender Balance:", sender_balance)
-# sender_unspent = sender_wallet.unspent()
-# for index, unspent in enumerate(sender_unspent):
-#     print("Sender %d Unspent" % index, unspent)
+# sender_balance = sender_wallet.balance()
+# print("Sender Balance:", sender_balance)
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) from Bytecode")
 

@@ -43,11 +43,8 @@ sender_p2pkh = sender_wallet.p2pkh()
 print("Sender P2PKH:", sender_p2pkh)
 sender_p2sh = sender_wallet.p2sh()
 print("Sender P2SH:", sender_p2sh)
-sender_balance = sender_wallet.balance()
-print("Sender Balance:", sender_balance)
-# sender_unspent = sender_wallet.unspent()
-# for index, unspent in enumerate(sender_unspent):
-#     print("Sender %d Unspent" % index, unspent)
+# sender_balance = sender_wallet.balance()
+# print("Sender Balance:", sender_balance)
 
 print("=" * 10, "Recipient Bitcoin Account")
 
@@ -64,11 +61,8 @@ recipient_p2pkh = recipient_wallet.p2pkh()
 print("Recipient P2PKH:", recipient_p2pkh)
 recipient_p2sh = recipient_wallet.p2sh()
 print("Recipient P2SH:", recipient_p2sh)
-recipient_balance = recipient_wallet.balance()
-print("Recipient Balance:", recipient_balance)
-# recipient_unspent = recipient_wallet.unspent()
-# for index, unspent in enumerate(recipient_unspent):
-#     print("Recipient %d Unspent" % index, unspent)
+# recipient_balance = recipient_wallet.balance()
+# print("Recipient Balance:", recipient_balance)
 
 print("=" * 10, "Unsigned Refund Transaction")
 

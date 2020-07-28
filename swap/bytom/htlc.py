@@ -32,8 +32,8 @@ sender_program = sender_wallet.program()
 print("Sender Program:", sender_program)
 sender_address = sender_wallet.address()
 print("Sender Address:", sender_address)
-# sender_balance = sender_wallet.balance()
-# print("Sender Balance:", sender_balance)
+sender_balance = sender_wallet.balance()
+print("Sender Balance:", sender_balance)
 
 print("=" * 10, "Recipient Bytom Account")
 
@@ -48,8 +48,8 @@ recipient_program = recipient_wallet.program()
 print("Recipient Program:", recipient_program)
 recipient_address = recipient_wallet.address()
 print("Recipient Address:", recipient_address)
-# recipient_balance = recipient_wallet.balance()
-# print("Recipient Balance:", recipient_balance)
+recipient_balance = recipient_wallet.balance()
+print("Recipient Balance:", recipient_balance)
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 

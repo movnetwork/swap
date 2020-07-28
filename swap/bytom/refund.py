@@ -95,7 +95,7 @@ print("=" * 10, "Signed Refund Transaction")
 # Initializing refund solver
 refund_solver = RefundSolver(
     xprivate_key=sender_xprivate_key,
-    secret_hash=sha256("Hello Meheret!".encode()).hex(),
+    secret_hash=sha256("Hello Meheret!"),
     recipient_public=recipient_public_key,
     sender_public=sender_public_key,
     sequence=1000

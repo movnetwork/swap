@@ -34,9 +34,6 @@ sender_p2sh = sender_wallet.p2sh()
 print("Sender P2SH:", sender_p2sh)
 sender_balance = sender_wallet.balance()
 print("Sender Balance:", sender_balance)
-# sender_unspent = sender_wallet.unspent()
-# for index, unspent in enumerate(sender_unspent):
-#     print("Sender %d Unspent" % index, unspent)
 
 print("=" * 10, "Recipient Bitcoin Account")
 
@@ -55,9 +52,6 @@ recipient_p2sh = recipient_wallet.p2sh()
 print("Recipient P2SH:", recipient_p2sh)
 recipient_balance = recipient_wallet.balance()
 print("Recipient Balance:", recipient_balance)
-# recipient_unspent = recipient_wallet.unspent()
-# for index, unspent in enumerate(recipient_unspent):
-#     print("Recipient %d Unspent" % index, unspent)
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
@@ -66,8 +60,8 @@ htlc = HTLC(network=NETWORK)
 # Building new HTLC contract
 htlc.init(
     secret_hash=SECRET_HASH,
-    recipient_address=sender_address,
-    sender_address=recipient_address,
+    recipient_address=recipient_address,
+    sender_address=sender_address,
     sequence=SEQUENCE,
 )
 
