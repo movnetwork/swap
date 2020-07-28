@@ -152,9 +152,9 @@ def sha256(data):
     """
 
     if isinstance(data, str):
-        return hashlib.sha256(data.encode()).digest().hex()
+        return hashlib.sha256(data.encode()).digest().hexdigest()
     elif isinstance(data, bytes):
-        return hashlib.sha256(data).digest().hex()
+        return hashlib.sha256(data).digest().hexdigest()
     raise TypeError("data must be str/bytes format!")
 
 
@@ -168,9 +168,9 @@ def double_sha256(data):
 
     >>> from shuttle.utils import double_sha256
     >>> double_sha256("Hello Meheret!")
-    "4683a21fd5ce2425adc90a3674b6d8d3d418935540fc3a71c6ec3cb249925dd3"
+    "821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158"
     """
 
     if isinstance(data, str) or isinstance(data, bytes):
-        return hashlib.sha256(unhexlify(sha256(data))).digest().hex()
+        return hashlib.sha256(unhexlify(sha256(data))).digest().hexdigest()
     raise TypeError("data must be str/bytes format!")
