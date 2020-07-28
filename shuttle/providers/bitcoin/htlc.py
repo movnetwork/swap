@@ -7,8 +7,9 @@ from binascii import unhexlify
 
 from .utils import script_from_address, is_address
 from ...utils.exceptions import AddressError
-from ...utils import sha256
 from ..config import bitcoin
+
+import hashlib
 
 # Bitcoin config
 bitcoin = bitcoin()
@@ -82,7 +83,7 @@ class HTLC:
         self.script = IfElseScript(
             # If branch
             Hashlock256Script(  # Hash lock 250
-                unhexlify(sha256(secret_hash)),  # Secret key
+                hashlib.sha256(unhexlify(secret_hash)).digest(),  # Secret double hash for (OP_HASH256)
                 script_from_address(
                     address=recipient_address, network=self.network)  # Script hash of account two
             ),
