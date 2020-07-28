@@ -57,12 +57,21 @@ def decode_transaction_raw(transaction_raw):
 
 def submit_payment(tx_raw, network="testnet", timeout=bitcoin["timeout"]):
     if isinstance(tx_raw, str):
-        tx = json.dumps(dict(hex=tx_raw))
-        response = requests.post(url=bitcoin[network]["smartbit"] + "/pushtx",
-                                 data=tx, headers=headers, timeout=timeout)
-        if "error" in response.json():
-            raise APIError(response.json()["error"]["message"])
-        return response.json()
+        tx = json.dumps(dict(tx_hex=tx_raw))
+        if "mainnet" == network:
+            sochain_network = "BTC"
+        elif "testnet" == network:
+            sochain_network = "BTCTEST"
+        else:
+            raise ValueError("invalid network, only mainnet or testnet")
+        url = bitcoin[network]["sochain"] + f"/send_tx/{sochain_network}"
+        response = requests.post(url=url, data=tx, headers=headers, timeout=timeout)
+        if "status" in response.json() and response.json()["status"] == "fail":
+            raise APIError(response.json()["data"]["tx_hex"])
+        elif "status" in response.json() and response.json()["status"] == "success":
+            return response.json()["data"]
+        else:
+            raise Exception("Unknown Bitcoin submit payment error")
     raise TypeError("transaction raw must be string format!")
 
 
