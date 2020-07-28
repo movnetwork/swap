@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from mnemonic.mnemonic import Mnemonic
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 from random import choice
 
 import string
@@ -172,5 +172,5 @@ def double_sha256(data):
     """
 
     if isinstance(data, str) or isinstance(data, bytes):
-        return hashlib.sha256(sha256(data).encode()).digest().hex()
+        return hashlib.sha256(unhexlify(sha256(data))).digest().hex()
     raise TypeError("data must be str/bytes format!")
