@@ -152,9 +152,9 @@ def sha256(data):
     """
 
     if isinstance(data, str):
-        return hashlib.sha256(data.encode()).digest().hexdigest()
+        return hashlib.sha256(data.encode()).digest().hex()
     elif isinstance(data, bytes):
-        return hashlib.sha256(data).digest().hexdigest()
+        return hashlib.sha256(data).digest().hex()
     raise TypeError("data must be str/bytes format!")
 
 
@@ -172,5 +172,5 @@ def double_sha256(data):
     """
 
     if isinstance(data, str) or isinstance(data, bytes):
-        return hashlib.sha256(unhexlify(sha256(data))).digest().hexdigest()
+        return hashlib.sha256(unhexlify(sha256(data))).digest().hex()
     raise TypeError("data must be str/bytes format!")
