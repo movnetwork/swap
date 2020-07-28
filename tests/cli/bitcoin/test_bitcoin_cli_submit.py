@@ -24,7 +24,9 @@ def test_bitcoin_cli_submit(cli_tester):
         ]
     )
     assert submit.exit_code == 0
-    assert submit.output == "Error: Missing inputs" + "\n"
+    assert submit.output == "Error: A valid signed transaction hexadecimal string is required. " \
+                            "Please check if all inputs in the given transactions are still " \
+                            "available to spend. See the \"Is Tx Output Spent?\" API call for reference." + "\n"
 
     submit = cli_tester.invoke(
         cli_main, [

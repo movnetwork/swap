@@ -7,12 +7,12 @@ def test_config():
     btc, btm = bitcoin(), bytom()
 
     assert btc["mainnet"]["blockchain"] == "https://blockchain.info"
-    assert btc["mainnet"]["smartbit"] == "https://api.smartbit.com.au/v1/blockchain"
+    assert btc["mainnet"]["sochain"] == "https://sochain.com/api/v2"
     assert btc["mainnet"]["blockcypher"]["url"] == "https://api.blockcypher.com/v1/btc/main"
     assert btc["mainnet"]["blockcypher"]["token"] == "c6ef693d3c024088810e6fac2a1494ee"
 
     assert btc["testnet"]["blockchain"] == "https://testnet.blockchain.info"
-    assert btc["testnet"]["smartbit"] == "https://testnet-api.smartbit.com.au/v1/blockchain"
+    assert btc["testnet"]["sochain"] == "https://sochain.com/api/v2"
     assert btc["testnet"]["blockcypher"]["url"] == "https://api.blockcypher.com/v1/btc/test3"
     assert btc["testnet"]["blockcypher"]["token"] == "c6ef693d3c024088810e6fac2a1494ee"
 
