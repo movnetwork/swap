@@ -5,13 +5,14 @@
 [![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=latest)](https://swap.readthedocs.io/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/meherett/swap?branch=master)
 
-Swap is a python library for cross-chain atomic swap between the networks of two Cryptocurrencies. 
-Cross-chain atomic swaps are the cheapest and most secure way to swap Cryptocurrencies. 
+A python library for cross-chain atomic swap between the networks of two cryptocurrencies. 
+Cross-chain atomic swap are the cheapest and most secure way to swap cryptocurrencies. 
 It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol. 
+[Documentation](https://swap.readthedocs.io)
 
 ## Available Cryptocurrencies
 
-Swap has the following available [Cryptocurrencies](https://github.com/meherett/swap/blob/master/cryptocurrencies) to swap:
+Swap has the following available [cryptocurrencies](https://github.com/meherett/swap/blob/master/cryptocurrencies) to swap:
 
 | Cryptocurrencies                                        | Mainnet | Testnet | Solonet | 
 | ------------------------------------------------------- | :-----: | :-----: | :-----: |
@@ -41,11 +42,9 @@ directly from your wallet with a counterparty of your choice. Only the parties i
 details of the trade.
 
 - **Trading across multiple Cryptocurrencies** · HTLC makes Cross-chain transactions easier and more
-secure than ever. Cross chain transactions are the next step in the evolution of Cryptocurrency
+secure than ever. Cross chain transactions are the next step in the evolution of cryptocurrency
 adoption. The easier it becomes to unite the hundreds of blockchain's that currently exist in
 silos, the faster the technology as a whole can begin to scale and achieve mass adoption.
-
-[Documentation](https://swap.readthedocs.io)
 
 ## Installation
 
