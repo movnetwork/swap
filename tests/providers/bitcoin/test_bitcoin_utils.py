@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.utils import *
-from shuttle.utils.exceptions import AddressError, NetworkError
+from swap.providers.bitcoin.utils import *
+from swap.utils.exceptions import AddressError, NetworkError
 
 import pytest
 

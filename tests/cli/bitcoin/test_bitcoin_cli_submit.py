@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.cli.__main__ import main as cli_main
+from swap.cli.__main__ import main as cli_main
 
 
 fund_transaction_raw = "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMTUyYzIzZGM2NDU2N2IxY2ZhZjRkNzc2NjBj" \

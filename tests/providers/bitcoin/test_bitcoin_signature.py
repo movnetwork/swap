@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.wallet import Wallet
-from shuttle.providers.bitcoin.signature import (
+from swap.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.signature import (
     Signature, FundSignature, ClaimSignature, RefundSignature
 )
-from shuttle.providers.bitcoin.solver import (
+from swap.providers.bitcoin.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
-from shuttle.utils import sha256
+from swap.utils import sha256
 
 import pytest
 

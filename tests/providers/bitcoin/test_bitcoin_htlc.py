@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.htlc import HTLC
-from shuttle.utils import sha256
-from shuttle.utils.exceptions import AddressError
+from swap.providers.bitcoin.htlc import HTLC
+from swap.utils import sha256
+from swap.utils.exceptions import AddressError
 
 import pytest
 

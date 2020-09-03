@@ -3,7 +3,7 @@ What is a HTLC?
 ===============
 A Hash Time Lock contract (HTLC) is essentially a type of payment in which two people
 agree to a financial arrangement where one party will pay the other party a certain
-amount of cryptocurrency, such as Bitcoin or Bytom assets. However, because these
+amount of Cryptocurrency, such as Bitcoin or Bytom assets. However, because these
 contracts are Time Locked, the receiving party only has a certain amount of time to
 accept the payment, otherwise the money can be returned to the sender.
 
@@ -29,12 +29,12 @@ she will have to do this within the specified amount of time. The amount of time
 recipient has to accept the payment can vary significantly from one Time Locked contract to
 the next. If the recipient meets the deadline, then the money will be theirs, if he or she
 fails to meet the deadline, it won’t. So, there is an often a lot at stake when it comes to
-meeting deadlines from hash Time Locked contracts, when cryptocurrencies are being exchanged.
+meeting deadlines from hash Time Locked contracts, when Cryptocurrencies are being exchanged.
 
 The amount of time that the recipient has to accept the payment can vary significantly from
 one Time Locked contract to the next. If the recipient meets the deadline, then the money will
 be theirs, if he or she fails to meet the deadline, it won’t. So, there is an often a lot at
-stake when it comes to meeting deadlines from hash Time Locked contracts, when cryptocurrencies
+stake when it comes to meeting deadlines from hash Time Locked contracts, when Cryptocurrencies
 are being exchanged.
 
 .. image:: static/png/Hash-Time-Locked-Contract.png
@@ -67,8 +67,8 @@ sender of funds to claim a refund.
    :alt: Time Locked Contract (TLC)
 
 
-Benefits of HTLC
-================
+Benefits of HTLC's
+==================
 There are many benefits to these types of contracts. First, because they are time sensitive, it
 prevents the person who is making the payment from having to wait indefinitely to find out whether
 or not his or her payment goes through. Second, the person who makes the payment will not have to
@@ -86,7 +86,7 @@ As is the case with all smart contracts, trust is not needed as the rules are al
 contract itself. Hash Time Lock Contracts take this one step further by implementing a time limit for
 recipients to acknowledge the payment.
 
-Validation of the blockchain
+Validation of the Blockchain
 ----------------------------
 Transactions are validated because of the cryptographic proof of payment required by the receiver.
 
@@ -95,9 +95,9 @@ Private Information's
 There are no complicated account setups or KYC/AML restrictions. Trade directly from your wallet
 with a counterparty of your choice. Only the parties involved know the details of the trade.
 
-Trading across multiple cryptocurrencies
+Trading across multiple Cryptocurrencies
 ----------------------------------------
 HTLC makes Cross-chain transactions easier and more secure than ever. Cross chain transactions are the
-next step in the evolution of cryptocurrency adoption. The easier it becomes to unite the hundreds of
+next step in the evolution of Cryptocurrency adoption. The easier it becomes to unite the hundreds of
 blockchain's that currently exist in silos, the faster the technology as a whole can begin to scale and
 achieve mass adoption.

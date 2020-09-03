@@ -4,8 +4,8 @@ from equity.exceptions import ConnectionError
 
 import pytest
 
-from shuttle.providers.bytom.htlc import HTLC
-from shuttle.utils import sha256
+from swap.providers.bytom.htlc import HTLC
+from swap.utils import sha256
 
 
 # Testing HTLC

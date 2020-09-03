@@ -2,11 +2,11 @@
 # coding=utf-8
 
 
-from shuttle.cli.__main__ import main as cli_main
-from shuttle import __version__
+from swap.cli.__main__ import main as cli_main
+from swap import __version__
 
 
-def test_shuttle_cli(cli_tester):
+def test_swap_cli(cli_tester):
 
     assert cli_tester.invoke(cli_main).exit_code == 0
 

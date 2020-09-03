@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.wallet import Wallet
-from shuttle.providers.bitcoin.htlc import HTLC
-from shuttle.providers.bitcoin.transaction import (
+from swap.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.htlc import HTLC
+from swap.providers.bitcoin.transaction import (
     FundTransaction, ClaimTransaction, RefundTransaction
 )
-from shuttle.providers.bitcoin.solver import (
+from swap.providers.bitcoin.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
-from shuttle.utils import sha256
+from swap.utils import sha256
 
 import pytest
 

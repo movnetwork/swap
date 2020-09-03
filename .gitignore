@@ -11,7 +11,7 @@ Makefile
 # Setuptools stuff
 build/
 dist/
-pyshuttle.egg-info/
+swap.egg-info/
 
 # Python stuff
 __pycache__/
