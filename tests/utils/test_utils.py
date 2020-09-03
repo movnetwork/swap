@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.utils import (
+from swap.utils import (
     generate_passphrase, generate_entropy, generate_mnemonic,
     is_mnemonic, get_mnemonic_language, sha256, double_sha256
 )
@@ -11,7 +11,7 @@ import pytest
 MNEMONIC = "병아리 실컷 여인 축제 극히 저녁 경찰 설사 할인 해물 시각 자가용"
 
 
-def test_shuttle_utils():
+def test_swap_utils():
 
     assert len(generate_entropy(strength=128)) == 32
 

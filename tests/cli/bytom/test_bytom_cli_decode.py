@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.cli.__main__ import main as cli_main
+from swap.cli.__main__ import main as cli_main
 
 
 unsigned_transaction_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZD" \

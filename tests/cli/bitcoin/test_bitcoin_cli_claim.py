@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.wallet import Wallet
-from shuttle.cli.__main__ import main as cli_main
+from swap.providers.bitcoin.wallet import Wallet
+from swap.cli.__main__ import main as cli_main
 
 
 version = 2

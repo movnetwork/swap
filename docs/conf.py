@@ -14,7 +14,7 @@ import os
 import sys
 import datetime
 
-from shuttle import __version__, __author__
+from swap import __version__, __author__
 
 
 sys.path.insert(0, os.path.abspath("../.."))
@@ -23,7 +23,7 @@ sys.path.insert(1, os.path.abspath("./extensions"))
 
 # -- Project information -----------------------------------------------------
 
-project = "Shuttle"
+project = "Swap"
 copyright = f"{datetime.datetime.now().year}, {__author__}"
 author = __author__
 

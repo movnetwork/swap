@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.utils.exceptions import NetworkError, BalanceError, APIError, \
+from swap.utils.exceptions import NetworkError, BalanceError, APIError, \
     AddressError, InvalidURLError, ClientError, NotFoundError
 
 import pytest

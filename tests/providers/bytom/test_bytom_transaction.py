@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bytom.wallet import Wallet
-from shuttle.providers.bytom.htlc import HTLC
-from shuttle.providers.bytom.transaction import (
+from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.htlc import HTLC
+from swap.providers.bytom.transaction import (
     FundTransaction, ClaimTransaction, RefundTransaction
 )
-from shuttle.providers.bytom.solver import (
+from swap.providers.bytom.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
-from shuttle.utils import sha256
+from swap.utils import sha256
 
 import pytest
 

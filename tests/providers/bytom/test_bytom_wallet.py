@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bytom.wallet import Wallet
+from swap.providers.bytom.wallet import Wallet
 
 import pytest
 

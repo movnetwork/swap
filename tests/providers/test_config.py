@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.config import bitcoin, bytom
+from swap.providers.config import bitcoin, bytom
 
 
 def test_config():

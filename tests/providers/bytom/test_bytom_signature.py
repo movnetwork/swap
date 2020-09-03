@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bytom.wallet import Wallet
-from shuttle.providers.bytom.signature import (
+from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.signature import (
     Signature, FundSignature, ClaimSignature, RefundSignature
 )
-from shuttle.providers.bytom.solver import (
+from swap.providers.bytom.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
-from shuttle.utils import sha256
+from swap.utils import sha256
 
 import pytest
 

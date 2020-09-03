@@ -5,12 +5,12 @@ from btcpy.structs.sig import (
     P2pkhSolver, IfElseSolver, HashlockSolver, Branch, RelativeTimelockSolver
 )
 
-from shuttle.providers.bitcoin.wallet import Wallet
-from shuttle.providers.bitcoin.solver import (
+from swap.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
-from shuttle.utils.exceptions import AddressError
-from shuttle.utils import sha256
+from swap.utils.exceptions import AddressError
+from swap.utils import sha256
 
 import pytest
 

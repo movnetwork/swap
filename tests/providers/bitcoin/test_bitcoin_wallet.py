@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.wallet import Wallet
 
 
 def test_from_passphrase():
