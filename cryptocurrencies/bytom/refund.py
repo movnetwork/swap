@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from shuttle.providers.bytom.wallet import Wallet
-from shuttle.providers.bytom.transaction import RefundTransaction
-from shuttle.providers.bytom.solver import RefundSolver
-from shuttle.providers.bytom.signature import RefundSignature
-from shuttle.providers.bytom.utils import submit_transaction_raw
-from shuttle.utils import sha256
+from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.transaction import RefundTransaction
+from swap.providers.bytom.solver import RefundSolver
+from swap.providers.bytom.signature import RefundSignature
+from swap.providers.bytom.utils import submit_transaction_raw
+from swap.utils import sha256
 
 import json
 

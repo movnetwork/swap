@@ -1,6 +1,6 @@
 # CLI - Bytom Commands
 
-<img align="right" height="80" src="https://github.com/meherett/shuttle/blob/master/docs/static/svg/bytom.svg">
+<img align="right" height="80" src="https://github.com/meherett/swap/blob/master/docs/static/svg/bytom.svg">
 
   - [HTLC Command](#htlc-command)
   - [Fund Command](#fund-command)
@@ -10,17 +10,17 @@
   - [Sign Command](#sign-command)
   - [Submit Command](#submit-command)
 
-> $ shuttle `bytom` command
+> $ swap `bytom` command
 
 ```shell script
-$ shuttle bytom --help
+$ swap bytom --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom [OPTIONS] COMMAND [ARGS]...
+Usage: swap bytom [OPTIONS] COMMAND [ARGS]...
 
 Options:
   -h, --help  Show this message and exit.
@@ -36,17 +36,17 @@ Commands:
 
 ## HTLC Command
 
-> $ shuttle bytom `htlc` command
+> $ swap bytom `htlc` command
 
 ```shell script
-$ shuttle bytom htlc --help
+$ swap bytom htlc --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom htlc [OPTIONS]
+Usage: swap bytom htlc [OPTIONS]
 
 Options:
   -sh, --secret-hash TEXT       Set secret 256 hash.  [required]
@@ -58,7 +58,7 @@ Options:
 ```
 </details>
 
-> **Example** -> shuttle bytom `htlc` command
+> **Example** -> swap bytom `htlc` command
 
 **Secret Hash** _(str)_ -> 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb **[required]**<br/>
 **Recipient Public Key** _(str)_ -> 3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e **[required]**<br/>
@@ -69,7 +69,7 @@ Options:
 > **Returns** _(str)_ -> Bytom Hash Time Lock Contract (HTLC) bytecode.
 
 ```shell script
-$ shuttle bytom htlc --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb --recipient-public 3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e --sender-public 91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 --sequence 1000 --network mainnet
+$ swap bytom htlc --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb --recipient-public 3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e --sender-public 91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 --sequence 1000 --network mainnet
 ```
 
 <details>
@@ -82,17 +82,17 @@ $ shuttle bytom htlc --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb1479
 
 ## Fund Command
 
-> $ shuttle bytom `fund` command
+> $ swap bytom `fund` command
 
 ```shell script
-$ shuttle bytom fund --help
+$ swap bytom fund --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom fund [OPTIONS]
+Usage: swap bytom fund [OPTIONS]
 
 Options:
   -sg, --sender-guid TEXT  Set Bytom sender GUID.  [required]
@@ -104,7 +104,7 @@ Options:
 ```
 </details>
 
-> **Example** -> shuttle bytom `fund` command
+> **Example** -> swap bytom `fund` command
 
 **Sender GUID** _(str)_ -> f0ed6ddd-9d6b-49fd-8866-a52d1083a13b **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
@@ -115,7 +115,7 @@ Options:
 > **Returns** _(str)_ -> Bytom unsigned fund transaction raw.
 
 ```shell script
-$ shuttle bytom fund --sender-guid f0ed6ddd-9d6b-49fd-8866-a52d1083a13b --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --bytecode 02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0 --network mainnet
+$ swap bytom fund --sender-guid f0ed6ddd-9d6b-49fd-8866-a52d1083a13b --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --bytecode 02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0 --network mainnet
 ```
 
 <details>
@@ -128,17 +128,17 @@ eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNh
 
 ## Claim Command
 
-> $ shuttle bytom `claim` command
+> $ swap bytom `claim` command
 
 ```shell script
-$ shuttle bytom claim --help
+$ swap bytom claim --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom claim [OPTIONS]
+Usage: swap bytom claim [OPTIONS]
 
 Options:
   -t, --transaction TEXT      Set Bytom fund transaction id.  [required]
@@ -150,7 +150,7 @@ Options:
 ```
 </details>
 
-> **Example** -> shuttle bytom `claim` command
+> **Example** -> swap bytom `claim` command
 
 **Transaction Id** _(str)_ -> 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd **[required]**<br/>
 **Recipient GUID** _(str)_ -> 571784a8-0945-4d78-b973-aac4b09d6439 **[required]**<br/>
@@ -161,7 +161,7 @@ Options:
 > **Returns** _(str)_ -> Bytom unsigned claim transaction raw.
 
 ```shell script
-$ shuttle bytom claim --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --recipient-guid 571784a8-0945-4d78-b973-aac4b09d6439 --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
+$ swap bytom claim --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --recipient-guid 571784a8-0945-4d78-b973-aac4b09d6439 --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
 <details>
@@ -174,17 +174,17 @@ eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiNTcxNzg0YTgtMDk0NS00ZDc4LWI5NzMtYWFjNGIwOWQ2
 
 ## Refund Command
 
-> $ shuttle bytom `refund` command
+> $ swap bytom `refund` command
 
 ```shell script
-$ shuttle bytom refund --help
+$ swap bytom refund --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom refund [OPTIONS]
+Usage: swap bytom refund [OPTIONS]
 
 Options:
   -t, --transaction TEXT   Set Bytom fund transaction id.  [required]
@@ -196,7 +196,7 @@ Options:
 ```
 </details>
 
-> **Example** -> shuttle bytom `refund` command
+> **Example** -> swap bytom `refund` command
 
 **Transaction Id** _(str)_ -> 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd **[required]**<br/>
 **Sender GUID** _(str)_ -> f0ed6ddd-9d6b-49fd-8866-a52d1083a13b **[required]**<br/>
@@ -207,7 +207,7 @@ Options:
 > **Returns** _(str)_ -> Bytom unsigned refund transaction raw.
 
 ```shell script
-$ shuttle bytom refund --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --sender-guid f0ed6ddd-9d6b-49fd-8866-a52d1083a13b --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
+$ swap bytom refund --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --sender-guid f0ed6ddd-9d6b-49fd-8866-a52d1083a13b --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
 <details>
@@ -220,17 +220,17 @@ eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNh
 
 ## Decode Command
 
-> $ shuttle bytom `decode` command
+> $ swap bytom `decode` command
 
 ```shell script
-$ shuttle bytom decode --help
+$ swap bytom decode --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom decode [OPTIONS]
+Usage: swap bytom decode [OPTIONS]
 
 Options:
   -r, --raw TEXT  Set Bytom transaction raw.  [required]
@@ -238,14 +238,14 @@ Options:
 ```
 </details>
 
-> **Example** -> shuttle bytom `decode` command
+> **Example** -> swap bytom `decode` command
 
 **Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZ... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bytom transaction json.
 
 ```shell script
-$ shuttle bytom decode --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
+$ swap bytom decode --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
 ```
 
 <details>
@@ -319,17 +319,17 @@ $ shuttle bytom decode --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ
 
 ## Sign Command
 
-> $ shuttle bytom `sign` command
+> $ swap bytom `sign` command
 
 ```shell script
-$ shuttle bytom sign --help
+$ swap bytom sign --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom sign [OPTIONS]
+Usage: swap bytom sign [OPTIONS]
 
 Options:
   -xp, --xprivate TEXT    Set Bytom xprivate key.  [required]
@@ -347,7 +347,7 @@ Options:
 
 **Note**: Don't forget when you are signing `claim` transaction you have to be use `--secret` option.
 
-> **Example** -> shuttle bytom `sign` command
+> **Example** -> swap bytom `sign` command
 
 **XPrivate Key** _(str)_ -> 205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b **[required]**<br/>
 **Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZ... **[required]**<br/>
@@ -355,7 +355,7 @@ Options:
 > **Returns** _(str)_ -> Bytom signed transaction raw.
 
 ```shell script
-$ shuttle bytom sign --xprivate 205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
+$ swap bytom sign --xprivate 205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
 ```
 
 <details>
@@ -368,17 +368,17 @@ eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNh
 
 ## Submit Command
 
-> $ shuttle bytom `submit` command
+> $ swap bytom `submit` command
 
 ```shell script
-$ shuttle bytom submit --help
+$ swap bytom submit --help
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-Usage: shuttle bytom submit [OPTIONS]
+Usage: swap bytom submit [OPTIONS]
 
 Options:
   -r, --raw TEXT  Set signed Bytom transaction raw.  [required]
@@ -386,14 +386,14 @@ Options:
 ```
 </details>
 
-> **Example** -> shuttle bytom `submit` command
+> **Example** -> swap bytom `submit` command
 
 **Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZ... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bytom blockchain transaction id.
 
 ```shell script
-$ shuttle bytom submit --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwNzAxMDAwMTAxNWYwMTVkN2YyZDdlY2VjM2Y2MWQzMGQwYjI5Njg5NzNhM2FjODQ0OGYwNTk5ZWEyMGRjZTg4M2I0OGM5MDNjNGQ2ZTg3ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjMGYyZmQxNjAwMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MjIwMTIwNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmIwZjc5YTEyMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MDAiLCAiaGFzaCI6ICI1ZWMyNTQ3YzdhZWNlNDVhZjZiNGI5N2ZhYmNjNDJjYjZiMWVjZmE5YzdkMzBhMGIzYzQ2NTU4ODgyODRiMWJkIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAic2lnbmF0dXJlcyI6IFtbIjk5NWE4MGMwZTk1MDUxNDg5YzFmOGQwYmQxMWM4YWI4ZDMzZjRjMTIxNDQ1NzY0NDQ0NGUxN2VhYjkxMzA1MDY0YWE2OGY5NjIzMTlkNDQ3NDIwODI1YjI3OWYzODBmZGVlMDUyNTkwYTg5N2MxYzY4MzcxZDVjNWYwZGIwNjBkIl1dLCAidHlwZSI6ICJieXRvbV9mdW5kX3NpZ25lZCJ9
+$ swap bytom submit --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwNzAxMDAwMTAxNWYwMTVkN2YyZDdlY2VjM2Y2MWQzMGQwYjI5Njg5NzNhM2FjODQ0OGYwNTk5ZWEyMGRjZTg4M2I0OGM5MDNjNGQ2ZTg3ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjMGYyZmQxNjAwMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MjIwMTIwNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmIwZjc5YTEyMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MDAiLCAiaGFzaCI6ICI1ZWMyNTQ3YzdhZWNlNDVhZjZiNGI5N2ZhYmNjNDJjYjZiMWVjZmE5YzdkMzBhMGIzYzQ2NTU4ODgyODRiMWJkIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAic2lnbmF0dXJlcyI6IFtbIjk5NWE4MGMwZTk1MDUxNDg5YzFmOGQwYmQxMWM4YWI4ZDMzZjRjMTIxNDQ1NzY0NDQ0NGUxN2VhYjkxMzA1MDY0YWE2OGY5NjIzMTlkNDQ3NDIwODI1YjI3OWYzODBmZGVlMDUyNTkwYTg5N2MxYzY4MzcxZDVjNWYwZGIwNjBkIl1dLCAidHlwZSI6ICJieXRvbV9mdW5kX3NpZ25lZCJ9
 ```
 
 <details>
