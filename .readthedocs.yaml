@@ -12,7 +12,7 @@ sphinx:
   configuration: docs/conf.py
   fail_on_warning: false
 
-# Use python 3.8 for building
+# Use python 3.8
 python:
    version: 3.8
    install:
