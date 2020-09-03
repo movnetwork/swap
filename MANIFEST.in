@@ -1,7 +1,6 @@
 include LICENSE
 include README.md
 include requirements.txt
-include .readthedocs.yaml
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
