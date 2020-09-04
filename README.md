@@ -2,22 +2,75 @@
 
 [![Build Status](https://travis-ci.org/meherett/swap.svg?branch=master)](https://travis-ci.org/meherett/swap?branch=master)
 [![PyPI Version](https://img.shields.io/pypi/v/swap.svg?color=blue)](https://pypi.org/project/swap)
-[![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=latest)](https://swap.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/crypto-swap/badge/?version=latest)](https://crypto-swap.readthedocs.io/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/meherett/swap?branch=master)
 
-A python library for cross-chain atomic swap between the networks of two cryptocurrencies. 
+A Python library for cross-chain atomic swap between the networks of two cryptocurrencies. 
 Cross-chain atomic swap are the cheapest and most secure way to swap cryptocurrencies. 
-It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol. 
-[Documentation](https://swap.readthedocs.io)
+It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLC's) protocol.
 
 ## Available Cryptocurrencies
 
-Swap has the following available [cryptocurrencies](https://github.com/meherett/swap/blob/master/cryptocurrencies) to swap:
+You can swap the following available cryptocurrencies:
 
 | Cryptocurrencies                                        | Mainnet | Testnet | Solonet | 
 | ------------------------------------------------------- | :-----: | :-----: | :-----: |
 | [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`     | Yes     | Yes     | None    |
 | [Bytom](https://github.com/bytom/bytom) `BTM`, `Assets` | Yes     | No      | No      |
+
+## What is a HTLC?
+
+A Hash Time Lock contract (HTLC) is essentially a type of payment in which two people
+agree to a financial arrangement where one party will pay the other party a certain
+amount of cryptocurrency, such as Bitcoin or Bytom assets. However, because these
+contracts are Time Locked, the receiving party only has a certain amount of time to
+accept the payment, otherwise the money can be returned to the sender.
+
+Hash time lock contracts can help to eliminate the need for third parties in contracts
+between two parties. Third parties that are often involved in contracts are lawyers,
+banks, etc. Lawyers are often required to draw up contracts, and banks are often
+required to help store money and then transfer it to the receiving party in the contract.
+
+With hash time lock contracts, two parties could hypothetically set up contracts and
+transfer money without the need for third parties. This is because the sending party
+could create the conditional payment, and then the receiving party could agree to it,
+receive it, and help validate the transaction in the process.
+
+This could potentially revolutionize the way that many businesses interact with one another
+and dramatically speed up the time that it takes for business deals to be set up.
+
+## How do HTLC work?
+
+The way that Hash Time Lock Contracts work is that the person who will be making the payment
+sets up a specific hash, which represents the amount of money that will be paid. To receive
+the payment, the recipient will have to create a cryptographic proof of payment, and he or
+she will have to do this within the specified amount of time. The amount of time that the
+recipient has to accept the payment can vary significantly from one Time Locked contract to
+the next. If the recipient meets the deadline, then the money will be theirs, if he or she
+fails to meet the deadline, it won’t. So, there is an often a lot at stake when it comes to
+meeting deadlines from hash Time Locked contracts, when cryptocurrencies are being exchanged.
+
+The amount of time that the recipient has to accept the payment can vary significantly from
+one Time Locked contract to the next. If the recipient meets the deadline, then the money will
+be theirs, if he or she fails to meet the deadline, it won’t. So, there is an often a lot at
+stake when it comes to meeting deadlines from hash Time Locked contracts, when cryptocurrencies
+are being exchanged.
+
+A Hash Time Lock Contract or HTLC is a class of payments that uses Hash Locked and Time Locked
+to require that the receiver of a payment either acknowledge receiving the payment prior to a
+deadline by generating cryptographic proof of payment or forfeit the ability to claim the payment,
+returning(refunding) it to the payer.
+
+Hash Time Lock Contracts (HTLCs) allow payments to be securely routed across multiple payment
+channels which is super important because it is not optimal for a person to open a payment channel
+with everyone he/she is transacting with.
+
+- **Hash Locked** · A Hash Locked functions like “two-factor authentication” (2FA). It requires the intended recipient
+to provide the correct secret passphrase to claim the funds.
+
+- **Time Locked** · A Time Locked adds a “timeout” expiration date to a payment. It requires the intended recipient to
+claim the funds prior to the expiry. Otherwise, the transaction defaults to enabling the original
+sender of funds to claim a refund.
 
 ## Benefits of HTLC's
  
@@ -46,27 +99,33 @@ secure than ever. Cross chain transactions are the next step in the evolution of
 adoption. The easier it becomes to unite the hundreds of blockchain's that currently exist in
 silos, the faster the technology as a whole can begin to scale and achieve mass adoption.
 
+[Documentation](https://crypto-swap.readthedocs.io)
+
 ## Installation
 
-PIP to install **swap** globally. For Linux `sudo` may be required.
+PIP to install Swap globally, for Linux `sudo` may be required:
 
 ```
 $ pip install swap
+```
+
+If you want to run the latest version of the code, you can install from git:
+
+```
+$ pip install git+git://github.com/meherett/swap.git
 ```
 
 For the versions available, see the [tags on this repository](https://github.com/meherett/swap/tags).
 
 ## Development
 
-We welcome pull requests. Just fork this repo, clone it locally, and run:
+We welcome pull requests. To get started, just fork this repo, clone it locally, and run:
 
 ```
 $ pip install -e .[tests,docs] -r requirements.txt
 ```
 
 ## Testing
-
-Tests are still under development.
 
 You can run the tests with:
 
@@ -79,7 +138,12 @@ tests against a specific version of Python.
 
 ## Contributing
 
-Feel free to open an issue if you find a problem, or a pull request if you've solved an issue.
+Feel free to open an [issue](https://github.com/meherett/swap/issues) if you find a problem, 
+or a pull request if you've solved an issue. And also any help in testing, development, 
+documentation and other tasks is highly appreciated and useful to the project. 
+There are tasks for contributors of all experience levels.
+
+For more information, see the [CONTRIBUTING.md](https://github.com/meherett/swap/blob/master/CONTRIBUTING.md) file.
 
 ## License
 
