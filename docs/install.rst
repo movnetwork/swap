@@ -1,33 +1,41 @@
 ==================
-Installing Shuttle
+Installing Swap
 ==================
 
-The easiest way to install Shuttle is via pip.
+The easiest way to install Swap is via pip:
 
 ::
 
-    $ pip install pyshuttle
+    $ pip install swap
 
-For the versions available, see the `tags on this repository <https://github.com/meherett/shuttle/tags>`_.
+
+If you want to run the latest version of the code, you can install from git:
+
+::
+
+    $ pip install git+git://github.com/meherett/swap.git
+
+
+For the versions available, see the `tags on this repository <https://github.com/meherett/swap/tags>`_.
 
 Development
 ===========
 
-We welcome pull requests. To get started, just fork this `github repository <https://github.com/meherett/shuttle>`_, clone it locally, and run:
+We welcome pull requests. To get started, just fork this `github repository <https://github.com/meherett/swap>`_, clone it locally, and run:
 
 ::
 
     $ pip install -e . -r requirements.txt
 
-Once you have installed, type ``shuttle`` to verify that it worked:
+Once you have installed, type ``swap`` to verify that it worked:
 
 ::
 
-    $ shuttle
-    Usage: shuttle [OPTIONS] COMMAND [ARGS]...
+    $ swap
+    Usage: swap [OPTIONS] COMMAND [ARGS]...
 
     Options:
-      -v, --version  Show Shuttle version and exit.
+      -v, --version  Show Swap version and exit.
       -h, --help     Show this message and exit.
 
     Commands:
@@ -37,7 +45,7 @@ Once you have installed, type ``shuttle`` to verify that it worked:
 Dependencies
 ============
 
-Shuttle has the following dependencies:
+Swap has the following dependencies:
 
 * `bytom-wallet-desktop <https://bytom.io/en/wallet/>`_ - version `1.1.0 <https://github.com/Bytom/bytom/releases/tag/v1.1.0>`_  or greater.
 * `pip <https://pypi.org/project/pip/>`_ - To install packages from the Python Package Index and other indexes

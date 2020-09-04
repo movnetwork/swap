@@ -1,5 +1,5 @@
 =======
-Shuttle
+Swap
 =======
 
 .. toctree::
@@ -14,7 +14,7 @@ Shuttle
 
     install.rst
     cli.rst
-    Shuttle Utils <utils.rst>
+    Swap Utils <utils.rst>
 
 .. toctree::
     :maxdepth: 3
