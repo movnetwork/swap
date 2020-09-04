@@ -2,12 +2,12 @@
 Command Line Interface (CLI)
 ============================
 
-After you have installed, type ``shuttle`` to verify that it worked:
+After you have installed, type ``swap`` to verify that it worked:
 
 ::
 
-    $ shuttle
-    Usage: shuttle [OPTIONS] COMMAND [ARGS]...
+    $ swap
+    Usage: swap [OPTIONS] COMMAND [ARGS]...
 
     Options:
       -v, --version  Show Shuttle version and exit.
@@ -18,6 +18,6 @@ After you have installed, type ``shuttle`` to verify that it worked:
       bytom    Select Bytom provider.
 
 
-.. click:: shuttle.cli.__main__:main
-  :prog: shuttle
+.. click:: swap.cli.__main__:main
+  :prog: swap
   :show-nested:
