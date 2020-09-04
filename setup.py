@@ -15,13 +15,13 @@ with open("requirements.txt", "r") as _requirements:
 setup(
     name="swap",
     version=swap.__version__,
-    description="Cross-chain atomic swap between the networks of two Cryptocurrencies.",
+    description=swap.__description__,
     long_description=long_description,
     long_description_content_type="text/markdown",
     license=swap.__license__,
     author=swap.__author__,
     author_email=swap.__email__,
-    url="https://github.com/meherett/shuttle",
+    url="https://github.com/meherett/swap",
     packages=find_packages(),
     keywords=["cross-chain", "atomic", "swap", "htlc", "cryptocurrencies"],
     entry_points={
