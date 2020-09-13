@@ -1,6 +1,6 @@
-==================
+===============
 Installing Swap
-==================
+===============
 
 The easiest way to install Swap is via pip:
 

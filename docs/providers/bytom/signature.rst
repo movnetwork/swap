@@ -4,7 +4,7 @@ Signature
 ===========
 Bytom signature.
 
-.. automodule:: shuttle.providers.bytom.signature
+.. automodule:: swap.providers.bytom.signature
 
 .. autoclass:: Signature
    :members:

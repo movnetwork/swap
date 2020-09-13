@@ -4,5 +4,5 @@ Utils
 =====
 Bytom Utils.
 
-.. automodule:: shuttle.providers.bytom.utils
+.. automodule:: swap.providers.bytom.utils
     :members:

@@ -3,5 +3,5 @@
 Utils
 =====
 
-.. automodule:: shuttle.utils
+.. automodule:: swap.utils
    :members:

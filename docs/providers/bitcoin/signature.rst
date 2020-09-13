@@ -4,7 +4,7 @@ Signature
 ===========
 Bitcoin signature.
 
-.. automodule:: shuttle.providers.bitcoin.signature
+.. automodule:: swap.providers.bitcoin.signature
 
 .. autoclass:: Signature
    :members:

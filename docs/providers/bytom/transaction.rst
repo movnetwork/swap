@@ -4,7 +4,7 @@ Transaction
 ===========
 Bitcoin transaction in blockchain network.
 
-.. automodule:: shuttle.providers.bytom.transaction
+.. automodule:: swap.providers.bytom.transaction
 
 .. autoclass:: Transaction
    :members:

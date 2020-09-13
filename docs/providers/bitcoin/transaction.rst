@@ -4,7 +4,7 @@ Transaction
 ===========
 Bitcoin transaction in blockchain network.
 
-.. automodule:: shuttle.providers.bitcoin.transaction
+.. automodule:: swap.providers.bitcoin.transaction
 
 .. autoclass:: Transaction
    :members:

@@ -4,5 +4,5 @@ Remote Procedure Call (RPC)
 ===========================
 Bitcoin remote procedure call.
 
-.. automodule:: shuttle.providers.bitcoin.rpc
+.. automodule:: swap.providers.bitcoin.rpc
     :members:

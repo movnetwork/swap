@@ -4,5 +4,5 @@ Utils
 =====
 Bitcoin Utils.
 
-.. automodule:: shuttle.providers.bitcoin.utils
+.. automodule:: swap.providers.bitcoin.utils
     :members:
