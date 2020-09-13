@@ -1,6 +1,6 @@
-=======
+====
 Swap
-=======
+====
 
 Cryptocurrencies were created to make it possible for advanced, encrypted payments to be made between two
 or more people digitally, without the parties involved having to trust each other for the payment be

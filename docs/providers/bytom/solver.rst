@@ -4,7 +4,7 @@ Solver
 ===========
 Bytom solver.
 
-.. automodule:: shuttle.providers.bytom.solver
+.. automodule:: swap.providers.bytom.solver
 
 FundSolver
 ---------------

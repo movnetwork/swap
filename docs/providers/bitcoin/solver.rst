@@ -4,7 +4,7 @@ Solver
 ===========
 Bitcoin solver.
 
-.. automodule:: shuttle.providers.bitcoin.solver
+.. automodule:: swap.providers.bitcoin.solver
 
 FundSolver
 ---------------
