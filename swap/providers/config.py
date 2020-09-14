@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-# Bitcoin network
+# Bitcoin
 def bitcoin(blockcypher_token=None):
     if blockcypher_token is None:
         blockcypher_token = "c6ef693d3c024088810e6fac2a1494ee"
@@ -28,28 +28,37 @@ def bitcoin(blockcypher_token=None):
     }
 
 
-# Bytom network
+# Bytom
 def bytom():
     return {
         "mainnet": {
             "bytom": "http://localhost:9888",
             "blockmeta": "https://blockmeta.com/api/v3",
-            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
+            "blockcenter": {
+                "v2": "https://bcapi.bystack.com/api/v2/btm",
+                "v3": "https://bcapi.bystack.com/bytom/v3"
+            },
         },
         "solonet": {
             "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/v3",
-            "blockcenter": "https://bcapi.bystack.com/api/v2/btm"
+            "blockmeta": None,
+            "blockcenter": {
+                "v2": None,
+                "v3": None
+            },
         },
         "testnet": {
             "bytom": "http://localhost:9888",
-            "blockmeta": "https://blockmeta.com/api/wisdom",
-            "blockcenter": "https://bcapi.bystack.com/api/v2/wisdom"
+            "blockmeta": None,
+            "blockcenter": {
+                "v2": None,
+                "v3": None
+            },
         },
         "timeout": 60,
-        "BTM_asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "fee": 10000000,
+        "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "fee": 10_000_000,
         "confirmations": 1,
-        "network": "solonet",
+        "network": "mainnet",
         "sequence": 1000
     }
