@@ -24,7 +24,10 @@ def bitcoin(blockcypher_token=None):
         },
         "timeout": 60,
         "network": "testnet",
-        "sequence": 1000
+        "sequence": 1000,
+        "headers": {
+            # "Content-Type": "application/json"
+        }
     }
 
 
@@ -60,5 +63,8 @@ def bytom():
         "fee": 10_000_000,
         "confirmations": 1,
         "network": "mainnet",
-        "sequence": 1000
+        "sequence": 1000,
+        "headers": {
+            # "Content-Type": "application/json"
+        }
     }
