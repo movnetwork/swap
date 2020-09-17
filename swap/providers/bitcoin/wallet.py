@@ -1,327 +1,559 @@
 #!/usr/bin/env python3
 
-from btcpy.structs.crypto import PublicKey, PrivateKey
+from btcpy.structs.crypto import PublicKey
 from btcpy.structs.address import Address
-from btcpy.structs.script import P2pkhScript, P2shScript
-from cryptos import Bitcoin
-
-import hashlib
+from btcpy.structs.script import P2pkhScript
+from hdwallet import HDWallet
+from hdwallet.cryptocurrencies import (
+    BitcoinMainnet, BitcoinTestnet
+)
+from typing import TypeVar, Optional, Any
 
 from .utils import is_address
 from .rpc import get_balance, get_unspent_transactions
-from ...utils.exceptions import AddressError
+from ...utils.exceptions import AddressError, NetworkError
+from ..config import bitcoin
 
-# Public key
-COMPRESSED = True
+# Bitcoin config
+config = bitcoin()
+# Var Wallet class
+_Wallet = TypeVar("_Wallet", bound="Wallet")
 
 
-# Bitcoin Wallet.
-class Wallet:
+class Wallet(HDWallet):
     """
     Bitcoin Wallet class.
 
-    :param network: Bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to mainnet.
     :type network: str
-    :returns:  Wallet -- Bitcoin wallet instance.
+    :returns: Wallet -- Bitcoin wallet instance.
 
     .. note::
-        Bitcoin has only two networks, ``mainnet`` and ``testnet``.
+        Bitcoin has only two networks, ``mainnet`` and ``mainnet``.
     """
 
-    # PyShuttle Bitcoin (BTC) wallet init.
-    def __init__(self, network="testnet"):
+    def __init__(self, network: str = config["mainnet"]):
 
-        # Bitcoin network.
-        self.network = network
-        if self.network == "mainnet":
-            self.mainnet = True
-        elif self.network == "testnet":
-            self.mainnet = False
+        if network == "mainnet":
+            self._network: str = "mainnet"
+            self._cryptocurrency: Any = BitcoinMainnet
+            self._hdwallet: HDWallet = HDWallet(cryptocurrency=BitcoinMainnet)
+        elif network == "testnet":
+            self._network: str = "testnet"
+            self._cryptocurrency: Any = BitcoinTestnet
+            self._hdwallet: HDWallet = HDWallet(cryptocurrency=BitcoinTestnet)
         else:
-            raise ValueError("invalid network, only mainnet or testnet")
-        # Bitcoin wallet initialization.
-        self.bitcoin = Bitcoin(testnet=(not self.mainnet))
+            raise NetworkError(f"Invalid '{network}' network",
+                               "choose only 'mainnet' or 'testnet' networks.")
+        super().__init__(cryptocurrency=self._cryptocurrency)
 
-        # Is compressed
-        self.is_compressed = None
-        # Main wallet init.
-        self._private_key, self._public_key, self._address = None, None, None
-        # Compressed and Uncompressed public key.
-        self._compressed, self._uncompressed = None, None
-
-    def from_private_key(self, private_key, compressed=COMPRESSED):
+    def from_entropy(self, entropy: str, passphrase: str = None, language: str = "english") -> _Wallet:
         """
-        Initiate Bitcoin wallet from private key.
+        Initialize wallet from entropy.
+
+        :param entropy: Bitcoin wallet entropy.
+        :type entropy: str
+        :param passphrase: Bitcoin wallet passphrase, default to None.
+        :type passphrase: str
+        :param language: Bitcoin wallet language, default to english.
+        :type language: str
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_entropy(entropy, passphrase, language)
+        return self
+
+    def from_mnemonic(self, mnemonic: str, passphrase: str = None, language: str = None) -> _Wallet:
+        """
+        Initialize wallet from mnemonic.
+
+        :param mnemonic: Bitcoin wallet mnemonic.
+        :type mnemonic: str
+        :param passphrase: Bitcoin wallet passphrase, default to None.
+        :type passphrase: str
+        :param language: Bitcoin wallet language, default to english.
+        :type language: str
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_mnemonic("extend length miss suit broken rescue around harbor vehicle vicious jelly quality")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_mnemonic(mnemonic, passphrase, language)
+        return self
+
+    def from_seed(self, seed: str) -> _Wallet:
+        """
+        Initialize wallet from seed.
+
+        :param seed: Bitcoin wallet seed.
+        :type seed: str
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_seed("51a0f6fb9abd5e5aa27f42dd375d8e4fc6944c704c859454e557fc419d3979e5a50273743c93e5035244adb09e9a37914abc583fdfae0da1ae2bedaa373f050e")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_seed(seed)
+        return self
+
+    def from_root_xprivate_key(self, root_xprivate_key: str) -> _Wallet:
+        """
+        Initialize wallet from root xprivate key.
+
+        :param root_xprivate_key: Bitcoin wallet root xprivate key.
+        :type root_xprivate_key: str
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_root_xprivate_key("xprv9s21ZrQH143K4QXLfi9Ht3fz7CciYxE2MuTdNxvDs8kRQRyPByvJLRSvfNBa3kh6twMksiJtZuyT2Cor7aLAAag3f7TPpnnjBADARWmrJmx")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_root_xprivate_key(root_xprivate_key)
+        return self
+
+    def from_xprivate_key(self, xprivate_key: str) -> _Wallet:
+        """
+        Initialize wallet from xprivate key.
+
+        :param xprivate_key: Bitcoin wallet xprivate key.
+        :type xprivate_key: str
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_xprivate_key("xprvA2WJkML27XMaNmtrsuVcvCCXTR5LiBKAwkV6LapBFmw7eGFkHHzVa57gPRjBToTnvr2PpkN4s1reiDW6Ay9yXxi8WaVskDXRwzZLxiPBQfL")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_xprivate_key(xprivate_key)
+        return self
+
+    def from_wif(self, wif: str) -> _Wallet:
+        """
+        Initialize wallet from wallet important format (WIF).
+
+        :param wif: Bitcoin wallet important format.
+        :type wif: str
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_wif("L4p5duRK9PZVP22rPLTZ8Zar77JQ1Pc6dz3Js5drL89wPRH1kz6R")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_wif(wif)
+        return self
+
+    def from_private_key(self, private_key) -> _Wallet:
+        """
+        Initialize wallet from private key.
 
         :param private_key: Bitcoin wallet private key.
-        :type private_key: str.
-        :param compressed: Bitcoin public key compressed, default is True.
-        :type compressed: bool
-        :returns:  Wallet -- Bitcoin wallet instance.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_private_key("92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
-        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
-        """
-        self.is_compressed = compressed
-        self._private_key = PrivateKey.unhexlify(private_key)
-        public_key = self.bitcoin.privtopub(self._private_key.hexlify())
-        self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
-        self._uncompressed = PublicKey.unhexlify(public_key).uncompressed.hex()
-        self._public_key = PublicKey.unhexlify(self._compressed) if self.is_compressed \
-            else PublicKey.unhexlify(self._uncompressed)
-        self._address = self._public_key.to_address(mainnet=self.mainnet)
-        return self
-
-    def from_passphrase(self, passphrase, compressed=COMPRESSED):
-        """
-        Initiate Bitcoin wallet from passphrase.
-
-        :param passphrase: Bitcoin wallet passphrase.
-        :type passphrase: str.
-        :param compressed: Bitcoin public key compressed, default is True.
-        :type compressed: bool
-        :returns:  Wallet -- Bitcoin wallet instance.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_passphrase("meherett")
-        """
-        self.is_compressed = compressed
-        private_key = hashlib.sha256(passphrase.encode()).hexdigest()
-        self._private_key = PrivateKey.unhexlify(private_key)
-        public_key = self.bitcoin.privtopub(self._private_key.hexlify())
-        self._compressed = PublicKey.unhexlify(public_key).compressed.hex()
-        self._uncompressed = PublicKey.unhexlify(public_key).uncompressed.hex()
-        self._public_key = PublicKey.unhexlify(self._compressed) if self.is_compressed \
-            else PublicKey.unhexlify(self._uncompressed)
-        self._address = self._public_key.to_address(mainnet=self.mainnet)
-        return self
-
-    def from_address(self, address):
-        """
-        Initiate Bitcoin wallet from address.
-
-        :param address: Bitcoin wallet private key.
-        :type address: str.
-        :returns:  Wallet -- Bitcoin wallet instance.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_address("mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE")
-        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
-        """
-        if not is_address(address=address, network=self.network):
-            raise AddressError("invalid %s %s address" % (self.network, address))
-        self._address = Address.from_string(address)
-        return self
-
-    # Bitcoin main private key.
-    def private_key(self):
-        """
-        Get Bitcoin wallet private key.
-
-        :returns: str -- Bitcoin private key.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
-        >>> wallet.private_key()
-        "d4f5c55a45c004660b95ec833bb24569eba1559f214e90efa6e8d0b3afa14394"
-        """
-        return self._private_key.hexlify()
-
-    # Bitcoin main public key.
-    def public_key(self, private_key=None, compressed=COMPRESSED):
-        """
-        Get Bitcoin wallet public key.
-
-        :param private_key: Bitcoin private key, default is None.
         :type private_key: str
-        :param compressed: Bitcoin public key compressed, default is True.
-        :type compressed: bool
-        :return: str -- Bitcoin public key.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett", compressed=False)
-        >>> wallet.public_key()
-        "04afa8301b068c2c184e0a3e77183dc95ec1130371c02ed172bec8f3bfbad6b17334244f64fe877d5e4839690c62b9d1f4095608f2ac29235e4b0299b6b96f6f35"
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_private_key("e28afe15f98501502fac7da75939d41a0c8d074aeb76d0131f5a5c5ce3132a79")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
-        if private_key is None:
-            return self._public_key.hexlify()
-        public_key = self.bitcoin.privtopub(private_key)
-        return PublicKey.unhexlify(public_key).compressed.hex() if compressed else \
-            PublicKey.unhexlify(public_key).uncompressed.hex()
+        self._hdwallet.from_private_key(private_key)
+        return self
 
-    # Compressed public key.
-    def compressed(self, public_key=None):
+    def from_path(self, path: str) -> _Wallet:
         """
-        Get Bitcoin wallet compressed public key.
+        Drive Bitcoin wallet from path.
 
-        :param public_key: Bitcoin public key, default is None.
-        :type public_key: str
-        :return: str -- Bitcoin compressed public key.
+        :param path: Bitcoin wallet path.
+        :type path: str
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
-        >>> wallet.compressed()
-        "03afa8301b068c2c184e0a3e77183dc95ec1130371c02ed172bec8f3bfbad6b173"
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
-        if public_key is None:
-            return self._compressed
-        return PublicKey.unhexlify(public_key).compressed.hex()
+        self._hdwallet.from_path(path)
+        return self
 
-    # Uncompressed public key.
-    def uncompressed(self, public_key=None):
+    def from_index(self, index: int, harden: bool = False) -> _Wallet:
+        """
+        Drive Bitcoin wallet from index.
+
+        :param index: Bitcoin wallet index.
+        :type index: int
+        :param harden: Use harden, default to False.
+        :type harden: bool
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_index(44, harden=True)
+        >>> wallet.from_index(0, harden=True)
+        >>> wallet.from_index(0, harden=True)
+        >>> wallet.from_index(0)
+        >>> wallet.from_index(0)
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_index(index, harden)
+        return self
+
+    def clean_derivation(self) -> _Wallet:
+        """
+        Clean derivation Bitcoin wallet.
+
+        :returns: Wallet -- Bitcoin wallet instance.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.path()
+        "m/44'/0'/0'/0/0"
+        >>> wallet.clean_derivation()
+        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
+        >>> wallet.path()
+        None
+        """
+        self._hdwallet.clean_derivation()
+        return self
+
+    def entropy(self) -> Optional[str]:
+        """
+        Get Bitcoin wallet entropy.
+
+        :return: str -- Bitcoin wallet entropy.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.entropy()
+        "50f002376c81c96e430b48f1fe71df57"
+        """
+        return self._hdwallet.entropy()
+
+    def mnemonic(self) -> Optional[str]:
+        """
+        Get Bitcoin wallet mnemonic.
+
+        :return: str -- Bitcoin wallet mnemonic.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.mnemonic()
+        "extend length miss suit broken rescue around harbor vehicle vicious jelly quality"
+        """
+        return self._hdwallet.mnemonic()
+
+    def passphrase(self) -> Optional[str]:
+        """
+        Get Bitcoin wallet passphrase.
+
+        :return: str -- Bitcoin wallet passphrase.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57", passphrase="meherett")
+        >>> wallet.passphrase()
+        "meherett"
+        """
+        return self._hdwallet.passphrase()
+
+    def language(self) -> Optional[str]:
+        """
+        Get Bitcoin wallet language.
+
+        :return: str -- Bitcoin wallet language.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.language()
+        "english"
+        """
+        return self._hdwallet.language()
+
+    def seed(self) -> Optional[str]:
+        """
+        Get Bitcoin wallet seed.
+
+        :return: str -- Bitcoin wallet seed.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.seed()
+        "51a0f6fb9abd5e5aa27f42dd375d8e4fc6944c704c859454e557fc419d3979e5a50273743c93e5035244adb09e9a37914abc583fdfae0da1ae2bedaa373f050e"
+        """
+        return self._hdwallet.seed()
+
+    def root_xprivate_key(self, encoded: bool = True) -> Optional[str]:
+        """
+        Get Bitcoin wallet root xprivate key.
+
+        :param encoded: Encoded root xprivate key, default to True.
+        :type encoded: bool
+        :return: str -- Bitcoin wallet root xprivate key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.root_xprivate_key()
+        "xprv9s21ZrQH143K4QXLfi9Ht3fz7CciYxE2MuTdNxvDs8kRQRyPByvJLRSvfNBa3kh6twMksiJtZuyT2Cor7aLAAag3f7TPpnnjBADARWmrJmx"
+        """
+        return self._hdwallet.root_xprivate_key(encoded)
+
+    def root_xpublic_key(self, encoded: bool = True) -> Optional[str]:
+        """
+        Get Bitcoin wallet root xpublic key.
+
+        :param encoded: Encoded root xprivate key, default to True.
+        :type encoded: bool
+        :return: str -- Bitcoin wallet root xpublic key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.root_xpublic_key()
+        "xpub661MyMwAqRbcGtbomjgJFBcifETCxQwsj8PEBMKqRUHQHEJXjXEYtDmQWdoFYwDCpQWXhUt7Ce6D34r9gq7osUQR5RpUWSHjTWMCEHYZQ48"
+        """
+        return self._hdwallet.root_xpublic_key(encoded)
+
+    def xprivate_key(self, encoded=True) -> Optional[str]:
+        """
+        Get Bitcoin wallet xprivate key.
+
+        :param encoded: Encoded xprivate key, default to True.
+        :type encoded: bool
+        :return: str -- Bitcoin wallet xprivate key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.xprivate_key()
+        "xprvA2WJkML27XMaNmtrsuVcvCCXTR5LiBKAwkV6LapBFmw7eGFkHHzVa57gPRjBToTnvr2PpkN4s1reiDW6Ay9yXxi8WaVskDXRwzZLxiPBQfL"
+        """
+        return self._hdwallet.xprivate_key(encoded)
+
+    def xpublic_key(self, encoded: bool = True) -> Optional[str]:
+        """
+        Get Bitcoin wallet xpublic key.
+
+        :param encoded: Encoded xprivate key, default to True.
+        :type encoded: bool
+        :return: str -- Bitcoin wallet xpublic key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.xpublic_key()
+        "xpub6FVf9rruwtusbFyKyw2dHL9G1Suq7e32JyQh8yDnp7U6X4atpqJk7sSAEgfR45VFNs64tsRF67XnGFjuHER3SbTrzWEhzwkuAhKcHbpxb44"
+        """
+        return self._hdwallet.xpublic_key(encoded)
+
+    def uncompressed(self) -> str:
         """
         Get Bitcoin wallet uncompressed public key.
 
-        :param public_key: Bitcoin public key, default is None.
-        :type public_key: str
-        :return: str -- Bitcoin uncompressed public key.
+        :return: str -- Bitcoin wallet uncompressed public key.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
         >>> wallet.uncompressed()
-        "04afa8301b068c2c184e0a3e77183dc95ec1130371c02ed172bec8f3bfbad6b17334244f64fe877d5e4839690c62b9d1f4095608f2ac29235e4b0299b6b96f6f35"
+        "d5fb6799738d146d7558ac0b14c74cc66f879bd846231b64296fb7cc7c9d974fc6e73408a18811a99906fd10f6a8c1ec401f034ae49ca4a6e8c09275c5ae44b6"
         """
-        if public_key is None:
-            return self._uncompressed
-        return PublicKey.unhexlify(public_key).uncompressed.hex()
+        return self._hdwallet.uncompressed()
 
-    # Bitcoin main _address.
-    def address(self, public_key=None):
+    def compressed(self) -> str:
+        """
+        Get Bitcoin wallet compressed public key.
+
+        :return: str -- Bitcoin wallet compressed public key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.compressed()
+        "02d5fb6799738d146d7558ac0b14c74cc66f879bd846231b64296fb7cc7c9d974f"
+        """
+        return self._hdwallet.compressed()
+
+    def chain_code(self) -> str:
+        """
+        Get Bitcoin wallet chain code.
+
+        :return: str -- Bitcoin wallet chain code.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.chain_code()
+        "baa85729cc8400fd0321ec6df70e7f976a601b133c1aae91a5ec2638fa748017"
+        """
+        return self._hdwallet.chain_code()
+
+    def private_key(self) -> str:
+        """
+        Get Bitcoin wallet private key.
+
+        :return: str -- Bitcoin wallet private key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.private_key()
+        "e28afe15f98501502fac7da75939d41a0c8d074aeb76d0131f5a5c5ce3132a79"
+        """
+        return self._hdwallet.private_key()
+
+    def public_key(self, private_key: str = None) -> str:
+        """
+        Get Bitcoin wallet public key.
+
+        :return: str -- Bitcoin wallet public key.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.public_key()
+        "02d5fb6799738d146d7558ac0b14c74cc66f879bd846231b64296fb7cc7c9d974f"
+        """
+        return self._hdwallet.public_key(private_key)
+
+    def path(self) -> Optional[str]:
+        """
+        Get Bitcoin wallet path.
+
+        :return: str -- Bitcoin wallet path.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.path()
+        "m/44'/0'/0'/0/0"
+        """
+        return self._hdwallet.path()
+
+    def address(self) -> str:
         """
         Get Bitcoin wallet address.
 
-        :param public_key: Bitcoin address, default is None.
-        :type public_key: str
-        :return: str -- Bitcoin address.
+        :return: str -- Bitcoin wallet address.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
         >>> wallet.address()
-        "mm357rHaKqVmhEhFFwUhz6mRVAHkJaDTKt"
+        "18Ac1AiZuNU7ywC1qP6Ref3hGbdRM74Rxv"
         """
-        if public_key is None:
-            return str(self._address)
-        return str(PublicKey.unhexlify(public_key)
-                   .to_address(mainnet=self.mainnet))
+        return self._hdwallet.address()
 
-    # Bitcoin main _address hash.
-    def hash(self, public_key=None):
+    def wif(self) -> str:
         """
-        Get Bitcoin wallet hash.
+        Get Bitcoin wallet important format (WIF).
 
-        :param public_key: Bitcoin hash, default is None.
-        :type public_key: str
-        :return: str -- Bitcoin hash.
+        :return: str -- Bitcoin wallet important format.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet.wif()
+        "L4p5duRK9PZVP22rPLTZ8Zar77JQ1Pc6dz3Js5drL89wPRH1kz6R"
+        """
+        return self._hdwallet.wif()
+
+    def hash(self) -> str:
+        """
+        Get Bitcoin wallet public key/address hash.
+
+        :return: str -- Bitcoin wallet public key/address hash.
+
+        >>> from swap.providers.bitcoin.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
         >>> wallet.hash()
-        "3c8acde1c7cf370d970725f13eff03bf74b3fc61"
+        "4e99d7d43ebb41a620426aa836dbd4c4fa85667e"
         """
-        if public_key is None:
-            return self._address.hash.hex()
-        return PublicKey.unhexlify(public_key)\
-            .to_address(mainnet=self.mainnet).hash.hex()
+        return PublicKey.unhexlify(self.public_key()).to_address(
+            mainnet=True if self._network == "mainnet" else False).hash.hex()
 
-    # Bitcoin public to public key hash script.
-    def p2pkh(self, address=None):
+    def p2pkh(self) -> str:
         """
-        Get Bitcoin wallet p2pkh.
+        Get Bitcoin wallet public key/address p2pkh.
 
-        :param address: Bitcoin p2pkh, default is None.
-        :type address: str
-        :return: str -- Bitcoin p2pkh.
+        :return: str -- Bitcoin wallet public key/address p2pkh.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
         >>> wallet.p2pkh()
-        "76a9143c8acde1c7cf370d970725f13eff03bf74b3fc6188ac"
+        "76a9144e99d7d43ebb41a620426aa836dbd4c4fa85667e88ac"
         """
-        if address is None:
-            return P2pkhScript(self._address).hexlify()
-        if not is_address(address=address, network=self.network):
-            raise AddressError("invalid %s %s address" % (self.network, address))
-        address = Address.from_string(address)
-        return P2pkhScript(address).hexlify()
+        return P2pkhScript(Address.from_string(self.address())).hexlify()
 
-    # Bitcoin public to script hash script.
-    def p2sh(self, address=None):
-        """
-        Get Bitcoin wallet p2sh.
-
-        :param address: Bitcoin p2sh, default is None.
-        :type address: str
-        :return: str -- Bitcoin p2sh.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
-        >>> wallet.p2sh()
-        "a914a3c4995d9cd0303e5f89ee1433212c797d04ee5d87"
-        """
-        if address is None:
-            return P2shScript(P2pkhScript(self._address)).hexlify()
-        if not is_address(address=address, network=self.network):
-            raise AddressError("invalid %s %s address" % (self.network, address))
-        address = Address.from_string(address)
-        return P2shScript(P2pkhScript(address)).hexlify()
-
-    # Bitcoin balance
-    def balance(self, address=None, network="testnet"):
+    def balance(self) -> int:
         """
         Get Bitcoin wallet balance.
 
-        :param address: Bitcoin balance, default is None.
-        :type address: str
-        :param network: Bitcoin balance, default is testnet.
-        :type network: str
-        :return: int -- Bitcoin balance.
+        :return: int -- Bitcoin wallet balance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
         >>> wallet.balance()
         1000000
         """
-        if address is None:
-            return get_balance(str(self._address), self.network)
-        return get_balance(address, network)
+        return get_balance(self.address(), self._network)
 
-    def unspent(self, address=None, network="testnet", limit=15):
+    def unspent(self, address: str = None, network: str = config["network"], limit: int = 15) -> list:
         """
         Get Bitcoin wallet unspent transaction output.
 
         :param address: Bitcoin balance, default is None.
         :type address: str
-        :param network: Bitcoin balance, default is testnet.
+        :param network: Bitcoin balance, default is mainnet.
         :type network: str
         :param limit: Bitcoin balance, default is 15.
         :type limit: int
         :return: list -- Bitcoin unspent transaction outputs.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_passphrase("meherett")
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44'/0'/0'/0/0")
         >>> wallet.unspent()
         [{'index': 0, 'hash': 'be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c', 'output_index': 1, 'amount': 12340, 'script': '76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac'}]
         """
         if address is None:
-            address = str(self._address)
-            network = str(self.network)
+            address = str(self.address())
+            network = str(self._network)
         unspent = list()
         if not is_address(address=address, network=network):
-            raise AddressError("invalid %s %s address" % (network, address))
+            raise AddressError(f"Invalid {network} '{address}' address")
         unspent_transactions = get_unspent_transactions(
             address, network, limit=limit)
         for index, unspent_transaction in enumerate(unspent_transactions):
