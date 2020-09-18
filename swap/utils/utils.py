@@ -174,3 +174,7 @@ def double_sha256(data):
     if isinstance(data, str) or isinstance(data, bytes):
         return hashlib.sha256(unhexlify(sha256(data))).digest().hex()
     raise TypeError("data must be str/bytes format!")
+
+
+def transaction_raw_cleaner(raw: str) -> str:
+    return str(raw + "=" * (-len(raw) % 4))
