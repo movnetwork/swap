@@ -3,43 +3,65 @@
 from equity.exceptions import ConnectionError
 
 import pytest
+import json
+import os
 
+from swap.providers.bytom.wallet import Wallet
 from swap.providers.bytom.htlc import HTLC
-from swap.utils import sha256
+
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+_ = open(file_path, "r")
+TEST_VALUES = json.loads(_.read())
+_.close()
+
+network: str = TEST_VALUES["bytom"]["network"]
+sender_wallet: Wallet = Wallet(network=network).from_mnemonic(
+    mnemonic=TEST_VALUES["bytom"]["wallet"]["sender"]["mnemonic"],
+    passphrase=TEST_VALUES["bytom"]["wallet"]["recipient"]["passphrase"]
+).from_path(
+    path=TEST_VALUES["bytom"]["wallet"]["sender"]["path"]
+)
+recipient_wallet: Wallet = Wallet(network=network).from_mnemonic(
+    mnemonic=TEST_VALUES["bytom"]["wallet"]["recipient"]["mnemonic"],
+    passphrase=TEST_VALUES["bytom"]["wallet"]["recipient"]["passphrase"]
+).from_path(
+    path=TEST_VALUES["bytom"]["wallet"]["recipient"]["path"]
+)
 
 
-# Testing HTLC
 def test_bytom_htlc():
 
-    htlc = HTLC(network="mainnet").init(
-        secret_hash=sha256("Hello Meheret!"),
-        recipient_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
-        sender_public="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e",
-        sequence=1000,
+    htlc = HTLC(network=network).init(
+        secret_hash=TEST_VALUES["bytom"]["htlc"]["secret"]["hash"],
+        recipient_public=recipient_wallet.public_key(),
+        sender_public=sender_wallet.public_key(),
+        sequence=TEST_VALUES["bytom"]["htlc"]["sequence"],
         use_script=False
     )
 
-    assert htlc.bytecode() == "02e803203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e2091ff" \
-                              "7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203a26da82ead15a80" \
-                              "533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a" \
-                              "7cae7cac631f000000537acd9f6972ae7cac00c0"
-    assert htlc.opcode() == "0xe803 0x3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e 0x91ff" \
-                            "7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0x3a26da82ead15a805" \
-                            "33a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb DEPTH 0x547a6416000000557aa88853" \
-                            "7a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
-    assert htlc.hash() == "a5addb7eb5649d10031304ece72d9ccc9dc424abcda895d904a309727424e40e"
-    assert htlc.address() == "bm1q5kkakl44vjw3qqcnqnkwwtvuejwugf9tek5ftkgy5vyhyapyus8qgcttcs"
+    assert htlc.bytecode() == TEST_VALUES["bytom"]["htlc"]["bytecode"]
+    assert htlc.opcode() == TEST_VALUES["bytom"]["htlc"]["opcode"]
+    assert htlc.hash() == TEST_VALUES["bytom"]["htlc"]["hash"]
+    assert htlc.address() == TEST_VALUES["bytom"]["htlc"]["address"]
 
-    assert HTLC().from_bytecode(bytecode=htlc.bytecode())
+    htlc = HTLC(network=network).from_bytecode(
+        bytecode=TEST_VALUES["bytom"]["htlc"]["bytecode"]
+    )
+
+    assert htlc.bytecode() == TEST_VALUES["bytom"]["htlc"]["bytecode"]
+    assert htlc.hash() == TEST_VALUES["bytom"]["htlc"]["hash"]
+    assert htlc.address() == TEST_VALUES["bytom"]["htlc"]["address"]
 
 
 def test_bytom_htlc_exception():
 
     with pytest.raises(ConnectionError, match=r".*http://localhost:9888*."):
         HTLC(network="mainnet").init(
-            secret_hash=sha256("Hello Meheret!"),
-            recipient_public="ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01",
-            sender_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
+            secret_hash=TEST_VALUES["bytom"]["htlc"]["secret"]["hash"],
+            recipient_public=recipient_wallet.public_key(),
+            sender_public=sender_wallet.public_key(),
             sequence=100,
             use_script=True
         )
