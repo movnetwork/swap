@@ -4,7 +4,7 @@
 import sys
 
 from ....cli import click
-from ....providers.bytom.utils import submit_transaction_raw
+from ....providers.bytom.utils import submit_swap_transaction_raw
 
 
 @click.command("submit", options_metavar="[OPTIONS]",
@@ -12,7 +12,7 @@ from ....providers.bytom.utils import submit_transaction_raw
 @click.option("-r", "--raw", type=str, required=True, help="Set signed Bytom transaction raw.")
 def submit(raw):
     try:
-        click.echo(submit_transaction_raw(transaction_raw=raw)["transaction_id"])
+        click.echo(submit_swap_transaction_raw(transaction_raw=raw)["transaction_id"])
     except UnicodeDecodeError:
         click.echo(click.style("Error: {}")
                    .format("invalid Bytom signed transaction raw"), err=True)

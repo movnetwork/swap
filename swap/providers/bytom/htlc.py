@@ -106,7 +106,7 @@ class HTLC:
                 sequence,  # sequence: Integer
             ]
             # Compiling HTLC by script
-            self.equity = Equity(bytom[self.network]["bytom"])\
+            self.equity = Equity(bytom[self.network]["bytom-core"])\
                 .compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
         else:
             # Compiling HTLC by script binary

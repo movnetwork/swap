@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
 from pybytom.wallet import Wallet
+from typing import Optional, List, Tuple
 
 from ...utils import sha256
 from ..config import bytom
 from .htlc import HTLC
 
-# Bytom configuration
-bytom = bytom()
+# Bytom config
+config = bytom()
 
 
-# Fund HTLC Solver
 class FundSolver:
     """
-    Bytom FundSolver class.
+    Bytom Fund solver.
 
     :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
@@ -26,7 +26,7 @@ class FundSolver:
     :param path: Bytom derivation path, defaults to None.
     :type path: str
     :param indexes: Bytom derivation indexes, defaults to None.
-    :type indexes: list
+    :type indexes: List[str]
     :returns:  FundSolver -- Bytom fund solver instance.
 
     >>> from swap.providers.bytom.solver import FundSolver
@@ -34,31 +34,29 @@ class FundSolver:
     <swap.providers.bytom.solver.FundSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key,
-                 account=1, change=False, address=1, path=None, indexes=None):
-        # Checking parameter instances
-        if not isinstance(xprivate_key, str):
-            raise TypeError("xprivate key must be string format")
-        # Checking path and indexes
+    def __init__(self, xprivate_key: str, account: int = 1, change: bool = False,
+                 address: int = 1, path: Optional[str] = None, indexes: Optional[List[str]] = None):
+
         if not path and not indexes:
-            path = f"m/44/153/{account}/{1 if change else 0}/{address}"
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Setting Bytom private key
-        self.xprivate_key = xprivate_key
-        # Setting Bytom derivation key
-        self.path, self.indexes = path, indexes
+        # Set Bytom xprivate key and path/indexes
+        self._xprivate_key: str = xprivate_key
+        self._path: Optional[str] = path
+        self._indexes: Optional[List[str]] = indexes
 
-    # Signature solve
-    def solve(self):
-        return Wallet().from_xprivate_key(
-            xprivate_key=self.xprivate_key
+    def solve(self) -> Tuple[Wallet, Optional[str], Optional[List[str]]]:
+        return (
+            Wallet().from_xprivate_key(xprivate_key=self._xprivate_key),
+            self._path, self._indexes
         )
 
 
-# Claim HTLC Solver
 class ClaimSolver:
     """
-    Bytom ClaimSolver class.
+    Bytom Claim solver.
 
     :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
@@ -93,73 +91,54 @@ class ClaimSolver:
     <swap.providers.bytom.solver.ClaimSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key, secret, secret_hash=None, recipient_public=None,
-                 sender_public=None, sequence=bytom["sequence"], bytecode=None,
-                 account=1, change=False, address=1, path=None, indexes=None):
-        # Checking parameter instances
-        if not isinstance(xprivate_key, str):
-            raise TypeError("recipient xprivate key must be string format")
-        if not isinstance(secret, str):
-            raise TypeError("secret must be string format")
-        if bytecode is None:
-            if not isinstance(secret_hash, str):
-                raise TypeError("secret hash must be string format")
-            if len(secret_hash) != 64:
-                raise ValueError("invalid secret hash, length must be 64")
-            if not isinstance(recipient_public, str):
-                raise TypeError("recipient public key must be string format")
-            if len(recipient_public) != 64:
-                raise ValueError("invalid recipient public key, length must be 64")
-            if not isinstance(sender_public, str):
-                raise TypeError("sender public key must be string format")
-            if len(sender_public) != 64:
-                raise ValueError("invalid sender public key, length must be 64")
-            if not isinstance(sequence, int):
-                raise TypeError("sequence must be integer format")
-        else:
-            if not isinstance(bytecode, str):
-                raise TypeError("bytecode must be string format")
+    def __init__(self, xprivate_key: str, secret: str, secret_hash: Optional[str] = None,
+                 recipient_public: Optional[str] = None, sender_public: Optional[str] = None,
+                 sequence: int = config["sequence"], bytecode: Optional[str] = None,
+                 account: int = 1, change: bool = False, address: int = 1,
+                 path: Optional[str] = None, indexes: Optional[List[str]] = None):
 
-        # Checking path and indexes
         if not path and not indexes:
-            path = f"m/44/153/{account}/{1 if change else 0}/{address}"
-        # Setting Bytom xprivate key and secret password/passphrase
-        self.xprivate_key, self.secret = xprivate_key, secret
-        # Setting derivation key
-        self.path, self.indexes = path, indexes
-        # Setting witness from bytecode or HTLC
-        self.bytecode, self.htlc_args = bytecode, [
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
+
+        # Set Bytom xprivate key, secret and path/indexes
+        self._xprivate_key: str = xprivate_key
+        self._secret: str = secret
+        self._path: Optional[str] = path
+        self._indexes: Optional[List[str]] = indexes
+
+        # Set witnesses from bytecode or HTLC agreements
+        self._bytecode, self._htlc_agreements = bytecode, [
             secret_hash,  # Secret password/passphrase
             recipient_public,  # Bitcoin recipient public key
             sender_public,  # Bitcoin sender public key
             sequence  # Sequence/Expiration block
         ]
 
-    # Signature solve
-    def solve(self):
-        return Wallet().from_xprivate_key(
-            xprivate_key=self.xprivate_key
+    def solve(self) -> Tuple[Wallet, str, Optional[str], Optional[List[str]]]:
+        return (
+            Wallet().from_xprivate_key(xprivate_key=self._xprivate_key),
+            self._secret, self._path, self._indexes
         )
 
-    # HTLC witnesses bytecode
-    def witness(self, network=bytom["network"], use_script=False):
-        if self.bytecode:
+    def witness(self, network: str = config["network"], use_script: bool = False) -> str:
+        if self._bytecode:
             return HTLC(network=network).from_bytecode(
-                bytecode=self.bytecode
+                bytecode=self._bytecode
             ).bytecode()
         return HTLC(network=network).init(
-            secret_hash=self.htlc_args[0],
-            recipient_public=self.htlc_args[1],
-            sender_public=self.htlc_args[2],
-            sequence=self.htlc_args[3],
+            secret_hash=self._htlc_agreements[0],
+            recipient_public=self._htlc_agreements[1],
+            sender_public=self._htlc_agreements[2],
+            sequence=self._htlc_agreements[3],
             use_script=use_script
         ).bytecode()
 
 
-# Refund HTLC Solver
 class RefundSolver:
     """
-    Bytom RefundSolver class.
+    Bytom Refund solver.
 
     :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
@@ -192,62 +171,45 @@ class RefundSolver:
     <swap.providers.bytom.solver.RefundSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key, secret_hash=None, recipient_public=None,
-                 sender_public=None, sequence=bytom["sequence"], bytecode=None,
-                 account=1, change=False, address=1, path=None, indexes=None):
-        # Checking parameter instances
-        if not isinstance(xprivate_key, str):
-            raise TypeError("recipient xprivate key must be string format")
-        if bytecode is None:
-            if not isinstance(secret_hash, str):
-                raise TypeError("secret hash must be string format")
-            if len(secret_hash) != 64:
-                raise ValueError("invalid secret hash, length must be 64.")
-            if not isinstance(recipient_public, str):
-                raise TypeError("recipient public key must be string format")
-            if len(recipient_public) != 64:
-                raise ValueError("invalid recipient public key, length must be 64.")
-            if not isinstance(sender_public, str):
-                raise TypeError("sender public key must be string format")
-            if len(sender_public) != 64:
-                raise ValueError("invalid sender public key, length must be 64.")
-            if not isinstance(sequence, int):
-                raise TypeError("sequence must be integer format")
-        else:
-            if not isinstance(bytecode, str):
-                raise TypeError("bytecode must be string format")
+    def __init__(self, xprivate_key: str, secret_hash: Optional[str] = None,
+                 recipient_public: Optional[str] = None, sender_public: Optional[str] = None,
+                 sequence: int = config["sequence"], bytecode: Optional[str] = None,
+                 account: int = 1, change: bool = False, address: int = 1,
+                 path: Optional[str] = None, indexes: Optional[List[str]] = None):
 
-        # Checking path and indexes
         if not path and not indexes:
-            path = f"m/44/153/{account}/{1 if change else 0}/{address}"
-        # Setting Bytom xprivate key
-        self.xprivate_key = xprivate_key
-        # Setting derivation key
-        self.path, self.indexes = path, indexes
-        # Setting witness from bytecode or HTLC
-        self.bytecode, self.htlc_args = bytecode, [
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
+
+        # Set Bytom xprivate key, secret and path/indexes
+        self._xprivate_key: str = xprivate_key
+        self._path: Optional[str] = path
+        self._indexes: Optional[List[str]] = indexes
+
+        # Set witnesses from bytecode or HTLC agreements
+        self._bytecode, self._htlc_agreements = bytecode, [
             secret_hash,  # Secret password/passphrase
-            recipient_public,  # Bytom recipient public key
-            sender_public,  # Bytom sender public key
+            recipient_public,  # Bitcoin recipient public key
+            sender_public,  # Bitcoin sender public key
             sequence  # Sequence/Expiration block
         ]
 
-    # Signature solve
-    def solve(self):
-        return Wallet().from_xprivate_key(
-            xprivate_key=self.xprivate_key
+    def solve(self) -> Tuple[Wallet, Optional[str], Optional[List[str]]]:
+        return (
+            Wallet().from_xprivate_key(xprivate_key=self._xprivate_key),
+            self._path, self._indexes
         )
 
-    # HTLC witnesses bytecode
-    def witness(self, network=bytom["network"], use_script=False):
-        if self.bytecode:
+    def witness(self, network: str = config["network"], use_script: bool = False) -> str:
+        if self._bytecode:
             return HTLC(network=network).from_bytecode(
-                bytecode=self.bytecode
+                bytecode=self._bytecode
             ).bytecode()
         return HTLC(network=network).init(
-            secret_hash=self.htlc_args[0],
-            recipient_public=self.htlc_args[1],
-            sender_public=self.htlc_args[2],
-            sequence=self.htlc_args[3],
+            secret_hash=self._htlc_agreements[0],
+            recipient_public=self._htlc_agreements[1],
+            sender_public=self._htlc_agreements[2],
+            sequence=self._htlc_agreements[3],
             use_script=use_script
         ).bytecode()

@@ -40,22 +40,22 @@ bytom = bytom()
 def sign(xprivate, raw, account, change, address, bytecode, secret, path, indexes):
     if len(xprivate) != 128:
         click.echo(click.style("Error: {}")
-                   .format("invalid Bytom xprivate key"), err=True)
+                   .format("Invalid Bytom xprivate key"), err=True)
         sys.exit()
 
-    # Cleaning unsigned raw
+    # Clean unsigned raw
     unsigned_raw = str(raw + "=" * (-len(raw) % 4))
     try:
         transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
     except (binascii.Error, json.decoder.JSONDecodeError) as exception:
         click.echo(click.style("Error: {}")
-                   .format("invalid Bytom unsigned transaction raw"), err=True)
+                   .format("Invalid Bytom unsigned transaction raw"), err=True)
         sys.exit()
     if "type" not in transaction or "network" not in transaction:
         click.echo(click.style("Warning: {}", fg="yellow")
-                   .format("there is no type & network provided in Bytom unsigned transaction raw"), err=True)
+                   .format("There is no type & network provided in Bytom unsigned transaction raw"), err=True)
         click.echo(click.style("Error: {}")
-                   .format("invalid Bytom unsigned transaction raw"), err=True)
+                   .format("Invalid Bytom unsigned transaction raw"), err=True)
         sys.exit()
 
     try:
@@ -73,11 +73,11 @@ def sign(xprivate, raw, account, change, address, bytecode, secret, path, indexe
         elif transaction["type"] == "bytom_claim_unsigned":
             if secret is None:
                 click.echo(click.style("Error: {}")
-                           .format("secret key is required for claim, use -s or --secret \"Hello Meheret!\""), err=True)
+                           .format("Secret key is required for claim, use -s or --secret \"Hello Meheret!\""), err=True)
                 sys.exit()
             if bytecode is None:
                 click.echo(click.style("Error: {}")
-                           .format("witness bytecode is required for claim, use -b or --bytecode \"016...\""), err=True)
+                           .format("Witness bytecode is required for claim, use -b or --bytecode \"016...\""), err=True)
                 sys.exit()
             # Claim HTLC solver
             claim_solver = ClaimSolver(
@@ -92,7 +92,7 @@ def sign(xprivate, raw, account, change, address, bytecode, secret, path, indexe
         elif transaction["type"] == "bytom_refund_unsigned":
             if bytecode is None:
                 click.echo(click.style("Error: {}")
-                           .format("witness bytecode is required for refund, use -b or --bytecode \"016...\""), err=True)
+                           .format("Witness bytecode is required for refund, use -b or --bytecode \"016...\""), err=True)
                 sys.exit()
             # Refunding HTLC solver
             refund_solver = RefundSolver(
@@ -105,7 +105,7 @@ def sign(xprivate, raw, account, change, address, bytecode, secret, path, indexe
             click.echo(refund_signature.signed_raw())
         else:
             click.echo(click.style("Error: {}")
-                       .format("unknown Bytom unsigned transaction raw type"), err=True)
+                       .format("Unknown Bytom unsigned transaction raw type"), err=True)
             sys.exit()
     except Exception as exception:
         click.echo(click.style("Error: {}")
