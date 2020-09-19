@@ -2,22 +2,34 @@
 
 from swap.providers.bytom.wallet import Wallet
 from swap.cli.__main__ import main as cli_main
-from swap.utils import sha256
+from swap.utils import transaction_raw_cleaner
 
+import json
+import os
 
-network = "mainnet"
-sender_wallet = Wallet(network=network).from_mnemonic(
-    mnemonic="hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
-).from_guid(
-    guid="571784a8-0945-4d78-b973-aac4b09d6439"
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+_ = open(file_path, "r")
+TEST_VALUES = json.loads(_.read())
+_.close()
+
+network: str = TEST_VALUES["bytom"]["network"]
+sender_wallet: Wallet = Wallet(network=network).from_mnemonic(
+    mnemonic=TEST_VALUES["bytom"]["wallet"]["sender"]["mnemonic"],
+    passphrase=TEST_VALUES["bytom"]["wallet"]["recipient"]["passphrase"]
+).from_path(
+    path=TEST_VALUES["bytom"]["wallet"]["sender"]["path"]
 )
-recipient_wallet = Wallet(network=network).from_mnemonic(
-    mnemonic="indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-).from_guid(
-    guid="f0ed6ddd-9d6b-49fd-8866-a52d1083a13b"
+recipient_wallet: Wallet = Wallet(network=network).from_mnemonic(
+    mnemonic=TEST_VALUES["bytom"]["wallet"]["recipient"]["mnemonic"],
+    passphrase=TEST_VALUES["bytom"]["wallet"]["recipient"]["passphrase"]
+).from_path(
+    path=TEST_VALUES["bytom"]["wallet"]["recipient"]["path"]
 )
-secret_hash = sha256("Hello Meheret!")
-sequence = 1000
+transaction_id = TEST_VALUES["bytom"]["transaction_id"]
+asset = TEST_VALUES["bytom"]["asset"]
+amount = TEST_VALUES["bytom"]["amount"]
 
 
 def test_bytom_cli_htlc(cli_tester):
@@ -26,10 +38,10 @@ def test_bytom_cli_htlc(cli_tester):
         cli_main, [
             "bytom",
             "htlc",
-            "--secret-hash", secret_hash,
+            "--secret-hash", TEST_VALUES["bytom"]["htlc"]["secret"]["hash"],
             "--recipient-public", recipient_wallet.public_key(),
             "--sender-public", sender_wallet.public_key(),
-            "--sequence", sequence,
+            "--sequence", TEST_VALUES["bytom"]["htlc"]["sequence"],
             "--network", network
         ]
     )
@@ -43,10 +55,10 @@ def test_bytom_cli_htlc(cli_tester):
         cli_main, [
             "bytom",
             "htlc",
-            "--secret-hash", secret_hash,
+            "--secret-hash", TEST_VALUES["bytom"]["htlc"]["secret"]["hash"],
             "--recipient-public", "L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q",
             "--sender-public", sender_wallet.public_key(),
-            "--sequence", sequence,
+            "--sequence", TEST_VALUES["bytom"]["htlc"]["sequence"],
             "--network", network
         ]
     )

@@ -129,7 +129,7 @@ def test_bitcoin_cli_decode(cli_tester):
         ]
     )
     assert decode.exit_code == 0
-    assert decode.output == "Error: invalid Bytom transaction raw" + "\n"
+    assert decode.output == "Error: Invalid Bytom transaction raw" + "\n"
 
     decode = cli_tester.invoke(
         cli_main, [
@@ -139,7 +139,7 @@ def test_bitcoin_cli_decode(cli_tester):
         ]
     )
     assert decode.exit_code == 0
-    assert decode.output == "Error: invalid Bytom transaction raw" + "\n"
+    assert decode.output == "Error: Invalid Bytom transaction raw" + "\n"
 
     decode = cli_tester.invoke(
         cli_main, [
@@ -149,4 +149,4 @@ def test_bitcoin_cli_decode(cli_tester):
         ]
     )
     assert decode.exit_code == 0
-    assert decode.output == "Error: invalid Bytom transaction raw" + "\n"
+    assert decode.output == "Error: Invalid Bytom transaction raw" + "\n"
