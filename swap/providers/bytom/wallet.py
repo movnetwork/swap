@@ -1,148 +1,107 @@
 #!/usr/bin/env python3
 
-from pybytom.wallet import Wallet as BTMWallet
-from pybytom.wallet.tools import get_public_key, get_program, get_address, indexes_to_path, path_to_indexes
+from pybytom.wallet import Wallet as HDWallet
+from pybytom.rpc import account_create
+from typing import TypeVar, Optional, List
 
-from .rpc import get_balance, account_create
+from .rpc import get_balance
+from ...utils.exceptions import NetworkError
 from ..config import bytom
 
-# Bytom configuration
-bytom = bytom()
+# Bytom config
+config = bytom()
+# Var Wallet class
+_Wallet = TypeVar("_Wallet", bound="Wallet")
 
 
-# Bytom Wallet.
-class Wallet:
+class Wallet(HDWallet):
     """
     Bytom Wallet class.
 
-    :param network: Bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to mainnet.
     :type network: str
-    :param account: Bytom derivation account, defaults to 1.
-    :type account: int
-    :param change: Bytom derivation change, defaults to False.
-    :type change: bool
-    :param address: Bytom derivation address, defaults to 1.
-    :type address: int
-    :param path: Bytom derivation path, defaults to None.
-    :type path: str
-    :param indexes: Bytom derivation indexes, defaults to None.
-    :type indexes: list
-    :returns:  Wallet -- Bytom wallet instance.
+    :returns: Wallet -- Bytom wallet instance.
 
     .. note::
-        Bytom has only three networks, ``mainnet``, ``solonet`` and ``testnet``.
+        Bytom has only two networks, ``mainnet``, ``solonet`` and ``testnet``.
     """
 
-    # PyShuttle Bytom (BTM) wallet init.
-    def __init__(self, network="testnet",
-                 account=1, change=False, address=1, path=None, indexes=None):
-        # Bytom network.
-        if network not in ["mainnet", "solonet", "testnet"]:
-            raise ValueError("invalid network, only takes mainnet, solonet & testnet")
-        self.network = network
-        # Bytom wallet initialization.
-        self.bytom = None
+    def __init__(self, network: str = config["network"]):
 
-        # Derivation
-        self._account = account
-        if not isinstance(change, bool):
-            raise TypeError("derivation change must be boolean format.")
-        self._change = 1 if change else 0
-        self.__address = address
-        # Derivation path
-        self._path = path
-        # Derivation indexes
-        self._indexes = indexes
+        self._public_key: Optional[str] = None
 
-        # Wallet info's
-        self._public_key = None
-        self._private_key = None
-        self._xpublic_key = None
-        self._program = None
-        self._address = None
-        # Blockcenter GUID
-        self._guid = None
+        if network == "mainnet":
+            self._network: str = "mainnet"
+            self._hdwallet: HDWallet = HDWallet(network=self._network)
+        elif network == "solonet":
+            self._network: str = "solonet"
+            self._hdwallet: HDWallet = HDWallet(network=self._network)
+        elif network == "testnet":
+            self._network: str = "testnet"
+            self._hdwallet: HDWallet = HDWallet(network=self._network)
+        else:
+            raise NetworkError(f"Invalid '{network}' network",
+                               "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+        super().__init__(network=self._network)
 
-    # Bytom wallet from entropy
-    def from_entropy(self, entropy):
+    def from_entropy(self, entropy: str, passphrase: Optional[str] = None, language: str = "english") -> _Wallet:
         """
         Initiate Bytom wallet from entropy.
 
         :param entropy: Bytom wallet entropy.
-        :type entropy: str.
+        :type entropy: str
+        :param passphrase: Bytom wallet passphrase, default to None.
+        :type passphrase: str
+        :param language: Bytom wallet language, default to english.
+        :type language: str
         :returns:  Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("...")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
-
-        # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
-            .from_entropy(entropy=entropy)
-        self.derivation()
-        self._xpublic_key = self.bytom.xpublic_key()
-        self._private_key = self.bytom.private_key()
-        self._public_key = self.bytom.public_key()
-        self._program = self.bytom.program()
-        self._address = self.bytom.address(network=self.network)
+        self._hdwallet.from_entropy(entropy, passphrase, language)
         return self
 
-    # Bytom wallet from mnemonic
-    def from_mnemonic(self, mnemonic):
+    def from_mnemonic(self, mnemonic: str, passphrase: Optional[str] = None,
+                      language: Optional[str] = None) -> _Wallet:
         """
-        Initiate Bytom wallet from mnemonic.
+        Initialize Bytom wallet from mnemonic.
 
         :param mnemonic: Bytom wallet mnemonic.
-        :type mnemonic: str.
-        :returns:  Wallet -- Bytom wallet instance.
+        :type mnemonic: str
+        :param passphrase: Bytom wallet passphrase, default to None.
+        :type passphrase: str
+        :param language: Bytom wallet language, default to english.
+        :type language: str
+        :returns:  Wallet -- Bytom wallet class instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_mnemonic("extend length miss suit broken rescue around harbor vehicle vicious jelly quality")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
-
-        # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
-            .from_mnemonic(mnemonic=mnemonic)
-        self.derivation()
-        self._xpublic_key = self.bytom.xpublic_key()
-        self._private_key = self.bytom.private_key()
-        self._public_key = self.bytom.public_key()
-        self._program = self.bytom.program()
-        self._address = self.bytom.address(network=self.network)
+        self._hdwallet.from_mnemonic(mnemonic, passphrase, language)
         return self
 
-    # Bytom wallet from seed
-    def from_seed(self, seed):
+    def from_seed(self, seed: str) -> _Wallet:
         """
-        Initiate Bytom wallet from seed.
+        Initialize Bytom wallet from seed.
 
         :param seed: Bytom wallet seed.
-        :type seed: str.
-        :returns:  Wallet -- Bytom wallet instance.
+        :type seed: str
+        :returns:  Wallet -- Bytom wallet class instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_seed("baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49")
+        >>> wallet.from_seed("51a0f6fb9abd5e5aa27f42dd375d8e4fc6944c704c859454e557fc419d3979e5a50273743c93e5035244adb09e9a37914abc583fdfae0da1ae2bedaa373f050e")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
-
-        # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
-            .from_seed(seed=seed)
-        self.derivation()
-        self._xpublic_key = self.bytom.xpublic_key()
-        self._private_key = self.bytom.private_key()
-        self._public_key = self.bytom.public_key()
-        self._program = self.bytom.program()
-        self._address = self.bytom.address(network=self.network)
+        self._hdwallet.from_seed(seed)
         return self
 
-    # Bytom wallet from xprivate key
-    def from_xprivate_key(self, xprivate_key):
+    def from_xprivate_key(self, xprivate_key: str) -> _Wallet:
         """
         Initiate Bytom wallet from xprivate key.
 
@@ -152,90 +111,179 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_xprivate_key("d0d4862706cfe7d2ffdf53d00fba1d524587972e2eb0226ce9fff3ca58e5a14f031f74b091a04f3ff6b1722540eefcd4e2bcdcba0944a2df781cfdccf2f47e59")
+        <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_xprivate_key(xprivate_key)
+        return self
+
+    def from_private_key(self, private_key: str) -> _Wallet:
+        """
+        Initialize Bytom wallet from private key.
+
+        :param private_key: Bytom private key.
+        :type private_key: str.
+        :returns:  Wallet -- Bytom wallet instance.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_private_key("40d171e524c5d366c87f789e293e9e8d63ab95be796b3c04b63db29321eaa14f92de5a98859ca593b63f9e421958d8ded8e171aaad775d85f7a78515a1992f6c")
+        <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_private_key(private_key)
+        return self
+
+    def from_path(self, path: str) -> _Wallet:
+        """
+        Drive Bytom wallet from path.
+
+        :param path: Bytom wallet path.
+        :type path: str
+        :returns: Wallet -- Bytom wallet instance.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
+        <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
+        """
+        self._hdwallet.from_path(path)
+        return self
+
+    def from_indexes(self, indexes: List[str]) -> _Wallet:
+        """
+        Drive Bytom wallet from indexes.
+
+        :param indexes: Bytom derivation indexes.
+        :type indexes: list.
+        :returns:  Wallet -- Bytom wallet class instance.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_xprivate_key("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> wallet.from_indexes(["2c000000", "99000000", "01000000", "00000000", "01000000"])
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
-
-        # Bytom wallet initialization.
-        self.bytom = BTMWallet()\
-            .from_xprivate_key(xprivate_key=xprivate_key)
-        self.derivation()
-        self._xpublic_key = self.bytom.xpublic_key()
-        self._private_key = self.bytom.private_key()
-        self._public_key = self.bytom.public_key()
-        self._program = self.bytom.program()
-        self._address = self.bytom.address(network=self.network)
+        self._hdwallet.from_indexes(indexes)
         return self
 
-    # Bytom wallet from xpublic key
-    def from_xpublic_key(self, xpublic_key):
+    def from_index(self, index: int, harden: bool = False) -> _Wallet:
         """
-        Initiate Bytom wallet from xpublic key.
+        Drive Bytom wallet from index.
 
-        :param xpublic_key: Bytom wallet xpublic key.
-        :type xpublic_key: str.
-        :returns:  Wallet -- Bytom wallet instance.
+        :param index: Bytom wallet index.
+        :type index: int
+        :param harden: Use harden, default to False.
+        :type harden: bool
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_xpublic_key("16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_index(44)
+        >>> wallet.from_index(153)
+        >>> wallet.from_index(1)
+        >>> wallet.from_index(0)
+        >>> wallet.from_index(1)
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
-
-        # Bytom wallet initialization.
-        Bytom = BTMWallet()
-        self._xpublic_key = xpublic_key
-        self._public_key = get_public_key(xpublic_key=self._xpublic_key, path=self.path())
-        self._program = get_program(public_key=self._public_key)
-        self._address = get_address(
-            program=self._program, network=self.network)
+        self._hdwallet.from_index(index, harden)
         return self
 
-    # Bytom wallet from public key
-    def from_public_key(self, public):
+    def clean_derivation(self) -> _Wallet:
         """
-        Initiate Bytom wallet from public key.
+        Clean derivation Bytom wallet.
 
-        :param public: Bytom wallet public key.
-        :type public: str.
-        :returns:  Wallet -- Bytom wallet instance.
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_public_key("91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2")
-        <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet.indexes()
+        ["2c000000", "99000000", "01000000", "00000000", "01000000"]
+        >>> wallet.path()
+        "m/44/153/1/0/1"
+        >>> wallet.clean_derivation()
+        >>> wallet.indexes()
+        []
+        >>> wallet.path()
+        None
         """
-
-        # Bytom wallet initialization.
-        Bytom = BTMWallet()
-        self._public_key = public
-        self._program = get_program(
-            public_key=self._public_key)
-        self._address = get_address(
-            program=self._program, network=self.network)
+        self._hdwallet.clean_derivation()
         return self
 
-    # Bytom wallet from GUID
-    def from_guid(self, guid):
-        self._guid = guid
-        return self
+    def entropy(self) -> Optional[str]:
+        """
+        Get Bytom wallet entropy.
 
-    # Path derivation
-    def derivation(self):
-        if self._path:
-            self.bytom.from_path(self._path)
-        elif self._indexes:
-            self.bytom.from_indexes(self._indexes)
-        else:
-            self.bytom.from_index(44)
-            self.bytom.from_index(153)
-            self.bytom.from_index(self._account)
-            self.bytom.from_index(self._change)
-            self.bytom.from_index(self.__address)
-        return self
+        :return: str -- Bytom wallet entropy.
 
-    # Getting path
-    def path(self):
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.entropy()
+        "50f002376c81c96e430b48f1fe71df57"
+        """
+        return self._hdwallet.entropy()
+
+    def mnemonic(self) -> Optional[str]:
+        """
+        Get Bytom wallet mnemonic.
+
+        :return: str -- Bytom wallet mnemonic.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.mnemonic()
+        "extend length miss suit broken rescue around harbor vehicle vicious jelly quality"
+        """
+        return self._hdwallet.mnemonic()
+
+    def passphrase(self) -> Optional[str]:
+        """
+        Get Bytom wallet passphrase.
+
+        :return: str -- Bytom wallet passphrase.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57", passphrase="meherett")
+        >>> wallet.passphrase()
+        "meherett"
+        """
+        return self._hdwallet.passphrase()
+
+    def language(self) -> Optional[str]:
+        """
+        Get Bytom wallet language.
+
+        :return: str -- Bytom wallet language.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.language()
+        "english"
+        """
+        return self._hdwallet.language()
+
+    def seed(self) -> Optional[str]:
+        """
+        Get Bytom wallet seed.
+
+        :return: str -- Bytom wallet seed.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.seed()
+        "51a0f6fb9abd5e5aa27f42dd375d8e4fc6944c704c859454e557fc419d3979e5a50273743c93e5035244adb09e9a37914abc583fdfae0da1ae2bedaa373f050e"
+        """
+        return self._hdwallet.seed()
+
+    def path(self) -> Optional[str]:
         """
         Get Bytom wallet derivation path.
 
@@ -243,44 +291,14 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet", change=True, address=3)
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
         >>> wallet.path()
-        "m/44/153/1/1/3"
+        "m/44/153/1/0/1"
         """
+        return self._hdwallet.path()
 
-        if self._xpublic_key is None:
-            return None
-        if self.bytom is not None:
-            return self.bytom.path()
-        else:
-            if self._path:
-                return self._path
-            elif self._indexes:
-                return indexes_to_path(indexes=self._indexes)
-            else:
-                return "m/44/153/%d/%d/%d" % \
-                       (self._account, self._change, self.__address)
-
-    # Getting seed
-    def seed(self):
-        """
-        Get Bytom wallet seed.
-
-        :return: str -- Bytom seed.
-
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> wallet.seed()
-        "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
-        """
-
-        if self.bytom is None:
-            return None
-        return self.bytom.seed()
-
-    # Getting path derivation indexes
-    def indexes(self):
+    def indexes(self) -> list:
         """
         Get Bytom wallet derivation indexes.
 
@@ -288,15 +306,14 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
         >>> wallet.indexes()
         ['2c000000', '99000000', '01000000', '00000000', '01000000']
         """
+        return self._hdwallet.indexes()
 
-        return self.bytom.indexes()
-
-    # Getting xprivate key
-    def xprivate_key(self):
+    def xprivate_key(self) -> Optional[str]:
         """
         Get Bytom wallet xprivate key.
 
@@ -304,17 +321,13 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
         >>> wallet.xprivate_key()
-        "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+        "d0d4862706cfe7d2ffdf53d00fba1d524587972e2eb0226ce9fff3ca58e5a14f031f74b091a04f3ff6b1722540eefcd4e2bcdcba0944a2df781cfdccf2f47e59"
         """
+        return self._hdwallet.xprivate_key()
 
-        if self.bytom is None:
-            return None
-        return self.bytom.xprivate_key()
-
-    # Getting xpublic key
-    def xpublic_key(self):
+    def xpublic_key(self) -> Optional[str]:
         """
         Get Bytom wallet xpublic key.
 
@@ -322,17 +335,13 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
         >>> wallet.xpublic_key()
-        "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+        "5086c8522be8c3b8674d72a6b9aa19eef43ef1992a482e71f389d99159accc39031f74b091a04f3ff6b1722540eefcd4e2bcdcba0944a2df781cfdccf2f47e59"
         """
+        return self._hdwallet.xpublic_key()
 
-        if self._xpublic_key is None:
-            return None
-        return self._xpublic_key
-
-    # Getting expand xprivate key
-    def expand_xprivate_key(self):
+    def expand_xprivate_key(self) -> Optional[str]:
         """
         Get Bytom wallet expand xprivate key.
 
@@ -340,17 +349,57 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
         >>> wallet.expand_xprivate_key()
-        "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
+        "d0d4862706cfe7d2ffdf53d00fba1d524587972e2eb0226ce9fff3ca58e5a14f7c15b70c1b0fc7a393fdb443c54b55e187635bf3dec62af44741085b7f12015a"
         """
+        return self._hdwallet.expand_xprivate_key()
 
-        if self.bytom is None:
+    def child_xprivate_key(self) -> Optional[str]:
+        """
+        Get Bytom child wallet xprivate key.
+
+        :return: str -- Bytom child xprivate key.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.child_xprivate_key()
+        "40d171e524c5d366c87f789e293e9e8d63ab95be796b3c04b63db29321eaa14f92de5a98859ca593b63f9e421958d8ded8e171aaad775d85f7a78515a1992f6c"
+        """
+        return self._hdwallet.child_xprivate_key()
+
+    def child_xpublic_key(self) -> Optional[str]:
+        """
+        Get Bytom child wallet xpublic key.
+
+        :return: str -- Bytom child xpublic key.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.child_xpublic_key()
+        "ffbbd79031060ef98fee4deda59818732e7665de15df34dff209d1f6f9a1443992de5a98859ca593b63f9e421958d8ded8e171aaad775d85f7a78515a1992f6c"
+        """
+        return self._hdwallet.child_xpublic_key()
+
+    def guid(self) -> Optional[str]:
+        """
+        Get Bytom wallet Blockcenter GUID.
+
+        :return: str -- Bytom Blockcenter GUID.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.guid()
+        "e34d612c-f1f9-42c6-8b14-3d93c5b21715"
+        """
+        if self.xpublic_key() is None:
             return None
-        return self.bytom.expand_xprivate_key()
+        return account_create(xpublic_key=self.xpublic_key(), network=self._network)["guid"]
 
-    # Getting private key
-    def private_key(self):
+    def private_key(self) -> str:
         """
         Get Bytom wallet private key.
 
@@ -358,15 +407,14 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
         >>> wallet.private_key()
-        "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
+        "40d171e524c5d366c87f789e293e9e8d63ab95be796b3c04b63db29321eaa14f92de5a98859ca593b63f9e421958d8ded8e171aaad775d85f7a78515a1992f6c"
         """
+        return self._hdwallet.private_key()
 
-        return self._private_key
-
-    # Getting public key
-    def public_key(self):
+    def public_key(self) -> str:
         """
         Get Bytom wallet public key.
 
@@ -374,14 +422,13 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
         >>> wallet.public_key()
-        "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
+        "ffbbd79031060ef98fee4deda59818732e7665de15df34dff209d1f6f9a14439"
         """
+        return self._hdwallet.public_key()
 
-        return self._public_key
-
-    # Getting control program
     def program(self):
         """
         Get Bytom wallet control program.
@@ -390,62 +437,43 @@ class Wallet:
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
         >>> wallet.program()
-        "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
+        "00144eaaa3205545eac08fb3a2d1b1570b67c3b46016"
         """
+        return self._hdwallet.program()
 
-        return self._program
-
-    # Getting address
-    def address(self):
+    def address(self, network: Optional[str] = config["network"]) -> str:
         """
         Get Bytom wallet address.
 
-        :return: str -- Bytom address.
+        :param network: Bytom network, defaults to mainnet.
+        :type network: str
+        :return: str -- Bytom wallet address.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> wallet.address()
-        "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_indexes(["2c000000", "99000000", "01000000", "00000000", "01000000"])
+        >>> wallet.address(network="mainnet")
+        "bm1qf642xgz4gh4vpran5tgmz4ctvlpmgcqkmhn2le"
         """
+        return self._hdwallet.address()
 
-        return self._address
-
-    # Getting guid from blockcenter
-    def guid(self):
-        """
-        Get Bytom wallet blockcenter guid.
-
-        :return: str -- Bytom blockcenter guid.
-
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> wallet.guid()
-        "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b"
-        """
-
-        if self._guid is None:
-            self._guid = account_create(
-                xpublic_key=self.xpublic_key(), network=self.network)["guid"]
-        return self._guid
-
-    # Getting balance
-    def balance(self, asset=bytom["BTM_asset"]):
+    def balance(self, asset: str = config["asset"]) -> int:
         """
         Get Bytom wallet balance.
 
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :return: int -- Bytom balance.
+        :return: int -- Bytom wallet balance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
         >>> wallet.balance()
         2450000000
         """
-
-        return get_balance(address=self.address(), asset=asset, network=self.network)
+        return get_balance(address=self.address(), asset=asset, network=self._network)
