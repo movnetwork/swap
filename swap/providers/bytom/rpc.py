@@ -47,9 +47,10 @@ def get_balance(address: str, asset: str = config["asset"], network: str = confi
     response = requests.get(
         url=url, headers=headers, timeout=timeout
     )
-    if response.json() is None:
+    response_json = response.json()
+    if response_json is None:
         return 0
-    for _asset in response.json():
+    for _asset in response_json:
         if asset == _asset["asset_id"]:
             return int(_asset["balance"])
     return 0
@@ -88,13 +89,57 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
     response = requests.post(
         url=url, data=json.dumps(transaction), params=params, headers=headers, timeout=timeout
     )
-    if response.status_code == 200 and response.json()["code"] == 300:
-        raise APIError(response.json()["msg"], response.json()["code"])
-    elif response.status_code == 200 and response.json()["code"] == 503:
-        raise APIError(response.json()["msg"], response.json()["code"])
-    elif response.status_code == 200 and response.json()["code"] == 422:
+    response_json = response.json()
+    if response.status_code == 200 and response_json["code"] == 300:
+        raise APIError(response_json["msg"], response_json["code"])
+    elif response.status_code == 200 and response_json["code"] == 503:
+        raise APIError(response_json["msg"], response_json["code"])
+    elif response.status_code == 200 and response_json["code"] == 422:
         raise ClientError(f"There is no any asset balance recorded on this '{address}' address.")
-    return response.json()["data"][0]
+    return response_json["data"][0]
+
+
+def get_utxos(program: str, network: str = config["network"], asset: str = config["asset"],
+              limit: int = 15, by: str = "amount", order: str = "desc",
+              headers: dict = config["headers"], timeout: int = config["timeout"]) -> list:
+    """
+    Get Bytom unspent transaction outputs (UTXO's).
+
+    :param program: Bytom control program.
+    :type program: str
+    :param network: Bytom network, defaults to mainnet.
+    :type network: str
+    :param asset: Bytom asset id, defaults to BTM asset.
+    :type asset: str
+    :param limit: Bytom utxo's limit, defaults to 15.
+    :type limit: int
+    :param by: Sort by, defaults to amount.
+    :type by: str
+    :param order: Sort order, defaults to desc.
+    :type order: str
+    :param headers: Request headers, default to common headers.
+    :type headers: dict
+    :param timeout: Request timeout, default to 60.
+    :type timeout: int
+    :returns: list -- Bytom unspent transaction outputs (UTXO's).
+
+    >>> from swap.providers.bytom.rpc import get_utxos
+    >>> get_utxos(program="00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", network="mainnet")
+    [...]
+    """
+
+    if not is_network(network=network):
+        raise NetworkError(f"Invalid Bytom '{network}' network",
+                           "choose only 'mainnet' or 'testnet' networks.")
+
+    url = f"{config[network]['blockcenter']['v3']}/q/utxos"
+    data = dict(filter=dict(script=program, asset=asset), sort=dict(by=by, order=order))
+    params = dict(limit=limit)
+    response = requests.post(
+        url=url, data=json.dumps(data), params=params, headers=headers, timeout=timeout
+    )
+    response_json = response.json()
+    return response_json["data"]
 
 
 def get_transaction(transaction_id: str, network: str = config["network"],
@@ -125,9 +170,10 @@ def get_transaction(transaction_id: str, network: str = config["network"],
     response = requests.post(
         url=url, data=json.dumps(dict(tx_id=transaction_id)), headers=headers, timeout=timeout
     )
-    if response.status_code == 200 and response.json()["code"] == 300:
-        raise APIError(response.json()["msg"], response.json()["code"])
-    return response.json()["result"]["data"]
+    response_json = response.json()
+    if response.status_code == 200 and response_json["code"] == 300:
+        raise APIError(response_json["msg"], response_json["code"])
+    return response_json["result"]["data"]
 
 
 def decode_raw(raw: str, network: str = config["network"], 
@@ -159,9 +205,10 @@ def decode_raw(raw: str, network: str = config["network"],
     response = requests.post(
         url=url, data=json.dumps(data), headers=headers, timeout=timeout
     )
+    response_json = response.json()
     if response.status_code == 400:
-        raise APIError(response.json()["msg"], response.json()["code"])
-    return response.json()["data"]
+        raise APIError(response_json["msg"], response_json["code"])
+    return response_json["data"]
 
 
 def submit_raw(address: str, raw: str, signatures: list, network: str = config["network"],
@@ -200,6 +247,7 @@ def submit_raw(address: str, raw: str, signatures: list, network: str = config["
     response = requests.post(
         url=url, data=json.dumps(data), params=params, headers=headers, timeout=timeout
     )
-    if response.json()["code"] != 200:
-        raise APIError(response.json()["msg"], response.json()["code"])
-    return response.json()["data"]["tx_hash"]
+    response_json = response.json()
+    if response_json["code"] != 200:
+        raise APIError(response_json["msg"], response_json["code"])
+    return response_json["data"]["tx_hash"]
