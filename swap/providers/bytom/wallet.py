@@ -2,15 +2,19 @@
 
 from pybytom.wallet import Wallet as HDWallet
 from pybytom.rpc import account_create
-from typing import TypeVar, Optional, List
+from typing import (
+    TypeVar, Optional, List
+)
 
-from .rpc import get_balance
 from ...utils.exceptions import NetworkError
 from ..config import bytom
+from .rpc import (
+    get_balance, get_utxos
+)
 
 # Bytom config
 config = bytom()
-# Var Wallet class
+# Type Var Wallet class
 _Wallet = TypeVar("_Wallet", bound="Wallet")
 
 
@@ -477,3 +481,23 @@ class Wallet(HDWallet):
         2450000000
         """
         return get_balance(address=self.address(), asset=asset, network=self._network)
+
+    def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
+        """
+        Get Bytom wallet unspent transaction output (UTXO's).
+
+        :param asset: Bytom asset id, defaults to BTM asset.
+        :type asset: str
+        :param limit: Bytom balance, default is 15.
+        :type limit: int
+        :return: list -- Bytom unspent transaction outputs.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet.utxos()
+        [{'hash': 'e152f88d33c6659ad823d15c5c65b2ed946d207c42430022cba9bb9b9d70a7a4', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 587639800}, {'hash': '88289fa4c7633574931be7ce4102aeb24def0de20e38e7d69a5ddd6efc116b95', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 8160000}, {'hash': 'f71c68f921b434cc2bcd469d26e7927aa6db7500e4cdeef814884f11c10f5de2', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}, {'hash': 'e46cfecc1f1a26413172ce81c78affb19408e613915642fa5fb04d3b0a4ffa65', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 100}]
+        """
+
+        return get_utxos(program=self.program(), asset=asset, limit=limit)

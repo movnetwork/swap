@@ -7,16 +7,19 @@ from hdwallet import HDWallet
 from hdwallet.cryptocurrencies import (
     BitcoinMainnet, BitcoinTestnet
 )
-from typing import TypeVar, Optional, Any
+from typing import (
+    TypeVar, Optional, Any
+)
 
-from .utils import is_address
-from .rpc import get_balance, get_unspent_transactions
-from ...utils.exceptions import AddressError, NetworkError
+from ...utils.exceptions import NetworkError
 from ..config import bitcoin
+from .rpc import (
+    get_balance, get_utxos
+)
 
 # Bitcoin config
 config = bitcoin()
-# Var Wallet class
+# Type Var Wallet class
 _Wallet = TypeVar("_Wallet", bound="Wallet")
 
 
@@ -529,14 +532,10 @@ class Wallet(HDWallet):
         """
         return get_balance(self.address(), self._network)
 
-    def unspent(self, address: str = None, network: str = config["network"], limit: int = 15) -> list:
+    def utxos(self, limit: int = 15) -> list:
         """
-        Get Bitcoin wallet unspent transaction output.
+        Get Bitcoin wallet unspent transaction output (UTXO's).
 
-        :param address: Bitcoin balance, default is None.
-        :type address: str
-        :param network: Bitcoin balance, default is mainnet.
-        :type network: str
         :param limit: Bitcoin balance, default is 15.
         :type limit: int
         :return: list -- Bitcoin unspent transaction outputs.
@@ -545,23 +544,20 @@ class Wallet(HDWallet):
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
         >>> wallet.from_path("m/44'/0'/0'/0/0")
-        >>> wallet.unspent()
+        >>> wallet.utxos()
         [{'index': 0, 'hash': 'be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c', 'output_index': 1, 'amount': 12340, 'script': '76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac'}]
         """
-        if address is None:
-            address = str(self.address())
-            network = str(self._network)
-        unspent = list()
-        if not is_address(address=address, network=network):
-            raise AddressError(f"Invalid {network} '{address}' address")
-        unspent_transactions = get_unspent_transactions(
-            address, network, limit=limit)
-        for index, unspent_transaction in enumerate(unspent_transactions):
-            unspent.append(dict(
+
+        utxos = list()
+        _utxos = get_utxos(
+            address=self.address(), network=self._network, limit=limit
+        )
+        for index, utxo in enumerate(_utxos):
+            utxos.append(dict(
                 index=index,
-                hash=unspent_transaction["tx_hash"],
-                output_index=unspent_transaction["tx_output_n"],
-                amount=unspent_transaction["value"],
-                script=unspent_transaction["script"]
+                hash=utxo["tx_hash"],
+                output_index=utxo["tx_output_n"],
+                amount=utxo["value"],
+                script=utxo["script"]
             ))
-        return unspent
+        return utxos
