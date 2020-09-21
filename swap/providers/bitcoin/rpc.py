@@ -48,8 +48,9 @@ def get_balance(address: str, network: str = config["network"],
     url = f"{config[network]['blockcypher']['url']}/addrs/{address}/balance"
     response = requests.get(
         url=url, headers=headers, timeout=timeout
-    ).json()
-    return response["balance"]
+    )
+    response_json = response.json()
+    return response_json["balance"]
 
 
 def get_utxos(address: str, network: str = config["network"], include_script: bool = True,
@@ -90,8 +91,9 @@ def get_utxos(address: str, network: str = config["network"], include_script: bo
     url = f"{config[network]['blockcypher']['url']}/addrs/{address}"
     response = requests.get(
         url=url, params=parameter, headers=headers, timeout=timeout
-    ).json()
-    return response["txrefs"] if "txrefs" in response else []
+    )
+    response_json = response.json()
+    return response_json["txrefs"] if "txrefs" in response_json else []
 
 
 def get_transaction(transaction_id: str, network: str = config["network"],
@@ -122,8 +124,9 @@ def get_transaction(transaction_id: str, network: str = config["network"],
     parameter = dict(token=config[network]["blockcypher"]["token"])
     response = requests.get(
         url=url, params=parameter, headers=headers, timeout=timeout
-    ).json()
-    return response
+    )
+    response_json = response.json()
+    return response_json
 
 
 def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
@@ -162,8 +165,9 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
     data = dict(tx=raw)
     response = requests.post(
         url=url, data=json.dumps(data), params=parameter, headers=headers, timeout=timeout
-    ).json()
-    return response
+    )
+    response_json = response.json()
+    return response_json
 
 
 def submit_raw(raw: str, network: str = config["network"],
@@ -194,10 +198,11 @@ def submit_raw(raw: str, network: str = config["network"],
     data = dict(tx_hex=raw)
     response = requests.post(
         url=url, data=json.dumps(data), headers=headers, timeout=timeout
-    ).json()
-    if "status" in response and response["status"] == "fail":
-        raise APIError(response["data"]["tx_hex"])
-    elif "status" in response and response["status"] == "success":
-        return response["data"]["txid"]
+    )
+    response_json = response.json()
+    if "status" in response_json and response_json["status"] == "fail":
+        raise APIError(response_json["data"]["tx_hex"])
+    elif "status" in response_json and response_json["status"] == "success":
+        return response_json["data"]["txid"]
     else:
         raise APIError("Unknown Bitcoin submit payment error.")

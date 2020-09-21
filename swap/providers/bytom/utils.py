@@ -4,40 +4,18 @@ from base64 import b64decode
 from pybytom.utils import is_address as btm_is_address
 from typing import Optional, Union
 
+import requests
 import json
-import binascii
 import datetime
 
-from ..config import bytom
+from ...utils import clean_transaction_raw
 from ...utils.exceptions import (
-    NetworkError, TransactionRawError, SymbolError
+    NetworkError, APIError, TransactionRawError, SymbolError
 )
-from .rpc import decode_transaction_raw, submit_transaction_raw
+from ..config import bytom
 
-# Bytom config.
+# Bytom config
 config = bytom()
-
-
-def is_address(address: str, network: Optional[str] = None) -> bool:
-    """
-    Check Bytom address.
-
-    :param address: Bytom address.
-    :type address: str
-    :param network: Bytom network, defaults to None.
-    :type network: str
-    :returns: bool -- Bytom valid/Invalid address.
-
-    >>> from swap.providers.bytom.utils import is_address
-    >>> is_address("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "mainnet")
-    True
-    """
-
-    if network is None:
-        return btm_is_address(address=address)
-    elif not isinstance(network, str) or network not in ["mainnet", "solonet", "testnet"]:
-        raise NetworkError(f"Invalid `{network}` network", "only takes mainnet, solonet or testnet networks.")
-    return btm_is_address(address=address, network=network)
 
 
 def amount_converter(amount: Union[int, float], symbol: str = "NEU2BTM") -> Union[int, float]:
@@ -45,7 +23,7 @@ def amount_converter(amount: Union[int, float], symbol: str = "NEU2BTM") -> Unio
     Amount converter
 
     :param amount: Bytom amount.
-    :type amount: Union[int, float]
+    :type amount: int, float
     :param symbol: Bytom symbol, default to NEU2BTM.
     :type symbol: str
     :returns: float -- BTM asset amount.
@@ -76,77 +54,160 @@ def amount_converter(amount: Union[int, float], symbol: str = "NEU2BTM") -> Unio
         return int((amount * mBTM) / NEU)
 
 
-def decode_swap_transaction_raw(transaction_raw: str) -> dict:
+def is_network(network: str) -> bool:
     """
-    Decode swap Bytom transaction raw.
+    Check Bytom network.
+
+    :param network: Bytom network.
+    :type network: str
+    :returns: bool -- Bytom valid/invalid network.
+
+    >>> from swap.providers.bytom.utils import is_network
+    >>> is_network("solonet")
+    True
+    """
+
+    if not isinstance(network, str):
+        raise TypeError(f"Network must be str, not '{type(network)}' type.")
+    return network in ["mainnet", "solonet", "testnet"]
+
+
+def is_address(address: str, network: Optional[str] = None) -> bool:
+    """
+    Check Bytom address.
+
+    :param address: Bytom address.
+    :type address: str
+    :param network: Bytom network, defaults to None.
+    :type network: str
+    :returns: bool -- Bytom valid/invalid address.
+
+    >>> from swap.providers.bytom.utils import is_address
+    >>> is_address("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "mainnet")
+    True
+    """
+
+    if network is None:
+        return btm_is_address(address=address)
+    elif not is_network(network=network):
+        raise NetworkError(f"Invalid Bytom '{network}' network",
+                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+    return btm_is_address(address=address, network=network)
+
+
+def is_transaction_raw(transaction_raw: str) -> bool:
+    """
+    Check Bytom transaction raw.
 
     :param transaction_raw: Bytom transaction raw.
     :type transaction_raw: str
-    :returns: dict -- decoded Bytom transaction.
+    :returns: bool -- Bytom valid/invalid transaction raw.
 
-    >>> from swap.providers.bytom.utils import decode_swap_transaction_raw
-    >>> decode_swap_transaction_raw(transaction_raw)
-    {'fee': ..., 'type': '...', 'address': '...', 'transaction': {...}, 'unsigned_datas': [...], 'signatures': [...], 'network': '...'}
+    >>> from swap.providers.bytom.utils import is_transaction_raw
+    >>> is_transaction_raw("...")
+    True
     """
 
+    if not isinstance(transaction_raw, str):
+        raise TypeError(f"Transaction raw must be str, not '{type(transaction_raw)}' type.")
+    
     try:
-        # Fixing transaction raw.
-        swap_transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
-        # Decoding transaction raw
-        decoded_swap_transaction_raw = json.loads(b64decode(str(swap_transaction_raw).encode()).decode())
-    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
-        raise TransactionRawError("Invalid swap Bytom transaction raw.")
-    if "type" not in decoded_swap_transaction_raw:
-        raise TransactionRawError("Invalid swap Bytom transaction raw, it has not transaction type.")
-    elif not str(decoded_swap_transaction_raw["type"]).startswith("bytom"):
-        raise TransactionRawError("Invalid swap Bytom transaction raw, it is not Bytom type.")
+        transaction_raw = clean_transaction_raw(transaction_raw)
+        decoded_transaction_raw = b64decode(transaction_raw.encode())
+        loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+        return loaded_transaction_raw["type"] in [
+            "bytom_fund_unsigned", "bytom_fund_signed",
+            "bytom_claim_unsigned", "bytom_claim_signed",
+            "bytom_refund_unsigned", "bytom_refund_signed"
+        ]
+    except:
+        return False
+
+
+def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers"],
+                           timeout: int = config["timeout"]) -> dict:
+    """
+    Decode Bytom transaction raw.
+
+    :param transaction_raw: Bytom transaction raw.
+    :type transaction_raw: str
+    :param headers: Request headers, default to common headers.
+    :type headers: dict
+    :param timeout: Request timeout, default to 60.
+    :type timeout: int
+    :returns: dict -- Decoded Bytom transaction raw.
+
+    >>> from swap.providers.bytom.utils import decode_transaction_raw
+    >>> decode_transaction_raw(transaction_raw)
+    {'fee': ..., 'type': '...', 'address': '...', 'transaction': {...}, 'unsigned_datas': [...], 'signatures': [...], 'network': '...'}
+    """
+    
+    if not is_transaction_raw(transaction_raw=transaction_raw):
+        raise TransactionRawError("Invalid Bytom transaction raw.")
+
+    transaction_raw = clean_transaction_raw(transaction_raw)
+    decoded_transaction_raw = b64decode(transaction_raw.encode())
+    loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+
+    url = f"{config[loaded_transaction_raw['network']]['bytom-core']}/decode-raw-transaction"
+    data = dict(raw_transaction=loaded_transaction_raw["raw"])
+    response = requests.post(
+        url=url, data=json.dumps(data), headers=headers, timeout=timeout
+    )
+    response_json = response.json()
+    if response.status_code == 400:
+        raise APIError(response_json["msg"], response_json["code"])
 
     return dict(
-        fee=decoded_swap_transaction_raw["fee"],
-        address=decoded_swap_transaction_raw["address"],
-        type=decoded_swap_transaction_raw["type"],
-        tx=decode_transaction_raw(transaction_raw=decoded_swap_transaction_raw["raw"]),
-        unsigned_datas=decoded_swap_transaction_raw["unsigned_datas"],
-        signatures=decoded_swap_transaction_raw["signatures"],
-        network=decoded_swap_transaction_raw["network"]
+        fee=loaded_transaction_raw["fee"],
+        address=loaded_transaction_raw["address"],
+        type=loaded_transaction_raw["type"],
+        tx=response_json["data"],
+        unsigned_datas=loaded_transaction_raw["unsigned_datas"],
+        signatures=loaded_transaction_raw["signatures"],
+        network=loaded_transaction_raw["network"]
     )
 
 
-def submit_swap_transaction_raw(transaction_raw: str) -> dict:
+def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers"],
+                           timeout: int = config["timeout"]) -> dict:
     """
-    Submit swap Bytom transaction raw.
+    Submit Bytom transaction raw.
 
     :param transaction_raw: Bytom transaction raw.
     :type transaction_raw: str
-    :returns: dict -- Bytom submitted fee, type, transaction id, network and date.
+    :param headers: Request headers, default to common headers.
+    :type headers: dict
+    :param timeout: Request timeout, default to 60.
+    :type timeout: int
+    :returns: dict -- Bytom submitted.
 
-    >>> from swap.providers.bytom.utils import submit_swap_transaction_raw
-    >>> submit_swap_transaction_raw(transaction_raw)
+    >>> from swap.providers.bytom.utils import submit_transaction_raw
+    >>> submit_transaction_raw(transaction_raw)
     {'fee': ..., 'type': '...', 'transaction_id': '...', 'network': '...', 'date': '...'}
     """
 
-    try:
-        # Fixing transaction raw.
-        transaction_raw = str(transaction_raw + "=" * (-len(transaction_raw) % 4))
-        # Decoding transaction raw.
-        decoded_swap_transaction_raw = json.loads(b64decode(str(transaction_raw).encode()).decode())
-    except (binascii.Error, json.decoder.JSONDecodeError) as _error:
-        raise TransactionRawError("Invalid swap Bytom transaction raw.")
-    if "type" not in decoded_swap_transaction_raw:
-        raise TransactionRawError("Invalid swap Bytom transaction raw, it has not transaction type.")
-    elif not str(decoded_swap_transaction_raw["type"]).startswith("bytom"):
-        raise TransactionRawError("Invalid swap Bytom transaction raw, it is not Bytom type.")
+    if not is_transaction_raw(transaction_raw=transaction_raw):
+        raise TransactionRawError("Invalid Bytom transaction raw.")
 
-    submitted_swap_transaction_id = submit_transaction_raw(
-        address=decoded_swap_transaction_raw["address"],
-        transaction_raw=decoded_swap_transaction_raw["raw"],
-        signatures=decoded_swap_transaction_raw["signatures"],
-        network=decoded_swap_transaction_raw["network"]
+    transaction_raw = clean_transaction_raw(transaction_raw)
+    decoded_transaction_raw = b64decode(transaction_raw.encode())
+    loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+
+    url = f"{config[loaded_transaction_raw['network']]['blockcenter']['v3']}/merchant/submit-payment"
+    data = dict(raw_transaction=loaded_transaction_raw["raw"], signatures=loaded_transaction_raw["signatures"])
+    params = dict(address=loaded_transaction_raw["address"])
+    response = requests.post(
+        url=url, data=json.dumps(data), params=params, headers=headers, timeout=timeout
     )
+    response_json = response.json()
+    if response_json["code"] != 200:
+        raise APIError(response_json["msg"], response_json["code"])
+
     return dict(
-        fee=decoded_swap_transaction_raw["fee"],
-        type=decoded_swap_transaction_raw["type"],
-        transaction_id=submitted_swap_transaction_id,
-        network=decoded_swap_transaction_raw["network"],
+        fee=loaded_transaction_raw["fee"],
+        type=loaded_transaction_raw["type"],
+        transaction_id=response_json["data"]["tx_hash"],
+        network=loaded_transaction_raw["network"],
         date=str(datetime.datetime.utcnow())
     )
