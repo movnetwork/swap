@@ -132,7 +132,7 @@ def get_transaction(transaction_id: str, network: str = config["network"],
 def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
                headers: dict = config["headers"], timeout: int = config["timeout"]) -> dict:
     """
-    Decode Bitcoin raw.
+    Decode original Bitcoin raw.
 
     :param raw: Bitcoin transaction raw.
     :type raw: str
@@ -173,7 +173,7 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
 def submit_raw(raw: str, network: str = config["network"],
                headers: dict = config["headers"], timeout: int = config["timeout"]) -> str:
     """
-    Submit raw into Bitcoin blockchain.
+    Submit original Bitcoin raw into blockchain.
 
     :param raw: Bitcoin transaction raw.
     :type raw: str

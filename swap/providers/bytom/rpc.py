@@ -179,7 +179,7 @@ def get_transaction(transaction_id: str, network: str = config["network"],
 def decode_raw(raw: str, network: str = config["network"], 
                headers: dict = config["headers"], timeout: int = config["timeout"]) -> dict:
     """
-    Decode Bytom raw.
+    Decode original Bytom raw.
 
     :param raw: Bytom transaction raw.
     :type raw: str
@@ -214,7 +214,7 @@ def decode_raw(raw: str, network: str = config["network"],
 def submit_raw(address: str, raw: str, signatures: list, network: str = config["network"],
                headers: dict = config["headers"], timeout: int = config["timeout"]) -> str:
     """
-     Submit raw into Bytom blockchain.
+     Submit original Bytom raw into blockchain.
 
     :param address: Bytom address.
     :type address: str
