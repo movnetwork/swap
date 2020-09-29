@@ -3,6 +3,7 @@
 from mnemonic.mnemonic import Mnemonic
 from binascii import hexlify, unhexlify
 from random import choice
+from typing import Optional, Union
 
 import string
 import os
@@ -12,7 +13,7 @@ import hashlib
 letters = string.ascii_letters + string.digits
 
 
-def generate_passphrase(length=32):
+def generate_passphrase(length: int = 32) -> str:
     """
     Generate entropy hex string.
 
@@ -28,7 +29,7 @@ def generate_passphrase(length=32):
     return str().join(choice(letters) for _ in range(length))
 
 
-def generate_entropy(strength=128):
+def generate_entropy(strength: int = 128) -> str:
     """
     Generate entropy hex string.
 
@@ -50,7 +51,7 @@ def generate_entropy(strength=128):
     return hexlify(os.urandom(strength // 8)).decode()
 
 
-def generate_mnemonic(language="english", strength=128):
+def generate_mnemonic(language: str = "english", strength: int = 128) -> str:
     """
     Generate 12 word mnemonic.
 
@@ -79,15 +80,15 @@ def generate_mnemonic(language="english", strength=128):
     return Mnemonic(language=language).generate(strength=strength)
 
 
-def is_mnemonic(mnemonic, language=None):
+def is_mnemonic(mnemonic: str, language: Optional[str] = None) -> bool:
     """
-    Check 12 word mnemonic is Valid.
+    Check mnemonic.
 
-    :param mnemonic: 12 word mnemonic.
+    :param mnemonic: Mnemonic words.
     :type mnemonic: str
     :param language: Mnemonic language, default to None.
     :type language: str
-    :returns:  mnemonic -- True/False.
+    :returns: mnemonic -- Mnemonic valid/invalid.
 
     >>> from swap.utils import is_mnemonic
     >>> is_mnemonic("sceptre capter séquence girafe absolu relatif fleur zoologie muscle sirop saboter parure")
@@ -113,13 +114,13 @@ def is_mnemonic(mnemonic, language=None):
         return False
 
 
-def get_mnemonic_language(mnemonic):
+def get_mnemonic_language(mnemonic: str) -> str:
     """
     Get mnemonic language.
 
-    :param mnemonic: 12 word mnemonic.
+    :param mnemonic: Mnemonic words.
     :type mnemonic: str
-    :returns:  language -- Mnemonic language.
+    :returns: language -- Mnemonic language.
 
     >>> from swap.utils import get_mnemonic_language
     >>> get_mnemonic_language("sceptre capter séquence girafe absolu relatif fleur zoologie muscle sirop saboter parure")
@@ -138,13 +139,13 @@ def get_mnemonic_language(mnemonic):
     return language
 
 
-def sha256(data):
+def sha256(data: Union[str, bytes]) -> str:
     """
     SHA256 hash.
 
-    :param data: encoded data.
+    :param data: Any string/bytes data.
     :type data: str, bytes
-    :returns: str -- hashed sha256.
+    :returns: str -- SHA256 hash.
 
     >>> from swap.utils import sha256
     >>> sha256("Hello Meheret!")
@@ -153,28 +154,23 @@ def sha256(data):
 
     if isinstance(data, str):
         return hashlib.sha256(data.encode()).digest().hex()
-    elif isinstance(data, bytes):
-        return hashlib.sha256(data).digest().hex()
-    raise TypeError("data must be str/bytes format!")
+    return hashlib.sha256(data).digest().hex()
 
 
-def double_sha256(data):
+def double_sha256(data: Union[str, bytes]) -> str:
     """
     Double SHA256 hash.
 
-    :param data: encoded data.
+    :param data: Any string/bytes data.
     :type data: str, bytes
-    :returns: bytearray -- hashed double sha256.
+    :returns: str --  Double SHA256 hash.
 
     >>> from swap.utils import double_sha256
     >>> double_sha256("Hello Meheret!")
     "821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158"
     """
-
-    if isinstance(data, str) or isinstance(data, bytes):
-        return hashlib.sha256(unhexlify(sha256(data))).digest().hex()
-    raise TypeError("data must be str/bytes format!")
+    return hashlib.sha256(unhexlify(sha256(data))).digest().hex()
 
 
-def transaction_raw_cleaner(raw: str) -> str:
-    return str(raw + "=" * (-len(raw) % 4))
+def clean_transaction_raw(transaction_raw: str) -> str:
+    return str(transaction_raw + "=" * (-len(transaction_raw) % 4))
