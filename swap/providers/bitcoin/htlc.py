@@ -4,7 +4,7 @@ from btcpy.structs.script import (
     Script, ScriptBuilder, P2shScript, IfElseScript, Hashlock256Script, RelativeTimelockScript
 )
 from btcpy.structs.transaction import Sequence
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, Union
 from binascii import unhexlify
 
 import hashlib
@@ -42,6 +42,10 @@ class HTLC:
                                "choose only 'mainnet' or 'testnet' networks.")
         self._network: str = network
         self._script: Optional[IfElseScript, ScriptBuilder] = None
+
+    @property
+    def script(self) -> Union[IfElseScript, ScriptBuilder]:
+        return self._script
 
     def build_htlc(self, secret_hash: str, recipient_address: str,
                    sender_address: str, sequence: int = config["sequence"]) -> _HTLC:
