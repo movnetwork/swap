@@ -4,208 +4,186 @@ from btcpy.structs.crypto import PrivateKey
 from btcpy.structs.sig import (
     P2pkhSolver, IfElseSolver, HashlockSolver, Branch, RelativeTimelockSolver
 )
+from btcpy.structs.script import (
+    ScriptBuilder, IfElseScript
+)
 from btcpy.structs.transaction import Sequence
+from typing import Optional, Union
 
-from ...utils import sha256
-from ...utils.exceptions import AddressError
 from ..config import bitcoin
-from .utils import is_address
+from .wallet import Wallet
 from .htlc import HTLC
 
 # Bitcoin config
-bitcoin = bitcoin()
+config = bitcoin()
 
 
-# Fund Solver
 class FundSolver:
     """
-    Bitcoin FundSolver class.
+    Bitcoin Fund solver.
 
-    :param private_key: Bitcoin sender private key.
-    :type private_key: str
-    :returns:  FundSolver -- Bitcoin fund solver instance.
+    :param root_xprivate_key: Bitcoin sender root xprivate key.
+    :type root_xprivate_key: str
+    :param account: Bitcoin derivation account, defaults to 0.
+    :type account: int
+    :param change: Bitcoin derivation change, defaults to False.
+    :type change: bool
+    :param address: Bitcoin derivation address, defaults to 0.
+    :type address: int
+    :param path: Bitcoin derivation path, defaults to None.
+    :type path: str
+    :returns: FundSolver -- Bitcoin fund solver instance.
 
     >>> from swap.providers.bitcoin.solver import FundSolver
-    >>> fund_solver = FundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
+    >>> from swap.providers.bitcoin.wallet import Wallet
+    >>> sender_root_xprivate_key = "tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR"
+    >>> fund_solver = FundSolver(root_xprivate_key=sender_root_xprivate_key)
     <swap.providers.bitcoin.solver.FundSolver object at 0x03FCCA60>
     """
 
-    # Initialization fund solver
-    def __init__(self, private_key):
-        # Checking parameter instances
-        if not isinstance(private_key, str):
-            raise TypeError("private key must be string format")
+    def __init__(self, root_xprivate_key: str, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None):
+        if not path:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Setting Bitcoin private key
-        self.private_key = PrivateKey.unhexlify(private_key)
+        self._root_xprivate_key: str = root_xprivate_key
+        self._path: Optional[str] = path
 
-    # Bitcoin signature solve
-    def solve(self):
+    def solve(self, network: str = config["network"]) -> P2pkhSolver:
         return P2pkhSolver(
-            privk=self.private_key
+            privk=PrivateKey.unhexlify(
+                hexa=Wallet(network=network).from_root_xprivate_key(
+                    root_xprivate_key=self._root_xprivate_key
+                ).from_path(
+                    path=self._path
+                ).private_key()
+            )
         )
 
 
-# Claim Solver
 class ClaimSolver:
     """
     Bitcoin ClaimSolver class.
 
-    :param private_key: Bitcoin sender private key.
-    :type private_key: str
-    :param secret: Secret password/passphrase.
-    :type secret: str
-    :param secret_hash: Secret witness password/passphrase hash, defaults to None.
-    :type secret_hash: str
-    :param recipient_address: Bitcoin witness recipient address, defaults to None.
-    :type recipient_address: str
-    :param sender_address: Bitcoin witness sender address, defaults to None.
-    :type sender_address: str
-    :param sequence: Bitcoin witness sequence number(expiration block), defaults to 1000.
-    :type sequence: int
-    :param bytecode: Bitcoin witness HTLC bytecode, defaults to None.
+    :param root_xprivate_key: Bitcoin sender root xprivate key.
+    :type root_xprivate_key: str
+    :param secret_key: Secret password/passphrase.
+    :type secret_key: str
+    :param bytecode: Bitcoin witness HTLC bytecode..
     :type bytecode: str
+    :param account: Bitcoin derivation account, defaults to 0.
+    :type account: int
+    :param change: Bitcoin derivation change, defaults to False.
+    :type change: bool
+    :param address: Bitcoin derivation address, defaults to 0.
+    :type address: int
+    :param path: Bitcoin derivation path, defaults to None.
+    :type path: str
     :returns:  ClaimSolver -- Bitcoin claim solver instance.
 
     >>> from swap.providers.bitcoin.solver import ClaimSolver
-    >>> from swap.utils import sha256
-    >>> claim_solver = ClaimSolver(private_key="6bc3b581f3dea1963f9257ec2a0195969babee3704e6ba7cd2ec535140b9816f", secret="Hello Meheret!", secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+    >>> recipient_root_xprivate_key = "xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR"
+    >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+    >>> claim_solver = ClaimSolver(wallet=recipient_root_xprivate_key, secret_key="Hello Meheret!", bytecode=bytecode)
     <swap.providers.bitcoin.solver.ClaimSolver object at 0x03FCCA60>
     """
 
-    # Initialization claim solver
-    def __init__(self, private_key, secret, secret_hash=None, recipient_address=None,
-                 sender_address=None, sequence=bitcoin["sequence"], bytecode=None):
+    def __init__(self, root_xprivate_key: str, secret_key: str, bytecode: str,
+                 account: int = 0, change: bool = False, address: int = 0, path: Optional[str] = None):
+        if not path:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Checking parameter instances
-        if not isinstance(private_key, str):
-            raise TypeError("private key must be string format")
-        if not isinstance(secret, str):
-            raise TypeError("secret must be string format")
-        if bytecode is None:
-            if not isinstance(secret_hash, str):
-                raise TypeError("secret hash must be string format")
-            if len(secret_hash) != 64:
-                raise ValueError("invalid secret hash, length must be 64")
-            if not is_address(recipient_address):
-                raise AddressError(f"invalid recipient {recipient_address} address")
-            if not is_address(sender_address):
-                raise AddressError(f"invalid sender {sender_address} address")
-            if not isinstance(sequence, int):
-                raise TypeError("sequence must be integer format")
-        else:
-            if not isinstance(bytecode, str):
-                raise TypeError("bytecode must be string format")
+        self._root_xprivate_key: str = root_xprivate_key
+        self._secret_key: str = secret_key
+        self._path: Optional[str] = path
+        self._bytecode: str = bytecode
 
-        # Setting Bitcoin private key and secret password/passphrase
-        self.private_key, self.secret = PrivateKey.unhexlify(private_key), secret
-        # Setting witness from bytecode or HTLC
-        self.bytecode, self.htlc_args = bytecode, [
-            secret_hash,  # Secret password/passphrase
-            recipient_address,  # Bitcoin recipient address
-            sender_address,  # Bitcoin sender address
-            sequence  # Sequence/Expiration block
-        ]
-
-    # Bitcoin signature solve
-    def solve(self):
+    def solve(self, network: str = config["network"]) -> IfElseSolver:
         return IfElseSolver(
             branch=Branch.IF,
             inner_solver=HashlockSolver(
-                preimage=self.secret.encode(),
-                inner_solver=P2pkhSolver(self.private_key)
+                preimage=self._secret_key.encode(),
+                inner_solver=P2pkhSolver(
+                    privk=PrivateKey.unhexlify(
+                        hexa=Wallet(network=network).from_root_xprivate_key(
+                            root_xprivate_key=self._root_xprivate_key
+                        ).from_path(
+                            path=self._path
+                        ).private_key()
+                    )
+                )
             )
         )
 
-    # Bitcoin HTLC witnesses script
-    def witness(self, network=bitcoin["network"]):
-        if self.bytecode:
-            return HTLC(network=network).from_bytecode(
-                bytecode=self.bytecode
-            ).script
-        return HTLC(network=network).init(
-            secret_hash=self.htlc_args[0],
-            recipient_address=self.htlc_args[1],
-            sender_address=self.htlc_args[2],
-            sequence=self.htlc_args[3]
+    def witness(self, network: str = config["network"]) -> Union[IfElseScript, ScriptBuilder]:
+        return HTLC(network=network).from_bytecode(
+            bytecode=self._bytecode
         ).script
 
 
-# Refund Solver
 class RefundSolver:
     """
     Bitcoin RefundSolver class.
 
-    :param private_key: Bitcoin sender private key.
-    :type private_key: str
-    :param secret_hash: Secret witness password/passphrase hash, defaults to None.
-    :type secret_hash: str
-    :param recipient_address: Bitcoin witness recipient address, defaults to None.
-    :type recipient_address: str
-    :param sender_address: Bitcoin witness sender address, defaults to None.
-    :type sender_address: str
+    :param root_xprivate_key: Bitcoin sender root xprivate key.
+    :type root_xprivate_key: str
+    :param bytecode: Bitcoin witness HTLC bytecode..
+    :type bytecode: str
     :param sequence: Bitcoin witness sequence number(expiration block), defaults to 1000.
     :type sequence: int
-    :param bytecode: Bitcoin witness HTLC bytecode, defaults to None.
-    :type bytecode: str
+    :param account: Bitcoin derivation account, defaults to 0.
+    :type account: int
+    :param change: Bitcoin derivation change, defaults to False.
+    :type change: bool
+    :param address: Bitcoin derivation address, defaults to 0.
+    :type address: int
+    :param path: Bitcoin derivation path, defaults to None.
+    :type path: str
     :returns:  RefundSolver -- Bitcoin refund solver instance.
 
     >>> from swap.providers.bitcoin.solver import RefundSolver
-    >>> from swap.utils import sha256
-    >>> refund_solver = RefundSolver(private_key="92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b", secret_hash=sha256("Hello Meheret!".encode()).hex(), recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+    >>> refund_solver = RefundSolver(root_xprivate_key=sender_root_xprivate_key, bytecode=bytecode sequence=1000)
     <swap.providers.bitcoin.solver.RefundSolver object at 0x03FCCA60>
     """
 
-    # Initialization refund solver
-    def __init__(self, private_key, secret_hash=None, recipient_address=None,
-                 sender_address=None, sequence=bitcoin["sequence"], bytecode=None):
-        # Checking parameter instances
-        if not isinstance(private_key, str):
-            raise TypeError("private key must be string format")
-        if bytecode is None:
-            if not isinstance(secret_hash, str):
-                raise TypeError("secret hash must be string format")
-            if len(secret_hash) != 64:
-                raise ValueError("invalid secret hash, length must be 64")
-            if not is_address(recipient_address):
-                raise AddressError(f"invalid recipient {recipient_address} address")
-            if not is_address(sender_address):
-                raise AddressError(f"invalid sender {sender_address} address")
-            if not isinstance(sequence, int):
-                raise TypeError("sequence must be integer format")
-        else:
-            if not isinstance(bytecode, str):
-                raise TypeError("bytecode must be string format")
+    def __init__(self, root_xprivate_key: str, bytecode: str, sequence: int = config["sequence"],
+                 account: int = 0, change: bool = False, address: int = 0, path: Optional[str] = None):
+        if not path:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Setting Bitcoin private key and Bitcoin sequence/expiration block
-        self.private_key, self.sequence = PrivateKey.unhexlify(private_key), sequence
-        # Setting witness from bytecode or HTLC
-        self.bytecode, self.htlc_args = bytecode, [
-            secret_hash,  # Secret password/passphrase
-            recipient_address,  # Bitcoin recipient address
-            sender_address,  # Bitcoin sender address
-            sequence  # Sequence/Expiration block
-        ]
+        self._root_xprivate_key: str = root_xprivate_key
+        self._path: Optional[str] = path
+        self._bytecode: str = bytecode
+        self._sequence: int = sequence
 
-    # Bitcoin signature solve
-    def solve(self):
+    def solve(self, network: str = config["network"]) -> IfElseSolver:
         return IfElseSolver(
             branch=Branch.ELSE,
             inner_solver=RelativeTimelockSolver(
-                sequence=Sequence(self.sequence),
-                inner_solver=P2pkhSolver(self.private_key)
+                sequence=Sequence(
+                    seq=self._sequence
+                ),
+                inner_solver=P2pkhSolver(
+                    privk=PrivateKey.unhexlify(
+                        hexa=Wallet(network=network).from_root_xprivate_key(
+                            root_xprivate_key=self._root_xprivate_key
+                        ).from_path(
+                            path=self._path
+                        ).private_key()
+                    )
+                )
             )
         )
 
-    # Bitcoin HTLC witnesses script
-    def witness(self, network=bitcoin["network"]):
-        if self.bytecode:
-            return HTLC(network=network).from_bytecode(
-                bytecode=self.bytecode
-            ).script
-        return HTLC(network=network).init(
-            secret_hash=self.htlc_args[0],
-            recipient_address=self.htlc_args[1],
-            sender_address=self.htlc_args[2],
-            sequence=self.htlc_args[3]
+    def witness(self, network: str = config["network"]) -> Union[IfElseScript, ScriptBuilder]:
+        return HTLC(network=network).from_bytecode(
+            bytecode=self._bytecode
         ).script
