@@ -55,7 +55,7 @@ class HTLC:
         Bytom has only three networks, ``mainnet``, ``solonet`` and ``testnet``.
     """
 
-    def __init__(self, network="testnet"):
+    def __init__(self, network: str = config["network"]):
 
         if not is_network(network=network):
             raise NetworkError(f"Invalid Bytom '{network}' network",
