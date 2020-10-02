@@ -35,8 +35,7 @@ class FundSolver:
     :returns: FundSolver -- Bitcoin fund solver instance.
 
     >>> from swap.providers.bitcoin.solver import FundSolver
-    >>> from swap.providers.bitcoin.wallet import Wallet
-    >>> sender_root_xprivate_key = "tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR"
+    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
     >>> fund_solver = FundSolver(root_xprivate_key=sender_root_xprivate_key)
     <swap.providers.bitcoin.solver.FundSolver object at 0x03FCCA60>
     """
@@ -65,7 +64,7 @@ class FundSolver:
 
 class ClaimSolver:
     """
-    Bitcoin ClaimSolver class.
+    Bitcoin Claim solver.
 
     :param root_xprivate_key: Bitcoin sender root xprivate key.
     :type root_xprivate_key: str
@@ -127,7 +126,7 @@ class ClaimSolver:
 
 class RefundSolver:
     """
-    Bitcoin RefundSolver class.
+    Bitcoin Refund solver.
 
     :param root_xprivate_key: Bitcoin sender root xprivate key.
     :type root_xprivate_key: str
