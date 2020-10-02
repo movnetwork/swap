@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
-from hdwallet.symbols import BTC, BTCTEST
-from btcpy.structs.transaction import MutableTransaction
+from btcpy.structs.script import ScriptSig, Script
+from btcpy.structs.transaction import (
+    MutableTransaction, Sequence, TxIn, TxOut
+)
 from btcpy.structs.address import Address
+from btcpy.setup import setup as stp
 from btcpy.structs.script import (
     P2pkhScript, P2shScript
 )
-from btcpy.setup import setup as stp
+from hdwallet.symbols import (
+    BTC as BitcoinMainnet, BTCTEST as BitcoinTestnet
+)
 from base64 import b64decode
 from typing import Union, Optional
 
@@ -244,7 +249,7 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
     loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
     url = f"{config[loaded_transaction_raw['network']]['sochain']}/send_tx/" \
-          f"{BTC if loaded_transaction_raw['network'] == 'mainnet' else BTCTEST}"
+          f"{BitcoinMainnet if loaded_transaction_raw['network'] == 'mainnet' else BitcoinTestnet}"
     data = dict(tx_hex=loaded_transaction_raw["raw"])
     response = requests.post(
         url=url, data=json.dumps(data), headers=headers, timeout=timeout
@@ -263,18 +268,6 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
         )
     else:
         raise APIError("Unknown Bitcoin submit payment error.")
-
-
-def get_previous_transaction_indexes(utxos: list, amount: int) -> list:
-    temp_amount = int()
-    previous_transaction_indexes = list()
-    for index, utxo in enumerate(utxos):
-        temp_amount += utxo["amount"]
-        if temp_amount > (amount + fee_calculator((index + 1), 2)):
-            previous_transaction_indexes.append(index)
-            break
-        previous_transaction_indexes.append(index)
-    return previous_transaction_indexes
 
 
 def get_address_hash(address: str, script: bool = False) -> Union[str, P2pkhScript, P2shScript]:
@@ -303,3 +296,53 @@ def get_address_hash(address: str, script: bool = False) -> Union[str, P2pkhScri
         return P2pkhScript(loaded_address)
     elif str(get_type) == "p2sh":
         return P2shScript(loaded_address)
+
+
+def _get_previous_transaction_indexes(utxos: list, amount: int) -> list:
+    temp_amount = int()
+    previous_transaction_indexes = list()
+    for index, utxo in enumerate(utxos):
+        temp_amount += utxo["value"]
+        if temp_amount > (amount + fee_calculator((index + 1), 2)):
+            previous_transaction_indexes.append(index)
+            break
+        previous_transaction_indexes.append(index)
+    return previous_transaction_indexes
+
+
+def _build_inputs(utxos: list, previous_transaction_indexes: Optional[list] = None) -> tuple:
+    inputs, amount = [], 0
+    for index, utxo in enumerate(utxos):
+        if previous_transaction_indexes is None or index in previous_transaction_indexes:
+            amount += utxo["value"]
+            inputs.append(
+                TxIn(
+                    txid=utxo["tx_hash"],
+                    txout=utxo["tx_output_n"],
+                    script_sig=ScriptSig.empty(),
+                    sequence=Sequence.max()
+                )
+            )
+    return inputs, amount
+
+
+def _build_outputs(utxos: list, previous_transaction_indexes: Optional[list] = None, only_dict: bool = False) -> list:
+    outputs = []
+    for index, utxo in enumerate(utxos):
+        if previous_transaction_indexes is None or index in previous_transaction_indexes:
+            outputs.append(
+                TxOut(
+                    value=utxo["value"],
+                    n=utxo["tx_output_n"],
+                    script_pubkey=Script.unhexlify(
+                        hex_string=utxo["script"]
+                    )
+                )
+                if not only_dict else
+                dict(
+                    amount=utxo["value"],
+                    n=utxo["tx_output_n"],
+                    script=utxo["script"]
+                )
+            )
+    return outputs
