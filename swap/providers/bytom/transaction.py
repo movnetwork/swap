@@ -18,7 +18,7 @@ import json
 from ...utils.exceptions import NetworkError
 from ..config import bytom
 from .rpc import (
-    build_transaction, decode_transaction_raw
+    build_transaction, decode_raw
 )
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
@@ -33,7 +33,7 @@ config = bytom()
 
 class Transaction(BytomTransaction):
     """
-    Bytom Transaction class.
+    Bytom Transaction.
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
@@ -46,16 +46,16 @@ class Transaction(BytomTransaction):
     def __init__(self, network: str = config["network"]):
 
         if not is_network(network=network):
-            raise NetworkError(f"Invalid '{network}' network/type",
+            raise NetworkError(f"Invalid Bytom '{network}' network/type",
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
         super().__init__(network)
 
-        self._network:         str = network
-        self._address:         Optional[str] = None
-        self._transaction:     Optional[dict] = None
-        self._type:            Optional[str] = None
-        self._fee:             int = config["fee"]
-        self._confirmations:   int = config["confirmations"]
+        self._network: str = network
+        self._address: Optional[str] = None
+        self._transaction: Optional[dict] = None
+        self._type: Optional[str] = None
+        self._fee: int = config["fee"]
+        self._confirmations: int = config["confirmations"]
 
     def fee(self) -> int:
         """
@@ -64,10 +64,8 @@ class Transaction(BytomTransaction):
         :returns: int -- Bitcoin transaction fee.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet(network="mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_transaction = ClaimTransaction(network="mainnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction = ClaimTransaction("mainnet")
+        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.fee()
         10000000
         """
@@ -80,20 +78,19 @@ class Transaction(BytomTransaction):
 
         :returns: str -- Bytom transaction hash or transaction id.
 
-        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> htlc = HTLC(network="mainnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> fund_transaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> from swap.providers.bytom.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> fund_transaction = FundTransaction("mainnet")
+        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc, 10000)
         >>> fund_transaction.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._transaction["tx"]["hash"]
 
     def json(self) -> dict:
@@ -103,18 +100,16 @@ class Transaction(BytomTransaction):
         :returns: dict -- Bytom transaction json format.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> refund_transaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction = RefundTransaction("mainnet")
+        >>> refund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
-        return decode_transaction_raw(transaction_raw=self._transaction["raw_transaction"])
+            raise ValueError("Transaction is none, build transaction first.")
+        return decode_raw(raw=self._transaction["raw_transaction"])
 
     def raw(self) -> str:
         """
@@ -123,30 +118,26 @@ class Transaction(BytomTransaction):
         :returns: str -- Bytom transaction raw.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet(network="mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_transaction = ClaimTransaction(network="mainnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction = ClaimTransaction("mainnet")
+        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._transaction["raw_transaction"]
     
-    def type(self):
+    def type(self) -> type:
         """
         Get Bitcoin signature transaction type.
 
         :returns: str -- Bitcoin signature transaction type.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet(network="mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_transaction = ClaimTransaction(network="mainnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction = ClaimTransaction("mainnet")
+        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.type()
         "bitcoin_claim_unsigned"
         """
@@ -158,26 +149,29 @@ class Transaction(BytomTransaction):
 
     def unsigned_datas(self, detail: bool = False) -> list:
         """
-        Get Bytom transaction unsigned datas with instruction.
+        Get Bytom transaction unsigned datas(messages) with instruction.
 
         :param detail: Bytom unsigned datas to see detail, defaults to False.
         :type detail: bool
         :returns: list -- Bytom transaction unsigned datas.
 
-        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
+        >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> htlc = HTLC(network="mainnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> fund_transaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
-        >>> fund_transaction.unsigned_datas()
+        >>> from swap.providers.bytom.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
+        >>> fund_transaction = FundTransaction("mainnet")
+        >>> fund_transaction.build_transaction(sender_wallet.address(), htlc, 10000)
+        >>> fund_transaction.unsigned_datas(solver=fund_solver)
         [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
         """
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("Transaction is none, build transaction first.")
 
         unsigned_datas: list = []
         for signing_instruction in self._transaction["signing_instructions"]:
@@ -216,21 +210,22 @@ class Transaction(BytomTransaction):
         # Not implemented
         pass
 
-    def signatures(self):
+    def signatures(self) -> list:
         """
         Get Bytom transaction signatures(signed datas).
 
         :returns: list -- Bytom transaction signatures.
 
-        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> htlc = HTLC(network="mainnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> fund_solver = FundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
-        >>> fund_transaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> from swap.providers.bytom.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
+        >>> fund_transaction = FundTransaction("mainnet")
+        >>> fund_transaction.build_transaction(sender_wallet.address(), htlc, 10000)
         >>> fund_transaction.sign(solver=fund_solver)
         >>> fund_transaction.signatures()
         [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
@@ -238,13 +233,13 @@ class Transaction(BytomTransaction):
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("transaction is none, build transaction first.")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._signatures
 
 
 class FundTransaction(Transaction):
     """
-    Bytom FundTransaction class.
+    Bytom Fund transaction.
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
@@ -254,8 +249,7 @@ class FundTransaction(Transaction):
         Do not forget to build transaction after initialize fund transaction.
     """
 
-    # Initialize fund transaction
-    def __init__(self, network="mainnet"):
+    def __init__(self, network: str = config["mainnet"]):
         super().__init__(network)
 
     def build_transaction(self, address: str, htlc: HTLC, amount: int, asset: str = config["asset"]):
@@ -272,13 +266,12 @@ class FundTransaction(Transaction):
         :type asset: str
         :returns: FundTransaction -- Bytom fund transaction instance.
 
-        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> htlc = HTLC(network="mainnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> fund_transaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(address=sender_wallet.address(), htlc=htlc, amount=10000)
+        >>> from swap.providers.bytom.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> fund_transaction = FundTransaction("mainnet")
+        >>> fund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc=htlc, amount=10000)
         <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
@@ -291,7 +284,9 @@ class FundTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._address,
             transaction=dict(
-                fee=str(amount_converter(self._fee, "NEU2BTM")),
+                fee=str(amount_converter(
+                    amount=self._fee, symbol="NEU2BTM"
+                )),
                 confirmations=self._confirmations,
                 inputs=[
                     spend_wallet(
@@ -324,22 +319,23 @@ class FundTransaction(Transaction):
         :type solver: bytom.solver.FundSolver
         :returns: FundTransaction -- Bytom fund transaction instance.
 
-        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> htlc = HTLC(network="mainnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> fund_solver = FundSolver("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
-        >>> fund_transaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> from swap.providers.bytom.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
+        >>> fund_transaction = FundTransaction("mainnet")
+        >>> fund_transaction.build_transaction(sender_wallet.address(), htlc, 10000)
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not isinstance(solver, FundSolver):
-            raise TypeError(f"solver must be FundSolver, not '{type(solver)}' type.")
+            raise TypeError(f"Solver must be Bytom FundSolver, not {type(solver).__name__} type.")
 
         # Setting sender wallet
         wallet, path, indexes = solver.solve()
@@ -366,24 +362,23 @@ class FundTransaction(Transaction):
 
     def unsigned_raw(self) -> str:
         """
-        Get Bytom unsigned fund swap transaction raw.
+        Get Bytom unsigned fund transaction raw.
 
         :returns: str -- Bytom unsigned fund transaction raw.
 
-        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> htlc = HTLC(network="mainnet").init("821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> fund_transaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet, htlc, 10000)
+        >>> from swap.providers.bytom.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
+        >>> fund_transaction = FundTransaction("mainnet")
+        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc, 10000)
         >>> fund_transaction.unsigned_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
         # Check transaction
-        if not self._transaction:
-            raise ValueError("transaction script is none, build transaction first")
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
 
         # Encode claim transaction raw and return
         return b64encode(str(json.dumps(dict(
@@ -400,7 +395,7 @@ class FundTransaction(Transaction):
 
 class ClaimTransaction(Transaction):
     """
-    Bytom ClaimTransaction class.
+    Bytom Claim transaction.
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
@@ -411,17 +406,17 @@ class ClaimTransaction(Transaction):
     """
 
     # Initialize claim transaction
-    def __init__(self, network="mainnet"):
+    def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
     def build_transaction(self, transaction_id: str, address: str, amount: int, asset: str = config["asset"]):
         """
         Build Bytom claim transaction.
 
-        :param transaction_id: Bytom fund transaction id to redeem.
-        :type transaction_id: str
         :param address: Bytom recipient wallet address.
         :type address: str
+        :param transaction_id: Bytom fund transaction id to redeem.
+        :type transaction_id: str
         :param amount: Bytom amount to withdraw.
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
@@ -429,10 +424,8 @@ class ClaimTransaction(Transaction):
         :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet(network="mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_transaction = ClaimTransaction(network="mainnet")
-        >>> claim_transaction.build_transaction(transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", address=recipient_wallet.address(), amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction = ClaimTransaction("mainnet")
+        >>> claim_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
@@ -453,7 +446,9 @@ class ClaimTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._address,
             transaction=dict(
-                fee=str(amount_converter(self._fee, "NEU2BTM")),
+                fee=str(amount_converter(
+                    amount=self._fee, symbol="NEU2BTM"
+                )),
                 confirmations=self._confirmations,
                 inputs=[
                     spend_utxo(
@@ -486,17 +481,18 @@ class ClaimTransaction(Transaction):
         >>> from swap.providers.bytom.transaction import ClaimTransaction
         >>> from swap.providers.bytom.solver import ClaimSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet(network="mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_wallet.public_key(), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
-        >>> claim_transaction = ClaimTransaction(network="mainnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", recipient_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> recipient_wallet = Wallet("mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit").from_path("m/44/153/1/0/1")
+        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
+        >>> claim_transaction = ClaimTransaction("mainnet")
+        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.sign(solver=claim_solver)
         <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not isinstance(solver, ClaimSolver):
-            raise TypeError(f"solver must be ClaimSolver, not '{type(solver)}' type.")
+            raise TypeError(f"Solver must be Bytom ClaimSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, secret, path, indexes = solver.solve()
@@ -517,7 +513,7 @@ class ClaimTransaction(Transaction):
                     signed_data.append(bytearray(secret.encode()).hex())
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str("00"))
-                    signed_data.append(solver.witness(self._network, False))
+                    signed_data.append(solver.witness(self._network))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self._signatures.append(signed_data)
@@ -529,22 +525,20 @@ class ClaimTransaction(Transaction):
 
     def unsigned_raw(self) -> str:
         """
-        Get Bytom unsigned claim swap transaction raw.
+        Get Bytom unsigned claim transaction raw.
 
         :returns: str -- Bytom unsigned claim transaction raw.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
-        >>> claim_transaction = ClaimTransaction(network="mainnet")
-        >>> claim_transaction.build_transaction("1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction = ClaimTransaction("mainnet")
+        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.unsigned_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
         # Check transaction
-        if not self._transaction:
-            raise ValueError("transaction script is none, build transaction first")
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
 
         # Encode claim transaction raw and return
         return b64encode(str(json.dumps(dict(
@@ -561,7 +555,7 @@ class ClaimTransaction(Transaction):
 
 class RefundTransaction(Transaction):
     """
-    Bytom RefundTransaction class.
+    Bytom Refund transaction.
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
@@ -571,18 +565,17 @@ class RefundTransaction(Transaction):
         Do not forget to build transaction after initialize refund transaction.
     """
 
-    # Initialize fund transaction
-    def __init__(self, network="mainnet"):
+    def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-    def build_transaction(self, transaction_id: str, address: str, amount: int, asset: str = config["asset"]):
+    def build_transaction(self, address: str, transaction_id: str, amount: int, asset: str = config["asset"]):
         """
         Build Bytom refund transaction.
 
-        :param transaction_id: Bytom fund transaction id to redeem.
-        :type transaction_id: str
         :param address: Bytom sender wallet address.
         :type address: str
+        :param transaction_id: Bytom fund transaction id to redeem.
+        :type transaction_id: str
         :param amount: Bytom amount to withdraw.
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
@@ -590,14 +583,12 @@ class RefundTransaction(Transaction):
         :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> refund_transaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", address=sender_wallet.address(), amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction = RefundTransaction("mainnet")
+        >>> refund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
-        # Find HTLC UTXO id.
+        # Find HTLC UTXO id
         htlc_utxo_id = find_p2wsh_utxo(
             transaction_id=transaction_id,
             network=self._network
@@ -614,7 +605,9 @@ class RefundTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._address,
             transaction=dict(
-                fee=str(amount_converter(self._fee, "NEU2BTM")),
+                fee=str(amount_converter(
+                    amount=self._fee, symbol="NEU2BTM"
+                )),
                 confirmations=self._confirmations,
                 inputs=[
                     spend_utxo(
@@ -636,7 +629,6 @@ class RefundTransaction(Transaction):
         self._type = "bytom_refund_unsigned"
         return self
 
-    # Signing transaction using private keys
     def sign(self, solver: RefundSolver):
         """
         Sign Bytom refund transaction.
@@ -648,17 +640,18 @@ class RefundTransaction(Transaction):
         >>> from swap.providers.bytom.transaction import RefundTransaction
         >>> from swap.providers.bytom.solver import RefundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> refund_solver = RefundSolver(wallet.xprivate_key(), "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", wallet.public_key(), 1000)
-        >>> refund_transaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> refund_solver = RefundSolver(sender_wallet.xprivate_key(), bytecode=bytecode)
+        >>> refund_transaction = RefundTransaction("mainnet")
+        >>> refund_transaction.build_transaction(sender_wallet.address(), "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not isinstance(solver, RefundSolver):
-            raise TypeError(f"solver must be RefundSolver, not '{type(solver)}' type.")
+            raise TypeError(f"Solver must be Bytom RefundSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, path, indexes = solver.solve()
@@ -678,7 +671,7 @@ class RefundTransaction(Transaction):
                 if index == 0:
                     signed_data.append(wallet.sign(unsigned_data))
                     signed_data.append(str("01"))
-                    signed_data.append(solver.witness(self._network, False))
+                    signed_data.append(solver.witness(self._network))
                 else:
                     signed_data.append(wallet.sign(unsigned_data))
             self._signatures.append(signed_data)
@@ -690,22 +683,20 @@ class RefundTransaction(Transaction):
 
     def unsigned_raw(self) -> str:
         """
-        Get Bytom unsigned refund swap transaction raw.
+        Get Bytom unsigned refund transaction raw.
 
         :returns: str -- Bytom unsigned refund transaction raw.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet(network="mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-        >>> refund_transaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction("481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", sender_wallet, 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction = RefundTransaction("mainnet")
+        >>> refund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.unsigned_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
         # Check transaction
-        if not self._transaction:
-            raise ValueError("transaction script is none, build transaction first")
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
 
         # Encode claim transaction raw and return
         return b64encode(str(json.dumps(dict(
