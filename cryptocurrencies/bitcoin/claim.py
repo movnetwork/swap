@@ -4,100 +4,75 @@ from swap.providers.bitcoin.wallet import Wallet
 from swap.providers.bitcoin.transaction import ClaimTransaction
 from swap.providers.bitcoin.solver import ClaimSolver
 from swap.providers.bitcoin.signature import ClaimSignature
-from swap.providers.bitcoin.utils import submit_transaction_raw
-from swap.utils import sha256
+from swap.providers.bitcoin.utils import (
+    submit_transaction_raw, amount_converter
+)
 
 import json
 
 # Bitcoin network
-NETWORK = "testnet"
-# Bitcoin transaction id/hash
-TRANSACTION_ID = "86b21bf4ac171dac4483dc063353b4db3f91541c81e93c66449542b314ed0f8b"
-# Recipient passphrase/password
-RECIPIENT_PASSPHRASE = "Woo!"
-# Sender Bitcoin address
-SENDER_ADDRESS = "miAcLpYbaqE8KowBu2PwvqXG6y6vpQcfTJ"
+NETWORK: str = "testnet"
+# Bitcoin funded transaction id/hash
+TRANSACTION_ID: str = "5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318"
+# Bitcoin recipient wallet mnemonic
+RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
+# Bitcoin wallet derivation path
+PATH: str = "m/44'/0'/0'/0/0"
+# Witness Hash Time Lock Contract (HTLC) bytecode
+BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876" \
+                "a914acf8419eecab574c494febbe03fd07fdae7bf2f488ac6702e803b27576a9141d0f671c" \
+                "26a3ef7a865d1eda0fbd085e98adcc2388ac68"
 # Bitcoin claim amount
-AMOUNT = 10_000
+AMOUNT: int = amount_converter(0.0001, "BTC2SATOSHI")
 
 print("=" * 10, "Recipient Bitcoin Account")
 
-# Initializing recipient Bitcoin wallet
-recipient_wallet = Wallet(network=NETWORK)
-# Initializing Bitcoin wallet from passphrase
-recipient_wallet.from_passphrase(passphrase=RECIPIENT_PASSPHRASE)
-# Getting recipient wallet information's
-recipient_private_key = recipient_wallet.private_key()
-print("Recipient Private Key:", recipient_private_key)
-recipient_public_key = recipient_wallet.public_key()
-print("Recipient Public Key:", recipient_public_key)
-recipient_compressed = recipient_wallet.compressed()
-print("Recipient Compressed:", recipient_compressed)
-recipient_uncompressed = recipient_wallet.uncompressed()
-print("Recipient Uncompressed:", recipient_uncompressed)
-recipient_address = recipient_wallet.address()
-print("Recipient Address:", recipient_address)
-recipient_hash = recipient_wallet.hash()
-print("Recipient Hash:", recipient_hash)
-recipient_p2pkh = recipient_wallet.p2pkh()
-print("Recipient P2PKH:", recipient_p2pkh)
-recipient_p2sh = recipient_wallet.p2sh()
-print("Recipient P2SH:", recipient_p2sh)
-# recipient_balance = recipient_wallet.balance()
-# print("Recipient Balance:", recipient_balance)
+# Initialize Bitcoin recipient wallet
+recipient_wallet: Wallet = Wallet(network=NETWORK)
+# Get Bitcoin recipient wallet from mnemonic
+recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
+# Drive Bitcoin recipient wallet from path
+recipient_wallet.from_path(path=PATH)
 
-print("=" * 10, "Sender Bitcoin Account")
-
-# Initializing sender Bitcoin wallet
-sender_wallet = Wallet(network=NETWORK)
-# Initializing Bitcoin wallet from address
-sender_wallet.from_address(address=SENDER_ADDRESS)
-# Getting sender wallet information's
-sender_address = sender_wallet.address()
-print("Sender Address:", sender_address)
-sender_hash = sender_wallet.hash()
-print("Sender Hash:", sender_hash)
-sender_p2pkh = sender_wallet.p2pkh()
-print("Sender P2PKH:", sender_p2pkh)
-sender_p2sh = sender_wallet.p2sh()
-print("Sender P2SH:", sender_p2sh)
-# sender_balance = sender_wallet.balance()
-# print("Sender Balance:", sender_balance)
+# Print some Bitcoin recipient wallet info's
+print("Private Key:", recipient_wallet.private_key())
+print("Public Key:", recipient_wallet.public_key())
+print("Wallet Important Format (WIF):", recipient_wallet.wif())
+print("Path:", recipient_wallet.path())
+print("Address:", recipient_wallet.address())
+print("Balance:", recipient_wallet.balance())
 
 print("=" * 10, "Unsigned Claim Transaction")
 
-# Initializing claim transaction
-unsigned_claim_transaction = ClaimTransaction(version=2, network=NETWORK)
-# Building claim transaction
+# Initialize claim transaction
+unsigned_claim_transaction: ClaimTransaction = ClaimTransaction(version=2, network=NETWORK)
+# Build claim transaction
 unsigned_claim_transaction.build_transaction(
+    address=recipient_wallet.address(),
     transaction_id=TRANSACTION_ID,
-    wallet=recipient_wallet,
     amount=AMOUNT
 )
 
 print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee())
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
-print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction.raw())
+print("Unsigned Claim Transaction Main Raw:", unsigned_claim_transaction.raw())
 # print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
 print("Unsigned Claim Transaction Type:", unsigned_claim_transaction.type())
 
-unsigned_claim_raw = unsigned_claim_transaction.unsigned_raw()
-print("Unsigned Claim Transaction Unsigned Raw:", unsigned_claim_raw)
+unsigned_claim_transaction_raw: str = unsigned_claim_transaction.transaction_raw()
+print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction_raw)
 
 print("=" * 10, "Signed Claim Transaction")
 
-# Initializing claim solver
+# Initialize claim solver
 claim_solver = ClaimSolver(
-    private_key=recipient_private_key,
-    secret="Hello Meheret!",
-    secret_hash=sha256("Hello Meheret!"),
-    recipient_address=recipient_address,
-    sender_address=sender_address,
-    sequence=1000
+    root_xprivate_key=recipient_wallet.root_xprivate_key(),
+    secret_key="Hello Meheret!",
+    bytecode=BYTECODE
 )
 
-# Singing unsigned claim transaction
-signed_claim_transaction = unsigned_claim_transaction.sign(solver=claim_solver)
+# Sing unsigned claim transaction
+signed_claim_transaction: ClaimTransaction = unsigned_claim_transaction.sign(solver=claim_solver)
 
 print("Signed Claim Transaction Fee:", signed_claim_transaction.fee())
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
@@ -105,13 +80,16 @@ print("Signed Claim Transaction Raw:", signed_claim_transaction.raw())
 # print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
 print("Signed Claim Transaction Type:", signed_claim_transaction.type())
 
+signed_claim_transaction_raw: str = signed_claim_transaction.transaction_raw()
+print("Signed Claim Transaction Raw:", signed_claim_transaction_raw)
+
 print("=" * 10, "Claim Signature")
 
-# Initializing claim signature
-claim_signature = ClaimSignature(network=NETWORK)
-# Singing unsigned claim transaction raw
+# Initialize claim signature
+claim_signature: ClaimSignature = ClaimSignature(network=NETWORK)
+# Sing unsigned claim transaction raw
 claim_signature.sign(
-    unsigned_raw=unsigned_claim_raw,
+    transaction_raw=unsigned_claim_transaction_raw,
     solver=claim_solver
 )
 
@@ -121,10 +99,13 @@ print("Claim Signature Raw:", claim_signature.raw())
 # print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
 print("Claim Signature Type:", claim_signature.type())
 
-signed_claim_raw = claim_signature.signed_raw()
-print("Claim Signature Signed Raw:", signed_claim_raw)
+signed_claim_signature_transaction_raw: str = claim_signature.transaction_raw()
+print("Claim Signature Transaction Raw:", signed_claim_signature_transaction_raw)
 
-# Submitting claim transaction raw
+# Check both signed claim transaction raws are equal
+assert signed_claim_transaction_raw == signed_claim_signature_transaction_raw
+
+# Submit claim transaction raw
 # print("\nSubmitted Claim Transaction:", submit_transaction_raw(
-#     transaction_raw=signed_claim_raw
+#     transaction_raw=signed_claim_transaction_raw  # Or signed_claim_signature_transaction_raw
 # ))
