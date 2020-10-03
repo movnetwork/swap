@@ -9,7 +9,7 @@ from ....providers.bitcoin.htlc import HTLC
 from ....providers.config import bitcoin
 
 # Bitcoin config
-bitcoin = bitcoin()
+config = bitcoin()
 
 
 @click.command("htlc", options_metavar="[OPTIONS]",
@@ -17,13 +17,14 @@ bitcoin = bitcoin()
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-ra", "--recipient-address", type=str, required=True, help="Set Bitcoin recipient address.")
 @click.option("-sa", "--sender-address", type=str, required=True, help="Set Bitcoin sender address.")
-@click.option("-sq", "--sequence", type=int, default=bitcoin["sequence"],
-              help="Set Bitcoin sequence/expiration block.")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bitcoin network.")
+@click.option("-sq", "--sequence", type=int, default=config["sequence"],
+              help="Set Bitcoin sequence/expiration block.", show_default=True)
+@click.option("-n", "--network", type=str, default=config["network"],
+              help="Set Bitcoin network.", show_default=True)
 def htlc(secret_hash, recipient_address, sender_address, sequence, network):
     try:
         click.echo(
-            HTLC(network=network).init(
+            HTLC(network=network).build_htlc(
                 secret_hash=secret_hash,
                 recipient_address=recipient_address,
                 sender_address=sender_address,
