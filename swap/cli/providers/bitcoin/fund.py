@@ -3,28 +3,32 @@
 
 import sys
 
-
 from ....cli import click
 from ....providers.bitcoin.transaction import FundTransaction
-from ....providers.bitcoin.wallet import Wallet
 from ....providers.bitcoin.htlc import HTLC
+from ....providers.config import bitcoin
+
+# Bitcoin config
+config = bitcoin()
 
 
 @click.command("fund", options_metavar="[OPTIONS]",
-               short_help="Select Bitcoin fund transaction builder.")
-@click.option("-sa", "--sender-address", type=str, required=True, help="Set Bitcoin sender address.")
-@click.option("-a", "--amount", type=int, required=True, help="Set Bitcoin amount to fund on HTLC.")
-@click.option("-b", "--bytecode", type=str, required=True, help="Set Bitcoin HTLC bytecode.")
-@click.option("-v", "--version", type=int, default=2, help="Set Bitcoin transaction version.")
-@click.option("-n", "--network", type=str, default="testnet", help="Set Bitcoin network.")
-def fund(sender_address, amount, bytecode, version, network):
+               short_help="Select Bitcoin Fund transaction builder.")
+@click.option("-a", "--address", type=str, required=True, help="Set Bitcoin sender address.")
+@click.option("-am", "--amount", type=int, required=True, help="Set Bitcoin amount (SATOSHI).")
+@click.option("-b", "--bytecode", type=str, required=True, help="Set Bitcoin Hash Time Lock Contract (HTLC) bytecode.")
+@click.option("-v", "--version", type=int, default=config["version"],
+              help="Set Bitcoin transaction version.", show_default=True)
+@click.option("-n", "--network", type=str, default=config["network"],
+              help="Set Bitcoin network.", show_default=True)
+def fund(address, amount, bytecode, version, network):
     try:
         click.echo(
             FundTransaction(version=version, network=network).build_transaction(
-                wallet=Wallet(network=network).from_address(address=sender_address),
+                address=address,
                 htlc=HTLC(network=network).from_bytecode(bytecode=bytecode),
                 amount=int(amount)
-            ).unsigned_raw()
+            ).transaction_raw()
         )
     except Exception as exception:
         click.echo(click.style("Error: {}")
