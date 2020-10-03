@@ -5,7 +5,7 @@ from swap.utils import generate_entropy
 
 # Bitcoin network
 # Choose only mainnet, solonet or testnet networks
-NETWORK: str = "mainnet"  # Default to mainnet
+NETWORK: str = "testnet"  # Default to mainnet
 # Entropy strength
 # Choose only 128, 160, 192, 224 or 256 strengths
 STRENGTH: int = 128  # Default to 128
@@ -20,7 +20,11 @@ PATH: str = "m/44'/0'/0'/0/0"
 # Initialize Bitcoin wallet
 wallet: Wallet = Wallet(network=NETWORK)
 # Get Bitcoin wallet from entropy
-wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE)
+# wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE)
+# wallet.from_mnemonic("announce clutch amazing animal casual liberty race estate language twenty crash regret")
+# wallet.from_mnemonic("beyond wool vapor fix enlist scorpion boss ugly route until sugar trash")
+wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+# wallet.from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
 # Drive Bitcoin wallet from path
 wallet.from_path(path=PATH)
 
