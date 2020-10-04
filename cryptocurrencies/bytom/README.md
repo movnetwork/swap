@@ -26,9 +26,11 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
+  claim   Select Bytom Claim transaction builder.
   decode  Select Bytom transaction raw decoder.
-  fund    Select Bytom fund transaction builder.
+  fund    Select Bytom Fund transaction builder.
   htlc    Select Bytom Hash Time Lock Contract (HTLC) builder.
+  refund  Select Bytom Refund transaction builder.
   sign    Select Bytom transaction raw signer.
   submit  Select Bytom transaction raw submitter.
 ```
@@ -52,9 +54,10 @@ Options:
   -sh, --secret-hash TEXT       Set secret 256 hash.  [required]
   -rp, --recipient-public TEXT  Set Bytom recipient public key.  [required]
   -sp, --sender-public TEXT     Set Bytom sender public key.  [required]
-  -sq, --sequence INTEGER       Set Bytom sequence/expiration block.
-  -n, --network TEXT            Set Bytom network.
+  -sq, --sequence INTEGER       Set Bytom sequence/expiration block.  [default: 1000]
+  -n, --network TEXT            Set Bytom network.  [default: mainnet]
   -h, --help                    Show this message and exit.
+
 ```
 </details>
 
@@ -95,34 +98,34 @@ $ swap bytom fund --help
 Usage: swap bytom fund [OPTIONS]
 
 Options:
-  -sg, --sender-guid TEXT  Set Bytom sender GUID.  [required]
-  -a, --amount INTEGER     Set Bytom amount to fund on HTLC.  [required]
-  -as, --asset TEXT        Set Bytom asset id.  [required]
-  -b, --bytecode TEXT      Set Bytom HTLC bytecode.  [required]
-  -n, --network TEXT       Set Bytom network.
-  -h, --help               Show this message and exit.
+  -a, --address TEXT     Set Bytom sender address.  [required]
+  -b, --bytecode TEXT    Set Bytom Hash Time Lock Contract (HTLC) bytecode.  [required]
+  -am, --amount INTEGER  Set Bytom amount (NEU).  [required]
+  -as, --asset TEXT      Set Bytom asset id.  [default: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]
+  -n, --network TEXT     Set Bitcoin network.  [default: mainnet]
+  -h, --help             Show this message and exit.
 ```
 </details>
 
 > **Example** -> swap bytom `fund` command
 
-**Sender GUID** _(str)_ -> f0ed6ddd-9d6b-49fd-8866-a52d1083a13b **[required]**<br/>
+**Sender Address** _(str)_ -> bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7 **[required]**<br/>
+**bytecode** _(str)_ -> 02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0 **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
 **Asset Id** _(str)_ -> ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff **[required]**<br/>
-**bytecode** _(str)_ -> 02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0 **[required]**<br/>
 **Network** _(str)_ -> mainnet **[default: `solonet`]**<br/>
 
 > **Returns** _(str)_ -> Bytom unsigned fund transaction raw.
 
 ```shell script
-$ swap bytom fund --sender-guid f0ed6ddd-9d6b-49fd-8866-a52d1083a13b --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --bytecode 02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0 --network mainnet
+$ swap bytom fund --address bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7 --bytecode 02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0 --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
+eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkODJlNjVmOTY0ZDNjMzUzMjU0OGRmZGU5Mzg0NjJmNTY2Yzk1ZDNjOTBlNmEzYTE4MmEwYjNiZGFlNDZhYTc5MGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MDg2ZjIwMzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAxNWYwMTVkMDcwZDBlYjIyZDMyYjgyZDNkMmYzZmM0YmFmYjdhODVmNTIyOWY3ZmQ4OTA0MmQyZmYzMjU3Mzc1ZTQzZDNlYmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOGY1Zjc0ZjAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQ4YjhmODUyMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAiaGFzaCI6ICI1MGIzMzZhYjZlMDU1ZDlkNGQ2NWE5ZjIyOTViNTMyNzBhYmQzODE2YzIzYmE0Yzk1NDg0MWYzOTlhYTc3MmQ1IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImY3ZDNhYTE4YjI5NWNkYTZmMmIxMTMyYzQyMzE5MzNjYzkyZjNiYWNhNzA1OTc0YzVkZTM3OGY5YjY5NWYwZTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9LCB7ImRhdGFzIjogWyJjYTYxNWJhMmM3MjllNDYzZmJmNzlhMTE0MTkxNzYyNjFiMWJmNmJlNDQ4MTMzMzVkMmIyNTZlOGE3YmJjZWVlIl0sICJwdWJsaWNfa2V5IjogIjkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
 ```
 </details>
 
@@ -141,19 +144,19 @@ $ swap bytom claim --help
 Usage: swap bytom claim [OPTIONS]
 
 Options:
-  -t, --transaction TEXT      Set Bytom fund transaction id.  [required]
-  -rg, --recipient-guid TEXT  Set Bytom recipient GUID.  [required]
-  -a, --amount INTEGER        Set Bytom amount to claim.  [required]
-  -as, --asset TEXT           Set Bytom asset id.  [required]
-  -n, --network TEXT          Set Bytom network.
-  -h, --help                  Show this message and exit.
+  -a, --address TEXT      Set Bytom recipient address.  [required]
+  -t, --transaction TEXT  Set Bytom funded transaction id.  [required]
+  -am, --amount INTEGER   Set Bytom amount (NEU).  [required]
+  -as, --asset TEXT       Set Bytom asset id.  [default: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]
+  -n, --network TEXT      Set Bitcoin network.  [default: mainnet]
+  -h, --help              Show this message and exit.
 ```
 </details>
 
 > **Example** -> swap bytom `claim` command
 
+**Recipient Address** _(str)_ -> bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p **[required]**<br/>
 **Transaction Id** _(str)_ -> 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd **[required]**<br/>
-**Recipient GUID** _(str)_ -> 571784a8-0945-4d78-b973-aac4b09d6439 **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
 **Asset Id** _(str)_ -> ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff **[required]**<br/>
 **Network** _(str)_ -> mainnet **[default: `solonet`]**<br/>
@@ -161,14 +164,14 @@ Options:
 > **Returns** _(str)_ -> Bytom unsigned claim transaction raw.
 
 ```shell script
-$ swap bytom claim --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --recipient-guid 571784a8-0945-4d78-b973-aac4b09d6439 --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
+$ swap bytom claim --address bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiNTcxNzg0YTgtMDk0NS00ZDc4LWI5NzMtYWFjNGIwOWQ2NDM5IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjgxY2VjMjM0N2E5MmVmM2M1YjAyZDg2MDUzZjFiMWZhYTY0Mjg0M2UzODFkMWM3NTdiMzliNmI4ZDJkN2FkOTUiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjc4YmNlMWYzZDNiNWRkMjdlODdlNGNiYWIwM2NjN2I0ODFjNTNmYzEyZTliYjc4M2Y4ZmM1OWM0NGQyYzhkMjQiXSwgInB1YmxpY19rZXkiOiAiM2UwYTM3N2FlNGFmYTAzMWQ0NTUxNTk5ZDliYjdkNWIyN2Y0NzM2ZDc3Zjc4Y2FjNGQ0NzZmMGZmYmE1YWUzZSIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgImhhc2giOiAiMmNhNDU2NjM5NWIwMWE0ODJiMzc4ZmY4ZWJhNzlhNTk3MGFhZDQ2NWNmYmEyNWZlNzUzOGYxNzhmMTNjZWE0MCIsICJyYXciOiAiMDcwMTAwMDIwMTY5MDE2NzY1ZmI2MmFiNDA5NzY2YzAyN2JkZDVlNzllYmM0NjhmMmI2ZWRiMzYyYWQ5MzkwY2IzMTM5YjM1ZDE5YjI2NWFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAwMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDEwMDAxNjAwMTVlMDJlMGIxYWQyMTA3MjIyY2ZjMTNhYjZjMzM2NWQzNjZiNWQxM2IxMWU2ZGM3ZTFlMGNjNGFlNTY3NmNkZWU0NGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMDk4ODhkODAzMDEwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkyMjAxMjAzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2RmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjBlYmE1ZDMwMzAxMTYwMDE0ODg3ZWU2NmQ4NGE4MmYyZDg2ODI0YTQ1YmI1MWZkZWEwM2M5MmY0OTAwIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJzaWduYXR1cmVzIjogW10sICJ0eXBlIjogImJ5dG9tX2NsYWltX3Vuc2lnbmVkIn0=
+eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTNwbHd2bXZ5NHFoam1wNXpmZnptazUwYWFncHVqdDZmNWplODVwIiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkMzA1YTI4ZDhkMzRiNDBjNjU5MzY4MTBmOWU5YzFmOGJjOWM3OTNlYzJlNzJjNzBmOTIwM2ZiYmViMGE1NmRiOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAxMDExNjAwMTQwZTQzYTkyYTllOGFjYTc4OGViMTU1MWMzMTY0NDhjMmUzZjc4MjE1MDEwMDAxNWQwMTViMTM4ODFmMzI3ZTJiZTBkNWMwMGYzODU2MGYxYzI5NDg2Y2RhZjI1NWMwOWMwMWVlZTFhMWViYWEzNzgzZGRkOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDAwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkyMjAxMjAzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjBkZWUxMDQwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJoYXNoIjogImQ1NDRhZDJkMDhmOWRkYTMzYjc4OTUzYzc0ZWVkZTljOWViNWQ4MDgzNTY5NTMxMGIyNDJkNTc5NmNmYjkxZDYiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiNTE3MjI5MGE5ODU4YTRhMDdjNjAzYzc0MWY2ZmQ4ZTg2NzE1YThhNDQ3MGViMjM3ZDBhMmQ4MzI1YzE3MDZiNyJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfSwgeyJkYXRhcyI6IFsiZTQxYWI5NjQ3MDFmMjBhMjM0NzMzNDBiMTFkNWNiY2ZiYTlhMzczY2VkZjI4NGY4MDljMGM2MWNlN2Q3MTVkYSJdLCAicHVibGljX2tleSI6ICIzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fY2xhaW1fdW5zaWduZWQifQ==
 ```
 </details>
 
@@ -187,19 +190,19 @@ $ swap bytom refund --help
 Usage: swap bytom refund [OPTIONS]
 
 Options:
-  -t, --transaction TEXT   Set Bytom fund transaction id.  [required]
-  -sg, --sender-guid TEXT  Set Bytom sender GUID.  [required]
-  -a, --amount INTEGER     Set Bytom amount to refund.  [required]
-  -as, --asset TEXT        Set Bytom asset id.  [required]
-  -n, --network TEXT       Set Bytom network.
-  -h, --help               Show this message and exit.
+  -a, --address TEXT      Set Bytom sender address.  [required]
+  -t, --transaction TEXT  Set Bytom funded transaction id.  [required]
+  -am, --amount INTEGER   Set Bytom amount (NEU).  [required]
+  -as, --asset TEXT       Set Bytom asset id.  [default: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]
+  -n, --network TEXT      Set Bitcoin network.  [default: mainnet]
+  -h, --help              Show this message and exit.
 ```
 </details>
 
 > **Example** -> swap bytom `refund` command
 
+**Sender Address** _(str)_ -> bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7 **[required]**<br/>
 **Transaction Id** _(str)_ -> 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd **[required]**<br/>
-**Sender GUID** _(str)_ -> f0ed6ddd-9d6b-49fd-8866-a52d1083a13b **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
 **Asset Id** _(str)_ -> ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff **[required]**<br/>
 **Network** _(str)_ -> mainnet **[default: `solonet`]**<br/>
@@ -207,14 +210,14 @@ Options:
 > **Returns** _(str)_ -> Bytom unsigned refund transaction raw.
 
 ```shell script
-$ swap bytom refund --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --sender-guid f0ed6ddd-9d6b-49fd-8866-a52d1083a13b --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
+$ swap bytom refund --address bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7 --transaction 5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd --amount 10000 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjY1MWQ5Nzg3MTIzMzNlMWQ0YjI1YWFmZjM2YTJiZjU2YTJmZTQzN2NjYjJmNGJiMGI1NDFlOGRkNjllODVmOTUiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjk4NTI2NDdlYzdiMGEwNGM5N2I4ZDQ3NDZkMTU1MmE3ZWNiYjJkZmEyYWZiMDM5YWIwM2M2ZmE1MmI2Mjk3ZjAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogImY5NTgxM2U4YmFkNjZhNmY1Yzg0ZTQzMmUxMWU4ZmY0MWJhNTdlMTdmNjVhMGQ1NmE0ZDJlODExMGZmY2E0NjAiLCAicmF3IjogIjA3MDEwMDAyMDE2OTAxNjc2NWZiNjJhYjQwOTc2NmMwMjdiZGQ1ZTc5ZWJjNDY4ZjJiNmVkYjM2MmFkOTM5MGNiMzEzOWIzNWQxOWIyNjVhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMDAxMjIwMDIwNGY4ZjBlODhkMGE0NGIzZDg4NGIwN2I2ZGQ0NTM2NTE4ZmZjYmI1OTZhOTFjYTBlNmIyZjM3ZTk2NDYzYmJmYzAxMDAwMTVmMDE1ZDY1ZmI2MmFiNDA5NzY2YzAyN2JkZDVlNzllYmM0NjhmMmI2ZWRiMzYyYWQ5MzkwY2IzMTM5YjM1ZDE5YjI2NWFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTAxMTYwMDE0MmI1ZDExMGE4OWQxOTNlYThmMmYxZTU1M2E4OTIwODQ5YTU4ZTY4OTIyMDEyMDY5Mjk3ZTliNzVlYzg4YTRjYTdmMGM3YTFiYjYxZDY0ZWE5MzkxYjE0YTkwMmNkYTQ4NTgwZmUzZTEyYTgyYWIwMjAxM2FmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwMDEzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiMGNhYjgwZDAxMTYwMDE0MmI1ZDExMGE4OWQxOTNlYThmMmYxZTU1M2E4OTIwODQ5YTU4ZTY4OTAwIiwgInNpZ25hdHVyZXMiOiBbXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX3JlZnVuZF91bnNpZ25lZCJ9
+eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgImhhc2giOiAiNjlhNWYzMDI4ODBhNzNkMzYzZWNiMzkyYzgyZGNkMzMyODNiZDFiYmU1NmFhMzAyODU4NzMzZTc5ZTE2Mzc5OCIsICJyYXciOiAiMDcwMTAwMDIwMTVmMDE1ZDMwNWEyOGQ4ZDM0YjQwYzY1OTM2ODEwZjllOWMxZjhiYzljNzkzZWMyZTcyYzcwZjkyMDNmYmJlYjBhNTZkYjlmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMTAxMTYwMDE0MGU0M2E5MmE5ZThhY2E3ODhlYjE1NTFjMzE2NDQ4YzJlM2Y3ODIxNTAxMDAwMTVmMDE1ZDgyZTY1Zjk2NGQzYzM1MzI1NDhkZmRlOTM4NDYyZjU2NmM5NWQzYzkwZTZhM2ExODJhMGIzYmRhZTQ2YWE3OTBmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODA4NmYyMDMwMTAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTIyMDEyMDkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIwMjAxM2FmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwMDEzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZlMDk2ZDMwODAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjY0ODJiMmRmZTliM2U3NjY0MzVlMDQ4MmI2MDAzN2FmYWVhYmFhYWExMDg5Mzc0OGEyODhiY2EwMjlmZjFjNTIiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjBhNDY3NmE3MzI0MmNkMTI2NjFkYjBmM2Y3Mzc5NGQ0OWI3Nzc1NTBiZDk4MTc2YThkODhlYTg3NTVlNDE3ZjIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgInNpZ25hdHVyZXMiOiBbXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX3JlZnVuZF91bnNpZ25lZCJ9
 ```
 </details>
 
@@ -233,19 +236,20 @@ $ swap bytom decode --help
 Usage: swap bytom decode [OPTIONS]
 
 Options:
-  -r, --raw TEXT  Set Bytom transaction raw.  [required]
-  -h, --help      Show this message and exit.
+  -r, --raw TEXT        Set Bytom transaction raw.  [required]
+  -i, --indent INTEGER  Set json indent.  [default: 4]
+  -h, --help            Show this message and exit.
 ```
 </details>
 
 > **Example** -> swap bytom `decode` command
 
-**Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZ... **[required]**<br/>
+**Transaction Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZ... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bytom transaction json.
 
 ```shell script
-$ swap bytom decode --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
+$ swap bytom decode --raw eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgImhhc2giOiAiNjlhNWYzMDI4ODBhNzNkMzYzZWNiMzkyYzgyZGNkMzMyODNiZDFiYmU1NmFhMzAyODU4NzMzZTc5ZTE2Mzc5OCIsICJyYXciOiAiMDcwMTAwMDIwMTVmMDE1ZDMwNWEyOGQ4ZDM0YjQwYzY1OTM2ODEwZjllOWMxZjhiYzljNzkzZWMyZTcyYzcwZjkyMDNmYmJlYjBhNTZkYjlmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMTAxMTYwMDE0MGU0M2E5MmE5ZThhY2E3ODhlYjE1NTFjMzE2NDQ4YzJlM2Y3ODIxNTAxMDAwMTVmMDE1ZDgyZTY1Zjk2NGQzYzM1MzI1NDhkZmRlOTM4NDYyZjU2NmM5NWQzYzkwZTZhM2ExODJhMGIzYmRhZTQ2YWE3OTBmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODA4NmYyMDMwMTAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTIyMDEyMDkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIwMjAxM2FmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwMDEzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZlMDk2ZDMwODAxMTYwMDE0MmNkYTRmOTllYTgxMTJlNmZhNjFjZGQyNjE1N2VkNmRjNDA4MzMyYTAwIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjY0ODJiMmRmZTliM2U3NjY0MzVlMDQ4MmI2MDAzN2FmYWVhYmFhYWExMDg5Mzc0OGEyODhiY2EwMjlmZjFjNTIiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjBhNDY3NmE3MzI0MmNkMTI2NjFkYjBmM2Y3Mzc5NGQ0OWI3Nzc1NTBiZDk4MTc2YThkODhlYTg3NTVlNDE3ZjIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgInNpZ25hdHVyZXMiOiBbXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX3JlZnVuZF91bnNpZ25lZCJ9
 ```
 
 <details>
@@ -254,61 +258,80 @@ $ swap bytom decode --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi
 ```json5
 {
     "fee": 10000000,
-    "guid": "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b",
-    "type": "bytom_fund_unsigned",
+    "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7",
+    "type": "bytom_refund_unsigned",
     "tx": {
-        "tx_id": "5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd",
+        "tx_id": "69a5f302880a73d363ecb392c82dcd33283bd1bbe56aa302858733e79e163798",
         "version": 1,
-        "size": 273,
+        "size": 360,
         "time_range": 0,
         "inputs": [
             {
                 "type": "spend",
                 "asset_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
                 "asset_definition": {},
-                "amount": 48200000,
-                "control_program": "00142b5d110a89d193ea8f2f1e553a8920849a58e689",
-                "address": "bm1q9dw3zz5f6xf74re0re2n4zfqsjd93e5f9l4jxl",
-                "spent_output_id": "7e86b3f635595de17686c6d8d9d4f0281239d0db6af0bf0eaca763c46c2d455b",
-                "input_id": "5c49cf1f42e72aa418cd143628fcd321557fdda52da5249eb13cb2c57eb8d76e",
+                "amount": 10000000,
+                "control_program": "00140e43a92a9e8aca788eb1551c316448c2e3f78215",
+                "address": "bm1qpep6j2573t983r4325wrzezgct3l0qs4q04pem",
+                "spent_output_id": "84287fb5b2b461dbd3b937a9013d89c0d54a21768e31fb8345b02d57a7992533",
+                "input_id": "e63cd066b4fa58db7d8e3d93e77b40cbabff485d282d578bf31817c760ddd4f6",
+                "witness_arguments": null,
+                "sign_data": "6482b2dfe9b3e766435e0482b60037afaeabaaaa10893748a288bca029ff1c52"
+            },
+            {
+                "type": "spend",
+                "asset_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                "asset_definition": {},
+                "amount": 8160000,
+                "control_program": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a",
+                "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7",
+                "spent_output_id": "88289fa4c7633574931be7ce4102aeb24def0de20e38e7d69a5ddd6efc116b95",
+                "input_id": "49e97e1685d5b08b82713e6acb6747bd176177141cb5618aeecca418c3afd03a",
                 "witness_arguments": [
-                    "69297e9b75ec88a4ca7f0c7a1bb61d64ea9391b14a902cda48580fe3e12a82ab"
+                    "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
                 ],
-                "sign_data": "6ad6ef2b786b780da110a6ca3c8be0c7bcdd488f8d72c10bc01b2dd3b95a4b40"
+                "sign_data": "0a4676a73242cd12661db0f3f73794d49b777550bd98176a8d88ea8755e417f2"
             }
         ],
         "outputs": [
             {
                 "type": "control",
-                "id": "8a0d861767240a284ebed0320b11b81253727ecdac0c80bc6a88127327c0d8a1",
+                "id": "37142f84fb8eb218b5585560ecbccb39b5c3de472de3ec611c74fb54d5773dcf",
                 "position": 0,
                 "asset_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
                 "asset_definition": {},
                 "amount": 10000,
-                "control_program": "00204f8f0e88d0a44b3d884b07b6dd4536518ffcbb596a91ca0e6b2f37e96463bbfc",
-                "address": "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8"
+                "control_program": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a",
+                "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
             },
             {
                 "type": "control",
-                "id": "9a0565edd82b0460760eaecbc0b3539a5e9a3e89c760f3f6bce4b4726e5a2e56",
+                "id": "4a82420ac0738a3e9932bf7aa30cd2cfbb1c1ee0236a12255559ebc34112da92",
                 "position": 1,
                 "asset_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
                 "asset_definition": {},
-                "amount": 38190000,
-                "control_program": "00142b5d110a89d193ea8f2f1e553a8920849a58e689",
-                "address": "bm1q9dw3zz5f6xf74re0re2n4zfqsjd93e5f9l4jxl"
+                "amount": 18140000,
+                "control_program": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a",
+                "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
             }
         ],
-        "fee": 10000000
+        "fee": 10000
     },
     "unsigned_datas": [
         {
             "datas": [
-                "6ad6ef2b786b780da110a6ca3c8be0c7bcdd488f8d72c10bc01b2dd3b95a4b40"
+                "6482b2dfe9b3e766435e0482b60037afaeabaaaa10893748a288bca029ff1c52"
             ],
-            "public_key": "69297e9b75ec88a4ca7f0c7a1bb61d64ea9391b14a902cda48580fe3e12a82ab",
             "network": "mainnet",
-            "path": "m/44/153/1/1/12"
+            "path": null
+        },
+        {
+            "datas": [
+                "0a4676a73242cd12661db0f3f73794d49b777550bd98176a8d88ea8755e417f2"
+            ],
+            "public_key": "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2",
+            "network": "mainnet",
+            "path": "m/44/153/1/0/1"
         }
     ],
     "signatures": [],
@@ -334,13 +357,13 @@ Usage: swap bytom sign [OPTIONS]
 Options:
   -xp, --xprivate TEXT    Set Bytom xprivate key.  [required]
   -r, --raw TEXT          Set Bytom unsigned transaction raw.  [required]
-  -b, --bytecode TEXT     Set Bitcoin witness HTLC bytecode.  [required for claim/refund]
-  -s, --secret TEXT       Set secret key. [required for claim]
+  -b, --bytecode TEXT     Set Bytom witness HTLC bytecode.  [default: None]
+  -sk, --secret-key TEXT  Set secret key.  [default: None]
   -ac, --account INTEGER  Set Bytom derivation from account.  [default: 1]
-  -c, --change BOOLEAN    Set Bytom derivation from change.  [default: False]
+  -ch, --change BOOLEAN   Set Bytom derivation from change.  [default: False]
   -ad, --address INTEGER  Set Bytom derivation from address.  [default: 1]
-  -p, --path TEXT         Set Bytom derivation from path.
-  -i, --indexes LIST      Set Bytom derivation from indexes.
+  -p, --path TEXT         Set Bytom derivation from path.  [default: None]
+  -i, --indexes LIST      Set Bytom derivation from indexes.  [default: None]
   -h, --help              Show this message and exit.
 ```
 </details>
@@ -350,19 +373,19 @@ Options:
 > **Example** -> swap bytom `sign` command
 
 **XPrivate Key** _(str)_ -> 205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b **[required]**<br/>
-**Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZ... **[required]**<br/>
+**Unsigned Transaction Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTlu... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bytom signed transaction raw.
 
 ```shell script
-$ swap bytom sign --xprivate 205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJoYXNoIjogIjVlYzI1NDdjN2FlY2U0NWFmNmI0Yjk3ZmFiY2M0MmNiNmIxZWNmYTljN2QzMGEwYjNjNDY1NTg4ODI4NGIxYmQiLCAicmF3IjogIjA3MDEwMDAxMDE1ZjAxNWQ3ZjJkN2VjZWMzZjYxZDMwZDBiMjk2ODk3M2EzYWM4NDQ4ZjA1OTllYTIwZGNlODgzYjQ4YzkwM2M0ZDZlODdmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmMwZjJmZDE2MDAwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkyMjAxMjA2OTI5N2U5Yjc1ZWM4OGE0Y2E3ZjBjN2ExYmI2MWQ2NGVhOTM5MWIxNGE5MDJjZGE0ODU4MGZlM2UxMmE4MmFiMDIwMTQ2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTIyMDAyMDRmOGYwZTg4ZDBhNDRiM2Q4ODRiMDdiNmRkNDUzNjUxOGZmY2JiNTk2YTkxY2EwZTZiMmYzN2U5NjQ2M2JiZmMwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBmNzlhMTIwMTE2MDAxNDJiNWQxMTBhODlkMTkzZWE4ZjJmMWU1NTNhODkyMDg0OWE1OGU2ODkwMCIsICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0=
+$ swap bytom sign --xprivate 205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b --raw eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkODJlNjVmOTY0ZDNjMzUzMjU0OGRmZGU5Mzg0NjJmNTY2Yzk1ZDNjOTBlNmEzYTE4MmEwYjNiZGFlNDZhYTc5MGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MDg2ZjIwMzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAxNWYwMTVkMDcwZDBlYjIyZDMyYjgyZDNkMmYzZmM0YmFmYjdhODVmNTIyOWY3ZmQ4OTA0MmQyZmYzMjU3Mzc1ZTQzZDNlYmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOGY1Zjc0ZjAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQ4YjhmODUyMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAiaGFzaCI6ICI1MGIzMzZhYjZlMDU1ZDlkNGQ2NWE5ZjIyOTViNTMyNzBhYmQzODE2YzIzYmE0Yzk1NDg0MWYzOTlhYTc3MmQ1IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImY3ZDNhYTE4YjI5NWNkYTZmMmIxMTMyYzQyMzE5MzNjYzkyZjNiYWNhNzA1OTc0YzVkZTM3OGY5YjY5NWYwZTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9LCB7ImRhdGFzIjogWyJjYTYxNWJhMmM3MjllNDYzZmJmNzlhMTE0MTkxNzYyNjFiMWJmNmJlNDQ4MTMzMzVkMmIyNTZlOGE3YmJjZWVlIl0sICJwdWJsaWNfa2V5IjogIjkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwNzAxMDAwMTAxNWYwMTVkN2YyZDdlY2VjM2Y2MWQzMGQwYjI5Njg5NzNhM2FjODQ0OGYwNTk5ZWEyMGRjZTg4M2I0OGM5MDNjNGQ2ZTg3ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjMGYyZmQxNjAwMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MjIwMTIwNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmIwZjc5YTEyMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MDAiLCAiaGFzaCI6ICI1ZWMyNTQ3YzdhZWNlNDVhZjZiNGI5N2ZhYmNjNDJjYjZiMWVjZmE5YzdkMzBhMGIzYzQ2NTU4ODgyODRiMWJkIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAic2lnbmF0dXJlcyI6IFtbIjk5NWE4MGMwZTk1MDUxNDg5YzFmOGQwYmQxMWM4YWI4ZDMzZjRjMTIxNDQ1NzY0NDQ0NGUxN2VhYjkxMzA1MDY0YWE2OGY5NjIzMTlkNDQ3NDIwODI1YjI3OWYzODBmZGVlMDUyNTkwYTg5N2MxYzY4MzcxZDVjNWYwZGIwNjBkIl1dLCAidHlwZSI6ICJieXRvbV9mdW5kX3NpZ25lZCJ9
+eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkODJlNjVmOTY0ZDNjMzUzMjU0OGRmZGU5Mzg0NjJmNTY2Yzk1ZDNjOTBlNmEzYTE4MmEwYjNiZGFlNDZhYTc5MGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MDg2ZjIwMzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAxNWYwMTVkMDcwZDBlYjIyZDMyYjgyZDNkMmYzZmM0YmFmYjdhODVmNTIyOWY3ZmQ4OTA0MmQyZmYzMjU3Mzc1ZTQzZDNlYmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOGY1Zjc0ZjAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQ4YjhmODUyMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAiaGFzaCI6ICI1MGIzMzZhYjZlMDU1ZDlkNGQ2NWE5ZjIyOTViNTMyNzBhYmQzODE2YzIzYmE0Yzk1NDg0MWYzOTlhYTc3MmQ1IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImY3ZDNhYTE4YjI5NWNkYTZmMmIxMTMyYzQyMzE5MzNjYzkyZjNiYWNhNzA1OTc0YzVkZTM3OGY5YjY5NWYwZTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9LCB7ImRhdGFzIjogWyJjYTYxNWJhMmM3MjllNDYzZmJmNzlhMTE0MTkxNzYyNjFiMWJmNmJlNDQ4MTMzMzVkMmIyNTZlOGE3YmJjZWVlIl0sICJwdWJsaWNfa2V5IjogIjkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW1siMDBjMDA1YmMxMTRlYzVmODliNDllNDg1MjZmOTAzMTJiNmYxYTUyNzRlZmQyNTIwNDk4ODAwMjNhZWI4ZTc5OThjMTVlMGJhYTRmZjEwZmFiYmRhZTcwMmYyNDU0MDVhMzYwMjJlM2M5YWNjNWU1ZTZjOWFjNGI5ZDkzN2E4MDEiXSwgWyJmYmZiMTIzZWYwNjJjOTA2OGRhZDIyY2UyOGRlMmE0ZTcyZjgyMDc2YjZmOThjYjdlMDkwOWMxMTg1NjI2MGU3MDIwYWVjYmRjYTYzOWYwYjZlMzlkMzQ1YzA1OTEzZDJjOTI5MWRiMTMwYjUzZDViMmJjNTlmNjFhZGZjMTQwNiJdXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX2Z1bmRfc2lnbmVkIn0=
 ```
 </details>
 
@@ -388,12 +411,12 @@ Options:
 
 > **Example** -> swap bytom `submit` command
 
-**Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZ... **[required]**<br/>
+**Signed Transaction Raw** _(str)_ -> eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTl... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bytom blockchain transaction id.
 
 ```shell script
-$ swap bytom submit --raw eyJmZWUiOiAxMDAwMDAwMCwgImd1aWQiOiAiZjBlZDZkZGQtOWQ2Yi00OWZkLTg4NjYtYTUyZDEwODNhMTNiIiwgInJhdyI6ICIwNzAxMDAwMTAxNWYwMTVkN2YyZDdlY2VjM2Y2MWQzMGQwYjI5Njg5NzNhM2FjODQ0OGYwNTk5ZWEyMGRjZTg4M2I0OGM5MDNjNGQ2ZTg3ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjMGYyZmQxNjAwMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MjIwMTIwNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmIwZjc5YTEyMDExNjAwMTQyYjVkMTEwYTg5ZDE5M2VhOGYyZjFlNTUzYTg5MjA4NDlhNThlNjg5MDAiLCAiaGFzaCI6ICI1ZWMyNTQ3YzdhZWNlNDVhZjZiNGI5N2ZhYmNjNDJjYjZiMWVjZmE5YzdkMzBhMGIzYzQ2NTU4ODgyODRiMWJkIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjZhZDZlZjJiNzg2Yjc4MGRhMTEwYTZjYTNjOGJlMGM3YmNkZDQ4OGY4ZDcyYzEwYmMwMWIyZGQzYjk1YTRiNDAiXSwgInB1YmxpY19rZXkiOiAiNjkyOTdlOWI3NWVjODhhNGNhN2YwYzdhMWJiNjFkNjRlYTkzOTFiMTRhOTAyY2RhNDg1ODBmZTNlMTJhODJhYiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzEvMTIifV0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAic2lnbmF0dXJlcyI6IFtbIjk5NWE4MGMwZTk1MDUxNDg5YzFmOGQwYmQxMWM4YWI4ZDMzZjRjMTIxNDQ1NzY0NDQ0NGUxN2VhYjkxMzA1MDY0YWE2OGY5NjIzMTlkNDQ3NDIwODI1YjI3OWYzODBmZGVlMDUyNTkwYTg5N2MxYzY4MzcxZDVjNWYwZGIwNjBkIl1dLCAidHlwZSI6ICJieXRvbV9mdW5kX3NpZ25lZCJ9
+$ swap bytom submit --raw eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkODJlNjVmOTY0ZDNjMzUzMjU0OGRmZGU5Mzg0NjJmNTY2Yzk1ZDNjOTBlNmEzYTE4MmEwYjNiZGFlNDZhYTc5MGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MDg2ZjIwMzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAxNWYwMTVkMDcwZDBlYjIyZDMyYjgyZDNkMmYzZmM0YmFmYjdhODVmNTIyOWY3ZmQ4OTA0MmQyZmYzMjU3Mzc1ZTQzZDNlYmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOGY1Zjc0ZjAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQ4YjhmODUyMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAiaGFzaCI6ICI1MGIzMzZhYjZlMDU1ZDlkNGQ2NWE5ZjIyOTViNTMyNzBhYmQzODE2YzIzYmE0Yzk1NDg0MWYzOTlhYTc3MmQ1IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImY3ZDNhYTE4YjI5NWNkYTZmMmIxMTMyYzQyMzE5MzNjYzkyZjNiYWNhNzA1OTc0YzVkZTM3OGY5YjY5NWYwZTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9LCB7ImRhdGFzIjogWyJjYTYxNWJhMmM3MjllNDYzZmJmNzlhMTE0MTkxNzYyNjFiMWJmNmJlNDQ4MTMzMzVkMmIyNTZlOGE3YmJjZWVlIl0sICJwdWJsaWNfa2V5IjogIjkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW1siMDBjMDA1YmMxMTRlYzVmODliNDllNDg1MjZmOTAzMTJiNmYxYTUyNzRlZmQyNTIwNDk4ODAwMjNhZWI4ZTc5OThjMTVlMGJhYTRmZjEwZmFiYmRhZTcwMmYyNDU0MDVhMzYwMjJlM2M5YWNjNWU1ZTZjOWFjNGI5ZDkzN2E4MDEiXSwgWyJmYmZiMTIzZWYwNjJjOTA2OGRhZDIyY2UyOGRlMmE0ZTcyZjgyMDc2YjZmOThjYjdlMDkwOWMxMTg1NjI2MGU3MDIwYWVjYmRjYTYzOWYwYjZlMzlkMzQ1YzA1OTEzZDJjOTI5MWRiMTMwYjUzZDViMmJjNTlmNjFhZGZjMTQwldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX2Z1bmRfc2lnbmVkIn0
 ```
 
 <details>
