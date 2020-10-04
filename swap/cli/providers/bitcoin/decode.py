@@ -18,6 +18,10 @@ def decode(raw, indent, offline):
     try:
         click.echo(
             json.dumps(
+                decode_transaction_raw(transaction_raw=raw, offline=offline)
+            )
+            if indent == 0 else
+            json.dumps(
                 decode_transaction_raw(transaction_raw=raw, offline=offline),
                 indent=indent
             )
