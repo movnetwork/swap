@@ -204,7 +204,7 @@ def decode_transaction_raw(transaction_raw: str, offline: bool = True,
     if offline:
         stp(loaded_transaction_raw["network"], strict=True)
         tx = MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
-        decoded_transaction = tx.json()
+        decoded_transaction = tx.to_json()
     else:
         url = f"{config[loaded_transaction_raw['network']]['blockcypher']['url']}/txs/decode"
         parameter = dict(token=config[loaded_transaction_raw["network"]]["blockcypher"]["token"])
@@ -248,21 +248,19 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
     decoded_transaction_raw = b64decode(transaction_raw.encode())
     loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-    url = f"{config[loaded_transaction_raw['network']]['sochain']}/send_tx/" \
-          f"{BitcoinMainnet if loaded_transaction_raw['network'] == 'mainnet' else BitcoinTestnet}"
-    data = dict(tx_hex=loaded_transaction_raw["raw"])
+    url = f"{config[loaded_transaction_raw['network']]['smartbit']}/pushtx"
+    data = dict(hex=loaded_transaction_raw["raw"])
     response = requests.post(
         url=url, data=json.dumps(data), headers=headers, timeout=timeout
     )
     response_json = response.json()
-
-    if "status" in response_json and response_json["status"] == "fail":
-        raise APIError(response_json["data"]["tx_hex"])
-    elif "status" in response_json and response_json["status"] == "success":
+    if "success" in response_json and not response_json["success"]:
+        raise APIError(response_json["error"]["message"], response_json["error"]["code"])
+    elif "success" in response_json and response_json["success"]:
         return dict(
             fee=loaded_transaction_raw["fee"],
             type=loaded_transaction_raw["type"],
-            transaction_id=response_json["data"]["txid"],
+            transaction_id=response_json["txid"],
             network=loaded_transaction_raw["network"],
             date=str(datetime.datetime.utcnow())
         )
@@ -340,8 +338,8 @@ def _build_outputs(utxos: list, previous_transaction_indexes: Optional[list] = N
                 )
                 if not only_dict else
                 dict(
-                    amount=utxo["value"],
-                    n=utxo["tx_output_n"],
+                    value=utxo["value"],
+                    tx_output_n=utxo["tx_output_n"],
                     script=utxo["script"]
                 )
             )

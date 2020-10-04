@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from hdwallet.symbols import BTC, BTCTEST
 from btcpy.structs.transaction import MutableTransaction
 from btcpy.setup import setup as stp
 
@@ -147,7 +146,7 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
     :returns: dict -- Bitcoin decoded transaction raw.
 
     >>> from swap.providers.bitcoin.rpc import decode_raw
-    >>> decode_raw(raw="...", network="testnet")
+    >>> decode_raw(raw="02000000011823f39a8c5f6f27845dd13a65e03fe2ef5108d235e7a36edb6eb267b0459c5a010000006a47304402207018b7fd1ba6624fe9bb0f16cd65fa243d202e32fdff452699f56465b61ab648022009f0dc1a0a63109246c45e120fc0d34b40e789dfc4d05e64f269602c7d67d9210121027f0dc0894bd690635412af782d05e4f79d3d40bf568978c650f3f1ca1a96cf36ffffffff02102700000000000017a9149418feed4647e156d6663db3e0cef7c050d038678734330100000000001976a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac00000000", network="testnet")
     {...}
     """
 
@@ -186,23 +185,23 @@ def submit_raw(raw: str, network: str = config["network"],
     :returns: dict -- Bitcoin submitted transaction id/hash.
 
     >>> from swap.providers.bitcoin.rpc import submit_raw
-    >>> submit_raw(raw="...", network="testnet")
-    {...}
+    >>> submit_raw(raw="02000000011823f39a8c5f6f27845dd13a65e03fe2ef5108d235e7a36edb6eb267b0459c5a010000006a47304402207018b7fd1ba6624fe9bb0f16cd65fa243d202e32fdff452699f56465b61ab648022009f0dc1a0a63109246c45e120fc0d34b40e789dfc4d05e64f269602c7d67d9210121027f0dc0894bd690635412af782d05e4f79d3d40bf568978c650f3f1ca1a96cf36ffffffff02102700000000000017a9149418feed4647e156d6663db3e0cef7c050d038678734330100000000001976a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac00000000", network="testnet")
+    "167faa4043ff622e7860ee5228d1ad6d763c5a6cfce79dbc3b9b5fc7bded6394"
     """
 
     if not is_network(network=network):
         raise NetworkError(f"Invalid Bitcoin '{network}' network",
                            "choose only 'mainnet' or 'testnet' networks.")
 
-    url = f"{config[network]['sochain']}/send_tx/{BTC if network == 'mainnet' else BTCTEST}"
-    data = dict(tx_hex=raw)
+    url = f"{config[network]['smartbit']}/pushtx"
+    data = dict(hex=raw)
     response = requests.post(
         url=url, data=json.dumps(data), headers=headers, timeout=timeout
     )
     response_json = response.json()
-    if "status" in response_json and response_json["status"] == "fail":
-        raise APIError(response_json["data"]["tx_hex"])
-    elif "status" in response_json and response_json["status"] == "success":
-        return response_json["data"]["txid"]
+    if "success" in response_json and not response_json["success"]:
+        raise APIError(response_json["error"]["message"], response_json["error"]["code"])
+    elif "success" in response_json and response_json["success"]:
+        return response_json["txid"]
     else:
         raise APIError("Unknown Bitcoin submit payment error.")

@@ -7,7 +7,7 @@ def bitcoin(blockcypher_token=None):
     return {
         "mainnet": {
             "blockchain": "https://blockchain.info",
-            "sochain": "https://sochain.com/api/v2",
+            "smartbit": "https://api.smartbit.com.au/v1/blockchain",
             "blockcypher": {
                 "url": "https://api.blockcypher.com/v1/btc/main",
                 "token": blockcypher_token
@@ -15,7 +15,7 @@ def bitcoin(blockcypher_token=None):
         },
         "testnet": {
             "blockchain": "https://testnet.blockchain.info",
-            "sochain": "https://sochain.com/api/v2",
+            "smartbit": "https://testnet-api.smartbit.com.au/v1/blockchain",
             "blockcypher": {
                 "url": "https://api.blockcypher.com/v1/btc/test3",
                 "token": blockcypher_token
@@ -25,7 +25,9 @@ def bitcoin(blockcypher_token=None):
         "BIP44": "m/44'/0'/{account}'/{change}/{address}",
         "symbol": "SATOSHI",
         "timeout": 60,
-        "network": "testnet",
+        "locktime": 0,
+        "version": 2,
+        "network": "mainnet",
         "sequence": 1000,
         "headers": {
             # "Content-Type": "application/json"
