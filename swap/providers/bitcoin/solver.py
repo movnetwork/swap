@@ -42,7 +42,7 @@ class FundSolver:
 
     def __init__(self, root_xprivate_key: str, account: int = 0,
                  change: bool = False, address: int = 0, path: Optional[str] = None):
-        if not path:
+        if path is None:
             path = config["BIP44"].format(
                 account=account, change=(1 if change else 0), address=address
             )
@@ -91,7 +91,7 @@ class ClaimSolver:
 
     def __init__(self, root_xprivate_key: str, secret_key: str, bytecode: str,
                  account: int = 0, change: bool = False, address: int = 0, path: Optional[str] = None):
-        if not path:
+        if path is None:
             path = config["BIP44"].format(
                 account=account, change=(1 if change else 0), address=address
             )
@@ -153,7 +153,7 @@ class RefundSolver:
 
     def __init__(self, root_xprivate_key: str, bytecode: str, sequence: int = config["sequence"],
                  account: int = 0, change: bool = False, address: int = 0, path: Optional[str] = None):
-        if not path:
+        if path is None:
             path = config["BIP44"].format(
                 account=account, change=(1 if change else 0), address=address
             )
