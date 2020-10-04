@@ -54,9 +54,7 @@ Options:
   -sh, --secret-hash TEXT        Set secret 256 hash.  [required]
   -ra, --recipient-address TEXT  Set Bitcoin recipient address.  [required]
   -sa, --sender-address TEXT     Set Bitcoin sender address.  [required]
-  -sq, --sequence INTEGER        Set Bitcoin sequence/expiration block.
-                                 [default: 1000]
-
+  -sq, --sequence INTEGER        Set Bitcoin sequence/expiration block.  [default: 1000]
   -n, --network TEXT             Set Bitcoin network.  [default: testnet]
   -h, --help                     Show this message and exit.
 ```
@@ -101,9 +99,7 @@ Usage: swap bitcoin fund [OPTIONS]
 Options:
   -a, --address TEXT     Set Bitcoin sender address.  [required]
   -am, --amount INTEGER  Set Bitcoin amount (SATOSHI).  [required]
-  -b, --bytecode TEXT    Set Bitcoin Hash Time Lock Contract (HTLC) bytecode.
-                         [required]
-
+  -b, --bytecode TEXT    Set Bitcoin Hash Time Lock Contract (HTLC) bytecode.  [required]
   -v, --version INTEGER  Set Bitcoin transaction version.  [default: 2]
   -n, --network TEXT     Set Bitcoin network.  [default: mainnet]
   -h, --help             Show this message and exit.
@@ -318,22 +314,21 @@ Options:
   -rx, --root-xprivate TEXT  Set Bitcoin root xprivate key.  [required]
   -r, --raw TEXT             Set Bitcoin unsigned transaction raw.  [required]
   -b, --bytecode TEXT        Set Bitcoin witness HTLC bytecode  [default: False].
-  -s, --secret-key TEXT      Set secret key  [default: False].
+  -sk, --secret-key TEXT     Set secret key  [default: False].
   -sq, --sequence INTEGER    Set Bitcoin sequence/expiration block.  [default: 1000]
   -ac, --account INTEGER     Set Bitcoin derivation from account.  [default: 1]
-  -c, --change BOOLEAN       Set Bitcoin derivation from change.  [default: False]
+  -ch, --change BOOLEAN      Set Bitcoin derivation from change.  [default: False]
   -ad, --address INTEGER     Set Bitcoin derivation from address.  [default: 1]
   -p, --path TEXT            Set Bitcoin derivation from path  [default: False].
   -v, --version INTEGER      Set Bitcoin transaction version.  [default: 2]
   -h, --help                 Show this message and exit.
-
 ```
 </details>
 
 > **Example** -> swap bitcoin `sign` command
 
 **Root XPrivate Key** _(str)_ -> tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR **[required]**<br/>
-**Transaction Raw** _(str)_ -> eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTE4M... **[required]**<br/>
+**Unsigned Transaction Raw** _(str)_ -> eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTE4M... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bitcoin signed transaction raw.
 
@@ -371,7 +366,7 @@ Options:
 
 > **Example** -> swap bitcoin `submit` command
 
-**Raw** _(str)_ -> eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4O... **[required]**<br/>
+**Signed Transaction Raw** _(str)_ -> eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4O... **[required]**<br/>
 
 > **Returns** _(str)_ -> Bitcoin blockchain transaction id.
 
