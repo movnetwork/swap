@@ -5,25 +5,30 @@ import sys
 
 from ....cli import click
 from ....providers.bytom.transaction import RefundTransaction
-from ....providers.bytom.wallet import Wallet
+from ....providers.config import bytom
+
+# Bytom config
+config = bytom()
 
 
 @click.command("refund", options_metavar="[OPTIONS]",
-               short_help="Select Bytom refund transaction builder.")
-@click.option("-t", "--transaction", type=str, required=True, help="Set Bytom fund transaction id.")
-@click.option("-ad", "--address", type=str, required=True, help="Set Bytom sender address.")
-@click.option("-am", "--amount", type=int, required=True, help="Set Bytom amount to refund.")
-@click.option("-as", "--asset", type=str, required=True, help="Set Bytom asset id.")
-@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
-def refund(transaction, address, amount, asset,  network):
+               short_help="Select Bytom Refund transaction builder.")
+@click.option("-a", "--address", type=str, required=True, help="Set Bytom sender address.")
+@click.option("-t", "--transaction", type=str, required=True, help="Set Bytom funded transaction id.")
+@click.option("-am", "--amount", type=int, required=True, help="Set Bytom amount (NEU).")
+@click.option("-as", "--asset", type=str, default=config["asset"],
+              help="Set Bytom asset id.", show_default=True)
+@click.option("-n", "--network", type=str, default=config["network"],
+              help="Set Bitcoin network.", show_default=True)
+def refund(address, transaction, amount, asset,  network):
     try:
         click.echo(
             RefundTransaction(network=network).build_transaction(
-                transaction_id=transaction,
                 address=address,
+                transaction_id=transaction,
                 amount=int(amount),
                 asset=asset
-            ).unsigned_raw()
+            ).transaction_raw()
         )
     except Exception as exception:
         click.echo(click.style("Error: {}")

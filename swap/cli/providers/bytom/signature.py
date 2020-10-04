@@ -5,7 +5,6 @@ from base64 import b64decode
 
 import json
 import sys
-import binascii
 
 from ....cli import click
 from ....providers.bytom.solver import (
@@ -14,7 +13,10 @@ from ....providers.bytom.solver import (
 from ....providers.bytom.signature import (
     FundSignature, ClaimSignature, RefundSignature
 )
+from ....providers.bytom.utils import is_transaction_raw
 from ....providers.config import bytom
+from ....utils.exceptions import TransactionRawError
+from ....utils import clean_transaction_raw
 
 # Bytom config
 bytom = bytom()
@@ -23,89 +25,98 @@ bytom = bytom()
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Bytom transaction raw signer.")
 @click.option("-xp", "--xprivate", type=str, required=True, help="Set Bytom xprivate key.")
-@click.option("-r", "--raw", type=str, required=True,
-              help="Set Bytom unsigned transaction raw.")
+@click.option("-r", "--raw", type=str, required=True, help="Set Bytom unsigned transaction raw.")
+@click.option("-b", "--bytecode", type=str, default=None,
+              help="Set Bytom witness HTLC bytecode.  [default: None]", show_default=True)
+@click.option("-sk", "--secret-key", type=str, default=None,
+              help="Set secret key.  [default: None]", show_default=True)
 @click.option("-ac", "--account", type=int, default=1,
-              show_default=True, help="Set Bytom derivation from account.")
-@click.option("-c", "--change", type=bool, default=False,
-              show_default=True, help="Set Bytom derivation from change.")
+              help="Set Bytom derivation from account.", show_default=True)
+@click.option("-ch", "--change", type=bool, default=False,
+              help="Set Bytom derivation from change.", show_default=True)
 @click.option("-ad", "--address", type=int, default=1,
-              show_default=True, help="Set Bytom derivation from address.")
-@click.option("-b", "--bytecode", type=str, default=None, help="Set Bytom witness HTLC bytecode.")
-@click.option("-s", "--secret", type=str, default=None, help="Set secret key.")
+              help="Set Bytom derivation from address.", show_default=True)
 @click.option("-p", "--path", type=str, default=None,
-              help="Set Bytom derivation from path.")
+              help="Set Bytom derivation from path.  [default: None]", show_default=True)
 @click.option("-i", "--indexes", type=list, default=None,
-              help="Set Bytom derivation from indexes.")
-def sign(xprivate, raw, account, change, address, bytecode, secret, path, indexes):
-    if len(xprivate) != 128:
-        click.echo(click.style("Error: {}")
-                   .format("Invalid Bytom xprivate key"), err=True)
-        sys.exit()
-
-    # Clean unsigned raw
-    unsigned_raw = str(raw + "=" * (-len(raw) % 4))
-    try:
-        transaction = json.loads(b64decode(unsigned_raw.encode()).decode())
-    except (binascii.Error, json.decoder.JSONDecodeError) as exception:
-        click.echo(click.style("Error: {}")
-                   .format("Invalid Bytom unsigned transaction raw"), err=True)
-        sys.exit()
-    if "type" not in transaction or "network" not in transaction:
-        click.echo(click.style("Warning: {}", fg="yellow")
-                   .format("There is no type & network provided in Bytom unsigned transaction raw"), err=True)
-        click.echo(click.style("Error: {}")
-                   .format("Invalid Bytom unsigned transaction raw"), err=True)
-        sys.exit()
+              help="Set Bytom derivation from indexes.  [default: None]", show_default=True)
+def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, indexes):
 
     try:
-        if transaction["type"] == "bytom_fund_unsigned":
+        if not is_transaction_raw(transaction_raw=raw):
+            raise TransactionRawError("Invalid Bitcoin unsigned transaction raw.")
+
+        transaction_raw = clean_transaction_raw(raw)
+        decoded_transaction_raw = b64decode(transaction_raw.encode())
+        loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+
+        if loaded_transaction_raw["type"] == "bytom_fund_unsigned":
             # Fund HTLC solver
             fund_solver = FundSolver(
-                xprivate_key=xprivate, account=account, change=change, address=address,
+                xprivate_key=xprivate,
+                account=account, change=change, address=address,
                 path=path, indexes=indexes
             )
             # Fund signature
-            fund_signature = FundSignature(network=transaction["network"])
-            fund_signature.sign(unsigned_raw=unsigned_raw, solver=fund_solver)
-            click.echo(fund_signature.signed_raw())
+            fund_signature = FundSignature(
+                network=loaded_transaction_raw["network"]
+            )
+            fund_signature.sign(
+                transaction_raw=raw, solver=fund_solver
+            )
+            click.echo(fund_signature.transaction_raw())
 
-        elif transaction["type"] == "bytom_claim_unsigned":
-            if secret is None:
-                click.echo(click.style("Error: {}")
-                           .format("Secret key is required for claim, use -s or --secret \"Hello Meheret!\""), err=True)
+        elif loaded_transaction_raw["type"] == "bytom_claim_unsigned":
+            if secret_key is None:
+                click.echo(click.style("Error: {}").format(
+                    "Secret key is required for claim, use -s or --secret_key \"Hello Meheret!\""
+                ), err=True)
                 sys.exit()
             if bytecode is None:
-                click.echo(click.style("Error: {}")
-                           .format("Witness bytecode is required for claim, use -b or --bytecode \"016...\""), err=True)
+                click.echo(click.style("Error: {}").format(
+                    "Witness bytecode is required for claim, use -b or --bytecode \"016...\""
+                ), err=True)
                 sys.exit()
+
             # Claim HTLC solver
             claim_solver = ClaimSolver(
-                xprivate_key=xprivate, account=account, change=change, address=address,
-                path=path, indexes=indexes, secret=secret, bytecode=bytecode
+                xprivate_key=xprivate, secret_key=secret_key, bytecode=bytecode,
+                account=account, change=change, address=address,
+                path=path, indexes=indexes
             )
             # Claim signature
-            claim_signature = ClaimSignature(network=transaction["network"])
-            claim_signature.sign(unsigned_raw=unsigned_raw, solver=claim_solver)
-            click.echo(claim_signature.signed_raw())
+            claim_signature = ClaimSignature(
+                network=loaded_transaction_raw["network"]
+            )
+            claim_signature.sign(
+                transaction_raw=raw, solver=claim_solver
+            )
+            click.echo(claim_signature.transaction_raw())
     
-        elif transaction["type"] == "bytom_refund_unsigned":
+        elif loaded_transaction_raw["type"] == "bytom_refund_unsigned":
             if bytecode is None:
-                click.echo(click.style("Error: {}")
-                           .format("Witness bytecode is required for refund, use -b or --bytecode \"016...\""), err=True)
+                click.echo(click.style("Error: {}").format(
+                    "Witness bytecode is required for claim, use -b or --bytecode \"016...\""
+                ), err=True)
                 sys.exit()
+
             # Refunding HTLC solver
             refund_solver = RefundSolver(
-                xprivate_key=xprivate, account=account, change=change, address=address,
-                path=path, indexes=indexes, bytecode=bytecode
+                xprivate_key=xprivate, bytecode=bytecode,
+                account=account, change=change, address=address,
+                path=path, indexes=indexes
             )
             # Refund signature
-            refund_signature = RefundSignature(network=transaction["network"])
-            refund_signature.sign(unsigned_raw=unsigned_raw, solver=refund_solver)
-            click.echo(refund_signature.signed_raw())
+            refund_signature = RefundSignature(
+                network=loaded_transaction_raw["network"]
+            )
+            refund_signature.sign(
+                transaction_raw=raw, solver=refund_solver
+            )
+            click.echo(refund_signature.transaction_raw())
         else:
             click.echo(click.style("Error: {}")
-                       .format("Unknown Bytom unsigned transaction raw type"), err=True)
+                       .format("Unknown Bytom unsigned transaction raw type."), err=True)
             sys.exit()
     except Exception as exception:
         click.echo(click.style("Error: {}")
