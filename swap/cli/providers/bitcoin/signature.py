@@ -28,13 +28,13 @@ config = bitcoin()
 @click.option("-r", "--raw", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
 @click.option("-b", "--bytecode", type=str, default=None,
               help="Set Bitcoin witness HTLC bytecode.  [default: None]", show_default=True)
-@click.option("-s", "--secret-key", type=str, default=None,
+@click.option("-sk", "--secret-key", type=str, default=None,
               help="Set secret key.  [default: None]", show_default=True)
 @click.option("-sq", "--sequence", type=int, default=config["sequence"],
               help="Set Bitcoin sequence/expiration block.", show_default=True)
 @click.option("-ac", "--account", type=int, default=1,
               help="Set Bitcoin derivation from account.", show_default=True)
-@click.option("-c", "--change", type=bool, default=False,
+@click.option("-ch", "--change", type=bool, default=False,
               help="Set Bitcoin derivation from change.", show_default=True)
 @click.option("-ad", "--address", type=int, default=1,
               help="Set Bitcoin derivation from address.", show_default=True)

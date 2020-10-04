@@ -3,7 +3,6 @@
 
 import sys
 
-
 from ....cli import click
 from ....providers.bitcoin.htlc import HTLC
 from ....providers.config import bitcoin
