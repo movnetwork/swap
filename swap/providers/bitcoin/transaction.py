@@ -13,6 +13,7 @@ from typing import Optional
 
 import json
 
+from ...utils import clean_transaction_raw
 from ...utils.exceptions import (
     BalanceError, AddressError, NetworkError
 )
@@ -119,7 +120,7 @@ class Transaction:
 
     def raw(self) -> str:
         """
-        Get Bitcoin transaction raw.
+        Get Bitcoin main transaction raw.
 
         :returns: str -- Bitcoin transaction raw.
 
@@ -283,11 +284,11 @@ class FundTransaction(Transaction):
         self._type = "bitcoin_fund_signed"
         return self
 
-    def unsigned_raw(self) -> str:
+    def transaction_raw(self) -> str:
         """
-        Get Bitcoin unsigned fund transaction raw.
+        Get Bitcoin fund transaction raw.
 
-        :returns: str -- Bitcoin unsigned fund transaction raw.
+        :returns: str -- Bitcoin fund transaction raw.
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
         >>> from swap.providers.bitcoin.htlc import HTLC
@@ -295,7 +296,7 @@ class FundTransaction(Transaction):
         >>> htlc = HTLC("testnet").build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> fund_transaction = FundTransaction("testnet")
         >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc, 10000)
-        >>> fund_transaction.unsigned_raw()
+        >>> fund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
@@ -304,7 +305,14 @@ class FundTransaction(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
 
         # Encode fund transaction raw
-        return b64encode(str(json.dumps(dict(
+        if self._type == "bitcoin_fund_signed":
+            return clean_transaction_raw(b64encode(str(json.dumps(dict(
+                raw=self._transaction.hexlify(),
+                fee=self._fee,
+                network=self._network,
+                type=self._type
+            ))).encode()).decode())
+        return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
             raw=self._transaction.hexlify(),
             outputs=_build_outputs(
@@ -313,8 +321,8 @@ class FundTransaction(Transaction):
                 only_dict=True
             ),
             network=self._network,
-            type="bitcoin_fund_unsigned"
-        ))).encode()).decode()
+            type=self._type
+        ))).encode()).decode())
 
 
 class ClaimTransaction(Transaction):
@@ -364,9 +372,14 @@ class ClaimTransaction(Transaction):
 
         self._address, self._transaction_id, self._amount = address, transaction_id, amount
         # Get transaction detail
-        self._transaction_detail = get_transaction(transaction_id=self._transaction_id)
-        # Get Hash time lock contract output detail
-        self._htlc_detail = self._transaction_detail["outputs"][0]
+        self._transaction_detail = get_transaction(
+            transaction_id=self._transaction_id, network=self._network
+        )
+        try:
+            # Get Hash time lock contract output detail
+            self._htlc_detail = self._transaction_detail["outputs"][0]
+        except KeyError:
+            raise ValueError("Invalid transaction id/hash, please check network/hash.")
 
         # Calculate fee
         self._fee = fee_calculator(1, 1)
@@ -391,10 +404,8 @@ class ClaimTransaction(Transaction):
                 TxOut(
                     value=(amount - self._fee),
                     n=0,
-                    script_pubkey=P2pkhScript.unhexlify(
-                        hex_string=get_address_hash(
-                            address=self._address, script=True
-                        )
+                    script_pubkey=get_address_hash(
+                        address=self._address, script=True
                     )
                 )
             ], locktime=Locktime(locktime))
@@ -448,16 +459,16 @@ class ClaimTransaction(Transaction):
         self._type = "bitcoin_claim_signed"
         return self
 
-    def unsigned_raw(self) -> str:
+    def transaction_raw(self) -> str:
         """
-        Get Bitcoin unsigned claim transaction raw.
+        Get Bitcoin claim transaction raw.
 
-        :returns: str -- Bitcoin unsigned claim transaction raw.
+        :returns: str -- Bitcoin claim transaction raw.
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
         >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
-        >>> claim_transaction.unsigned_raw()
+        >>> claim_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
@@ -466,17 +477,24 @@ class ClaimTransaction(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
 
         # Encode claim transaction raw
-        return b64encode(str(json.dumps(dict(
+        if self._type == "bitcoin_claim_signed":
+            return clean_transaction_raw(b64encode(str(json.dumps(dict(
+                raw=self._transaction.hexlify(),
+                fee=self._fee,
+                network=self._network,
+                type=self._type
+            ))).encode()).decode())
+        return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
             raw=self._transaction.hexlify(),
             outputs=dict(
-                amount=self._htlc_detail["value"],
-                n=0,
+                value=self._htlc_detail["value"],
+                tx_output_n=0,
                 script=self._htlc_detail["script"]
             ),
             network=self._network,
-            type="bitcoin_claim_unsigned"
-        ))).encode()).decode()
+            type=self._type
+        ))).encode()).decode())
 
 
 class RefundTransaction(Transaction):
@@ -526,9 +544,14 @@ class RefundTransaction(Transaction):
 
         self._address, self._transaction_id, self._amount = address, transaction_id, amount
         # Get transaction detail
-        self._transaction_detail = get_transaction(transaction_id=self._transaction_id)
-        # Get Hash time lock contract output detail
-        self._htlc_detail = self._transaction_detail["outputs"][0]
+        self._transaction_detail = get_transaction(
+            transaction_id=self._transaction_id, network=self._network
+        )
+        try:
+            # Get Hash time lock contract output detail
+            self._htlc_detail = self._transaction_detail["outputs"][0]
+        except KeyError:
+            raise ValueError("Invalid transaction id/hash, please check network/hash.")
 
         # Calculate fee
         self._fee = fee_calculator(1, 1)
@@ -553,10 +576,8 @@ class RefundTransaction(Transaction):
                 TxOut(
                     value=(amount - self._fee),
                     n=0,
-                    script_pubkey=P2pkhScript.unhexlify(
-                        hex_string=get_address_hash(
-                            address=self._address, script=True
-                        )
+                    script_pubkey=get_address_hash(
+                        address=self._address, script=True
                     )
                 )
             ], locktime=Locktime(locktime))
@@ -584,7 +605,7 @@ class RefundTransaction(Transaction):
         """
 
         # Check parameter instances
-        if not isinstance(solver, ClaimSolver):
+        if not isinstance(solver, RefundSolver):
             raise TypeError(f"Solver must be Bitcoin RefundSolver, not {type(solver).__name__} type.")
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
@@ -610,16 +631,16 @@ class RefundTransaction(Transaction):
         self._type = "bitcoin_refund_signed"
         return self
 
-    def unsigned_raw(self) -> str:
+    def transaction_raw(self) -> str:
         """
-        Get Bitcoin unsigned refund transaction raw.
+        Get Bitcoin refund transaction raw.
 
-        :returns: str -- Bitcoin unsigned refund transaction raw.
+        :returns: str -- Bitcoin refund transaction raw.
 
         >>> from swap.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("testnet")
         >>> refund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
-        >>> refund_transaction.unsigned_raw()
+        >>> refund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
@@ -628,14 +649,21 @@ class RefundTransaction(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
 
         # Encode refund transaction raw
-        return b64encode(str(json.dumps(dict(
+        if self._type == "bitcoin_refund_signed":
+            return clean_transaction_raw(b64encode(str(json.dumps(dict(
+                raw=self._transaction.hexlify(),
+                fee=self._fee,
+                network=self._network,
+                type=self._type
+            ))).encode()).decode())
+        return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
             raw=self._transaction.hexlify(),
             outputs=dict(
                 value=self._htlc_detail["value"],
-                n=0,
-                script_pubkey=self._htlc_detail["script"]
+                tx_output_n=0,
+                script=self._htlc_detail["script"]
             ),
             network=self._network,
-            type="bitcoin_refund_unsigned"
-        ))).encode()).decode()
+            type=self._type
+        ))).encode()).decode())
