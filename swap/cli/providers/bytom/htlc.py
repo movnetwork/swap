@@ -8,7 +8,7 @@ from ....providers.bytom.htlc import HTLC
 from ....providers.config import bytom
 
 # Bytom config
-bytom = bytom()
+config = bytom()
 
 
 @click.command("htlc", options_metavar="[OPTIONS]",
@@ -16,13 +16,14 @@ bytom = bytom()
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-rp", "--recipient-public", type=str, required=True, help="Set Bytom recipient public key.")
 @click.option("-sp", "--sender-public", type=str, required=True, help="Set Bytom sender public key.")
-@click.option("-sq", "--sequence", type=int, default=bytom["sequence"],
-              help="Set Bytom sequence/expiration block.")
-@click.option("-n", "--network", type=str, default="solonet", help="Set Bytom network.")
+@click.option("-sq", "--sequence", type=int, default=config["sequence"],
+              help="Set Bytom sequence/expiration block.", show_default=True)
+@click.option("-n", "--network", type=str, default=config["network"],
+              help="Set Bytom network.", show_default=True)
 def htlc(secret_hash, recipient_public, sender_public, sequence, network):
     try:
         click.echo(
-            HTLC(network=network).init(
+            HTLC(network=network).build_htlc(
                 secret_hash=secret_hash,
                 recipient_public=recipient_public,
                 sender_public=sender_public,
