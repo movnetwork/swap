@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet
+import json
+import os
+
 from swap.cli.__main__ import main as cli_main
-from swap.utils import sha256
 
-
-network = "testnet"
-sender_wallet = Wallet(network=network).from_passphrase("meheret tesfaye batu bayou")
-recipient_wallet = Wallet(network=network).from_passphrase("meheret")
-secret_hash = sha256("Hello Meheret!")
-sequence = 1000
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+values = open(file_path, "r")
+_ = json.loads(values.read())
+values.close()
 
 
 def test_bitcoin_cli_htlc(cli_tester):
@@ -18,28 +19,13 @@ def test_bitcoin_cli_htlc(cli_tester):
         cli_main, [
             "bitcoin",
             "htlc",
-            "--secret-hash", secret_hash,
-            "--recipient-address", recipient_wallet.address(),
-            "--sender-address", sender_wallet.address(),
-            "--sequence", sequence,
-            "--network", network
+            "--secret-hash", _["bitcoin"]["htlc"]["secret"]["hash"],
+            "--recipient-address", _["bitcoin"]["wallet"]["recipient"]["address"],
+            "--sender-address", _["bitcoin"]["wallet"]["sender"]["address"],
+            "--sequence", _["bitcoin"]["htlc"]["sequence"],
+            "--network", _["bitcoin"]["network"]
         ]
     )
-    assert htlc.exit_code == 0
-    assert htlc.output == "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f8" \
-                          "79fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b45" \
-                          "7118dc8da92d553488ac68" + "\n"
 
-    htlc = cli_tester.invoke(
-        cli_main, [
-            "bitcoin",
-            "htlc",
-            "--secret-hash", secret_hash,
-            "--recipient-address", "L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q",
-            "--sender-address", sender_wallet.address(),
-            "--sequence", sequence,
-            "--network", network
-        ]
-    )
     assert htlc.exit_code == 0
-    assert htlc.output == "Error: invalid testnet recipient L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q address" + "\n"
+    assert htlc.output == _["bitcoin"]["htlc"]["bytecode"] + "\n"

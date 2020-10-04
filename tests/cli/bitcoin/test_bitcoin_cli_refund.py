@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet
+import json
+import os
+
 from swap.cli.__main__ import main as cli_main
+from swap.utils import clean_transaction_raw
 
-
-version = 2
-network = "testnet"
-sender_wallet = Wallet(network=network).from_passphrase("meheret tesfaye batu bayou")
-recipient_wallet = Wallet(network=network).from_passphrase("meheret")
-transaction_id = "f34eb8e86f7753e681dc44387f7d14ab624b3418498d23f6157b38d8922e31ec"
-amount = 10_000
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+values = open(file_path, "r")
+_ = json.loads(values.read())
+values.close()
 
 
 def test_bitcoin_cli_refund(cli_tester):
@@ -18,33 +20,15 @@ def test_bitcoin_cli_refund(cli_tester):
         cli_main, [
             "bitcoin",
             "refund",
-            "--transaction", transaction_id,
-            "--sender-address", sender_wallet.address(),
-            "--amount", amount,
-            "--version", version,
-            "--network", network
-        ]
-    )
-    assert refund.exit_code == 0
-    assert refund.output == "eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMWVjMzEyZTkyZDgzODdiMTVmNjIzOGQ0OT" \
-                           "E4MzQ0YjYyYWIxNDdkN2YzODQ0ZGM4MWU2NTM3NzZmZThiODRlZjMwMDAwMDAwMDAwZmZmZmZm" \
-                           "ZmYwMWQwMjQwMDAwMDAwMDAwMDAxOTc2YTkxNDY0YTgzOTBiMGIxNjg1ZmNiZjJkNGI0NTcxMT" \
-                           "hkYzhkYTkyZDU1MzQ4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsidmFsdWUiOiAxMDAwMCwg" \
-                           "Im4iOiAwLCAic2NyaXB0X3B1YmtleSI6ICJhOTE0MmJiMDEzYzNlNGJlYjA4NDIxZGVkY2Y4MT" \
-                           "VjYjY1YTVjMzg4MTc4Yjg3In0sICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRj" \
-                           "b2luX3JlZnVuZF91bnNpZ25lZCJ9" + "\n"
-
-    refund = cli_tester.invoke(
-        cli_main, [
-            "bitcoin",
-            "refund",
-            "--transaction", transaction_id,
-            "--sender-address", "L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q",
-            "--amount", amount,
-            "--version", version,
-            "--network", network
+            "--address", _["bitcoin"]["wallet"]["sender"]["address"],
+            "--transaction", _["bitcoin"]["transaction_id"],
+            "--amount", _["bitcoin"]["amount"],
+            "--version", _["bitcoin"]["version"],
+            "--network", _["bitcoin"]["network"]
         ]
     )
 
     assert refund.exit_code == 0
-    assert refund.output == "Error: invalid testnet L5tUq6mCbE84XobZ1mphBPZf15cRFcvg7Q address" + "\n"
+    assert refund.output == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["refund"]["unsigned"]["transaction_raw"]
+    ) + "\n"

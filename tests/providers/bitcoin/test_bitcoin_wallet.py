@@ -1,149 +1,191 @@
 #!/usr/bin/env python3
 
+import json
+import os
+
 from swap.providers.bitcoin.wallet import Wallet
 
-
-def test_from_passphrase():
-    passphrase = "meheret tesfaye batu bayou"
-    # Initialize bitcoin wallet
-    bitcoin_from_passphrase = Wallet(network="testnet") \
-        .from_passphrase(passphrase)
-
-    bitcoin_from_private_key = Wallet(network="testnet") \
-        .from_private_key("92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b")
-
-    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
-    assert bitcoin_from_private_key.private_key() == private_key == bitcoin_from_passphrase.private_key()
-
-    public_key = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
-    assert bitcoin_from_private_key.public_key() == public_key
-
-    address = "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q"
-    assert bitcoin_from_private_key.address() == address
-
-    # Initialize bitcoin wallet
-    bitcoin_from_passphrase = Wallet(network="testnet")\
-        .from_passphrase(passphrase, False)
-
-    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
-    assert bitcoin_from_passphrase.private_key() == private_key
-
-    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c9659" \
-                 "94963c77bfb470dff5afd351a442ebf329f3b2c2835"
-    assert bitcoin_from_passphrase.public_key() == public_key
-
-    compressed = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
-    assert bitcoin_from_passphrase.compressed() == compressed
-
-    uncompressed = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c96" \
-                   "5994963c77bfb470dff5afd351a442ebf329f3b2c2835"
-    assert bitcoin_from_passphrase.uncompressed() == uncompressed
-
-    assert bitcoin_from_passphrase.uncompressed() == bitcoin_from_passphrase.public_key()
-
-    address = "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"
-    assert bitcoin_from_passphrase.address() == address
-
-    _hash = "6bce65e58a50b97989930e9a4ff1ac1a77515ef1"
-    assert bitcoin_from_passphrase.hash() == _hash
-
-    p2pkh = "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac"
-    assert bitcoin_from_passphrase.p2pkh() == p2pkh
-
-    p2sh = "a914347283eee92ad685909044619adaa70370b2538787"
-    assert bitcoin_from_passphrase.p2sh() == p2sh
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+values = open(file_path, "r")
+_ = json.loads(values.read())
+values.close()
 
 
-def test_from_private_key():
-    # testing from private keky
-    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
+def test_bitcoin_wallet_from_mnemonic():
 
-    # Initialize bitcoin wallet
-    bitcoin_from_private_key = Wallet(network="testnet")\
-        .from_private_key(private_key)
+    wallet = Wallet(network=_["bitcoin"]["network"])
 
-    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
-    assert bitcoin_from_private_key.private_key() == private_key
+    wallet.from_mnemonic(
+        mnemonic=_["bitcoin"]["wallet"]["sender"]["mnemonic"],
+        passphrase=_["bitcoin"]["wallet"]["sender"]["passphrase"],
+    )
 
-    public_key = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
-    assert bitcoin_from_private_key.public_key() == public_key
+    wallet.from_path(
+        path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
+    )
 
-    address = "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q"
-    assert bitcoin_from_private_key.address() == address
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() == _["bitcoin"]["wallet"]["sender"]["mnemonic"]
+    assert wallet.language() == _["bitcoin"]["wallet"]["sender"]["language"]
+    assert wallet.passphrase() is None
+    assert wallet.seed() == _["bitcoin"]["wallet"]["sender"]["seed"]
+    assert wallet.root_xprivate_key() == _["bitcoin"]["wallet"]["sender"]["root_xprivate_key"]
+    assert wallet.root_xpublic_key() == _["bitcoin"]["wallet"]["sender"]["root_xpublic_key"]
+    assert wallet.xprivate_key() == _["bitcoin"]["wallet"]["sender"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bitcoin"]["wallet"]["sender"]["xpublic_key"]
+    assert wallet.uncompressed() == _["bitcoin"]["wallet"]["sender"]["uncompressed"]
+    assert wallet.compressed() == _["bitcoin"]["wallet"]["sender"]["compressed"]
+    assert wallet.chain_code() == _["bitcoin"]["wallet"]["sender"]["chain_code"]
+    assert wallet.private_key() == _["bitcoin"]["wallet"]["sender"]["private_key"]
+    assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
+    assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
+    assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
+    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
+    assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
+    assert wallet.path() == _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
+    assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
 
-    # Initialize bitcoin wallet
-    bitcoin_from_private_key = Wallet(network="testnet") \
-        .from_private_key(private_key, False)
-
-    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
-    assert bitcoin_from_private_key.private_key() == private_key
-
-    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c9659" \
-                 "94963c77bfb470dff5afd351a442ebf329f3b2c2835"
-    assert bitcoin_from_private_key.public_key() == public_key
-
-    compressed = "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
-    assert bitcoin_from_private_key.compressed() == compressed
-
-    uncompressed = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c96" \
-                   "5994963c77bfb470dff5afd351a442ebf329f3b2c2835"
-    assert bitcoin_from_private_key.uncompressed() == uncompressed
-
-    assert bitcoin_from_private_key.uncompressed() == bitcoin_from_private_key.public_key()
-
-    address = "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"
-    assert bitcoin_from_private_key.address() == address
-
-    _hash = "6bce65e58a50b97989930e9a4ff1ac1a77515ef1"
-    assert bitcoin_from_private_key.hash() == _hash
-
-    p2pkh = "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac"
-    assert bitcoin_from_private_key.p2pkh() == p2pkh
-
-    p2sh = "a914347283eee92ad685909044619adaa70370b2538787"
-    assert bitcoin_from_private_key.p2sh() == p2sh
+    assert isinstance(wallet.balance(), int)
+    assert isinstance(wallet.utxos(), list)
 
 
-def test_from_address():
-    # testing from address
-    address = "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"
+def test_bitcoin_wallet_from_seed():
 
-    # Initialize bitcoin wallet
-    bitcoin_from_address = Wallet(network="testnet").from_address(address)
+    wallet = Wallet(network=_["bitcoin"]["network"])
 
-    assert bitcoin_from_address.address() == address
+    wallet.from_seed(
+        seed=_["bitcoin"]["wallet"]["recipient"]["seed"]
+    )
 
-    _hash = "6bce65e58a50b97989930e9a4ff1ac1a77515ef1"
-    assert bitcoin_from_address.hash() == _hash
+    wallet.from_path(
+        path=_["bitcoin"]["wallet"]["recipient"]["derivation"]["path"]
+    )
 
-    p2pkh = "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac"
-    assert bitcoin_from_address.p2pkh() == p2pkh
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() == _["bitcoin"]["wallet"]["recipient"]["seed"]
+    assert wallet.root_xprivate_key() == _["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"]
+    assert wallet.root_xpublic_key() == _["bitcoin"]["wallet"]["recipient"]["root_xpublic_key"]
+    assert wallet.xprivate_key() == _["bitcoin"]["wallet"]["recipient"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bitcoin"]["wallet"]["recipient"]["xpublic_key"]
+    assert wallet.uncompressed() == _["bitcoin"]["wallet"]["recipient"]["uncompressed"]
+    assert wallet.compressed() == _["bitcoin"]["wallet"]["recipient"]["compressed"]
+    assert wallet.chain_code() == _["bitcoin"]["wallet"]["recipient"]["chain_code"]
+    assert wallet.private_key() == _["bitcoin"]["wallet"]["recipient"]["private_key"]
+    assert wallet.public_key() == _["bitcoin"]["wallet"]["recipient"]["public_key"]
+    assert wallet.wif() == _["bitcoin"]["wallet"]["recipient"]["wif"]
+    assert wallet.hash() == _["bitcoin"]["wallet"]["recipient"]["hash"]
+    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["recipient"]["p2pkh"]
+    assert wallet.finger_print() == _["bitcoin"]["wallet"]["recipient"]["finger_print"]
+    assert wallet.path() == _["bitcoin"]["wallet"]["recipient"]["derivation"]["path"]
+    assert wallet.address() == _["bitcoin"]["wallet"]["recipient"]["address"]
 
-    p2sh = "a914347283eee92ad685909044619adaa70370b2538787"
-    assert bitcoin_from_address.p2sh() == p2sh
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)
 
 
-def test_bitcoin_wallet_tools():
-    wallet = Wallet(network="testnet")
-    private_key = "92cbbc5990cb5090326a76feeb321cad01048635afe5756523bbf9f7a75bf38b"
-    public_key = wallet.public_key(private_key=private_key)
-    assert public_key == "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
-    public_key = "04c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84fee63d89a5979801c96" \
-                 "5994963c77bfb470dff5afd351a442ebf329f3b2c2835"
+def test_bitcoin_wallet_from_root_xprivate_key():
 
-    compressed = wallet.compressed(public_key=public_key)
-    assert compressed == "03c56a6005d4a8892d28cc3f7265e5685b548627d59108973e474c4e26f69a4c84"
-    uncompressed = wallet.uncompressed(public_key=public_key)
-    assert uncompressed == public_key
-    address = wallet.address(public_key=uncompressed)
-    assert address == "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"
-    _hash = wallet.hash(public_key=uncompressed)
-    assert _hash == "6bce65e58a50b97989930e9a4ff1ac1a77515ef1"
-    p2pkh = wallet.p2pkh(address=address)
-    assert p2pkh == "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac"
-    p2sh = wallet.p2sh(address=address)
-    assert p2sh == "a914347283eee92ad685909044619adaa70370b2538787"
-    balance = wallet.balance(address=address, network="testnet")
-    assert isinstance(balance, int)
-    unspent = wallet.unspent(address=address, network="testnet", limit=1)
-    assert isinstance(unspent, list)
+    wallet = Wallet(network=_["bitcoin"]["network"])
+
+    wallet.from_root_xprivate_key(
+        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"]
+    )
+
+    wallet.from_path(
+        path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() is None
+    assert wallet.root_xprivate_key() == _["bitcoin"]["wallet"]["sender"]["root_xprivate_key"]
+    assert wallet.root_xpublic_key() == _["bitcoin"]["wallet"]["sender"]["root_xpublic_key"]
+    assert wallet.xprivate_key() == _["bitcoin"]["wallet"]["sender"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bitcoin"]["wallet"]["sender"]["xpublic_key"]
+    assert wallet.uncompressed() == _["bitcoin"]["wallet"]["sender"]["uncompressed"]
+    assert wallet.compressed() == _["bitcoin"]["wallet"]["sender"]["compressed"]
+    assert wallet.chain_code() == _["bitcoin"]["wallet"]["sender"]["chain_code"]
+    assert wallet.private_key() == _["bitcoin"]["wallet"]["sender"]["private_key"]
+    assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
+    assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
+    assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
+    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
+    assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
+    assert wallet.path() == _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
+    assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
+
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)
+
+
+def test_bitcoin_wallet_from_xprivate_key():
+
+    wallet = Wallet(network=_["bitcoin"]["network"])
+
+    wallet.from_xprivate_key(
+        xprivate_key=_["bitcoin"]["wallet"]["recipient"]["xprivate_key"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() is None
+    assert wallet.root_xprivate_key() is None
+    assert wallet.root_xpublic_key() is None
+    assert wallet.xprivate_key() == _["bitcoin"]["wallet"]["recipient"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bitcoin"]["wallet"]["recipient"]["xpublic_key"]
+    assert wallet.uncompressed() == _["bitcoin"]["wallet"]["recipient"]["uncompressed"]
+    assert wallet.compressed() == _["bitcoin"]["wallet"]["recipient"]["compressed"]
+    assert wallet.chain_code() == _["bitcoin"]["wallet"]["recipient"]["chain_code"]
+    assert wallet.private_key() == _["bitcoin"]["wallet"]["recipient"]["private_key"]
+    assert wallet.public_key() == _["bitcoin"]["wallet"]["recipient"]["public_key"]
+    assert wallet.wif() == _["bitcoin"]["wallet"]["recipient"]["wif"]
+    assert wallet.hash() == _["bitcoin"]["wallet"]["recipient"]["hash"]
+    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["recipient"]["p2pkh"]
+    assert wallet.finger_print() == _["bitcoin"]["wallet"]["recipient"]["finger_print"]
+    assert wallet.path() is None
+    assert wallet.address() == _["bitcoin"]["wallet"]["recipient"]["address"]
+
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)
+
+
+def test_bitcoin_wallet_from_private_key():
+
+    wallet = Wallet(network=_["bitcoin"]["network"])
+
+    wallet.from_private_key(
+        private_key=_["bitcoin"]["wallet"]["sender"]["private_key"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() is None
+    assert wallet.root_xprivate_key() is None
+    assert wallet.root_xpublic_key() is None
+    assert wallet.xprivate_key() is None
+    assert wallet.xpublic_key() is None
+    assert wallet.uncompressed() == _["bitcoin"]["wallet"]["sender"]["uncompressed"]
+    assert wallet.compressed() == _["bitcoin"]["wallet"]["sender"]["compressed"]
+    assert wallet.chain_code() is None
+    assert wallet.private_key() == _["bitcoin"]["wallet"]["sender"]["private_key"]
+    assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
+    assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
+    assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
+    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
+    assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
+    assert wallet.path() is None
+    assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
+
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)
