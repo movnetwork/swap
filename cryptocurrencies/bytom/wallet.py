@@ -14,13 +14,15 @@ ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Mnemonic language
 # Choose only english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean languages
 LANGUAGE: str = "spanish"  # Default to english
+# Mnemonic password/passphrase
+PASSPHRASE = None  # str("meherett")
 # Bytom wallet derivation path
 PATH: str = "m/44/153/1/0/1"
 
 # Initialize Bytom wallet
 wallet: Wallet = Wallet(network=NETWORK)
 # Get Bytom wallet from entropy
-wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE)
+wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE)
 # Drive Bytom wallet from path
 wallet.from_path(path=PATH)
 
