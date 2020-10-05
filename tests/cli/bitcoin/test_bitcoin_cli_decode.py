@@ -23,6 +23,7 @@ def test_bitcoin_cli_decode(cli_tester):
             "--indent", 0
         ]
     )
+
     assert decode.exit_code == 0
     assert decode.output != str({
         "fee": 678,
