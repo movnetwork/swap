@@ -65,7 +65,7 @@ print("Unsigned Claim Transaction Raw:", unsigned_claim_transaction_raw)
 print("=" * 10, "Signed Claim Transaction")
 
 # Initialize claim solver
-claim_solver = ClaimSolver(
+claim_solver: ClaimSolver = ClaimSolver(
     root_xprivate_key=recipient_wallet.root_xprivate_key(),
     secret_key="Hello Meheret!",
     bytecode=BYTECODE
@@ -76,7 +76,7 @@ signed_claim_transaction: ClaimTransaction = unsigned_claim_transaction.sign(sol
 
 print("Signed Claim Transaction Fee:", signed_claim_transaction.fee())
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
-print("Signed Claim Transaction Raw:", signed_claim_transaction.raw())
+print("Signed Claim Transaction Main Raw:", signed_claim_transaction.raw())
 # print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
 print("Signed Claim Transaction Type:", signed_claim_transaction.type())
 
@@ -95,7 +95,7 @@ claim_signature.sign(
 
 print("Claim Signature Fee:", claim_signature.fee())
 print("Claim Signature Hash:", claim_signature.hash())
-print("Claim Signature Raw:", claim_signature.raw())
+print("Claim Signature Main Raw:", claim_signature.raw())
 # print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))
 print("Claim Signature Type:", claim_signature.type())
 
@@ -106,6 +106,6 @@ print("Claim Signature Transaction Raw:", signed_claim_signature_transaction_raw
 assert signed_claim_transaction_raw == signed_claim_signature_transaction_raw
 
 # Submit claim transaction raw
-# print("\nSubmitted Claim Transaction:", submit_transaction_raw(
+# print("\nSubmitted Claim Transaction:", json.dumps(submit_transaction_raw(
 #     transaction_raw=signed_claim_transaction_raw  # Or signed_claim_signature_transaction_raw
-# ))
+# ), indent=4))

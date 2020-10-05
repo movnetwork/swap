@@ -6,7 +6,7 @@ from swap.providers.bitcoin.transaction import FundTransaction
 from swap.providers.bitcoin.solver import FundSolver
 from swap.providers.bitcoin.signature import FundSignature
 from swap.providers.bitcoin.utils import (
-    amount_converter, submit_transaction_raw
+    submit_transaction_raw, amount_converter
 )
 
 import json
@@ -75,7 +75,7 @@ print("Unsigned Fund Transaction Raw:", unsigned_fund_transaction_raw)
 print("=" * 10, "Signed Fund Transaction")
 
 # Initialize fund solver
-fund_solver = FundSolver(
+fund_solver: FundSolver = FundSolver(
     root_xprivate_key=sender_wallet.root_xprivate_key()
 )
 
@@ -104,7 +104,7 @@ fund_signature.sign(
 print("Fund Signature Fee:", fund_signature.fee())
 print("Fund Signature Hash:", fund_signature.hash())
 print("Fund Signature Main Raw:", fund_signature.raw())
-print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
+# print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
 print("Fund Signature Type:", fund_signature.type())
 
 signed_fund_signature_transaction_raw: str = fund_signature.transaction_raw()
@@ -114,6 +114,6 @@ print("Fund Signature Transaction Raw:", signed_fund_signature_transaction_raw)
 assert signed_fund_transaction_raw == signed_fund_signature_transaction_raw
 
 # Submit fund transaction raw
-print("\nSubmitted Fund Transaction:", submit_transaction_raw(
-    transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
-))
+# print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
+# ), indent=4))
