@@ -55,9 +55,3 @@ def test_swap_utils():
 
     assert double_sha256("meherett".encode()) == \
         "2803bf9ed1e5874825350b1b0753a96c00a99236b686bde337404453b11d3288"
-
-    with pytest.raises(TypeError, match="data must be str/bytes format!"):
-        sha256(int(123))
-
-    with pytest.raises(TypeError, match="data must be str/bytes format!"):
-        double_sha256(int(123))
