@@ -60,12 +60,12 @@ print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw()
 print("Unsigned Refund Transaction Type:", unsigned_refund_transaction.type())
 
 unsigned_refund_transaction_raw: str = unsigned_refund_transaction.transaction_raw()
-print("Unsigned Fund Transaction Unsigned Raw:", unsigned_refund_transaction_raw)
+print("Unsigned Refund Transaction Raw:", unsigned_refund_transaction_raw)
 
 print("=" * 10, "Signed Refund Transaction")
 
 # Initialize refund solver
-refund_solver = RefundSolver(
+refund_solver: RefundSolver = RefundSolver(
     root_xprivate_key=sender_wallet.root_xprivate_key(),
     bytecode=BYTECODE,
     sequence=1000  # Default to 1000
@@ -76,12 +76,12 @@ signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(
 
 print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
-print("Signed Refund Transaction Raw:", signed_refund_transaction.raw())
+print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
 print("Signed Refund Transaction Type:", signed_refund_transaction.type())
 
 signed_refund_transaction_raw: str = signed_refund_transaction.transaction_raw()
-print("Signed Fund Transaction Raw:", signed_refund_transaction_raw)
+print("Signed Refund Transaction Raw:", signed_refund_transaction_raw)
 
 print("=" * 10, "Refund Signature")
 
@@ -95,7 +95,7 @@ refund_signature.sign(
 
 print("Refund Signature Fee:", refund_signature.fee())
 print("Refund Signature Hash:", refund_signature.hash())
-print("Refund Signature Raw:", refund_signature.raw())
+print("Refund Signature Main Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
 print("Refund Signature Type:", refund_signature.type())
 
@@ -106,6 +106,6 @@ print("Refund Signature Transaction Raw:", signed_refund_signature_transaction_r
 assert signed_refund_transaction_raw == signed_refund_signature_transaction_raw
 
 # Submit refund transaction raw
-# print("\nSubmitted Refund Transaction:", submit_transaction_raw(
+# print("\nSubmitted Refund Transaction:", json.dumps(submit_transaction_raw(
 #     transaction_raw=signed_refund_transaction_raw  # Or signed_refund_signature_transaction_raw
-# ))
+# ), indent=4))

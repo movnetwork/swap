@@ -14,17 +14,15 @@ ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Mnemonic language
 # Choose only english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean languages
 LANGUAGE: str = "korean"  # Default to english
+# Mnemonic password/passphrase
+PASSPHRASE = None  # str("meherett")
 # Bitcoin wallet derivation path
 PATH: str = "m/44'/0'/0'/0/0"
 
 # Initialize Bitcoin wallet
 wallet: Wallet = Wallet(network=NETWORK)
 # Get Bitcoin wallet from entropy
-# wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE)
-# wallet.from_mnemonic("announce clutch amazing animal casual liberty race estate language twenty crash regret")
-# wallet.from_mnemonic("beyond wool vapor fix enlist scorpion boss ugly route until sugar trash")
-wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-# wallet.from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit")
+wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE)
 # Drive Bitcoin wallet from path
 wallet.from_path(path=PATH)
 
