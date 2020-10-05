@@ -161,7 +161,7 @@ class HTLC:
             raise ValueError("HTLC script is None, first build HTLC.")
         return self._script["program"]
 
-    def opcode(self) -> str:
+    def opcode(self) -> Optional[str]:
         """
         Get Bytom Hash Time Lock Contract (HTLC) OP_Code.
 
@@ -175,8 +175,10 @@ class HTLC:
         "0xe803 0xd4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01 0x91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0x3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb DEPTH 0x547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
         """
 
-        if not self._script or "opcodes" not in self._script:
-            raise ValueError("HTLC script is None, first build HTLC.")
+        if "opcodes" not in self._script:
+            if not self._script:
+                raise ValueError("HTLC script is None, first build HTLC.")
+            return None
         return self._script["opcodes"]
 
     def hash(self) -> str:
