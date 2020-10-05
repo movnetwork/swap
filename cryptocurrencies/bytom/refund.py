@@ -4,134 +4,119 @@ from swap.providers.bytom.wallet import Wallet
 from swap.providers.bytom.transaction import RefundTransaction
 from swap.providers.bytom.solver import RefundSolver
 from swap.providers.bytom.signature import RefundSignature
-from swap.providers.bytom.utils import submit_transaction_raw
-from swap.utils import sha256
+from swap.providers.bytom.utils import (
+    submit_transaction_raw, amount_converter
+)
 
 import json
 
 # Bytom network
-NETWORK = "mainnet"
-# Bytom transaction id/hash
-TRANSACTION_ID = "5ec2547c7aece45af6b4b97fabcc42cb6b1ecfa9c7d30a0b3c4655888284b1bd"
-# Sender 12 word mnemonic
-SENDER_MNEMONIC = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Recipient Bytom public key
-RECIPIENT_PUBLIC_KEY = "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e"
+NETWORK: str = "mainnet"
+# Bytom funded transaction id/hash
+TRANSACTION_ID: str = "0b88d6874c203f0386966ae73cc0c1fedbfe3c0a3131066b32596bea3847c7ea"
+# Bytom sender wallet mnemonic
+SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
+# Bytom wallet derivation path
+PATH: str = "m/44/153/1/0/1"
+# Witness Hash Time Lock Contract (HTLC) bytecode
+BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e" \
+                "0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead1" \
+                "5a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa8" \
+                "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
 # Bytom fund asset id
-ASSET = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+ASSET: str = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 # Bytom fund amount
-AMOUNT = 10_000
+AMOUNT: int = amount_converter(0.0001, "BTM2NEU")
 
 print("=" * 10, "Sender Bytom Account")
 
-# Initializing Bytom sender wallet
-sender_wallet = Wallet(network=NETWORK)
-# Initializing Bytom wallet from mnemonic
+# Initialize Bytom sender wallet
+sender_wallet: Wallet = Wallet(network=NETWORK)
+# Get Bytom sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
-# Getting sender wallet information's
-sender_seed = sender_wallet.seed()
-print("Sender Seed:", sender_seed)
-sender_xprivate_key = sender_wallet.xprivate_key()
-print("Sender XPrivate Key:", sender_xprivate_key)
-sender_xpublic_key = sender_wallet.xpublic_key()
-print("Sender XPublic Key:", sender_xpublic_key)
-sender_expand_xprivate_key = sender_wallet.expand_xprivate_key()
-print("Sender Expand XPrivate Key:", sender_expand_xprivate_key)
-sender_private_key = sender_wallet.private_key()
-print("Sender Private Key:", sender_private_key)
-sender_public_key = sender_wallet.public_key()
-print("Sender Public Key:", sender_public_key)
-sender_program = sender_wallet.program()
-print("Sender Program:", sender_program)
-sender_address = sender_wallet.address()
-print("Sender Address:", sender_address)
-sender_path = sender_wallet.path()
-print("Sender Path:", sender_path)
-sender_guid = sender_wallet.guid()
-print("Sender GUID:", sender_guid)
-# sender_balance = sender_wallet.balance()
-# print("Sender Balance:", sender_balance)
+# Drive Bytom sender wallet from path
+sender_wallet.from_path(path=PATH)
 
-print("=" * 10, "Recipient Bytom Account")
-
-# Initializing Bytom recipient wallet
-recipient_wallet = Wallet(network=NETWORK)
-# Initializing Bytom wallet from public key
-recipient_wallet.from_public_key(public=RECIPIENT_PUBLIC_KEY)
-# Getting recipient wallet information's
-recipient_public_key = recipient_wallet.public_key()
-print("Recipient Public Key:", recipient_public_key)
-recipient_program = recipient_wallet.program()
-print("Recipient Program:", recipient_program)
-recipient_address = recipient_wallet.address()
-print("Recipient Address:", recipient_address)
-# recipient_balance = recipient_wallet.balance()
-# print("Recipient Balance:", recipient_balance)
+# Print some Bytom sender wallet info's
+print("XPrivate Key:", sender_wallet.xprivate_key())
+print("XPublic Key:", sender_wallet.xpublic_key())
+print("Private Key:", sender_wallet.private_key())
+print("Public Key:", sender_wallet.public_key())
+print("Control Program", sender_wallet.program())
+print("Path:", sender_wallet.path())
+print("Address:", sender_wallet.address())
+print("Balance:", sender_wallet.balance())
 
 print("=" * 10, "Unsigned Refund Transaction")
 
-# Initializing refund transaction
-unsigned_refund_transaction = RefundTransaction(network="mainnet")
-# Building refund transaction
+# Initialize refund transaction
+unsigned_refund_transaction: RefundTransaction = RefundTransaction(network=NETWORK)
+# Build refund transaction
 unsigned_refund_transaction.build_transaction(
+    address=sender_wallet.address(),
     transaction_id=TRANSACTION_ID,
-    wallet=sender_wallet,
     amount=AMOUNT,
     asset=ASSET
 )
 
 print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee())
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
-print("Unsigned Refund Transaction Raw:", unsigned_refund_transaction.raw())
+print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw())
 # print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
 print("Unsigned Refund Transaction Unsigned:", json.dumps(unsigned_refund_transaction.unsigned_datas(), indent=4))
 print("Unsigned Refund Transaction Signatures:", json.dumps(unsigned_refund_transaction.signatures(), indent=4))
+print("Unsigned Refund Transaction Type:", unsigned_refund_transaction.type())
 
-unsigned_refund_raw = unsigned_refund_transaction.unsigned_raw()
-print("Unsigned Refund Transaction Unsigned Raw:", unsigned_refund_raw)
+unsigned_refund_transaction_raw: str = unsigned_refund_transaction.transaction_raw()
+print("Unsigned Refund Transaction Raw:", unsigned_refund_transaction_raw)
 
 print("=" * 10, "Signed Refund Transaction")
 
-# Initializing refund solver
-refund_solver = RefundSolver(
-    xprivate_key=sender_xprivate_key,
-    secret_hash=sha256("Hello Meheret!"),
-    recipient_public=recipient_public_key,
-    sender_public=sender_public_key,
-    sequence=1000
+# Initialize refund solver
+refund_solver: RefundSolver = RefundSolver(
+    xprivate_key=sender_wallet.xprivate_key(),
+    bytecode=BYTECODE
 )
 
-# Singing unsigned refund transaction
-signed_refund_transaction = unsigned_refund_transaction.sign(refund_solver)
+# Sign unsigned refund transaction
+signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(refund_solver)
 
 print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
-print("Signed Refund Transaction Raw:", signed_refund_transaction.raw())
+print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
-print("Signed Refund Transaction Unsigned:", json.dumps(signed_refund_transaction.unsigned_datas(), indent=4))
+print("Signed Refund Transaction Unsigned Datas:", json.dumps(signed_refund_transaction.unsigned_datas(), indent=4))
 print("Signed Refund Transaction Signatures:", json.dumps(signed_refund_transaction.signatures(), indent=4))
+print("Signed Refund Transaction Type:", signed_refund_transaction.type())
+
+signed_refund_transaction_raw: str = signed_refund_transaction.transaction_raw()
+print("Signed Refund Transaction Raw:", signed_refund_transaction_raw)
 
 print("=" * 10, "Refund Signature")
 
-# Initializing refund signature
-refund_signature = RefundSignature(network="mainnet")
-# Singing unsigned refund transaction raw
+# Initialize refund signature
+refund_signature: RefundSignature = RefundSignature(network=NETWORK)
+# Sign unsigned refund transaction raw
 refund_signature.sign(
-    unsigned_raw=unsigned_refund_raw,
+    transaction_raw=unsigned_refund_transaction_raw,
     solver=refund_solver
 )
 
 print("Refund Signature Fee:", refund_signature.fee())
 print("Refund Signature Hash:", refund_signature.hash())
-print("Refund Signature Raw:", refund_signature.raw())
+print("Refund Signature Main Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
-print("Refund Signature Unsigned:", json.dumps(refund_signature.unsigned_datas(), indent=4))
-print("Refund Signature Transaction Signatures:", json.dumps(refund_signature.signatures(), indent=4))
+print("Refund Signature Unsigned Datas:", json.dumps(refund_signature.unsigned_datas(), indent=4))
+print("Refund Signature Signatures:", json.dumps(refund_signature.signatures(), indent=4))
+print("Refund Signature Type:", refund_signature.type())
 
-signed_refund_raw = refund_signature.signed_raw()
-print("Refund Signature Signed Raw:", signed_refund_raw)
+signed_refund_signature_transaction_raw: str = refund_signature.transaction_raw()
+print("Refund Signature Transaction Raw:", signed_refund_signature_transaction_raw)
 
-# Submitting refund transaction raw
-# print("\nSubmitted Refund Transaction:", submit_transaction_raw(
-#     transaction_raw=signed_refund_raw
-# ))
+# Check both signed refund transaction raws are equal
+assert signed_refund_transaction_raw == signed_refund_signature_transaction_raw
+
+# Submit refund transaction raw
+# print("\nSubmitted Refund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_refund_transaction_raw  # Or signed_refund_signature_transaction_raw
+# ), indent=4))

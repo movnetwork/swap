@@ -5,7 +5,7 @@ from swap.providers.bytom.rpc import get_balance
 from swap.utils import sha256
 
 # Bytom network
-NETWORK = "mainnet"
+NETWORK: str = "mainnet"
 # Secret password/passphrase hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Recipient Bytom public key
@@ -19,7 +19,7 @@ ASSET: str = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
-# Initialize Bitcoin HTLC
+# Initialize Bytom HTLC
 htlc: HTLC = HTLC(network=NETWORK)
 # Build HTLC contract
 htlc.build_htlc(
