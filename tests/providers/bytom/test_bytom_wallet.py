@@ -1,199 +1,146 @@
 #!/usr/bin/env python3
 
+import json
+import os
+
 from swap.providers.bytom.wallet import Wallet
-from swap.utils.exceptions import NetworkError
 
-import pytest
-
-
-def test_mainnet_from_mnemonic():
-    
-    # Initialize bytom sender wallet
-    bytom_wallet = Wallet(network="mainnet")\
-        .from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-    
-    bytom_wallet.from_path(path="m/44/153/1/0/1")
-    seed = bytom_wallet.seed()
-    assert seed == "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
-
-    xprivate_key = bytom_wallet.xprivate_key()
-    assert xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    xpublic_key = bytom_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    expand_xprivate_key = bytom_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    public_key = bytom_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    program = bytom_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_wallet.address()
-    assert address == "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
-
-
-def test_testnet_from_mnemonic():
-
-    # Initialize bytom testnet wallet
-    bytom_wallet = Wallet(network="testnet") \
-        .from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
-
-    bytom_wallet.from_path(path="m/44/153/1/0/1")
-    seed = bytom_wallet.seed()
-    assert seed == "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
-
-    xprivate_key = bytom_wallet.xprivate_key()
-    assert xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    xpublic_key = bytom_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    expand_xprivate_key = bytom_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    public_key = bytom_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    program = bytom_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_wallet.address()
-    assert address == "tm1q9ndylx02syfwd7npehfxz4lddhzqsve2d2mgc0"
-
-
-def test_mainnet_from_seed():
-    # Initialize bytom mainnet wallet
-    bytom_mainnet_wallet = Wallet(network="mainnet") \
-        .from_seed("baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49")
-
-    bytom_mainnet_wallet.from_path(path="m/44/153/1/0/1")
-    xprivate_key = bytom_mainnet_wallet.xprivate_key()
-    assert xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    xpublic_key = bytom_mainnet_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    expand_xprivate_key = bytom_mainnet_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    public_key = bytom_mainnet_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    program = bytom_mainnet_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_mainnet_wallet.address()
-    assert address == "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
-
-
-def test_testnet_from_seed():
-    # Initialize bytom sender wallet
-    bytom_testnet_wallet = Wallet(network="testnet") \
-        .from_seed("baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49")
-
-    bytom_testnet_wallet.from_path(path="m/44/153/1/0/1")
-    xprivate_key = bytom_testnet_wallet.xprivate_key()
-    assert xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    xpublic_key = bytom_testnet_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    expand_xprivate_key = bytom_testnet_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    public_key = bytom_testnet_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    program = bytom_testnet_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_testnet_wallet.address()
-    assert address == "tm1q9ndylx02syfwd7npehfxz4lddhzqsve2d2mgc0"
-
-
-def test_mainnet_from_xprivate_key():
-    # Initialize bytom mainnet wallet
-    bytom_mainnet_wallet = Wallet(network="mainnet") \
-        .from_xprivate_key("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
-
-    bytom_mainnet_wallet.from_path(path="m/44/153/1/0/1")
-    xpublic_key = bytom_mainnet_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    expand_xprivate_key = bytom_mainnet_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    assert bytom_mainnet_wallet.path() == "m/44/153/1/0/1"
-
-    public_key = bytom_mainnet_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    program = bytom_mainnet_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_mainnet_wallet.address()
-    assert address == "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
-
-
-def test_testnet_from_xprivate_key():
-    # Initialize bytom sender wallet
-    bytom_testnet_wallet = Wallet(network="testnet").from_xprivate_key(
-        "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-    ).from_path(path="m/44/153/1/0/1")
-
-    xpublic_key = bytom_testnet_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    assert bytom_testnet_wallet.path() == "m/44/153/1/0/1"
-
-    expand_xprivate_key = bytom_testnet_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    public_key = bytom_testnet_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    program = bytom_testnet_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_testnet_wallet.address()
-    assert address == "tm1q9ndylx02syfwd7npehfxz4lddhzqsve2d2mgc0"
-
-
-def test_solonet_from_xprivate_key():
-    # Initialize bytom sender wallet
-    bytom_testnet_wallet = Wallet(network="solonet").from_xprivate_key(
-        "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-    ).from_indexes(indexes=["2c000000", "99000000", "01000000", "00000000", "01000000"])
-
-    xpublic_key = bytom_testnet_wallet.xpublic_key()
-    assert xpublic_key == "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
-
-    assert bytom_testnet_wallet.path() == "m/44/153/1/0/1"
-
-    expand_xprivate_key = bytom_testnet_wallet.expand_xprivate_key()
-    assert expand_xprivate_key == "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
-
-    public_key = bytom_testnet_wallet.public_key()
-    assert public_key == "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
-
-    assert bytom_testnet_wallet.indexes() == ["2c000000", "99000000", "01000000", "00000000", "01000000"]
-
-    program = bytom_testnet_wallet.program()
-    assert program == "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
-
-    address = bytom_testnet_wallet.address()
-    assert address == "sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs"
-
-    private_key = bytom_testnet_wallet.private_key()
-    assert private_key == "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
-
-
-def test_bytom_wallet_error():
-
-    with pytest.raises(NetworkError,
-                       match="Invalid 'unknown' network, choose only 'mainnet', 'solonet' or 'testnet' networks."):
-        Wallet(network="unknown")
-
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+values = open(file_path, "r")
+_ = json.loads(values.read())
+values.close()
+
+
+def test_bytom_wallet_from_mnemonic():
+
+    wallet = Wallet(network=_["bytom"]["network"])
+
+    wallet.from_mnemonic(
+        mnemonic=_["bytom"]["wallet"]["sender"]["mnemonic"],
+        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"],
+    )
+
+    wallet.from_path(
+        path=_["bytom"]["wallet"]["sender"]["derivation"]["path"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() == _["bytom"]["wallet"]["sender"]["mnemonic"]
+    assert wallet.language() == _["bytom"]["wallet"]["sender"]["language"]
+    assert wallet.passphrase() is None
+    assert wallet.seed() == _["bytom"]["wallet"]["sender"]["seed"]
+    assert wallet.xprivate_key() == _["bytom"]["wallet"]["sender"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bytom"]["wallet"]["sender"]["xpublic_key"]
+    assert wallet.expand_xprivate_key() == _["bytom"]["wallet"]["sender"]["expand_xprivate_key"]
+    assert wallet.child_xprivate_key() == _["bytom"]["wallet"]["sender"]["child_xprivate_key"]
+    assert wallet.child_xpublic_key() == _["bytom"]["wallet"]["sender"]["child_xpublic_key"]
+    assert wallet.guid() == _["bytom"]["wallet"]["sender"]["guid"]
+    assert wallet.private_key() == _["bytom"]["wallet"]["sender"]["private_key"]
+    assert wallet.public_key() == _["bytom"]["wallet"]["sender"]["public_key"]
+    assert wallet.program() == _["bytom"]["wallet"]["sender"]["program"]
+    assert wallet.indexes() == _["bytom"]["wallet"]["sender"]["derivation"]["indexes"]
+    assert wallet.path() == _["bytom"]["wallet"]["sender"]["derivation"]["path"]
+    assert wallet.address() == _["bytom"]["wallet"]["sender"]["address"]
+
+    assert isinstance(wallet.balance(), int)
+    assert isinstance(wallet.utxos(), list)
+
+
+def test_bytom_wallet_from_seed():
+
+    wallet = Wallet(network=_["bytom"]["network"])
+
+    wallet.from_seed(
+        seed=_["bytom"]["wallet"]["recipient"]["seed"]
+    )
+
+    wallet.from_path(
+        path=_["bytom"]["wallet"]["recipient"]["derivation"]["path"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() == _["bytom"]["wallet"]["recipient"]["seed"]
+    assert wallet.xprivate_key() == _["bytom"]["wallet"]["recipient"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bytom"]["wallet"]["recipient"]["xpublic_key"]
+    assert wallet.expand_xprivate_key() == _["bytom"]["wallet"]["recipient"]["expand_xprivate_key"]
+    assert wallet.child_xprivate_key() == _["bytom"]["wallet"]["recipient"]["child_xprivate_key"]
+    assert wallet.child_xpublic_key() == _["bytom"]["wallet"]["recipient"]["child_xpublic_key"]
+    # assert wallet.guid() == _["bytom"]["wallet"]["recipient"]["guid"]
+    assert wallet.private_key() == _["bytom"]["wallet"]["recipient"]["private_key"]
+    assert wallet.public_key() == _["bytom"]["wallet"]["recipient"]["public_key"]
+    assert wallet.program() == _["bytom"]["wallet"]["recipient"]["program"]
+    assert wallet.indexes() == _["bytom"]["wallet"]["recipient"]["derivation"]["indexes"]
+    assert wallet.path() == _["bytom"]["wallet"]["recipient"]["derivation"]["path"]
+    assert wallet.address() == _["bytom"]["wallet"]["recipient"]["address"]
+
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)
+
+
+def test_bytom_wallet_from_xprivate_key():
+
+    wallet = Wallet(network=_["bytom"]["network"])
+
+    wallet.from_xprivate_key(
+        xprivate_key=_["bytom"]["wallet"]["sender"]["xprivate_key"]
+    )
+
+    wallet.from_path(
+        path=_["bytom"]["wallet"]["sender"]["derivation"]["path"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() is None
+    assert wallet.xprivate_key() == _["bytom"]["wallet"]["sender"]["xprivate_key"]
+    assert wallet.xpublic_key() == _["bytom"]["wallet"]["sender"]["xpublic_key"]
+    assert wallet.expand_xprivate_key() == _["bytom"]["wallet"]["sender"]["expand_xprivate_key"]
+    assert wallet.child_xprivate_key() == _["bytom"]["wallet"]["sender"]["child_xprivate_key"]
+    assert wallet.child_xpublic_key() == _["bytom"]["wallet"]["sender"]["child_xpublic_key"]
+    # assert wallet.guid() == _["bytom"]["wallet"]["sender"]["guid"]
+    assert wallet.private_key() == _["bytom"]["wallet"]["sender"]["private_key"]
+    assert wallet.public_key() == _["bytom"]["wallet"]["sender"]["public_key"]
+    assert wallet.program() == _["bytom"]["wallet"]["sender"]["program"]
+    assert wallet.indexes() == _["bytom"]["wallet"]["recipient"]["derivation"]["indexes"]
+    assert wallet.path() == _["bytom"]["wallet"]["recipient"]["derivation"]["path"]
+    assert wallet.address() == _["bytom"]["wallet"]["sender"]["address"]
+
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)
+
+
+def test_bytom_wallet_from_private_key():
+
+    wallet = Wallet(network=_["bytom"]["network"])
+
+    wallet.from_private_key(
+        private_key=_["bytom"]["wallet"]["recipient"]["private_key"]
+    )
+
+    assert wallet.entropy() is None
+    assert wallet.mnemonic() is None
+    assert wallet.language() is None
+    assert wallet.passphrase() is None
+    assert wallet.seed() is None
+    # assert wallet.xprivate_key() is None
+    assert wallet.xpublic_key() is None
+    assert wallet.expand_xprivate_key() is None
+    assert wallet.child_xprivate_key() is None
+    assert wallet.child_xpublic_key() is None
+    assert wallet.guid() is None
+    assert wallet.private_key() == _["bytom"]["wallet"]["recipient"]["private_key"]
+    assert wallet.public_key() == _["bytom"]["wallet"]["recipient"]["public_key"]
+    assert wallet.program() == _["bytom"]["wallet"]["recipient"]["program"]
+    assert wallet.indexes() == []
+    assert wallet.path() is None
+    assert wallet.address() == _["bytom"]["wallet"]["recipient"]["address"]
+
+    # assert isinstance(wallet.balance(), int)
+    # assert isinstance(wallet.utxos(), list)

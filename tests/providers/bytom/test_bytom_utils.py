@@ -1,27 +1,54 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet
-from swap.providers.bytom.utils import (
-    is_address, decode_swap_transaction_raw, submit_swap_transaction_raw
-)
-from swap.utils.exceptions import TransactionRawError
+from requests.exceptions import ConnectionError
 
 import pytest
+import json
+import os
+
+from swap.utils.exceptions import APIError
+from swap.providers.bytom.utils import (
+    is_network, is_address, is_transaction_raw,
+    decode_transaction_raw, submit_transaction_raw
+)
+
+# Test Values
+base_path = os.path.dirname(__file__)
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+values = open(file_path, "r")
+_ = json.loads(values.read())
+values.close()
 
 
-def test_bytom_utils_exceptions():
+def test_bytom_utils():
 
-    assert is_address("sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs", "solonet")
-    assert is_address("sm1q9ndylx02syfwd7npehfxz4lddhzqsve2gdsdcs")
+    assert is_network(network=_["bytom"]["network"])
+    assert not is_network(network="unknown")
 
-    with pytest.raises(TransactionRawError, match="Invalid swap Bytom transaction raw"):
-        decode_swap_transaction_raw("YXNkZg==")
+    assert is_address(address=_["bytom"]["wallet"]["sender"]["address"])
+    assert not is_address(address=_["bytom"]["wallet"]["sender"]["address"], network="testnet")
+    assert is_address(address=_["bytom"]["wallet"]["sender"]["address"], network=_["bytom"]["network"])
 
-    with pytest.raises(TransactionRawError, match="Invalid swap Bytom transaction raw"):
-        decode_swap_transaction_raw("eyJub25lIjogbnVsbH0=")
+    assert is_address(address=_["bytom"]["wallet"]["recipient"]["address"])
+    assert not is_address(address=_["bytom"]["wallet"]["recipient"]["address"], network="testnet")
+    assert is_address(address=_["bytom"]["wallet"]["recipient"]["address"], network=_["bytom"]["network"])
 
-    with pytest.raises(TransactionRawError, match="Invalid swap Bytom transaction raw"):
-        submit_swap_transaction_raw("YXNkZg==")
+    assert is_transaction_raw(transaction_raw=_["bytom"]["fund"]["unsigned"]["transaction_raw"])
+    assert not is_transaction_raw(transaction_raw="unknown")
 
-    with pytest.raises(TransactionRawError, match="Invalid swap Bytom transaction raw"):
-        submit_swap_transaction_raw("eyJub25lIjogbnVsbH0=")
+    # HTTPConnectionPool(host='localhost', port=9888)
+    with pytest.raises(ConnectionError):
+        assert decode_transaction_raw(transaction_raw=_["bytom"]["fund"]["unsigned"]["transaction_raw"]) == \
+               {
+                   "address": _["bytom"]["wallet"]["sender"]["address"],
+                   "fee": 10000000,
+                   "network": _["bytom"]["network"],
+                   "signatures": [],
+                   "tx": _["bytom"]["fund"]["unsigned"]["json"],
+                   "type": "bytom_fund_unsigned",
+                   "unsigned_datas": _["bytom"]["fund"]["unsigned"]["unsigned_datas"]
+               }
+
+    # (600) finalize tx fail
+    with pytest.raises(APIError):
+        submit_transaction_raw(transaction_raw=_["bytom"]["fund"]["unsigned"]["transaction_raw"])
