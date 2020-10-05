@@ -28,29 +28,31 @@ def test_bitcoin_cli_signature(cli_tester):
             "--path", _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
         ]
     )
+
     assert signed_fund_transaction_raw.exit_code == 0
     assert signed_fund_transaction_raw.output == clean_transaction_raw(
         transaction_raw=_["bitcoin"]["fund"]["signed"]["transaction_raw"]
     ) + "\n"
 
-    # signed_claim_transaction_raw = cli_tester.invoke(
-    #     cli_main, [
-    #         "bitcoin",
-    #         "sign",
-    #         "--raw", _["bitcoin"]["claim"]["unsigned"]["transaction_raw"],
-    #         "--root-xprivate", _["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
-    #         "--secret-key", _["bitcoin"]["htlc"]["secret"]["key"],
-    #         "--bytecode", _["bitcoin"]["htlc"]["bytecode"],
-    #         "--account", _["bitcoin"]["wallet"]["recipient"]["derivation"]["account"],
-    #         "--change", _["bitcoin"]["wallet"]["recipient"]["derivation"]["change"],
-    #         "--address", _["bitcoin"]["wallet"]["recipient"]["derivation"]["address"],
-    #         "--path", _["bitcoin"]["wallet"]["recipient"]["derivation"]["path"]
-    #     ]
-    # )
-    # # assert signed_claim_transaction_raw.exit_code == 0
-    # assert signed_claim_transaction_raw.output == clean_transaction_raw(
-    #     transaction_raw=_["bitcoin"]["claim"]["signed"]["transaction_raw"]
-    # ) + "\n"
+    signed_claim_transaction_raw = cli_tester.invoke(
+        cli_main, [
+            "bitcoin",
+            "sign",
+            "--raw", _["bitcoin"]["claim"]["unsigned"]["transaction_raw"],
+            "--root-xprivate", _["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
+            "--secret-key", _["bitcoin"]["htlc"]["secret"]["key"],
+            "--bytecode", _["bitcoin"]["htlc"]["bytecode"],
+            "--account", _["bitcoin"]["wallet"]["recipient"]["derivation"]["account"],
+            "--change", _["bitcoin"]["wallet"]["recipient"]["derivation"]["change"],
+            "--address", _["bitcoin"]["wallet"]["recipient"]["derivation"]["address"],
+            "--path", _["bitcoin"]["wallet"]["recipient"]["derivation"]["path"]
+        ]
+    )
+
+    assert signed_claim_transaction_raw.exit_code == 0
+    assert signed_claim_transaction_raw.output == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["claim"]["signed"]["transaction_raw"]
+    ) + "\n"
 
     signed_refund_transaction_raw = cli_tester.invoke(
         cli_main, [
@@ -66,7 +68,8 @@ def test_bitcoin_cli_signature(cli_tester):
             "--path", _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
         ]
     )
-    # assert signed_refund_transaction_raw.exit_code == 0
+
+    assert signed_refund_transaction_raw.exit_code == 0
     assert signed_refund_transaction_raw.output == clean_transaction_raw(
         transaction_raw=_["bitcoin"]["refund"]["signed"]["transaction_raw"]
     ) + "\n"

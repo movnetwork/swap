@@ -31,4 +31,3 @@ def test_bitcoin_cli_fund(cli_tester):
     assert fund.output == clean_transaction_raw(
         transaction_raw=_["bitcoin"]["fund"]["unsigned"]["transaction_raw"]
     ) + "\n"
-
