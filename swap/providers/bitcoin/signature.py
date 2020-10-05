@@ -24,7 +24,7 @@ from .solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
 from .utils import (
-    is_transaction_raw, is_network, clean_transaction_raw
+    is_transaction_raw, is_network
 )
 
 # Bitcoin config
@@ -77,6 +77,8 @@ class Signature:
         678
         """
 
+        if self._transaction is None:
+            raise ValueError("Transaction is none, sign unsigned transaction raw first.")
         return self._fee
 
     def hash(self) -> str:

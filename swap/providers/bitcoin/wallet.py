@@ -35,7 +35,7 @@ class Wallet(HDWallet):
         Bitcoin has only two networks, ``mainnet`` and ``mainnet``.
     """
 
-    def __init__(self, network: str = config["mainnet"]):
+    def __init__(self, network: str = config["network"]):
 
         if network == "mainnet":
             self._network: str = "mainnet"
