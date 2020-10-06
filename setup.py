@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 import swap
 
 # README.md
-with open("README.md", "r") as readme:
+with open("README.md", "r", encoding="utf-8") as readme:
     long_description = readme.read()
 
 # requirements.txt
