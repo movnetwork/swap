@@ -1,12 +1,15 @@
+<img align="right" height="135" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/swap-readme.svg">
+
 # Swap
 
 [![Build Status](https://travis-ci.org/meherett/swap.svg?branch=master)](https://travis-ci.org/meherett/swap?branch=master)
 [![PyPI Version](https://img.shields.io/pypi/v/swap.svg?color=blue)](https://pypi.org/project/swap)
 [![Documentation Status](https://readthedocs.org/projects/crypto-swap/badge/?version=latest)](https://crypto-swap.readthedocs.io/en/latest/?badge=latest)
+[![PyPI Python Version](https://img.shields.io/pypi/pyversions/swap.svg)](https://pypi.org/project/swap)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/meherett/swap?branch=master)
 
-A Python library for cross-chain atomic swap between the networks of two cryptocurrencies. 
-Cross-chain atomic swap are the cheapest and most secure way to swap cryptocurrencies. 
+A Python library for a Cross-chain atomic swap between the networks of two cryptocurrencies. 
+Cross-chain atomic swap is the cheapest and most secured by cryptographic proof to swap cryptocurrencies. 
 It’s a brand new decentralized payment environment based on Hash Time Lock Contracts (HTLC's) protocol.
 
 ## Available Cryptocurrencies
