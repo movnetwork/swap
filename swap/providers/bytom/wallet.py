@@ -6,7 +6,7 @@ from typing import (
     TypeVar, Optional, List
 )
 
-from ...utils.exceptions import NetworkError
+from ...exceptions import NetworkError
 from ..config import bytom
 from .rpc import (
     get_balance, get_utxos

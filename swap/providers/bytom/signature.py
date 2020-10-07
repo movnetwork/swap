@@ -10,7 +10,7 @@ from typing import (
 import json
 
 from ...utils import clean_transaction_raw
-from ...utils.exceptions import (
+from ...exceptions import (
     TransactionRawError, NetworkError
 )
 from ..config import bytom

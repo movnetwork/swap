@@ -9,7 +9,7 @@ from binascii import unhexlify
 
 import hashlib
 
-from ...utils.exceptions import (
+from ...exceptions import (
     AddressError, NetworkError
 )
 from ..config import bitcoin

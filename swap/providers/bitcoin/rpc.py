@@ -6,7 +6,7 @@ from btcpy.setup import setup as stp
 import requests
 import json
 
-from ...utils.exceptions import (
+from ...exceptions import (
     AddressError, APIError, NetworkError
 )
 from ..config import bitcoin

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from btcpy.structs.script import ScriptSig, Script
+from btcpy.structs.script import (
+    ScriptSig, Script
+)
 from btcpy.structs.transaction import (
     MutableTransaction, Sequence, TxIn, TxOut
 )
@@ -9,11 +11,10 @@ from btcpy.setup import setup as stp
 from btcpy.structs.script import (
     P2pkhScript, P2shScript
 )
-from hdwallet.symbols import (
-    BTC as BitcoinMainnet, BTCTEST as BitcoinTestnet
-)
 from base64 import b64decode
-from typing import Union, Optional
+from typing import (
+    Union, Optional
+)
 
 import requests
 import cryptos
@@ -21,7 +22,7 @@ import json
 import datetime
 
 from ...utils import clean_transaction_raw
-from ...utils.exceptions import (
+from ...exceptions import (
     AddressError, NetworkError, APIError, SymbolError, TransactionRawError
 )
 from ..config import bitcoin

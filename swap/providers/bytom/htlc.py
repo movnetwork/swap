@@ -9,7 +9,7 @@ from typing import Optional, TypeVar
 from equity import Equity
 from ctypes import c_int64
 
-from ...utils.exceptions import NetworkError
+from ...exceptions import NetworkError
 from ..config import bytom
 from .utils import is_network
 

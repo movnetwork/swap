@@ -15,7 +15,7 @@ from ....providers.bitcoin.signature import (
 )
 from ....providers.bitcoin.utils import is_transaction_raw
 from ....providers.config import bitcoin
-from ....utils.exceptions import TransactionRawError
+from ....exceptions import TransactionRawError
 from ....utils import clean_transaction_raw
 
 # Bitcoin config

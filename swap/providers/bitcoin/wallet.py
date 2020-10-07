@@ -11,7 +11,7 @@ from typing import (
     TypeVar, Optional, Any
 )
 
-from ...utils.exceptions import NetworkError
+from ...exceptions import NetworkError
 from ..config import bitcoin
 from .rpc import (
     get_balance, get_utxos

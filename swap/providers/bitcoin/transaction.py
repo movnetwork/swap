@@ -14,7 +14,7 @@ from typing import Optional
 import json
 
 from ...utils import clean_transaction_raw
-from ...utils.exceptions import (
+from ...exceptions import (
     BalanceError, AddressError, NetworkError
 )
 from ..config import bitcoin
