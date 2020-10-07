@@ -4,7 +4,7 @@ import pytest
 import json
 import os
 
-from swap.utils.exceptions import APIError
+from swap.exceptions import APIError
 from swap.providers.bitcoin.utils import (
     is_network, is_address, is_transaction_raw,
     decode_transaction_raw, submit_transaction_raw
