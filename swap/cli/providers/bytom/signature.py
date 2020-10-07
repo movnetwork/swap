@@ -15,7 +15,7 @@ from ....providers.bytom.signature import (
 )
 from ....providers.bytom.utils import is_transaction_raw
 from ....providers.config import bytom
-from ....utils.exceptions import TransactionRawError
+from ....exceptions import TransactionRawError
 from ....utils import clean_transaction_raw
 
 # Bytom config

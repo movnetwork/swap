@@ -3,7 +3,7 @@
 import requests
 import json
 
-from ...utils.exceptions import (
+from ...exceptions import (
     ClientError, APIError, NetworkError, AddressError
 )
 from ..config import bytom

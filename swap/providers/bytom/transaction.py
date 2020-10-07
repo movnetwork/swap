@@ -16,7 +16,7 @@ from typing import Optional
 import json
 
 from ...utils import clean_transaction_raw
-from ...utils.exceptions import NetworkError
+from ...exceptions import NetworkError
 from ..config import bytom
 from .rpc import (
     build_transaction, decode_raw
