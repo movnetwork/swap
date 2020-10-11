@@ -3,20 +3,20 @@
 from pybytom.transaction import Transaction as BytomTransaction
 from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.transaction.actions import (
-    spend_wallet, spend_utxo, control_address, control_program
+    spend_wallet, spend_utxo, control_address
 )
 from pybytom.wallet.tools import (
     indexes_to_path, get_program, get_address
 )
-from pybytom.utils import is_network
-from pybytom.script import p2wsh_program
 from base64 import b64encode
 from typing import Optional
 
 import json
 
 from ...utils import clean_transaction_raw
-from ...exceptions import NetworkError
+from ...exceptions import (
+    AddressError, NetworkError
+)
 from ..config import bytom
 from .rpc import (
     build_transaction, decode_raw
@@ -24,9 +24,10 @@ from .rpc import (
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
-from .utils import amount_converter
+from .utils import (
+    amount_converter, is_network, is_address
+)
 from .wallet import Wallet
-from .htlc import HTLC
 
 # Bytom config
 config = bytom()
@@ -77,14 +78,11 @@ class Transaction(BytomTransaction):
         """
         Get Bytom transaction hash.
 
-        :returns: str -- Bytom transaction hash or transaction id.
+        :returns: str -- Bytom transaction id/hash.
 
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc, 10000)
+        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
         >>> fund_transaction.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
@@ -130,7 +128,7 @@ class Transaction(BytomTransaction):
             raise ValueError("Transaction is none, build transaction first.")
         return self._transaction["raw_transaction"]
     
-    def type(self) -> type:
+    def type(self) -> str:
         """
         Get Bitcoin signature transaction type.
 
@@ -159,13 +157,10 @@ class Transaction(BytomTransaction):
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> from swap.providers.bytom.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), htlc, 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
         >>> fund_transaction.unsigned_datas(solver=fund_solver)
         [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
         """
@@ -220,13 +215,10 @@ class Transaction(BytomTransaction):
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> from swap.providers.bytom.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), htlc, 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
         >>> fund_transaction.sign(solver=fund_solver)
         >>> fund_transaction.signatures()
         [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
@@ -253,14 +245,17 @@ class FundTransaction(Transaction):
     def __init__(self, network: str = config["mainnet"]):
         super().__init__(network)
 
-    def build_transaction(self, address: str, htlc: HTLC, amount: int, asset: str = config["asset"]):
+        self._htlc_address: Optional[str] = None
+
+    def build_transaction(self, address: str, htlc_address: str,
+                          amount: int, asset: str = config["asset"]) -> "FundTransaction":
         """
         Build Bytom fund transaction.
 
         :param address: Bytom sender wallet address.
         :type address: str
-        :param htlc: Bytom hash time lock contract (HTLC).
-        :type htlc: bytom.htlc.HTLC
+        :param htlc_address: Bytom Hash Time Lock Contract (HTLC) address.
+        :type htlc_address: str
         :param amount: Bytom amount to fund.
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
@@ -268,17 +263,20 @@ class FundTransaction(Transaction):
         :returns: FundTransaction -- Bytom fund transaction instance.
 
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc=htlc, amount=10000)
+        >>> fund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc_address="bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", amount=10000)
         <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
+        # Check parameter instances
+        if not is_address(address, self._network):
+            raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
+        if not is_address(htlc_address, self._network):
+            raise AddressError(f"Invalid Bytom HTLC '{htlc_address}' {self._network} address.")
+
         # Set address, fee and confirmations
-        self._address, self._fee, self._confirmations = (
-            address, config["fee"], config["confirmations"]
+        self._address, self._htlc_address, self._fee, self._confirmations = (
+            address, htlc_address, config["fee"], config["confirmations"]
         )
 
         # Build transaction
@@ -296,12 +294,10 @@ class FundTransaction(Transaction):
                     )
                 ],
                 outputs=[
-                    control_program(
+                    control_address(
                         asset=asset,
                         amount=amount,
-                        program=p2wsh_program(  # Change script hash to P2WSH
-                            script_hash=htlc.hash()
-                        )
+                        address=self._htlc_address
                     )
                 ]
             ),
@@ -312,7 +308,7 @@ class FundTransaction(Transaction):
         self._type = "bytom_fund_unsigned"
         return self
 
-    def sign(self, solver: FundSolver):
+    def sign(self, solver: FundSolver) -> "FundTransaction":
         """
         Sign Bytom fund transaction.
 
@@ -323,13 +319,10 @@ class FundTransaction(Transaction):
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> from swap.providers.bytom.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), htlc, 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -368,11 +361,8 @@ class FundTransaction(Transaction):
         :returns: str -- Bytom fund transaction raw.
 
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("mainnet").build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000)
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc, 10000)
+        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
         >>> fund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -425,7 +415,8 @@ class ClaimTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-    def build_transaction(self, transaction_id: str, address: str, amount: int, asset: str = config["asset"]):
+    def build_transaction(self, address: str, transaction_id: str,
+                          amount: int, asset: str = config["asset"]) -> "ClaimTransaction":
         """
         Build Bytom claim transaction.
 
@@ -444,6 +435,10 @@ class ClaimTransaction(Transaction):
         >>> claim_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
         """
+
+        # Check parameter instances
+        if not is_address(address, self._network):
+            raise AddressError(f"Invalid Bytom recipient '{address}' {self._network} address.")
 
         # Find HTLC UTXO id.
         htlc_utxo_id = find_p2wsh_utxo(
@@ -486,7 +481,7 @@ class ClaimTransaction(Transaction):
         self._type = "bytom_claim_unsigned"
         return self
 
-    def sign(self, solver: ClaimSolver):
+    def sign(self, solver: ClaimSolver) -> "ClaimTransaction":
         """
         Sign Bytom claim transaction.
 
@@ -599,7 +594,8 @@ class RefundTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-    def build_transaction(self, address: str, transaction_id: str, amount: int, asset: str = config["asset"]):
+    def build_transaction(self, address: str, transaction_id: str,
+                          amount: int, asset: str = config["asset"]) -> "RefundTransaction":
         """
         Build Bytom refund transaction.
 
@@ -618,6 +614,10 @@ class RefundTransaction(Transaction):
         >>> refund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
+
+        # Check parameter instances
+        if not is_address(address, self._network):
+            raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
 
         # Find HTLC UTXO id
         htlc_utxo_id = find_p2wsh_utxo(
@@ -660,7 +660,7 @@ class RefundTransaction(Transaction):
         self._type = "bytom_refund_unsigned"
         return self
 
-    def sign(self, solver: RefundSolver):
+    def sign(self, solver: RefundSolver) -> "RefundTransaction":
         """
         Sign Bytom refund transaction.
 

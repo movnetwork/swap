@@ -2,7 +2,7 @@
 
 from base64 import b64encode
 from btcpy.structs.script import (
-    ScriptSig, P2pkhScript, P2shScript
+    ScriptSig, P2shScript
 )
 from btcpy.structs.transaction import (
     Locktime, MutableTransaction, TxOut, Sequence, TxIn
@@ -29,7 +29,6 @@ from .rpc import (
     get_transaction, get_utxos
 )
 from .wallet import Wallet
-from .htlc import HTLC
 
 # Bitcoin config
 config = bitcoin()
@@ -84,14 +83,11 @@ class Transaction:
         """
         Get Bitcoin transaction hash.
 
-        :returns: str -- Bitcoin transaction hash or transaction id.
+        :returns: str -- Bitcoin transaction id/hash.
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
-        >>> from swap.providers.bitcoin.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("testnet").build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> fund_transaction = FundTransaction("testnet")
-        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc, 10000)
+        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
         >>> fund_transaction.hash()
         "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7"
         """
@@ -172,18 +168,19 @@ class FundTransaction(Transaction):
     def __init__(self, network: str = config["network"], version: int = config["version"]):
         super().__init__(network=network, version=version)
 
-        self._htlc: Optional[HTLC] = None
+        self._htlc_address: Optional[str] = None
         self._utxos: Optional[list] = None
         self._previous_transaction_indexes: Optional[list] = None
 
-    def build_transaction(self, address: str, htlc: HTLC, amount: int, locktime: int = config["locktime"]):
+    def build_transaction(self, address: str, htlc_address: str,
+                          amount: int, locktime: int = config["locktime"]) -> "FundTransaction":
         """
         Build Bitcoin fund transaction.
 
         :param address: Bitcoin sender address.
         :type address: str
-        :param htlc: Bitcoin hash time lock contract (HTLC).
-        :type htlc: bitcoin.htlc.HTLC
+        :param htlc_address: Bitcoin Hash Time Lock Contract (HTLC) address.
+        :type htlc_address: str
         :param amount: Bitcoin amount to fund.
         :type amount: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -191,19 +188,18 @@ class FundTransaction(Transaction):
         :returns: FundTransaction -- Bitcoin fund transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
-        >>> from swap.providers.bitcoin.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("testnet").build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> fund_transaction = FundTransaction("testnet")
-        >>> fund_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc=htlc, amount=10000)
+        >>> fund_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc_address="2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", amount=10000)
         <swap.providers.bitcoin.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
+        if not is_address(htlc_address, self._network):
+            raise AddressError(f"Invalid Bitcoin HTLC '{htlc_address}' {self._network} address.")
 
-        self._address, self._htlc, self._amount = address, htlc, amount
+        self._address, self._htlc_address, self._amount = address, htlc_address, amount
         # Get sender UTXO's
         self._utxos = get_utxos(address=self._address, network=self._network)
         # Find previous transaction indexes
@@ -229,8 +225,8 @@ class FundTransaction(Transaction):
                 TxOut(
                     value=self._amount,
                     n=0,
-                    script_pubkey=P2shScript.unhexlify(
-                        hex_string=self._htlc.hash()
+                    script_pubkey=get_address_hash(
+                        address=self._htlc_address, script=True
                     )
                 ),
                 TxOut(
@@ -244,7 +240,7 @@ class FundTransaction(Transaction):
         self._type = "bitcoin_fund_unsigned"
         return self
 
-    def sign(self, solver: FundSolver):
+    def sign(self, solver: FundSolver) -> "FundTransaction":
         """
         Sign Bitcoin fund transaction.
 
@@ -255,12 +251,9 @@ class FundTransaction(Transaction):
         >>> from swap.providers.bitcoin.transaction import FundTransaction
         >>> from swap.providers.bitcoin.solver import FundSolver
         >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> from swap.providers.bitcoin.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("testnet").build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> sender_wallet = Wallet("testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44'/0'/0'/0/0")
         >>> fund_solver = FundSolver(sender_wallet.root_xprivate_key())
-        >>> fund_transaction = FundTransaction("testnet").build_transaction(sender_wallet.address(), htlc, 10000)
+        >>> fund_transaction = FundTransaction("testnet").build_transaction(sender_wallet.address(), "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.bitcoin.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -291,11 +284,8 @@ class FundTransaction(Transaction):
         :returns: str -- Bitcoin fund transaction raw.
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
-        >>> from swap.providers.bitcoin.htlc import HTLC
-        >>> from swap.utils import sha256
-        >>> htlc = HTLC("testnet").build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> fund_transaction = FundTransaction("testnet")
-        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc, 10000)
+        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
         >>> fund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -346,7 +336,8 @@ class ClaimTransaction(Transaction):
         self._transaction_detail: Optional[list] = None
         self._htlc_detail: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: int, locktime: int = config["locktime"]):
+    def build_transaction(self, address: str, transaction_id: str,
+                          amount: int, locktime: int = config["locktime"]) -> "ClaimTransaction":
         """
         Build Bitcoin claim transaction.
 
@@ -412,7 +403,7 @@ class ClaimTransaction(Transaction):
         self._type = "bitcoin_claim_unsigned"
         return self
 
-    def sign(self, solver: ClaimSolver):
+    def sign(self, solver: ClaimSolver) -> "ClaimTransaction":
         """
         Sign Bitcoin claim transaction.
 
@@ -518,7 +509,8 @@ class RefundTransaction(Transaction):
         self._transaction_detail: Optional[list] = None
         self._htlc_detail: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: int, locktime: int = config["locktime"]):
+    def build_transaction(self, address: str, transaction_id: str,
+                          amount: int, locktime: int = config["locktime"]) -> "RefundTransaction":
         """
         Build Bitcoin refund transaction.
 
@@ -584,7 +576,7 @@ class RefundTransaction(Transaction):
         self._type = "bitcoin_refund_unsigned"
         return self
 
-    def sign(self, solver: RefundSolver):
+    def sign(self, solver: RefundSolver) -> "RefundTransaction":
         """
         Sign Bitcoin refund transaction.
 
