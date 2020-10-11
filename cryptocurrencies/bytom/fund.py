@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from swap.providers.bytom.wallet import Wallet
-from swap.providers.bytom.htlc import HTLC
 from swap.providers.bytom.transaction import FundTransaction
 from swap.providers.bytom.solver import FundSolver
 from swap.providers.bytom.signature import FundSignature
@@ -15,13 +14,10 @@ import json
 NETWORK: str = "mainnet"
 # Bytom sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Bitcoin wallet derivation path
+# Bytom wallet derivation path
 PATH: str = "m/44/153/1/0/1"
-# Hash Time Lock Contract (HTLC) bytecode
-BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e" \
-                "0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead1" \
-                "5a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa8" \
-                "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+# Bytom Hash Time Lock Contract (HTLC) address
+HTLC_ADDRESS: str = "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8"
 # Bytom fund asset id
 ASSET: str = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 # Bytom fund amount
@@ -46,26 +42,16 @@ print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance())
 
-print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
-
-# Initialize Bytom HTLC
-htlc: HTLC = HTLC(network=NETWORK)
-# Get Bytom HTLC from bytecode
-htlc.from_bytecode(bytecode=BYTECODE)
-
-# Print all HTLC info's
-print("HTLC Bytecode:", htlc.bytecode())
-print("HTLC OP_Code:", htlc.opcode())
-print("HTLC Hash:", htlc.hash())
-print("HTLC Address:", htlc.address())
-
 print("=" * 10, "Unsigned Fund Transaction")
 
 # Initialize fund transaction
 unsigned_fund_transaction: FundTransaction = FundTransaction(network=NETWORK)
 # Build fund transaction
 unsigned_fund_transaction.build_transaction(
-    address=sender_wallet.address(), htlc=htlc, amount=AMOUNT, asset=ASSET
+    address=sender_wallet.address(),
+    htlc_address=HTLC_ADDRESS,
+    amount=AMOUNT,
+    asset=ASSET
 )
 
 print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee())

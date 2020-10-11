@@ -22,6 +22,8 @@ PATH: str = "m/44'/0'/0'/0/0"
 BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876" \
                 "a914acf8419eecab574c494febbe03fd07fdae7bf2f488ac6702e803b27576a9141d0f671c" \
                 "26a3ef7a865d1eda0fbd085e98adcc2388ac68"
+# Secret key of HTLC
+SECRET_KEY: str = "Hello Meheret!"
 # Bitcoin claim amount
 AMOUNT: int = amount_converter(0.0001, "BTC2SATOSHI")
 
@@ -67,7 +69,7 @@ print("=" * 10, "Signed Claim Transaction")
 # Initialize claim solver
 claim_solver: ClaimSolver = ClaimSolver(
     root_xprivate_key=recipient_wallet.root_xprivate_key(),
-    secret_key="Hello Meheret!",
+    secret_key=SECRET_KEY,
     bytecode=BYTECODE
 )
 

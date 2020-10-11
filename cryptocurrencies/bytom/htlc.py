@@ -24,8 +24,8 @@ htlc: HTLC = HTLC(network=NETWORK)
 # Build HTLC contract
 htlc.build_htlc(
     secret_hash=SECRET_HASH,
-    recipient_public=RECIPIENT_PUBLIC_KEY,
-    sender_public=SENDER_PUBLIC_KEY,
+    recipient_public_key=RECIPIENT_PUBLIC_KEY,
+    sender_public_key=SENDER_PUBLIC_KEY,
     sequence=SEQUENCE
 )
 

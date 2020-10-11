@@ -54,7 +54,7 @@ Options:
   -sh, --secret-hash TEXT        Set secret 256 hash.  [required]
   -ra, --recipient-address TEXT  Set Bitcoin recipient address.  [required]
   -sa, --sender-address TEXT     Set Bitcoin sender address.  [required]
-  -sq, --sequence INTEGER        Set Bitcoin sequence/expiration block.  [default: 1000]
+  -s, --sequence INTEGER         Set Bitcoin sequence/expiration block.  [default: 1000]
   -n, --network TEXT             Set Bitcoin network.  [default: testnet]
   -h, --help                     Show this message and exit.
 ```
@@ -97,34 +97,35 @@ $ swap bitcoin fund --help
 Usage: swap bitcoin fund [OPTIONS]
 
 Options:
-  -a, --address TEXT     Set Bitcoin sender address.  [required]
-  -am, --amount INTEGER  Set Bitcoin amount (SATOSHI).  [required]
-  -b, --bytecode TEXT    Set Bitcoin Hash Time Lock Contract (HTLC) bytecode.  [required]
-  -v, --version INTEGER  Set Bitcoin transaction version.  [default: 2]
-  -n, --network TEXT     Set Bitcoin network.  [default: mainnet]
-  -h, --help             Show this message and exit.
+  -a, --address TEXT        Set Bitcoin sender address.  [required]
+  -ha, --htlc-address TEXT  Set Bitcoin Hash Time Lock Contract (HTLC) address.  [required]
+  -am, --amount INTEGER     Set Bitcoin amount (SATOSHI).  [required]
+  -n, --network TEXT        Set Bitcoin network.  [default: mainnet]
+  -v, --version INTEGER     Set Bitcoin transaction version.  [default: 2]
+  -h, --help                Show this message and exit.
+
 ```
 </details>
 
 > **Example** -> swap bitcoin `fund` command
 
 **Sender Address** _(str)_ -> mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC **[required]**<br/>
+**HTLC Address** _(str)_ -> 2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
-**bytecode** _(str)_ -> 63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68 **[required]**<br/>
-**Version** _(int)_ -> 2 **[default: `2`]**<br/>
 **Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Version** _(int)_ -> 2 **[default: `2`]**<br/>
 
 > **Returns** _(str)_ -> Bitcoin unsigned fund transaction raw.
 
 ```shell script
-$ swap bitcoin fund --address mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC --amount 10000 --bytecode 63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68 --version 2 --network testnet
+$ swap bitcoin fund --address mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC --amount 10000 --htlc-address 2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae --network testnet --version 2
 ```
 
 <details>
   <summary>Output</summary><br/>
 
 ```shell script
-eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQ5NDE4ZmVlZDQ2NDdlMTU2ZDY2NjNkYjNlMGNlZjdjMDUwZDAzODY3ODczNDMzMDEwMDAwMDAwMDAwMTk3NmE5MTQzM2VjYWIzZDY3ZjBlMmJkZTQzZTUyZjQxZWMxZWNiZGM3M2YxMWY4ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJ2YWx1ZSI6IDg5MzIyLCAidHhfb3V0cHV0X24iOiAxLCAic2NyaXB0IjogIjc2YTkxNDMzZWNhYjNkNjdmMGUyYmRlNDNlNTJmNDFlYzFlY2JkYzczZjExZjg4OGFjIn1dLCAibmV0d29yayI6ICJ0ZXN0bmV0IiwgInR5cGUiOiAiYml0Y29pbl9mdW5kX3Vuc2lnbmVkIn0=
+eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMWExN2Q1N2U3ZDdmMDYyMzkzNTcxYjE4NDM3YmJhM2VjYzI2OTc4ZTNkZDI4NTgyODI0YTljODU3OGViNjI1OTgwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQ5NDE4ZmVlZDQ2NDdlMTU2ZDY2NjNkYjNlMGNlZjdjMDUwZDAzODY3ODc3ZTA5MDEwMDAwMDAwMDAwMTk3NmE5MTQzM2VjYWIzZDY3ZjBlMmJkZTQzZTUyZjQxZWMxZWNiZGM3M2YxMWY4ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJ2YWx1ZSI6IDc4NjQ0LCAidHhfb3V0cHV0X24iOiAxLCAic2NyaXB0IjogIjc2YTkxNDMzZWNhYjNkNjdmMGUyYmRlNDNlNTJmNDFlYzFlY2JkYzczZjExZjg4OGFjIn1dLCAibmV0d29yayI6ICJ0ZXN0bmV0IiwgInR5cGUiOiAiYml0Y29pbl9mdW5kX3Vuc2lnbmVkIn0=
 ```
 </details>
 
@@ -143,27 +144,27 @@ $ swap bitcoin claim --help
 Usage: swap bitcoin claim [OPTIONS]
 
 Options:
-  -a, --address TEXT      Set Bitcoin recipient address.  [required]
-  -t, --transaction TEXT  Set Bitcoin funded transaction id.  [required]
-  -am, --amount INTEGER   Set Bitcoin amount (SATOSHI).  [required]
-  -v, --version INTEGER   Set Bitcoin transaction version.  [default: 2]
-  -n, --network TEXT      Set Bitcoin network.  [default: mainnet]
-  -h, --help              Show this message and exit.
+  -a, --address TEXT          Set Bitcoin recipient address.  [required]
+  -ti, --transaction-id TEXT  Set Bitcoin funded transaction id/hash.  [required]
+  -am, --amount INTEGER       Set Bitcoin amount (SATOSHI).  [required]
+  -n, --network TEXT          Set Bitcoin network.  [default: mainnet]
+  -v, --version INTEGER       Set Bitcoin transaction version.  [default: 2]
+  -h, --help                  Show this message and exit.
 ```
 </details>
 
 > **Example** -> swap bitcoin `claim` command
 
-**Transaction Id** _(str)_ -> 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 **[required]**<br/>
 **Recipient Address** _(str)_ -> mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF **[required]**<br/>
+**Transaction Id** _(str)_ -> 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
-**Version** _(int)_ -> 2 **[default: `2`]**<br/>
 **Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Version** _(int)_ -> 2 **[default: `2`]**<br/>
 
 > **Returns** _(str)_ -> Bitcoin unsigned claim transaction raw.
 
 ```shell script
-$ swap bitcoin claim --address mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF --transaction 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 --amount 10000 --version 2 --network testnet
+$ swap bitcoin claim --address mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF --transaction-id 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 --amount 10000 --network testnet --version 2
 ```
 
 <details>
@@ -189,27 +190,27 @@ $ swap bitcoin refund --help
 Usage: swap bitcoin refund [OPTIONS]
 
 Options:
-  -a, --address TEXT      Set Bitcoin sender address.  [required]
-  -t, --transaction TEXT  Set Bitcoin funded transaction id.  [required]
-  -am, --amount INTEGER   Set Bitcoin amount (SATOSHI).  [required]
-  -v, --version INTEGER   Set Bitcoin transaction version.  [default: 2]
-  -n, --network TEXT      Set Bitcoin network.  [default: mainnet]
-  -h, --help              Show this message and exit.
+  -a, --address TEXT          Set Bitcoin sender address.  [required]
+  -ti, --transaction-id TEXT  Set Bitcoin funded transaction id/hash.  [required]
+  -am, --amount INTEGER       Set Bitcoin amount (SATOSHI).  [required]
+  -n, --network TEXT          Set Bitcoin network.  [default: mainnet]
+  -v, --version INTEGER       Set Bitcoin transaction version.  [default: 2]
+  -h, --help                  Show this message and exit.
 ```
 </details>
 
 > **Example** -> swap bitcoin `refund` command
 
-**Transaction Id** _(str)_ -> 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 **[required]**<br/>
 **Sender Address** _(str)_ -> mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC **[required]**<br/>
+**Transaction Id** _(str)_ -> 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 **[required]**<br/>
 **Amount** _(int)_ -> 10000 **[required]**<br/>
-**Version** _(int)_ -> 2 **[default: `2`]**<br/>
 **Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Version** _(int)_ -> 2 **[default: `2`]**<br/>
 
 > **Returns** _(str)_ -> Bitcoin unsigned refund transaction raw.
 
 ```shell script
-$ swap bitcoin refund --address mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC --transaction 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 --amount 10000 --version 2 --network testnet
+$ swap bitcoin refund --address mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC --transaction-id 5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318 --amount 10000 --network testnet --version 2
 ```
 
 <details>
@@ -235,10 +236,10 @@ $ swap bitcoin decode --help
 Usage: swap bitcoin decode [OPTIONS]
 
 Options:
-  -r, --raw TEXT         Set Bitcoin transaction raw.  [required]
-  -i, --indent INTEGER   Set json indent.  [default: 4]
-  -o, --offline BOOLEAN  Set Offline decode transaction raw.  [default: True]
-  -h, --help             Show this message and exit.
+  -tr, --transaction-raw TEXT  Set Bitcoin transaction raw.  [required]
+  -i, --indent INTEGER         Set json indent.  [default: 4]
+  -o, --offline BOOLEAN        Set Offline decode transaction raw.  [default: True]
+  -h, --help                   Show this message and exit.
 ```
 </details>
 
@@ -249,7 +250,7 @@ Options:
 > **Returns** _(str)_ -> Bitcoin transaction json.
 
 ```shell script
-$ swap bitcoin decode --raw eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMDAwMDAwMDAwZmZmZmZmZmYwMWQwMjQwMDAwMDAwMDAwMDAxOTc2YTkxNDMzZWNhYjNkNjdmMGUyYmRlNDNlNTJmNDFlYzFlY2JkYzczZjExZjg4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsidmFsdWUiOiAxMDAwMCwgInR4X291dHB1dF9uIjogMCwgInNjcmlwdCI6ICJhOTE0OTQxOGZlZWQ0NjQ3ZTE1NmQ2NjYzZGIzZTBjZWY3YzA1MGQwMzg2Nzg3In0sICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX3JlZnVuZF91bnNpZ25lZCJ9
+$ swap bitcoin decode --transaction-raw eyJmZWUiOiA1NzYsICJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMDAwMDAwMDAwZmZmZmZmZmYwMWQwMjQwMDAwMDAwMDAwMDAxOTc2YTkxNDMzZWNhYjNkNjdmMGUyYmRlNDNlNTJmNDFlYzFlY2JkYzczZjExZjg4OGFjMDAwMDAwMDAiLCAib3V0cHV0cyI6IHsidmFsdWUiOiAxMDAwMCwgInR4X291dHB1dF9uIjogMCwgInNjcmlwdCI6ICJhOTE0OTQxOGZlZWQ0NjQ3ZTE1NmQ2NjYzZGIzZTBjZWY3YzA1MGQwMzg2Nzg3In0sICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX3JlZnVuZF91bnNpZ25lZCJ9
 ```
 
 <details>
@@ -311,17 +312,17 @@ $ swap bitcoin sign --help
 Usage: swap bitcoin sign [OPTIONS]
 
 Options:
-  -rx, --root-xprivate TEXT  Set Bitcoin root xprivate key.  [required]
-  -r, --raw TEXT             Set Bitcoin unsigned transaction raw.  [required]
-  -b, --bytecode TEXT        Set Bitcoin witness HTLC bytecode  [default: False].
-  -sk, --secret-key TEXT     Set secret key  [default: False].
-  -sq, --sequence INTEGER    Set Bitcoin sequence/expiration block.  [default: 1000]
-  -ac, --account INTEGER     Set Bitcoin derivation from account.  [default: 1]
-  -ch, --change BOOLEAN      Set Bitcoin derivation from change.  [default: False]
-  -ad, --address INTEGER     Set Bitcoin derivation from address.  [default: 1]
-  -p, --path TEXT            Set Bitcoin derivation from path  [default: False].
-  -v, --version INTEGER      Set Bitcoin transaction version.  [default: 2]
-  -h, --help                 Show this message and exit.
+  -rxk, --root-xprivate-key TEXT  Set Bitcoin root xprivate key.  [required]
+  -tr, --transaction-raw TEXT     Set Bitcoin unsigned transaction raw.  [required]
+  -b, --bytecode TEXT             Set Bitcoin witness HTLC bytecode.  [default: None]
+  -sk, --secret-key TEXT          Set secret key.  [default: None]
+  -s, --sequence INTEGER          Set Bitcoin sequence/expiration block.  [default: 1000]
+  -ac, --account INTEGER          Set Bitcoin derivation from account.  [default: 1]
+  -ch, --change BOOLEAN           Set Bitcoin derivation from change.  [default: False]
+  -ad, --address INTEGER          Set Bitcoin derivation from address.  [default: 1]
+  -p, --path TEXT                 Set Bitcoin derivation from path.  [default: None]
+  -v, --version INTEGER           Set Bitcoin transaction version.  [default: 2]
+  -h, --help                      Show this message and exit.
 ```
 </details>
 
@@ -333,7 +334,7 @@ Options:
 > **Returns** _(str)_ -> Bitcoin signed transaction raw.
 
 ```shell script
-$ swap bitcoin sign --root-xprivate tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR --raw eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQ5NDE4ZmVlZDQ2NDdlMTU2ZDY2NjNkYjNlMGNlZjdjMDUwZDAzODY3ODczNDMzMDEwMDAwMDAwMDAwMTk3NmE5MTQzM2VjYWIzZDY3ZjBlMmJkZTQzZTUyZjQxZWMxZWNiZGM3M2YxMWY4ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJ2YWx1ZSI6IDg5MzIyLCAidHhfb3V0cHV0X24iOiAxLCAic2NyaXB0IjogIjc2YTkxNDMzZWNhYjNkNjdmMGUyYmRlNDNlNTJmNDFlYzFlY2JkYzczZjExZjg4OGFjIn1dLCAibmV0d29yayI6ICJ0ZXN0bmV0IiwgInR5cGUiOiAiYml0Y29pbl9mdW5kX3Vuc2lnbmVkIn0
+$ swap bitcoin sign --root-xprivate-key tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR --transaction-raw eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQ5NDE4ZmVlZDQ2NDdlMTU2ZDY2NjNkYjNlMGNlZjdjMDUwZDAzODY3ODczNDMzMDEwMDAwMDAwMDAwMTk3NmE5MTQzM2VjYWIzZDY3ZjBlMmJkZTQzZTUyZjQxZWMxZWNiZGM3M2YxMWY4ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJ2YWx1ZSI6IDg5MzIyLCAidHhfb3V0cHV0X24iOiAxLCAic2NyaXB0IjogIjc2YTkxNDMzZWNhYjNkNjdmMGUyYmRlNDNlNTJmNDFlYzFlY2JkYzczZjExZjg4OGFjIn1dLCAibmV0d29yayI6ICJ0ZXN0bmV0IiwgInR5cGUiOiAiYml0Y29pbl9mdW5kX3Vuc2lnbmVkIn0
 ```
 
 <details>
@@ -359,8 +360,8 @@ $ swap bitcoin submit --help
 Usage: swap bitcoin submit [OPTIONS]
 
 Options:
-  -r, --raw TEXT  Set signed Bitcoin transaction raw.  [required]
-  -h, --help      Show this message and exit.
+  -tr, --transaction-raw TEXT  Set signed Bitcoin transaction raw.  [required]
+  -h, --help                   Show this message and exit.
 ```
 </details>
 
@@ -371,7 +372,7 @@ Options:
 > **Returns** _(str)_ -> Bitcoin blockchain transaction id.
 
 ```shell script
-$ swap bitcoin submit --raw eyJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMTAwMDAwMDZiNDgzMDQ1MDIyMTAwYTUxYmIwOTE2YTc5YTE3MjJkMzhjYTRjNGNjZmM1MmUzYTEwMjNlY2E4NjhmNTEyMTRhZTVkMzA1MzQ4ZjMwZDAyMjAxZmY2ODcwZWI5MTMzNGIwNjI2NDkxYzcxMjQyYTBiMjA1N2UyY2YzZjhlZWNjZGFmZWI1ZGE3MTI2NmI0MmUyMDEyMTAyMzljZmQ4ODY1NDI4ZjEyNDhjNWU0MjM1NzhlYjBjOTg3MTU5OTQ0MWJkMmY3N2Q4M2I2ZDU0YjMzOWI3ZGE1Y2ZmZmZmZmZmMDIxMDI3MDAwMDAwMDAwMDAwMTdhOTE0OTQxOGZlZWQ0NjQ3ZTE1NmQ2NjYzZGIzZTBjZWY3YzA1MGQwMzg2Nzg3MzQzMzAxMDAwMDAwMDAwMDE5NzZhOTE0MzNlY2FiM2Q2N2YwZTJiZGU0M2U1MmY0MWVjMWVjYmRjNzNmMTFmODg4YWMwMDAwMDAwMCIsICJmZWUiOiA2NzgsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfc2lnbmVkIn0
+$ swap bitcoin submit --transaction-raw eyJyYXciOiAiMDIwMDAwMDAwMTE4MjNmMzlhOGM1ZjZmMjc4NDVkZDEzYTY1ZTAzZmUyZWY1MTA4ZDIzNWU3YTM2ZWRiNmViMjY3YjA0NTljNWEwMTAwMDAwMDZiNDgzMDQ1MDIyMTAwYTUxYmIwOTE2YTc5YTE3MjJkMzhjYTRjNGNjZmM1MmUzYTEwMjNlY2E4NjhmNTEyMTRhZTVkMzA1MzQ4ZjMwZDAyMjAxZmY2ODcwZWI5MTMzNGIwNjI2NDkxYzcxMjQyYTBiMjA1N2UyY2YzZjhlZWNjZGFmZWI1ZGE3MTI2NmI0MmUyMDEyMTAyMzljZmQ4ODY1NDI4ZjEyNDhjNWU0MjM1NzhlYjBjOTg3MTU5OTQ0MWJkMmY3N2Q4M2I2ZDU0YjMzOWI3ZGE1Y2ZmZmZmZmZmMDIxMDI3MDAwMDAwMDAwMDAwMTdhOTE0OTQxOGZlZWQ0NjQ3ZTE1NmQ2NjYzZGIzZTBjZWY3YzA1MGQwMzg2Nzg3MzQzMzAxMDAwMDAwMDAwMDE5NzZhOTE0MzNlY2FiM2Q2N2YwZTJiZGU0M2U1MmY0MWVjMWVjYmRjNzNmMTFmODg4YWMwMDAwMDAwMCIsICJmZWUiOiA2NzgsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfc2lnbmVkIn0
 ```
 
 <details>

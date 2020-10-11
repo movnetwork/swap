@@ -23,6 +23,8 @@ BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b
                 "0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead1" \
                 "5a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa8" \
                 "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+# Secret key of HTLC
+SECRET_KEY: str = "Hello Meheret!"
 # Bytom fund asset id
 ASSET: str = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 # Bytom fund amount
@@ -75,7 +77,7 @@ print("=" * 10, "Signed Claim Transaction")
 # Initialize claim solver
 claim_solver: ClaimSolver = ClaimSolver(
     xprivate_key=recipient_wallet.xprivate_key(),
-    secret_key="Hello Meheret!",
+    secret_key=SECRET_KEY,
     bytecode=BYTECODE
 )
 

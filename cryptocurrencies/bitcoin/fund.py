@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from swap.providers.bitcoin.wallet import Wallet
-from swap.providers.bitcoin.htlc import HTLC
 from swap.providers.bitcoin.transaction import FundTransaction
 from swap.providers.bitcoin.solver import FundSolver
 from swap.providers.bitcoin.signature import FundSignature
@@ -17,10 +16,8 @@ NETWORK: str = "testnet"
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Bitcoin wallet derivation path
 PATH: str = "m/44'/0'/0'/0/0"
-# Hash Time Lock Contract (HTLC) bytecode
-BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91" \
-                "40e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2" \
-                "bde43e52f41ec1ecbdc73f11f888ac68"
+# Bitcoin Hash Time Lock Contract (HTLC) address
+HTLC_ADDRESS: str = "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae"
 # Bitcoin fund amount
 AMOUNT: int = amount_converter(0.0001, "BTC2SATOSHI")
 
@@ -41,26 +38,15 @@ print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance())
 
-print("=" * 10, "Hash Time Lock Contract (HTLC) from Bytecode")
-
-# Initialize Bitcoin HTLC
-htlc: HTLC = HTLC(network=NETWORK)
-# Get Bitcoin HTLC from bytecode
-htlc.from_bytecode(bytecode=BYTECODE)
-
-# Print all HTLC info's
-print("HTLC Bytecode:", htlc.bytecode())
-print("HTLC OP_Code:", htlc.opcode())
-print("HTLC Hash:", htlc.hash())
-print("HTLC Address:", htlc.address())
-
 print("=" * 10, "Unsigned Fund Transaction")
 
 # Initialize fund transaction
 unsigned_fund_transaction: FundTransaction = FundTransaction(network=NETWORK, version=2)
 # Build fund transaction
 unsigned_fund_transaction.build_transaction(
-    address=sender_wallet.address(), htlc=htlc, amount=AMOUNT
+    address=sender_wallet.address(),
+    htlc_address=HTLC_ADDRESS,
+    amount=AMOUNT
 )
 
 print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee())
