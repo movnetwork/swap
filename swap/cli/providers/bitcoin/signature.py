@@ -24,13 +24,13 @@ config = bitcoin()
 
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Bitcoin transaction raw signer.")
-@click.option("-rx", "--root-xprivate", type=str, required=True, help="Set Bitcoin root xprivate key.")
-@click.option("-r", "--raw", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
+@click.option("-rxk", "--root-xprivate-key", type=str, required=True, help="Set Bitcoin root xprivate key.")
+@click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Bitcoin unsigned transaction raw.")
 @click.option("-b", "--bytecode", type=str, default=None,
               help="Set Bitcoin witness HTLC bytecode.  [default: None]", show_default=True)
 @click.option("-sk", "--secret-key", type=str, default=None,
               help="Set secret key.  [default: None]", show_default=True)
-@click.option("-sq", "--sequence", type=int, default=config["sequence"],
+@click.option("-s", "--sequence", type=int, default=config["sequence"],
               help="Set Bitcoin sequence/expiration block.", show_default=True)
 @click.option("-ac", "--account", type=int, default=1,
               help="Set Bitcoin derivation from account.", show_default=True)
@@ -42,20 +42,21 @@ config = bitcoin()
               help="Set Bitcoin derivation from path.  [default: None]", show_default=True)
 @click.option("-v", "--version", type=int, default=config["version"],
               help="Set Bitcoin transaction version.", show_default=True)
-def sign(root_xprivate, raw, bytecode, secret_key, sequence, account, change, address, path, version):
+def sign(root_xprivate_key: str, transaction_raw: str, bytecode: str,
+         secret_key: str, sequence: int, account: int, change: bool, address: int, path: str, version: int):
 
     try:
-        if not is_transaction_raw(transaction_raw=raw):
+        if not is_transaction_raw(transaction_raw=transaction_raw):
             raise TransactionRawError("Invalid Bitcoin unsigned transaction raw.")
 
-        transaction_raw = clean_transaction_raw(raw)
+        transaction_raw = clean_transaction_raw(transaction_raw)
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         
         if loaded_transaction_raw["type"] == "bitcoin_fund_unsigned":
             # Fund HTLC solver
             fund_solver = FundSolver(
-                root_xprivate_key=root_xprivate,
+                root_xprivate_key=root_xprivate_key,
                 account=account, change=change, address=address,
                 path=path
             )
@@ -64,7 +65,7 @@ def sign(root_xprivate, raw, bytecode, secret_key, sequence, account, change, ad
                 network=loaded_transaction_raw["network"], version=version
             )
             fund_signature.sign(
-                transaction_raw=raw, solver=fund_solver
+                transaction_raw=transaction_raw, solver=fund_solver
             )
             click.echo(fund_signature.transaction_raw())
 
@@ -82,7 +83,7 @@ def sign(root_xprivate, raw, bytecode, secret_key, sequence, account, change, ad
 
             # Claim HTLC solver
             claim_solver = ClaimSolver(
-                root_xprivate_key=root_xprivate, secret_key=secret_key, bytecode=bytecode,
+                root_xprivate_key=root_xprivate_key, secret_key=secret_key, bytecode=bytecode,
                 account=account, change=change, address=address,
                 path=path
             )
@@ -91,7 +92,7 @@ def sign(root_xprivate, raw, bytecode, secret_key, sequence, account, change, ad
                 network=loaded_transaction_raw["network"], version=version
             )
             claim_signature.sign(
-                transaction_raw=raw, solver=claim_solver
+                transaction_raw=transaction_raw, solver=claim_solver
             )
             click.echo(claim_signature.transaction_raw())
 
@@ -104,7 +105,7 @@ def sign(root_xprivate, raw, bytecode, secret_key, sequence, account, change, ad
 
             # Refunding HTLC solver
             refund_solver = RefundSolver(
-                root_xprivate_key=root_xprivate, bytecode=bytecode, sequence=sequence,
+                root_xprivate_key=root_xprivate_key, bytecode=bytecode, sequence=sequence,
                 account=account, change=change, address=address,
                 path=path
             )
@@ -113,7 +114,7 @@ def sign(root_xprivate, raw, bytecode, secret_key, sequence, account, change, ad
                 network=loaded_transaction_raw["network"], version=version
             )
             refund_signature.sign(
-                transaction_raw=raw, solver=refund_solver
+                transaction_raw=transaction_raw, solver=refund_solver
             )
             click.echo(refund_signature.transaction_raw())
         else:
