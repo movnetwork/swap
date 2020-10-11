@@ -8,9 +8,10 @@ from hdwallet.cryptocurrencies import (
     BitcoinMainnet, BitcoinTestnet
 )
 from typing import (
-    TypeVar, Optional, Any
+    Optional, Any
 )
 
+from ...utils import is_mnemonic
 from ...exceptions import NetworkError
 from ..config import bitcoin
 from .rpc import (
@@ -19,8 +20,6 @@ from .rpc import (
 
 # Bitcoin config
 config = bitcoin()
-# Type Var Wallet class
-_Wallet = TypeVar("_Wallet", bound="Wallet")
 
 
 class Wallet(HDWallet):
@@ -50,7 +49,7 @@ class Wallet(HDWallet):
                                "choose only 'mainnet' or 'testnet' networks.")
         super().__init__(cryptocurrency=self._cryptocurrency)
 
-    def from_entropy(self, entropy: str, passphrase: str = None, language: str = "english") -> _Wallet:
+    def from_entropy(self, entropy: str, passphrase: str = None, language: str = "english") -> "Wallet":
         """
         Initialize wallet from entropy.
 
@@ -70,7 +69,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_entropy(entropy, passphrase, language)
         return self
 
-    def from_mnemonic(self, mnemonic: str, passphrase: str = None, language: str = None) -> _Wallet:
+    def from_mnemonic(self, mnemonic: str, passphrase: str = None, language: str = None) -> "Wallet":
         """
         Initialize wallet from mnemonic.
 
@@ -87,10 +86,15 @@ class Wallet(HDWallet):
         >>> wallet.from_mnemonic("extend length miss suit broken rescue around harbor vehicle vicious jelly quality")
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
+
+        # Check parameter instances
+        if not is_mnemonic(mnemonic=mnemonic, language=language):
+            raise ValueError("Invalid Mnemonic words.")
+
         self._hdwallet.from_mnemonic(mnemonic, passphrase, language)
         return self
 
-    def from_seed(self, seed: str) -> _Wallet:
+    def from_seed(self, seed: str) -> "Wallet":
         """
         Initialize wallet from seed.
 
@@ -106,7 +110,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_seed(seed)
         return self
 
-    def from_root_xprivate_key(self, root_xprivate_key: str) -> _Wallet:
+    def from_root_xprivate_key(self, root_xprivate_key: str) -> "Wallet":
         """
         Initialize wallet from root xprivate key.
 
@@ -122,7 +126,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_root_xprivate_key(root_xprivate_key)
         return self
 
-    def from_xprivate_key(self, xprivate_key: str) -> _Wallet:
+    def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
         """
         Initialize wallet from xprivate key.
 
@@ -138,7 +142,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_xprivate_key(xprivate_key)
         return self
 
-    def from_wif(self, wif: str) -> _Wallet:
+    def from_wif(self, wif: str) -> "Wallet":
         """
         Initialize wallet from wallet important format (WIF).
 
@@ -154,7 +158,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_wif(wif)
         return self
 
-    def from_private_key(self, private_key) -> _Wallet:
+    def from_private_key(self, private_key) -> "Wallet":
         """
         Initialize wallet from private key.
 
@@ -170,7 +174,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_private_key(private_key)
         return self
 
-    def from_path(self, path: str) -> _Wallet:
+    def from_path(self, path: str) -> "Wallet":
         """
         Drive Bitcoin wallet from path.
 
@@ -187,7 +191,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_path(path)
         return self
 
-    def from_index(self, index: int, harden: bool = False) -> _Wallet:
+    def from_index(self, index: int, harden: bool = False) -> "Wallet":
         """
         Drive Bitcoin wallet from index.
 
@@ -210,7 +214,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_index(index, harden)
         return self
 
-    def clean_derivation(self) -> _Wallet:
+    def clean_derivation(self) -> "Wallet":
         """
         Clean derivation Bitcoin wallet.
 

@@ -3,9 +3,10 @@
 from pybytom.wallet import Wallet as HDWallet
 from pybytom.rpc import account_create
 from typing import (
-    TypeVar, Optional, List
+    Optional, List
 )
 
+from ...utils import is_mnemonic
 from ...exceptions import NetworkError
 from ..config import bytom
 from .rpc import (
@@ -14,8 +15,6 @@ from .rpc import (
 
 # Bytom config
 config = bytom()
-# Type Var Wallet class
-_Wallet = TypeVar("_Wallet", bound="Wallet")
 
 
 class Wallet(HDWallet):
@@ -48,7 +47,7 @@ class Wallet(HDWallet):
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
         super().__init__(network=self._network)
 
-    def from_entropy(self, entropy: str, passphrase: Optional[str] = None, language: str = "english") -> _Wallet:
+    def from_entropy(self, entropy: str, passphrase: Optional[str] = None, language: str = "english") -> "Wallet":
         """
         Initiate Bytom wallet from entropy.
 
@@ -69,7 +68,7 @@ class Wallet(HDWallet):
         return self
 
     def from_mnemonic(self, mnemonic: str, passphrase: Optional[str] = None,
-                      language: Optional[str] = None) -> _Wallet:
+                      language: Optional[str] = None) -> "Wallet":
         """
         Initialize Bytom wallet from mnemonic.
 
@@ -79,23 +78,28 @@ class Wallet(HDWallet):
         :type passphrase: str
         :param language: Bytom wallet language, default to english.
         :type language: str
-        :returns:  Wallet -- Bytom wallet class instance.
+        :returns: Wallet -- Bytom wallet class instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_mnemonic("extend length miss suit broken rescue around harbor vehicle vicious jelly quality")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
+
+        # Check parameter instances
+        if not is_mnemonic(mnemonic=mnemonic, language=language):
+            raise ValueError("Invalid Mnemonic words.")
+
         self._hdwallet.from_mnemonic(mnemonic, passphrase, language)
         return self
 
-    def from_seed(self, seed: str) -> _Wallet:
+    def from_seed(self, seed: str) -> "Wallet":
         """
         Initialize Bytom wallet from seed.
 
         :param seed: Bytom wallet seed.
         :type seed: str
-        :returns:  Wallet -- Bytom wallet class instance.
+        :returns: Wallet -- Bytom wallet class instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -105,13 +109,13 @@ class Wallet(HDWallet):
         self._hdwallet.from_seed(seed)
         return self
 
-    def from_xprivate_key(self, xprivate_key: str) -> _Wallet:
+    def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
         """
         Initiate Bytom wallet from xprivate key.
 
         :param xprivate_key: Bytom wallet xprivate key.
         :type xprivate_key: str.
-        :returns:  Wallet -- Bytom wallet instance.
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -121,13 +125,13 @@ class Wallet(HDWallet):
         self._hdwallet.from_xprivate_key(xprivate_key)
         return self
 
-    def from_private_key(self, private_key: str) -> _Wallet:
+    def from_private_key(self, private_key: str) -> "Wallet":
         """
         Initialize Bytom wallet from private key.
 
         :param private_key: Bytom private key.
         :type private_key: str.
-        :returns:  Wallet -- Bytom wallet instance.
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -137,7 +141,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_private_key(private_key)
         return self
 
-    def from_path(self, path: str) -> _Wallet:
+    def from_path(self, path: str) -> "Wallet":
         """
         Drive Bytom wallet from path.
 
@@ -154,13 +158,13 @@ class Wallet(HDWallet):
         self._hdwallet.from_path(path)
         return self
 
-    def from_indexes(self, indexes: List[str]) -> _Wallet:
+    def from_indexes(self, indexes: List[str]) -> "Wallet":
         """
         Drive Bytom wallet from indexes.
 
         :param indexes: Bytom derivation indexes.
         :type indexes: list.
-        :returns:  Wallet -- Bytom wallet class instance.
+        :returns: Wallet -- Bytom wallet class instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
@@ -171,7 +175,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_indexes(indexes)
         return self
 
-    def from_index(self, index: int, harden: bool = False) -> _Wallet:
+    def from_index(self, index: int, harden: bool = False) -> "Wallet":
         """
         Drive Bytom wallet from index.
 
@@ -194,7 +198,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_index(index, harden)
         return self
 
-    def clean_derivation(self) -> _Wallet:
+    def clean_derivation(self) -> "Wallet":
         """
         Clean derivation Bytom wallet.
 
