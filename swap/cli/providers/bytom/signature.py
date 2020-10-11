@@ -24,8 +24,8 @@ bytom = bytom()
 
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Bytom transaction raw signer.")
-@click.option("-xp", "--xprivate", type=str, required=True, help="Set Bytom xprivate key.")
-@click.option("-r", "--raw", type=str, required=True, help="Set Bytom unsigned transaction raw.")
+@click.option("-xk", "--xprivate-key", type=str, required=True, help="Set Bytom xprivate key.")
+@click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Bytom unsigned transaction raw.")
 @click.option("-b", "--bytecode", type=str, default=None,
               help="Set Bytom witness HTLC bytecode.  [default: None]", show_default=True)
 @click.option("-sk", "--secret-key", type=str, default=None,
@@ -40,20 +40,21 @@ bytom = bytom()
               help="Set Bytom derivation from path.  [default: None]", show_default=True)
 @click.option("-i", "--indexes", type=list, default=None,
               help="Set Bytom derivation from indexes.  [default: None]", show_default=True)
-def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, indexes):
+def sign(xprivate_key: str, transaction_raw: str, bytecode: str,
+         secret_key: str, account: int, change: bool, address: int, path: str, indexes: list):
 
     try:
-        if not is_transaction_raw(transaction_raw=raw):
+        if not is_transaction_raw(transaction_raw=transaction_raw):
             raise TransactionRawError("Invalid Bitcoin unsigned transaction raw.")
 
-        transaction_raw = clean_transaction_raw(raw)
+        transaction_raw = clean_transaction_raw(transaction_raw)
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
         if loaded_transaction_raw["type"] == "bytom_fund_unsigned":
             # Fund HTLC solver
             fund_solver = FundSolver(
-                xprivate_key=xprivate,
+                xprivate_key=xprivate_key,
                 account=account, change=change, address=address,
                 path=path, indexes=indexes
             )
@@ -62,7 +63,7 @@ def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, in
                 network=loaded_transaction_raw["network"]
             )
             fund_signature.sign(
-                transaction_raw=raw, solver=fund_solver
+                transaction_raw=transaction_raw, solver=fund_solver
             )
             click.echo(fund_signature.transaction_raw())
 
@@ -80,7 +81,7 @@ def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, in
 
             # Claim HTLC solver
             claim_solver = ClaimSolver(
-                xprivate_key=xprivate, secret_key=secret_key, bytecode=bytecode,
+                xprivate_key=xprivate_key, secret_key=secret_key, bytecode=bytecode,
                 account=account, change=change, address=address,
                 path=path, indexes=indexes
             )
@@ -89,7 +90,7 @@ def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, in
                 network=loaded_transaction_raw["network"]
             )
             claim_signature.sign(
-                transaction_raw=raw, solver=claim_solver
+                transaction_raw=transaction_raw, solver=claim_solver
             )
             click.echo(claim_signature.transaction_raw())
     
@@ -102,7 +103,7 @@ def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, in
 
             # Refunding HTLC solver
             refund_solver = RefundSolver(
-                xprivate_key=xprivate, bytecode=bytecode,
+                xprivate_key=xprivate_key, bytecode=bytecode,
                 account=account, change=change, address=address,
                 path=path, indexes=indexes
             )
@@ -111,7 +112,7 @@ def sign(xprivate, raw, bytecode, secret_key, account, change, address, path, in
                 network=loaded_transaction_raw["network"]
             )
             refund_signature.sign(
-                transaction_raw=raw, solver=refund_solver
+                transaction_raw=transaction_raw, solver=refund_solver
             )
             click.echo(refund_signature.transaction_raw())
         else:

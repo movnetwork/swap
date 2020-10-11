@@ -10,17 +10,21 @@ from ....providers.bytom.utils import decode_transaction_raw
 
 @click.command("decode", options_metavar="[OPTIONS]",
                short_help="Select Bytom transaction raw decoder.")
-@click.option("-r", "--raw", type=str, required=True, help="Set Bytom transaction raw.")
+@click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Bytom transaction raw.")
 @click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)
-def decode(raw, indent):
+def decode(transaction_raw: str, indent: int):
     try:
         click.echo(
             json.dumps(
-                decode_transaction_raw(transaction_raw=raw)
+                decode_transaction_raw(
+                    transaction_raw=transaction_raw
+                )
             )
             if indent == 0 else
             json.dumps(
-                decode_transaction_raw(transaction_raw=raw),
+                decode_transaction_raw(
+                    transaction_raw=transaction_raw
+                ),
                 indent=indent
             )
         )

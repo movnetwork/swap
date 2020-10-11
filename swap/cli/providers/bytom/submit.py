@@ -9,11 +9,13 @@ from ....providers.bytom.utils import submit_transaction_raw
 
 @click.command("submit", options_metavar="[OPTIONS]",
                short_help="Select Bytom transaction raw submitter.")
-@click.option("-r", "--raw", type=str, required=True, help="Set signed Bytom transaction raw.")
-def submit(raw):
+@click.option("-tr", "--transaction-raw", type=str, required=True, help="Set signed Bytom transaction raw.")
+def submit(transaction_raw: str):
     try:
         click.echo(
-            submit_transaction_raw(transaction_raw=raw)["transaction_id"]
+            submit_transaction_raw(
+                transaction_raw=transaction_raw
+            )["transaction_id"]
         )
     except Exception as exception:
         click.echo(click.style("Error: {}")
