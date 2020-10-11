@@ -1,12 +1,12 @@
-# This workflow will install eth-wallet dependencies, run tests and lint with a variety of Python versions
+# This workflow will install Swap package dependencies, run tests and lint with a variety of Python versions.
 
 name: workflow
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   python:
@@ -25,6 +25,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[tests]
+        pip install -e .[tests,docs]
     - name: Test with pytest
       run: pytest
