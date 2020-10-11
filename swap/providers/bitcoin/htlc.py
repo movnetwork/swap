@@ -4,7 +4,9 @@ from btcpy.structs.script import (
     Script, ScriptBuilder, P2shScript, IfElseScript, Hashlock256Script, RelativeTimelockScript
 )
 from btcpy.structs.transaction import Sequence
-from typing import Optional, TypeVar, Union
+from typing import (
+    Optional, Union
+)
 from binascii import unhexlify
 
 import hashlib
@@ -19,13 +21,11 @@ from .utils import (
 
 # Bitcoin config
 config = bitcoin()
-# Type Var HTLC class
-_HTLC = TypeVar("_HTLC", bound="HTLC")
 
 
 class HTLC:
     """
-    Bitcoin Hash Time Lock Contract (HTLC) class.
+    Bitcoin Hash Time Lock Contract (HTLC).
 
     :param network: Bitcoin network, defaults to testnet.
     :type network: str
@@ -48,7 +48,7 @@ class HTLC:
         return self._script
 
     def build_htlc(self, secret_hash: str, recipient_address: str,
-                   sender_address: str, sequence: int = config["sequence"]) -> _HTLC:
+                   sender_address: str, sequence: int = config["sequence"]) -> "HTLC":
         """
         Build Bitcoin Hash Time Lock Contract (HTLC).
 
@@ -65,7 +65,7 @@ class HTLC:
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", sender_address="mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", sequence=1000)
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", sender_address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", sequence=1000)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -93,7 +93,7 @@ class HTLC:
         )
         return self
 
-    def from_opcode(self, opcode: str) -> _HTLC:
+    def from_opcode(self, opcode: str) -> "HTLC":
         """
         Initiate Bitcoin Hash Time Lock Contract (HTLC) from opcode script.
 
@@ -103,7 +103,8 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> htlc_opcode_script = "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 98f879fb7f8b4951dee9bc8a0327b792fbe332b8 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"        >>> htlc.from_opcode(opcode=htlc_opcode_script)
+        >>> opcode = "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 0e259e08f2ec9fc99a92b6f66fdfcb3c7914fd68 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF" 
+        >>> htlc.from_opcode(opcode=opcode)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -111,7 +112,7 @@ class HTLC:
         self._script = ScriptBuilder.identify(bytecode)
         return self
 
-    def from_bytecode(self, bytecode: str) -> _HTLC:
+    def from_bytecode(self, bytecode: str) -> "HTLC":
         """
         Initialize Bitcoin Hash Time Lock Contract (HTLC) from bytecode.
 
@@ -121,7 +122,7 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68"
+        >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
         >>> htlc.from_bytecode(bytecode=bytecode)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
@@ -138,9 +139,9 @@ class HTLC:
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> htlc.bytecode()
-        "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a91498f879fb7f8b4951dee9bc8a0327b792fbe332b888ac6702e803b27576a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac68"
+        "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
         """
 
         if self._script is None:
@@ -156,9 +157,9 @@ class HTLC:
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> htlc.opcode()
-        "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 98f879fb7f8b4951dee9bc8a0327b792fbe332b8 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
+        "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 0e259e08f2ec9fc99a92b6f66fdfcb3c7914fd68 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
         """
 
         if self._script is None:
@@ -174,9 +175,9 @@ class HTLC:
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> htlc.hash()
-        "a9142bb013c3e4beb08421dedcf815cb65a5c388178b87"
+        "a9149418feed4647e156d6663db3e0cef7c050d0386787"
         """
 
         if self._script is None:
@@ -192,9 +193,9 @@ class HTLC:
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "muTnffLDR5LtFeLR2i3WsKVfdyvzfyPnVB", "mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q", 1000)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
         >>> htlc.address()
-        "2MwEDybGC34949zgzWX4M9FHmE3crDSUydP"
+        "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae"
         """
 
         if self._script is None:

@@ -167,7 +167,8 @@ class Signature:
             raise ValueError("Type is none, sign unsigned transaction raw first.")
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, ClaimSolver, RefundSolver]):
+    def sign(self, transaction_raw: str, solver: Union[FundSolver, ClaimSolver, RefundSolver]) \
+            -> Union["FundSignature", "ClaimSignature", "RefundSignature"]:
         """
         Sign unsigned transaction raw.
 
@@ -250,7 +251,7 @@ class FundSignature(Signature):
     def __init__(self, network: str = config["network"], version: int = config["version"]):
         super().__init__(network=network, version=version)
 
-    def sign(self, transaction_raw: str, solver: FundSolver):
+    def sign(self, transaction_raw: str, solver: FundSolver) -> "FundSignature":
         """
         Sign unsigned fund transaction raw.
 
@@ -335,7 +336,7 @@ class ClaimSignature(Signature):
     def __init__(self, network: str = config["network"], version: int = config["version"]):
         super().__init__(network=network, version=version)
 
-    def sign(self, transaction_raw: str, solver: ClaimSolver):
+    def sign(self, transaction_raw: str, solver: ClaimSolver) -> "ClaimSignature":
         """
         Sign unsigned claim transaction raw.
 
@@ -422,7 +423,7 @@ class RefundSignature(Signature):
     def __init__(self, network: str = config["network"], version: int = config["version"]):
         super().__init__(network=network, version=version)
 
-    def sign(self, transaction_raw: str, solver: RefundSolver):
+    def sign(self, transaction_raw: str, solver: RefundSolver) -> "RefundSignature":
         """
         Sign unsigned refund transaction raw.
 

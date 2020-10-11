@@ -5,7 +5,7 @@ from pybytom.script.builder import Builder
 from pybytom.script.opcode import (
     OP_FALSE, OP_DEPTH, OP_CHECKPREDICATE
 )
-from typing import Optional, TypeVar
+from typing import Optional
 from equity import Equity
 from ctypes import c_int64
 
@@ -15,8 +15,6 @@ from .utils import is_network
 
 # Bytom config
 config = bytom()
-# Type Var HTLC class
-_HTLC = TypeVar("_HTLC", bound="HTLC")
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script
 HTLC_SCRIPT = """
@@ -45,7 +43,7 @@ HTLC_SCRIPT_BINARY = "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae
 
 class HTLC:
     """
-    Bytom Hash Time Lock Contract (HTLC) class.
+    Bytom Hash Time Lock Contract (HTLC).
 
     :param network: Bytom network, defaults to testnet.
     :type network: str
@@ -63,17 +61,17 @@ class HTLC:
         self._network: str = network
         self._script: Optional[Equity] = None
 
-    def build_htlc(self, secret_hash: str, recipient_public: str, sender_public: str,
-                   sequence: int = config["sequence"], use_script: bool = False) -> _HTLC:
+    def build_htlc(self, secret_hash: str, recipient_public_key: str, sender_public_key: str,
+                   sequence: int = config["sequence"], use_script: bool = False) -> "HTLC":
         """
         Build Bytom Hash Time Lock Contract (HTLC).
 
         :param secret_hash: secret sha-256 hash.
         :type secret_hash: str
-        :param recipient_public: Bytom recipient public key.
-        :type recipient_public: str
-        :param sender_public: Bytom sender public key.
-        :type sender_public: str
+        :param recipient_public_key: Bytom recipient public key.
+        :type recipient_public_key: str
+        :param sender_public_key: Bytom sender public key.
+        :type sender_public_key: str
         :param sequence: Bytom sequence number(expiration block), defaults to Bytom config sequence.
         :type sequence: int
         :param use_script: Initialize HTLC by using script, default to False.
@@ -83,23 +81,23 @@ class HTLC:
         >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_public="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sender_public="d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", sequence=1000, use_script=False)
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", sequence=1000, use_script=False)
         <swap.providers.bytom.htlc.HTLC object at 0x0409DAF0>
         """
 
         # Checking parameters instances
         if len(secret_hash) != 64:
             raise ValueError("Invalid secret hash, length must be 64")
-        if len(recipient_public) != 64:
+        if len(recipient_public_key) != 64:
             raise ValueError("Invalid Bitcoin recipient public key, length must be 64")
-        if len(sender_public) != 64:
+        if len(sender_public_key) != 64:
             raise ValueError("Invalid Bitcoin sender public key, length must be 64")
 
         if use_script:
             HTLC_AGREEMENTS = [
                 secret_hash,
-                recipient_public,
-                sender_public,
+                recipient_public_key,
+                sender_public_key,
                 sequence
             ]
             # Compile HTLC by script
@@ -109,8 +107,8 @@ class HTLC:
             # Compile HTLC by script binary
             builder = Builder()
             builder.add_int(sequence)
-            builder.add_bytes(bytes.fromhex(sender_public))
-            builder.add_bytes(bytes.fromhex(recipient_public))
+            builder.add_bytes(bytes.fromhex(sender_public_key))
+            builder.add_bytes(bytes.fromhex(recipient_public_key))
             builder.add_bytes(bytes.fromhex(secret_hash))
             builder.add_op(OP_DEPTH)
             builder.add_bytes(bytes.fromhex(HTLC_SCRIPT_BINARY))
@@ -120,12 +118,12 @@ class HTLC:
             SEQUENCE = bytes(c_int64(sequence)).rstrip(b'\x00').hex()
             self._script = dict(
                 program=builder.hex_digest(),
-                opcodes=f"0x{SEQUENCE} 0x{sender_public} 0x{recipient_public} "
+                opcodes=f"0x{SEQUENCE} 0x{sender_public_key} 0x{recipient_public_key} "
                         f"0x{secret_hash} DEPTH 0x{HTLC_SCRIPT_BINARY} FALSE CHECKPREDICATE"
             )
         return self
 
-    def from_bytecode(self, bytecode: str) -> _HTLC:
+    def from_bytecode(self, bytecode: str) -> "HTLC":
         """
         Initialize Bytom Hash Time Lock Contract (HTLC) from bytecode.
 
@@ -135,7 +133,7 @@ class HTLC:
 
         >>> from swap.providers.bytom.htlc import HTLC
         >>> htlc = HTLC(network="testnet")
-        >>> bytecode = "02e80320d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> htlc.from_bytecode(bytecode=bytecode)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
@@ -152,9 +150,9 @@ class HTLC:
         >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
         >>> htlc.bytecode()
-        "02e80320d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         """
 
         if not self._script or "program" not in self._script:
@@ -170,9 +168,9 @@ class HTLC:
         >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
         >>> htlc.opcode()
-        "0xe803 0xd4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01 0x91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0x3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb DEPTH 0x547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
+        "0xe803 0x91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2 0x3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e 0x3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb DEPTH 0x547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac FALSE CHECKPREDICATE"
         """
 
         if "opcodes" not in self._script:
@@ -190,9 +188,9 @@ class HTLC:
         >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
         >>> htlc.hash()
-        "b3c67ffb38fa981ee368aa9dfc856bd62c6b93df9069deccd8159911c46c216a"
+        "4f8f0e88d0a44b3d884b07b6dd4536518ffcbb596a91ca0e6b2f37e96463bbfc"
         """
 
         if not self._script or "program" not in self._script:
@@ -208,9 +206,9 @@ class HTLC:
         >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", "d4351a0e743e6f10b35122ac13c0bb1445423a641754182d53f0677cc3d7ea01", 1000, False)
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
         >>> htlc.address()
-        "bm1qk0r8l7ecl2vpacmg42wleptt6ckxhy7ljp5aanxczkv3r3rvy94q4a2zpc"
+        "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8"
         """
 
         if not self._script or "program" not in self._script:
