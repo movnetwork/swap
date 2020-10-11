@@ -14,8 +14,9 @@ import os
 import sys
 import datetime
 
-from swap import __version__, __author__
-
+from swap import (
+    __version__, __author__
+)
 
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(1, os.path.abspath("./extensions"))
@@ -55,9 +56,10 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
 html_theme = "sphinx_rtd_theme"
-
+# Product logo name
+# html_logo = "swap.svg"
+# Theme options
 html_theme_options = {
     # "canonical_url": "",
     # "analytics_id": "UA-XXXXXXX-1",  #  Provided by Google in your dashboard
@@ -78,10 +80,10 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["static"]
+html_static_path = ["static", "static/css", "static/png", "static/svg"]
 
 # Autodoc member order
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 
 # Sphinx docs setup.
