@@ -19,7 +19,7 @@ def test_bytom_cli_decode(cli_tester):
         cli_main, [
             "bytom",
             "decode",
-            "--raw", _["bytom"]["fund"]["unsigned"]["transaction_raw"],
+            "--transaction-raw", _["bytom"]["fund"]["unsigned"]["transaction_raw"],
             "--indent", 0
         ]
     )

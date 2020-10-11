@@ -20,8 +20,8 @@ def test_bytom_cli_signature(cli_tester):
         cli_main, [
             "bytom",
             "sign",
-            "--raw", _["bytom"]["fund"]["unsigned"]["transaction_raw"],
-            "--xprivate", _["bytom"]["wallet"]["sender"]["xprivate_key"],
+            "--transaction-raw", _["bytom"]["fund"]["unsigned"]["transaction_raw"],
+            "--xprivate-key", _["bytom"]["wallet"]["sender"]["xprivate_key"],
             "--account", _["bytom"]["wallet"]["sender"]["derivation"]["account"],
             "--change", _["bytom"]["wallet"]["sender"]["derivation"]["change"],
             "--address", _["bytom"]["wallet"]["sender"]["derivation"]["address"],
@@ -38,8 +38,8 @@ def test_bytom_cli_signature(cli_tester):
         cli_main, [
             "bytom",
             "sign",
-            "--raw", _["bytom"]["claim"]["unsigned"]["transaction_raw"],
-            "--xprivate", _["bytom"]["wallet"]["recipient"]["xprivate_key"],
+            "--transaction-raw", _["bytom"]["claim"]["unsigned"]["transaction_raw"],
+            "--xprivate-key", _["bytom"]["wallet"]["recipient"]["xprivate_key"],
             "--secret-key", _["bytom"]["htlc"]["secret"]["key"],
             "--bytecode", _["bytom"]["htlc"]["bytecode"],
             "--account", _["bytom"]["wallet"]["recipient"]["derivation"]["account"],
@@ -58,8 +58,8 @@ def test_bytom_cli_signature(cli_tester):
         cli_main, [
             "bytom",
             "sign",
-            "--raw", _["bytom"]["refund"]["unsigned"]["transaction_raw"],
-            "--xprivate", _["bytom"]["wallet"]["sender"]["xprivate_key"],
+            "--transaction-raw", _["bytom"]["refund"]["unsigned"]["transaction_raw"],
+            "--xprivate-key", _["bytom"]["wallet"]["sender"]["xprivate_key"],
             "--bytecode", _["bytom"]["htlc"]["bytecode"],
             "--account", _["bytom"]["wallet"]["sender"]["derivation"]["account"],
             "--change", _["bytom"]["wallet"]["sender"]["derivation"]["change"],

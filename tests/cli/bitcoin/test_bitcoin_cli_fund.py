@@ -21,7 +21,7 @@ def test_bitcoin_cli_fund(cli_tester):
             "bitcoin",
             "fund",
             "--address", _["bitcoin"]["wallet"]["sender"]["address"],
-            "--bytecode", _["bitcoin"]["htlc"]["bytecode"],
+            "--htlc-address", _["bitcoin"]["htlc"]["address"],
             "--amount", _["bitcoin"]["amount"],
             "--version", _["bitcoin"]["version"],
             "--network", _["bitcoin"]["network"]

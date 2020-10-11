@@ -21,7 +21,7 @@ def test_bytom_cli_claim(cli_tester):
             "bytom",
             "claim",
             "--address", _["bytom"]["wallet"]["recipient"]["address"],
-            "--transaction", _["bytom"]["transaction_id"],
+            "--transaction-id", _["bytom"]["transaction_id"],
             "--amount", _["bytom"]["amount"],
             "--network", _["bytom"]["network"]
         ]

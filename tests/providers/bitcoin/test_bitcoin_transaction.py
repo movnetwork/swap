@@ -26,9 +26,7 @@ def test_bitcoin_fund_transaction():
 
     unsigned_fund_transaction.build_transaction(
         address=_["bitcoin"]["wallet"]["sender"]["address"],
-        htlc=HTLC(network=_["bitcoin"]["network"]).from_bytecode(
-            bytecode=_["bitcoin"]["htlc"]["bytecode"]
-        ),
+        htlc_address=_["bitcoin"]["htlc"]["address"],
         amount=_["bitcoin"]["amount"]
     )
 

@@ -16,8 +16,8 @@ values.close()
 def test_bytom_htlc():
     htlc = HTLC(network=_["bytom"]["network"]).build_htlc(
         secret_hash=_["bytom"]["htlc"]["secret"]["hash"],
-        recipient_public=_["bytom"]["wallet"]["recipient"]["public_key"],
-        sender_public=_["bytom"]["wallet"]["sender"]["public_key"],
+        recipient_public_key=_["bytom"]["wallet"]["recipient"]["public_key"],
+        sender_public_key=_["bytom"]["wallet"]["sender"]["public_key"],
         sequence=_["bytom"]["htlc"]["sequence"]
     )
 

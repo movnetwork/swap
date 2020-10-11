@@ -20,8 +20,8 @@ def test_bytom_cli_htlc(cli_tester):
             "bytom",
             "htlc",
             "--secret-hash", _["bytom"]["htlc"]["secret"]["hash"],
-            "--recipient-public", _["bytom"]["wallet"]["recipient"]["public_key"],
-            "--sender-public", _["bytom"]["wallet"]["sender"]["public_key"],
+            "--recipient-public-key", _["bytom"]["wallet"]["recipient"]["public_key"],
+            "--sender-public-key", _["bytom"]["wallet"]["sender"]["public_key"],
             "--sequence", _["bytom"]["htlc"]["sequence"],
             "--network", _["bytom"]["network"]
         ]

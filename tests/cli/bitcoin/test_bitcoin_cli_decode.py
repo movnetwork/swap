@@ -19,7 +19,7 @@ def test_bitcoin_cli_decode(cli_tester):
         cli_main, [
             "bitcoin",
             "decode",
-            "--raw", _["bitcoin"]["fund"]["unsigned"]["transaction_raw"],
+            "--transaction-raw", _["bitcoin"]["fund"]["unsigned"]["transaction_raw"],
             "--indent", 0
         ]
     )

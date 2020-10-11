@@ -19,7 +19,7 @@ def test_bytom_cli_submit(cli_tester):
         cli_main, [
             "bytom",
             "submit",
-            "--raw", _["bytom"]["refund"]["unsigned"]["transaction_raw"]
+            "--transaction-raw", _["bytom"]["refund"]["unsigned"]["transaction_raw"]
         ]
     )
     assert submit.exit_code == 0

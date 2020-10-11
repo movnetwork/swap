@@ -20,8 +20,8 @@ def test_bitcoin_cli_signature(cli_tester):
         cli_main, [
             "bitcoin",
             "sign",
-            "--raw", _["bitcoin"]["fund"]["unsigned"]["transaction_raw"],
-            "--root-xprivate", _["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+            "--transaction-raw", _["bitcoin"]["fund"]["unsigned"]["transaction_raw"],
+            "--root-xprivate-key", _["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
             "--account", _["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
             "--change", _["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
             "--address", _["bitcoin"]["wallet"]["sender"]["derivation"]["address"],
@@ -38,8 +38,8 @@ def test_bitcoin_cli_signature(cli_tester):
         cli_main, [
             "bitcoin",
             "sign",
-            "--raw", _["bitcoin"]["claim"]["unsigned"]["transaction_raw"],
-            "--root-xprivate", _["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
+            "--transaction-raw", _["bitcoin"]["claim"]["unsigned"]["transaction_raw"],
+            "--root-xprivate-key", _["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
             "--secret-key", _["bitcoin"]["htlc"]["secret"]["key"],
             "--bytecode", _["bitcoin"]["htlc"]["bytecode"],
             "--account", _["bitcoin"]["wallet"]["recipient"]["derivation"]["account"],
@@ -58,8 +58,8 @@ def test_bitcoin_cli_signature(cli_tester):
         cli_main, [
             "bitcoin",
             "sign",
-            "--raw", _["bitcoin"]["refund"]["unsigned"]["transaction_raw"],
-            "--root-xprivate", _["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+            "--transaction-raw", _["bitcoin"]["refund"]["unsigned"]["transaction_raw"],
+            "--root-xprivate-key", _["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
             "--sequence", _["bitcoin"]["htlc"]["sequence"],
             "--bytecode", _["bitcoin"]["htlc"]["bytecode"],
             "--account", _["bitcoin"]["wallet"]["sender"]["derivation"]["account"],

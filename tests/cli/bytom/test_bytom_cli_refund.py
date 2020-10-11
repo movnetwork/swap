@@ -21,7 +21,7 @@ def test_bytom_cli_refund(cli_tester):
             "bytom",
             "refund",
             "--address", _["bytom"]["wallet"]["sender"]["address"],
-            "--transaction", _["bytom"]["transaction_id"],
+            "--transaction-id", _["bytom"]["transaction_id"],
             "--amount", _["bytom"]["amount"],
             "--network", _["bytom"]["network"]
         ]

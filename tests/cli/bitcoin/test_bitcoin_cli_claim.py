@@ -21,7 +21,7 @@ def test_bitcoin_cli_claim(cli_tester):
             "bitcoin",
             "claim",
             "--address", _["bitcoin"]["wallet"]["recipient"]["address"],
-            "--transaction", _["bitcoin"]["transaction_id"],
+            "--transaction-id", _["bitcoin"]["transaction_id"],
             "--amount", _["bitcoin"]["amount"],
             "--version", _["bitcoin"]["version"],
             "--network", _["bitcoin"]["network"]

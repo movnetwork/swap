@@ -21,7 +21,7 @@ def test_bytom_cli_fund(cli_tester):
             "bytom",
             "fund",
             "--address", _["bytom"]["wallet"]["sender"]["address"],
-            "--bytecode", _["bytom"]["htlc"]["bytecode"],
+            "--htlc-address", _["bytom"]["htlc"]["address"],
             "--amount", _["bytom"]["amount"],
             "--network", _["bytom"]["network"]
         ]

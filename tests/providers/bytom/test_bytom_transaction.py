@@ -3,7 +3,6 @@
 import json
 import os
 
-from swap.providers.bytom.htlc import HTLC
 from swap.providers.bytom.transaction import (
     FundTransaction, ClaimTransaction, RefundTransaction
 )
@@ -26,9 +25,7 @@ def test_bytom_fund_transaction():
 
     unsigned_fund_transaction.build_transaction(
         address=_["bytom"]["wallet"]["sender"]["address"],
-        htlc=HTLC(network=_["bytom"]["network"]).from_bytecode(
-            bytecode=_["bytom"]["htlc"]["bytecode"]
-        ),
+        htlc_address=_["bytom"]["htlc"]["address"],
         amount=_["bytom"]["amount"]
     )
 
