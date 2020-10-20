@@ -203,7 +203,7 @@ def decode_transaction_raw(transaction_raw: str, offline: bool = True,
     decoded_transaction: Optional[dict] = None
 
     if offline:
-        stp(loaded_transaction_raw["network"], strict=True)
+        stp(loaded_transaction_raw["network"], strict=True, force=True)
         tx = MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
         decoded_transaction = tx.to_json()
     else:
@@ -269,9 +269,30 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
         raise APIError("Unknown Bitcoin submit payment error.")
 
 
+def get_address_type(address: str) -> str:
+    """
+    Get Bitcoin address type.
+
+    :param address: Bitcoin address.
+    :type address: str
+    :returns: str -- Bitcoin address type (P2PKH, P2SH).
+
+    >>> from swap.providers.bitcoin.utils import get_address_type
+    >>> get_address_type(address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH")
+    "p2pkh"
+    """
+
+    if not is_address(address=address):
+        raise AddressError(f"Invalid Bitcoin '{address}' address.")
+
+    loaded_address = Address.from_string(address)
+    address_type = loaded_address.get_type()
+    return str(address_type)
+
+
 def get_address_hash(address: str, script: bool = False) -> Union[str, P2pkhScript, P2shScript]:
     """
-    Get hash from address.
+    Get Bitcoin address hash.
 
     :param address: Bitcoin address.
     :type address: str

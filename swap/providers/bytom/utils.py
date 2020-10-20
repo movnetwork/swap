@@ -10,7 +10,7 @@ import datetime
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    NetworkError, APIError, TransactionRawError, SymbolError
+    NetworkError, APIError, TransactionRawError, SymbolError, AddressError
 )
 from ..config import bytom
 
@@ -211,3 +211,27 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
         network=loaded_transaction_raw["network"],
         date=str(datetime.datetime.utcnow())
     )
+
+
+def get_address_type(address: str) -> Optional[str]:
+    """
+    Get Bytom address type.
+
+    :param address: Bytom address.
+    :type address: str
+    :returns: str -- Bytom address type (P2WPKH, P2WSH).
+
+    >>> from swap.providers.bytom.utils import get_address_type
+    >>> get_address_type(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7")
+    "p2wpkh"
+    """
+
+    if not is_address(address=address):
+        raise AddressError(f"Invalid Bytom '{address}' address.")
+
+    if len(address) == 42:
+        return "p2wpkh"
+    elif len(address) == 62:
+        return "p2wsh"
+    else:
+        return None
