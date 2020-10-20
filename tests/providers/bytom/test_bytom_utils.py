@@ -8,7 +8,7 @@ import os
 
 from swap.exceptions import APIError
 from swap.providers.bytom.utils import (
-    is_network, is_address, is_transaction_raw,
+    is_network, is_address, is_transaction_raw, get_address_type,
     decode_transaction_raw, submit_transaction_raw
 )
 
@@ -35,6 +35,10 @@ def test_bytom_utils():
 
     assert is_transaction_raw(transaction_raw=_["bytom"]["fund"]["unsigned"]["transaction_raw"])
     assert not is_transaction_raw(transaction_raw="unknown")
+
+    assert get_address_type(address=_["bytom"]["wallet"]["sender"]["address"]) == "p2wpkh"
+    assert get_address_type(address=_["bytom"]["wallet"]["recipient"]["address"]) == "p2wpkh"
+    assert get_address_type(address=_["bytom"]["htlc"]["address"]) == "p2wsh"
 
     # HTTPConnectionPool(host='localhost', port=9888)
     with pytest.raises(ConnectionError):
