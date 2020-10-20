@@ -58,7 +58,7 @@ class Signature:
         self._type: Optional[str] = None
         self._signed_raw: Optional[str] = None
 
-        setup(network, strict=True)
+        setup(network, strict=True, force=True)
 
     def fee(self) -> int:
         """

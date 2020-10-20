@@ -62,7 +62,7 @@ class Transaction:
         self._address: Optional[str] = None
         self._amount: int = 0
 
-        setup(network, strict=True)
+        setup(network, strict=True, force=True)
 
     def fee(self) -> int:
         """

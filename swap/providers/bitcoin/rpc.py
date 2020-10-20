@@ -155,7 +155,7 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
                            "choose only 'mainnet' or 'testnet' networks.")
 
     if offline:
-        stp(network, strict=True)
+        stp(network, strict=True, force=True)
         tx = MutableTransaction.unhexlify(raw)
         return tx.json()
 
