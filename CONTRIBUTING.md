@@ -39,6 +39,17 @@ git push origin newfeature
 
 GitHub's documentation for working on pull requests is [available here](https://help.github.com/articles/about-pull-requests/).
 
+## Testing
+
+You can run the tests with:
+
+```
+$ pytest
+```
+
+Or use `tox` to run the complete suite against the full set of build targets, or pytest to run specific 
+tests against a specific version of Python.
+
 ## License
 
 Distributed under the [AGPL-3.0](https://github.com/meherett/swap/blob/master/LICENSE) license. 
