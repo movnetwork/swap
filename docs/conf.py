@@ -58,12 +58,12 @@ exclude_patterns = []
 # a list of builtin themes.
 html_theme = "sphinx_rtd_theme"
 # Product logo name
-# html_logo = "swap.svg"
+html_logo = "static/png/swap.png"
 # Theme options
 html_theme_options = {
     # "canonical_url": "",
     # "analytics_id": "UA-XXXXXXX-1",  #  Provided by Google in your dashboard
-    # "logo_only": False,
+    "logo_only": True,
     "display_version": True,
     # "prev_next_buttons_location": "bottom",
     # "style_external_links": False,
@@ -88,4 +88,4 @@ autodoc_member_order = "bysource"
 
 # Sphinx docs setup.
 def setup(sphinx):
-    sphinx.add_css_file("css/shuttle.css")
+    sphinx.add_css_file("css/swap.css")

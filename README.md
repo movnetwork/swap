@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.org/meherett/swap.svg?branch=master)](https://travis-ci.org/meherett/swap?branch=master)
 [![PyPI Version](https://img.shields.io/pypi/v/swap.svg?color=blue)](https://pypi.org/project/swap)
-[![Documentation Status](https://readthedocs.org/projects/crypto-swap/badge/?version=latest)](https://crypto-swap.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=latest)](https://swap.readthedocs.io/en/latest/?badge=latest)
 [![PyPI Python Version](https://img.shields.io/pypi/pyversions/swap.svg)](https://pypi.org/project/swap)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/meherett/swap?branch=master)
 
@@ -102,7 +102,7 @@ secure than ever. Cross chain transactions are the next step in the evolution of
 adoption. The easier it becomes to unite the hundreds of blockchain's that currently exist in
 silos, the faster the technology as a whole can begin to scale and achieve mass adoption.
 
-[Documentation](https://crypto-swap.readthedocs.io)
+[Documentation](https://swap.readthedocs.io)
 
 ## Installation
 
