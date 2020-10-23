@@ -9,9 +9,9 @@ the internet without the money being double spent, and without people getting sc
 when they try to make these digital payments.
 
 .. note::
-    Hash Time Lock Contracts (HTLCs) are a perfect example of a payment technology for cryptocurrencies which
+    Hash Time Lock Contracts (HTLC's) are a perfect example of a payment technology for cryptocurrencies which
     makes all of the aforementioned things possible.
 
-Swap is a python library for cross-chain atomic swap between the networks of two cryptocurrencies.
+Swap is a python library for Cross-chain atomic swap between the networks of two cryptocurrencies.
 Cross-chain atomic swap are the cheapest and most secure way to swap cryptocurrencies. It’s a brand new
-decentralized payment environment based on Hash Time Lock Contracts (HTLCs) protocol.
+decentralized payment environment based on Hash Time Lock Contracts (HTLC's) protocol.
