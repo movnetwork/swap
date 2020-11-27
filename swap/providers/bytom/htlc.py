@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 
-from pybytom.script import script_hash, p2wsh_address
+from pybytom.script import (
+    get_script_hash, get_p2wsh_address
+)
 from pybytom.script.builder import Builder
 from pybytom.script.opcode import (
     OP_FALSE, OP_DEPTH, OP_CHECKPREDICATE
 )
-from typing import Optional
 from equity import Equity
 from ctypes import c_int64
+from typing import (
+    Optional, List
+)
 
 from ...exceptions import NetworkError
 from ..config import bytom
 from .utils import is_network
 
 # Bytom config
-config = bytom()
+config: dict = bytom()
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script
-HTLC_SCRIPT = """
+HTLC_SCRIPT: str = """
 contract HTLC (
   secret_hash: Hash,
   recipient: PublicKey,
@@ -38,7 +42,7 @@ contract HTLC (
 """
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script Binary
-HTLC_SCRIPT_BINARY = "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac"
+HTLC_SCRIPT_BINARY: str = "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac"
 
 
 class HTLC:
@@ -59,7 +63,7 @@ class HTLC:
             raise NetworkError(f"Invalid Bytom '{network}' network",
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
         self._network: str = network
-        self._script: Optional[Equity] = None
+        self._script: Optional[Equity, dict] = None
 
     def build_htlc(self, secret_hash: str, recipient_public_key: str, sender_public_key: str,
                    sequence: int = config["sequence"], use_script: bool = False) -> "HTLC":
@@ -94,7 +98,7 @@ class HTLC:
             raise ValueError("Invalid Bitcoin sender public key, length must be 64")
 
         if use_script:
-            HTLC_AGREEMENTS = [
+            HTLC_AGREEMENTS: List[str, int] = [
                 secret_hash,
                 recipient_public_key,
                 sender_public_key,
@@ -195,7 +199,7 @@ class HTLC:
 
         if not self._script or "program" not in self._script:
             raise ValueError("HTLC script is None, first build HTLC.")
-        return script_hash(bytecode=self.bytecode())
+        return get_script_hash(bytecode=self.bytecode())
 
     def address(self) -> str:
         """
@@ -213,4 +217,4 @@ class HTLC:
 
         if not self._script or "program" not in self._script:
             raise ValueError("HTLC script is None, first build HTLC.")
-        return p2wsh_address(script_hash=script_hash(bytecode=self.bytecode()), network=self._network)
+        return get_p2wsh_address(script_hash=self.hash(), network=self._network, vapor=False)

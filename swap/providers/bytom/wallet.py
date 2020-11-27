@@ -221,6 +221,20 @@ class Wallet(HDWallet):
         self._hdwallet.clean_derivation()
         return self
 
+    def strength(self) -> Optional[int]:
+        """
+        Get Bytom wallet strength.
+
+        :return: str -- Bytom wallet strength.
+
+        >>> from swap.providers.bytom.wallet import Wallet
+        >>> wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy("50f002376c81c96e430b48f1fe71df57")
+        >>> wallet.strength()
+        128
+        """
+        return self._hdwallet.strength()
+
     def entropy(self) -> Optional[str]:
         """
         Get Bytom wallet entropy.

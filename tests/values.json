@@ -6,7 +6,7 @@
     "amount": 10000,
     "wallet":{
       "sender": {
-        "entropy": null,
+        "entropy": "0945901f04823b01ec1a6b7cfd64c9da",
         "mnemonic": "announce clutch amazing animal casual liberty race estate language twenty crash regret",
         "language": "english",
         "passphrase": null,
@@ -33,7 +33,7 @@
         "address": "mtzmsQbnDekipBWqBg8gfVEjBAUxfwJbxA"
       },
       "recipient": {
-        "entropy": null,
+        "entropy": "15dfabc5ac04ad82468f60bc9dc76373",
         "mnemonic": "beyond wool vapor fix enlist scorpion boss ugly route until sugar trash",
         "language": "english",
         "passphrase": null,
@@ -133,7 +133,7 @@
     "amount": 10000,
     "wallet":{
       "sender": {
-        "entropy": null,
+        "entropy": "0945901f04823b01ec1a6b7cfd64c9da",
         "mnemonic": "announce clutch amazing animal casual liberty race estate language twenty crash regret",
         "language": "english",
         "passphrase": null,
@@ -157,7 +157,7 @@
         "address": "bm1q9r3p9r7ad7mjearqu9yds6elfulnf66waet7zt"
       },
       "recipient": {
-        "entropy": null,
+        "entropy": "15dfabc5ac04ad82468f60bc9dc76373",
         "mnemonic": "beyond wool vapor fix enlist scorpion boss ugly route until sugar trash",
         "language": "english",
         "passphrase": null,

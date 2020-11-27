@@ -4,7 +4,7 @@ import requests
 import json
 
 from ...exceptions import (
-    ClientError, APIError, NetworkError, AddressError
+    BalanceError, APIError, NetworkError, AddressError
 )
 from ..config import bytom
 from .utils import (
@@ -12,7 +12,7 @@ from .utils import (
 )
 
 # Bytom config
-config = bytom()
+config: dict = bytom()
 
 
 def get_balance(address: str, asset: str = config["asset"], network: str = config["network"],
@@ -84,19 +84,22 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
         raise NetworkError(f"Invalid Bytom '{network}' network",
                            "choose only 'mainnet', 'solonet' or 'testnet' networks.")
 
-    url = f"{config[network]['blockcenter']['v3']}/merchant/build-advanced-tx"
+    url = f"{config[network]['blockcenter']}/merchant/build-advanced-tx"
     params = dict(address=address)
     response = requests.post(
-        url=url, data=json.dumps(transaction), params=params, headers=headers, timeout=timeout
+        url=url, data=json.dumps(transaction), params=params, headers=config["headers"], timeout=timeout
     )
-    response_json = response.json()
-    if response.status_code == 200 and response_json["code"] == 300:
-        raise APIError(response_json["msg"], response_json["code"])
-    elif response.status_code == 200 and response_json["code"] == 503:
-        raise APIError(response_json["msg"], response_json["code"])
-    elif response.status_code == 200 and response_json["code"] == 422:
-        raise ClientError(f"There is no any asset balance recorded on this '{address}' address.")
-    return response_json["data"][0]
+    if response.status_code == 200 and response.json()["code"] == 300:
+        raise APIError(response.json()["msg"], response.json()["code"])
+    elif response.status_code == 200 and response.json()["code"] == 503:
+        raise APIError(response.json()["msg"], response.json()["code"])
+    elif response.status_code == 200 and response.json()["code"] == 422:
+        raise BalanceError(f"There is no any asset balance recorded on this '{address}' address.")
+    elif response.status_code == 200 and response.json()["code"] == 515:
+        raise BalanceError(f"Insufficient balance, check your balance and try again.")
+    elif response.status_code == 200 and response.json()["code"] == 504:
+        raise BalanceError(f"Insufficient balance, check your balance and try again.")
+    return response.json()["data"][0]
 
 
 def get_utxos(program: str, network: str = config["network"], asset: str = config["asset"],
@@ -132,7 +135,7 @@ def get_utxos(program: str, network: str = config["network"], asset: str = confi
         raise NetworkError(f"Invalid Bytom '{network}' network",
                            "choose only 'mainnet' or 'testnet' networks.")
 
-    url = f"{config[network]['blockcenter']['v3']}/q/utxos"
+    url = f"{config[network]['blockcenter']}/q/utxos"
     data = dict(filter=dict(script=program, asset=asset), sort=dict(by=by, order=order))
     params = dict(limit=limit)
     response = requests.post(

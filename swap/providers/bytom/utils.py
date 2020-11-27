@@ -88,11 +88,11 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
     """
 
     if network is None:
-        return btm_is_address(address=address)
+        return btm_is_address(address=address, vapor=False)
     elif not is_network(network=network):
         raise NetworkError(f"Invalid Bytom '{network}' network",
                            "choose only 'mainnet', 'solonet' or 'testnet' networks.")
-    return btm_is_address(address=address, network=network)
+    return btm_is_address(address=address, network=network, vapor=False)
 
 
 def is_transaction_raw(transaction_raw: str) -> bool:
