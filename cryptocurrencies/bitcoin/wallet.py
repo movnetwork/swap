@@ -1,32 +1,36 @@
 #!/usr/bin/env python3
 
 from swap.providers.bitcoin.wallet import Wallet
-from swap.utils import generate_entropy
+from swap.providers.bitcoin.utils import amount_converter
+from swap.utils import generate_entropy, generate_passphrase
+from typing import Optional
 
-# Bitcoin network
-# Choose only mainnet, solonet or testnet networks
+# Choose only mainnet or testnet networks
 NETWORK: str = "testnet"  # Default to mainnet
-# Entropy strength
-# Choose only 128, 160, 192, 224 or 256 strengths
-STRENGTH: int = 128  # Default to 128
-# Bitcoin wallet entropy
+# Choose strength 128, 160, 192, 224 or 256
+STRENGTH: int = 160  # Default is 128
+# Choose language english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean
+LANGUAGE: str = "english"  # Default is english
+# Set passphrase length
+LENGTH: int = 32  # Default is 32
+# Generate new entropy
 ENTROPY: str = generate_entropy(strength=STRENGTH)
-# Mnemonic language
-# Choose only english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean languages
-LANGUAGE: str = "korean"  # Default to english
-# Mnemonic password/passphrase
-PASSPHRASE = None  # str("meherett")
+# Generate new passphrase
+PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
 # Bitcoin wallet derivation path
 PATH: str = "m/44'/0'/0'/0/0"
 
 # Initialize Bitcoin wallet
 wallet: Wallet = Wallet(network=NETWORK)
 # Get Bitcoin wallet from entropy
-wallet.from_entropy(entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE)
+wallet.from_entropy(
+    entropy=ENTROPY, passphrase=PASSPHRASE, language=LANGUAGE
+)
 # Drive Bitcoin wallet from path
 wallet.from_path(path=PATH)
 
-# Print all wallet info's
+# Print all Bitcoin wallet info's
+print("Strength:", wallet.strength())
 print("Entropy:", wallet.entropy())
 print("Mnemonic:", wallet.mnemonic())
 print("Language:", wallet.language())
@@ -47,5 +51,5 @@ print("Pay to Public Key Hash (P2PKH):", wallet.p2pkh())
 print("Finger Print:", wallet.finger_print())
 print("Path:", wallet.path())
 print("Address:", wallet.address())
-print("Balance:", wallet.balance())
+print("Balance:", amount_converter(amount=wallet.balance(), symbol="SATOSHI2BTC"), "BTC")
 print("UTXO's:", wallet.utxos())

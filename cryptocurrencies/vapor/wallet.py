@@ -12,11 +12,11 @@ NETWORK: str = "mainnet"  # Default to mainnet
 STRENGTH: int = 160  # Default is 128
 # Choose language english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean
 LANGUAGE: str = "english"  # Default is english
-# Password/Passphrase length
+# Set passphrase length
 LENGTH: int = 32  # Default is 32
 # Generate new entropy
-ENTROPY: str = "0945901f04823b01ec1a6b7cfd64c9da"  # generate_entropy(strength=STRENGTH)
-# Generate new password/passphrase
+ENTROPY: str = generate_entropy(strength=STRENGTH)
+# Generate new passphrase
 PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
 # Vapor wallet derivation path
 PATH: str = "m/44/153/1/0/1"
@@ -30,7 +30,7 @@ wallet.from_entropy(
 # Drive Vapor wallet from path
 wallet.from_path(path=PATH)
 
-# Print all wallet info's
+# Print all Vapor wallet info's
 print("Strength:", wallet.strength())
 print("Entropy:", wallet.entropy())
 print("Mnemonic:", wallet.mnemonic())
@@ -49,5 +49,5 @@ print("Private Key:", wallet.private_key())
 print("Public Key:", wallet.public_key())
 print("Program:", wallet.program())
 print("Address:", wallet.address())
-print("Balance:", amount_converter(amount=wallet.balance(), symbol="NEU2BTM"), "BTM")
+print("Balance:", amount_converter(amount=wallet.balance(asset=ASSET), symbol="NEU2BTM"), "BTM")
 print("UTXO's:", wallet.utxos(asset=ASSET))
