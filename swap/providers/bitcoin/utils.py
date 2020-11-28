@@ -28,18 +28,19 @@ from ...exceptions import (
 from ..config import bitcoin
 
 # Bitcoin config
-config = bitcoin()
+config: dict = bitcoin()
 
 
 def amount_converter(amount: Union[int, float], symbol: str = "SATOSHI2BTC") -> Union[int, float]:
     """
-    Amount converter
+    Bitcoin amount converter
 
     :param amount: Bitcoin amount.
     :type amount: Union[int, float]
     :param symbol: Bitcoin symbol, default to SATOSHI2BTC.
     :type symbol: str
-    :returns: float -- BTC asset amount.
+
+    :returns: int, float -- BTC asset amount.
 
     >>> from swap.providers.bitcoin.utils import amount_converter
     >>> amount_converter(amount=10_000_000, symbol="SATOSHI2BTC")
@@ -76,10 +77,11 @@ def fee_calculator(transaction_input: int = 1, transaction_output: int = 1) -> i
     :type transaction_input: int
     :param transaction_output: transaction output numbers, defaults to 1.
     :type transaction_output: int
+
     :returns: int -- Bitcoin fee (SATOSHI amount).
 
     >>> from swap.providers.bitcoin.utils import fee_calculator
-    >>> fee_calculator(2, 9)
+    >>> fee_calculator(transaction_input=2, transaction_output=9)
     1836
     """
 
@@ -95,10 +97,11 @@ def is_network(network: str) -> bool:
 
     :param network: Bitcoin network.
     :type network: str
+
     :returns: bool -- Bitcoin valid/invalid network.
 
     >>> from swap.providers.bitcoin.utils import is_network
-    >>> is_network("testnet")
+    >>> is_network(network="testnet")
     True
     """
 
@@ -115,10 +118,11 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
     :type address: str
     :param network: Bitcoin network, defaults to None.
     :type network: str
+
     :returns: bool -- Bitcoin valid/invalid address.
 
     >>> from swap.providers.bitcoin.utils import is_address
-    >>> is_address("mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH", "testnet")
+    >>> is_address(address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH", network="testnet")
     True
     """
 
@@ -149,10 +153,12 @@ def is_transaction_raw(transaction_raw: str) -> bool:
 
     :param transaction_raw: Bitcoin transaction raw.
     :type transaction_raw: str
+
     :returns: bool -- Bitcoin valid/invalid transaction raw.
 
     >>> from swap.providers.bitcoin.utils import is_transaction_raw
-    >>> is_transaction_raw("...")
+    >>> transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODdiY2RkMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
+    >>> is_transaction_raw(transaction_raw=transaction_raw)
     True
     """
 
@@ -185,11 +191,12 @@ def decode_transaction_raw(transaction_raw: str, offline: bool = True,
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: dict -- Decoded Bitcoin transaction raw.
 
     >>> from swap.providers.bitcoin.utils import decode_transaction_raw
     >>> transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODdiY2RkMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
-    >>> decode_transaction_raw(transaction_raw)
+    >>> decode_transaction_raw(transaction_raw=transaction_raw)
     {'fee': 678, 'type': 'bitcoin_fund_unsigned', 'tx': {'hex': '0200000001888be7ec065097d95664763f276d425552d735fb1d974ae78bf72106dca0f3910100000000ffffffff02102700000000000017a9142bb013c3e4beb08421dedcf815cb65a5c388178b87bcdd0e00000000001976a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac00000000', 'txid': 'abc70fd3466aec9478ea3115200a84f993204ad1f614fe08e92ecc5997a0d3ba', 'hash': 'abc70fd3466aec9478ea3115200a84f993204ad1f614fe08e92ecc5997a0d3ba', 'size': 117, 'vsize': 117, 'version': 2, 'locktime': 0, 'vin': [{'txid': '91f3a0dc0621f78be74a971dfb35d75255426d273f766456d9975006ece78b88', 'vout': 1, 'scriptSig': {'asm': '', 'hex': ''}, 'sequence': '4294967295'}], 'vout': [{'value': '0.00010000', 'n': 0, 'scriptPubKey': {'asm': 'OP_HASH160 2bb013c3e4beb08421dedcf815cb65a5c388178b OP_EQUAL', 'hex': 'a9142bb013c3e4beb08421dedcf815cb65a5c388178b87', 'type': 'p2sh', 'address': '2MwEDybGC34949zgzWX4M9FHmE3crDSUydP'}}, {'value': '0.00974268', 'n': 1, 'scriptPubKey': {'asm': 'OP_DUP OP_HASH160 64a8390b0b1685fcbf2d4b457118dc8da92d5534 OP_EQUALVERIFY OP_CHECKSIG', 'hex': '76a91464a8390b0b1685fcbf2d4b457118dc8da92d553488ac', 'type': 'p2pkh', 'address': 'mphBPZf15cRFcL5tUq6mCbE84XobZ1vg7Q'}}]}, 'network': 'testnet'}
     """
 
@@ -234,11 +241,12 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
-    :returns: dict -- Bitcoin transaction id, fee, type and date.
+
+    :returns: dict -- Bitcoin submitted transaction id, fee, type and date.
 
     >>> from swap.providers.bitcoin.utils import submit_transaction_raw
     >>> transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTg4OGJlN2VjMDY1MDk3ZDk1NjY0NzYzZjI3NmQ0MjU1NTJkNzM1ZmIxZDk3NGFlNzhiZjcyMTA2ZGNhMGYzOTEwMTAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQyYmIwMTNjM2U0YmViMDg0MjFkZWRjZjgxNWNiNjVhNWMzODgxNzhiODdiY2RkMGUwMDAwMDAwMDAwMTk3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiA5ODQ5NDYsICJuIjogMSwgInNjcmlwdCI6ICI3NmE5MTQ2NGE4MzkwYjBiMTY4NWZjYmYyZDRiNDU3MTE4ZGM4ZGE5MmQ1NTM0ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
-    >>> submit_transaction_raw(transaction_raw)
+    >>> submit_transaction_raw(transaction_raw=transaction_raw)
     {'fee': '...', 'type': '...', 'transaction_id': '...', 'network': '...', 'date': '...'}
     """
 
@@ -275,6 +283,7 @@ def get_address_type(address: str) -> str:
 
     :param address: Bitcoin address.
     :type address: str
+
     :returns: str -- Bitcoin address type (P2PKH, P2SH).
 
     >>> from swap.providers.bitcoin.utils import get_address_type
@@ -298,6 +307,7 @@ def get_address_hash(address: str, script: bool = False) -> Union[str, P2pkhScri
     :type address: str
     :param script: Return script (P2pkhScript, P2shScript), default to False.
     :type script: bool
+
     :returns: str -- Bitcoin address hash.
 
     >>> from swap.providers.bitcoin.utils import get_address_hash
