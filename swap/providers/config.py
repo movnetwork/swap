@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 from swap import __version__
+from typing import Optional
 
 
-def bitcoin(blockcypher_token=None) -> dict:
+def bitcoin(blockcypher_token: Optional[str] = None) -> dict:
     if blockcypher_token is None:
         blockcypher_token = "c6ef693d3c024088810e6fac2a1494ee"
     return {
@@ -32,9 +33,9 @@ def bitcoin(blockcypher_token=None) -> dict:
         "network": "mainnet",
         "sequence": 1000,
         "headers": {
-            "User-Agent": f"Swap User-Agent {__version__}",
-            "Content-Type": "application/json; charset=utf-8",
-            "Accept": "application/json"
+            "user-agent": f"Swap User-Agent {__version__}",
+            "content-type": "application/json; charset=utf-8",
+            "accept": "application/json"
         }
     }
 
@@ -59,7 +60,7 @@ def bytom() -> dict:
             "blockcenter": None,
             "mov": None
         },
-        "path": "m/44'/153/1/0/1",
+        "path": "m/44/153/1/0/1",
         "BIP44": "m/44/153/{account}/{change}/{address}",
         "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
         "symbol": "NEU",
@@ -71,9 +72,9 @@ def bytom() -> dict:
         "forbid_chain_tx": False,
         "sequence": 1000,
         "headers": {
-            "User-Agent": f"Swap User-Agent {__version__}",
-            "Content-Type": "application/json; charset=utf-8",
-            "Accept": "application/json"
+            "user-agent": f"Swap User-Agent {__version__}",
+            "content-type": "application/json; charset=utf-8",
+            "accept": "application/json"
         }
     }
 
@@ -98,7 +99,7 @@ def vapor() -> dict:
             "blockcenter": None,
             "mov": None
         },
-        "path": "m/44'/153/1/0/1",
+        "path": "m/44/153/1/0/1",
         "BIP44": "m/44/153/{account}/{change}/{address}",
         "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
         "symbol": "NEU",
@@ -110,8 +111,8 @@ def vapor() -> dict:
         "forbid_chain_tx": False,
         "sequence": 1000,
         "headers": {
-            "User-Agent": f"Swap User-Agent {__version__}",
-            "Content-Type": "application/json; charset=utf-8",
-            "Accept": "application/json"
+            "user-agent": f"Swap User-Agent {__version__}",
+            "content-type": "application/json; charset=utf-8",
+            "accept": "application/json"
         }
     }

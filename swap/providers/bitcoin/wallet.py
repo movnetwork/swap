@@ -20,6 +20,9 @@ from .rpc import (
 
 # Bitcoin config
 config: dict = bitcoin()
+# Default path and indexes derivation
+DEFAULT_PATH: str = config["path"]
+DEFAULT_BIP44: str = config["BIP44"]
 
 
 class Wallet(HDWallet):

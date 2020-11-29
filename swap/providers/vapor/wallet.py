@@ -15,6 +15,10 @@ from .rpc import (
 
 # Vapor config
 config: dict = vapor()
+# Default path and indexes derivation
+DEFAULT_PATH: str = config["path"]
+DEFAULT_INDEXES: List[str] = config["indexes"]
+DEFAULT_BIP44: str = config["BIP44"]
 
 
 class Wallet(HDWallet):
