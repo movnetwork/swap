@@ -20,6 +20,7 @@ You can swap the following available cryptocurrencies:
 | ------------------------------------------------------- | :-----: | :-----: | :-----: |
 | [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`     | Yes     | Yes     | None    |
 | [Bytom](https://github.com/bytom/bytom) `BTM`, `Assets` | Yes     | No      | No      |
+| [Vapor](https://github.com/bytom/vapor) `BTM`, `Assets` | Yes     | No      | No      |
 
 ## What is a HTLC?
 
