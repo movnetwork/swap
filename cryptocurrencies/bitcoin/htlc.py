@@ -2,11 +2,12 @@
 
 from swap.providers.bitcoin.htlc import HTLC
 from swap.providers.bitcoin.rpc import get_balance
+from swap.providers.bitcoin.utils import amount_converter
 from swap.utils import sha256
 
-# Bitcoin network
+# Choose network mainnet or testnet
 NETWORK: str = "testnet"
-# Secret password/passphrase hash
+# Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Recipient Bitcoin address
 RECIPIENT_ADDRESS: str = "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF"
@@ -24,16 +25,16 @@ htlc.build_htlc(
     secret_hash=SECRET_HASH,
     recipient_address=RECIPIENT_ADDRESS,
     sender_address=SENDER_ADDRESS,
-    sequence=SEQUENCE,
+    sequence=SEQUENCE
 )
 
-# Print all HTLC info's
+# Print all Bitcoin HTLC info's
 print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC OP_Code:", htlc.opcode())
 print("HTLC Hash:", htlc.hash())
 print("HTLC Address:", htlc.address())
 
-# Get HTLC balance
-print("HTLC Balance:", get_balance(
+# Get the balance of HTLC contract (BTC amount)
+print("HTLC Balance:", amount_converter(amount=get_balance(
     address=htlc.address(), network=NETWORK
-))
+), symbol="SATOSHI2BTC"), "BTC")

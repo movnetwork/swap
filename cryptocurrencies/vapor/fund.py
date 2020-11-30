@@ -1,43 +1,40 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet
-from swap.providers.bytom.transaction import FundTransaction
-from swap.providers.bytom.solver import FundSolver
-from swap.providers.bytom.signature import FundSignature
-from swap.providers.bytom.utils import (
+from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+from swap.providers.vapor.transaction import FundTransaction
+from swap.providers.vapor.assets import BTM as ASSET
+from swap.providers.vapor.solver import FundSolver
+from swap.providers.vapor.signature import FundSignature
+from swap.providers.vapor.utils import (
     submit_transaction_raw, amount_converter
 )
 
 import json
 
-# Bytom network
+# Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
-# Bytom sender wallet mnemonic
+# Vapor sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Bytom wallet derivation path
-PATH: str = "m/44/153/1/0/1"
-# Bytom Hash Time Lock Contract (HTLC) address
-HTLC_ADDRESS: str = "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8"
-# Bytom fund asset id
-ASSET: str = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-# Bytom fund amount
+# Vapor Hash Time Lock Contract (HTLC) address
+HTLC_ADDRESS: str = "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37"
+# Vapor fund amount
 AMOUNT: int = amount_converter(0.0001, "BTM2NEU")
 
-print("=" * 10, "Sender Bytom Account")
+print("=" * 10, "Sender Vapor Account")
 
-# Initialize Bytom sender wallet
+# Initialize Vapor sender wallet
 sender_wallet: Wallet = Wallet(network=NETWORK)
-# Get Bytom sender wallet from mnemonic
+# Get Vapor sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
-# Drive Bytom sender wallet from path
-sender_wallet.from_path(path=PATH)
+# Drive Vapor sender wallet from path
+sender_wallet.from_path(path=DEFAULT_PATH)
 
-# Print some Bytom sender wallet info's
+# Print some Vapor sender wallet info's
 print("XPrivate Key:", sender_wallet.xprivate_key())
 print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
-print("Control Program", sender_wallet.program())
+print("Program:", sender_wallet.program())
 print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance())

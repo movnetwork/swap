@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
 from swap.providers.bytom.transaction import RefundTransaction
+from swap.providers.bytom.assets import BTM as ASSET
 from swap.providers.bytom.solver import RefundSolver
 from swap.providers.bytom.signature import RefundSignature
 from swap.providers.bytom.utils import (
@@ -10,21 +11,17 @@ from swap.providers.bytom.utils import (
 
 import json
 
-# Bytom network
+# Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Bytom funded transaction id/hash
 TRANSACTION_ID: str = "0b88d6874c203f0386966ae73cc0c1fedbfe3c0a3131066b32596bea3847c7ea"
 # Bytom sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Bytom wallet derivation path
-PATH: str = "m/44/153/1/0/1"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e" \
                 "0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead1" \
                 "5a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa8" \
                 "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-# Bytom fund asset id
-ASSET: str = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 # Bytom fund amount
 AMOUNT: int = amount_converter(0.0001, "BTM2NEU")
 
@@ -35,7 +32,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bytom sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Bytom sender wallet from path
-sender_wallet.from_path(path=PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bytom sender wallet info's
 print("XPrivate Key:", sender_wallet.xprivate_key())

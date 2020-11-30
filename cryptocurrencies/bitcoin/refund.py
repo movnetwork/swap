@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
 from swap.providers.bitcoin.transaction import RefundTransaction
 from swap.providers.bitcoin.solver import RefundSolver
 from swap.providers.bitcoin.signature import RefundSignature
@@ -10,14 +10,12 @@ from swap.providers.bitcoin.utils import (
 
 import json
 
-# Bitcoin network
+# Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Bitcoin funded transaction id/hash
 TRANSACTION_ID: str = "5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318"
 # Bitcoin sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Bitcoin wallet derivation path
-PATH: str = "m/44'/0'/0'/0/0"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876" \
                 "a914acf8419eecab574c494febbe03fd07fdae7bf2f488ac6702e803b27576a9141d0f671c" \
@@ -32,7 +30,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bitcoin sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Bitcoin sender wallet from path
-sender_wallet.from_path(path=PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bitcoin sender wallet info's
 print("Private Key:", sender_wallet.private_key())
