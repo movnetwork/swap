@@ -28,7 +28,7 @@ from .utils import (
 )
 
 # Bitcoin config
-config = bitcoin()
+config: dict = bitcoin()
 
 
 class Signature:
@@ -39,7 +39,8 @@ class Signature:
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  Transaction -- Bitcoin transaction instance.
+
+    :returns: Signature -- Bitcoin signature instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
@@ -176,7 +177,8 @@ class Signature:
         :type transaction_raw: str
         :param solver: Bitcoin solver
         :type solver: bitcoin.solver.FundSolver, bitcoin.solver.ClaimSolver, bitcoin.solver.RefundSolver
-        :returns:  FundSignature, ClaimSignature, RefundSignature -- Bitcoin signature instance.
+
+        :returns: FundSignature, ClaimSignature, RefundSignature -- Bitcoin signature instance.
 
         >>> from swap.providers.bitcoin.signature import Signature
         >>> from swap.providers.bitcoin.solver import FundSolver
@@ -245,7 +247,8 @@ class FundSignature(Signature):
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  FundSignature -- Bitcoin fund signature instance.
+
+    :returns: FundSignature -- Bitcoin fund signature instance.
     """
 
     def __init__(self, network: str = config["network"], version: int = config["version"]):
@@ -259,7 +262,8 @@ class FundSignature(Signature):
         :type transaction_raw: str
         :param solver: Bitcoin fund solver.
         :type solver: bitcoin.solver.FundSolver
-        :returns:  FundSignature -- Bitcoin fund signature instance.
+
+        :returns: FundSignature -- Bitcoin fund signature instance.
 
         >>> from swap.providers.bitcoin.signature import Signature
         >>> from swap.providers.bitcoin.solver import FundSolver
@@ -330,7 +334,8 @@ class ClaimSignature(Signature):
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  ClaimSignature -- Bitcoin claim signature instance.
+
+    :returns: ClaimSignature -- Bitcoin claim signature instance.
     """
 
     def __init__(self, network: str = config["network"], version: int = config["version"]):
@@ -344,7 +349,8 @@ class ClaimSignature(Signature):
         :type transaction_raw: str
         :param solver: Bitcoin claim solver.
         :type solver: bitcoin.solver.ClaimSolver
-        :returns:  ClaimSignature -- Bitcoin claim signature instance.
+
+        :returns: ClaimSignature -- Bitcoin claim signature instance.
 
         >>> from swap.providers.bitcoin.signature import ClaimSignature
         >>> from swap.providers.bitcoin.solver import ClaimSolver
@@ -417,7 +423,8 @@ class RefundSignature(Signature):
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  RefundSignature -- Bitcoin refund signature instance.
+
+    :returns: RefundSignature -- Bitcoin refund signature instance.
     """
 
     def __init__(self, network: str = config["network"], version: int = config["version"]):

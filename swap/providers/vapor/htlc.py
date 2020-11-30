@@ -51,6 +51,7 @@ class HTLC:
 
     :param network: Vapor network, defaults to testnet.
     :type network: str
+
     :returns: HTLC -- Vapor HTLC instance.
 
     .. note::
@@ -80,6 +81,7 @@ class HTLC:
         :type sequence: int
         :param use_script: Initialize HTLC by using script, default to False.
         :type use_script: bool
+
         :returns: HTLC -- Vapor Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.vapor.htlc import HTLC
@@ -133,6 +135,7 @@ class HTLC:
 
         :param bytecode: Vapor bytecode.
         :type bytecode: str
+
         :returns: HTLC -- Vapor Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.vapor.htlc import HTLC

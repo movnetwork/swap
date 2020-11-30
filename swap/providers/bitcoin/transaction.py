@@ -28,10 +28,9 @@ from .solver import (
 from .rpc import (
     get_transaction, get_utxos
 )
-from .wallet import Wallet
 
 # Bitcoin config
-config = bitcoin()
+config: dict = bitcoin()
 
 
 class Transaction:
@@ -42,7 +41,8 @@ class Transaction:
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  Transaction -- Bitcoin transaction instance.
+
+    :returns: Transaction -- Bitcoin transaction instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
@@ -159,6 +159,7 @@ class FundTransaction(Transaction):
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
+
     :returns: FundTransaction -- Bitcoin fund transaction instance.
 
     .. warning::
@@ -185,6 +186,7 @@ class FundTransaction(Transaction):
         :type amount: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
+
         :returns: FundTransaction -- Bitcoin fund transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
@@ -246,12 +248,13 @@ class FundTransaction(Transaction):
 
         :param solver: Bitcoin fund solver.
         :type solver: bitcoin.solver.FundSolver
+
         :returns: FundTransaction -- Bitcoin fund transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
         >>> from swap.providers.bitcoin.solver import FundSolver
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> sender_wallet = Wallet("testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44'/0'/0'/0/0")
+        >>> from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet = Wallet("testnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.root_xprivate_key())
         >>> fund_transaction = FundTransaction("testnet").build_transaction(sender_wallet.address(), "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
         >>> fund_transaction.sign(solver=fund_solver)
@@ -323,7 +326,8 @@ class ClaimTransaction(Transaction):
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  Transaction -- Bitcoin transaction instance.
+
+    :returns: ClaimTransaction -- Bitcoin claim transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize claim transaction.
@@ -349,6 +353,7 @@ class ClaimTransaction(Transaction):
         :type amount: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
+
         :returns: ClaimTransaction -- Bitcoin claim transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
@@ -409,12 +414,13 @@ class ClaimTransaction(Transaction):
 
         :param solver: Bitcoin claim solver.
         :type solver: bitcoin.solver.ClaimSolver
+
         :returns: ClaimTransaction -- Bitcoin claim transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> from swap.providers.bitcoin.solver import ClaimSolver
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> recipient_wallet = Wallet("testnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit").from_path("m/44'/0'/0'/0/0")
+        >>> from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
+        >>> recipient_wallet = Wallet("testnet").from_mnemonic("6bc9e3bae5945876931963c2b3a3b040").from_path(DEFAULT_PATH)
         >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
         >>> claim_solver = ClaimSolver(recipient_wallet.root_xprivate_key(), "Hello Meheret!", bytecode)
         >>> claim_transaction = ClaimTransaction("testnet")
@@ -496,7 +502,8 @@ class RefundTransaction(Transaction):
     :type network: str
     :param version: Bitcoin transaction version, defaults to 2.
     :type version: int
-    :returns:  Transaction -- Bitcoin transaction instance.
+
+    :returns: RefundTransaction -- Bitcoin refund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize refund transaction.
@@ -522,6 +529,7 @@ class RefundTransaction(Transaction):
         :type amount: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
+
         :returns: RefundTransaction -- Bitcoin refund transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import RefundTransaction
@@ -582,12 +590,13 @@ class RefundTransaction(Transaction):
 
         :param solver: Bitcoin refund solver.
         :type solver: bitcoin.solver.RefundSolver
+
         :returns: RefundTransaction -- Bitcoin refund transaction instance.
 
         >>> from swap.providers.bitcoin.transaction import RefundTransaction
         >>> from swap.providers.bitcoin.solver import RefundSolver
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> sender_wallet = Wallet("testnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44'/0'/0'/0/0")
+        >>> from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet = Wallet("testnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
         >>> refund_solver = RefundSolver(sender_wallet.root_xprivate_key(), bytecode, sequence=1000)
         >>> refund_transaction = RefundTransaction("testnet")

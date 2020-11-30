@@ -15,7 +15,7 @@ from .utils import (
 )
 
 # Bitcoin config
-config = bitcoin()
+config: dict = bitcoin()
 
 
 def get_balance(address: str, network: str = config["network"],
@@ -31,6 +31,7 @@ def get_balance(address: str, network: str = config["network"],
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: int -- Bitcoin balance (SATOSHI amount).
 
     >>> from swap.providers.bitcoin.rpc import get_balance

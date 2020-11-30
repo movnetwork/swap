@@ -5,35 +5,36 @@ from typing import (
     Optional, List, Tuple
 )
 
-from ..config import bytom
+from ..config import vapor
 from .htlc import HTLC
 
-# Bytom config
-config = bytom()
+# Vapor config
+config: dict = vapor()
 
 
 class FundSolver:
     """
-    Bytom Fund solver.
+    Vapor Fund solver.
 
-    :param xprivate_key: Bytom sender xprivate key.
+    :param xprivate_key: Vapor sender xprivate key.
     :type xprivate_key: str
-    :param account: Bytom derivation account, defaults to 1.
+    :param account: Vapor derivation account, defaults to 1.
     :type account: int
-    :param change: Bytom derivation change, defaults to False.
+    :param change: Vapor derivation change, defaults to False.
     :type change: bool
-    :param address: Bytom derivation address, defaults to 1.
+    :param address: Vapor derivation address, defaults to 1.
     :type address: int
-    :param path: Bytom derivation path, defaults to None.
+    :param path: Vapor derivation path, defaults to None.
     :type path: str
-    :param indexes: Bytom derivation indexes, defaults to None.
+    :param indexes: Vapor derivation indexes, defaults to None.
     :type indexes: list
-    :returns: FundSolver -- Bytom fund solver instance.
 
-    >>> from swap.providers.bytom.solver import FundSolver
+    :returns: FundSolver -- Vapor fund solver instance.
+
+    >>> from swap.providers.vapor.solver import FundSolver
     >>> sender_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
     >>> fund_solver = FundSolver(xprivate_key=sender_xprivate_key)
-    <swap.providers.bytom.solver.FundSolver object at 0x03FCCA60>
+    <swap.providers.vapor.solver.FundSolver object at 0x03FCCA60>
     """
 
     def __init__(self, xprivate_key: str, account: int = 1, change: bool = False,
@@ -57,31 +58,32 @@ class FundSolver:
 
 class ClaimSolver:
     """
-    Bytom Claim solver.
+    Vapor Claim solver.
 
-    :param xprivate_key: Bytom sender xprivate key.
+    :param xprivate_key: Vapor sender xprivate key.
     :type xprivate_key: str
     :param secret_key: Secret password/passphrase.
     :type secret_key: str
-    :param bytecode: Bytom witness HTLC bytecode, defaults to None.
+    :param bytecode: Vapor witness HTLC bytecode, defaults to None.
     :type bytecode: str
-    :param account: Bytom derivation account, defaults to 1.
+    :param account: Vapor derivation account, defaults to 1.
     :type account: int
-    :param change: Bytom derivation change, defaults to False.
+    :param change: Vapor derivation change, defaults to False.
     :type change: bool
-    :param address: Bytom derivation address, defaults to 1.
+    :param address: Vapor derivation address, defaults to 1.
     :type address: int
-    :param path: Bytom derivation path, defaults to None.
+    :param path: Vapor derivation path, defaults to None.
     :type path: str
-    :param indexes: Bytom derivation indexes, defaults to None.
+    :param indexes: Vapor derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  ClaimSolver -- Bytom claim solver instance.
 
-    >>> from swap.providers.bytom.solver import ClaimSolver
+    :returns: ClaimSolver -- Vapor claim solver instance.
+
+    >>> from swap.providers.vapor.solver import ClaimSolver
     >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
     >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
     >>> claim_solver = ClaimSolver(xprivate_key=recipient_xprivate_key, secret_key="Hello Meheret!", bytecode=bytecode)
-    <swap.providers.bytom.solver.ClaimSolver object at 0x03FCCA60>
+    <swap.providers.vapor.solver.ClaimSolver object at 0x03FCCA60>
     """
 
     def __init__(self, xprivate_key: str, secret_key: str, bytecode: str,
@@ -113,29 +115,30 @@ class ClaimSolver:
 
 class RefundSolver:
     """
-    Bytom Refund solver.
+    Vapor Refund solver.
 
-    :param xprivate_key: Bytom sender xprivate key.
+    :param xprivate_key: Vapor sender xprivate key.
     :type xprivate_key: str
-    :param bytecode: Bytom witness HTLC bytecode, defaults to None.
+    :param bytecode: Vapor witness HTLC bytecode, defaults to None.
     :type bytecode: str
-    :param account: Bytom derivation account, defaults to 1.
+    :param account: Vapor derivation account, defaults to 1.
     :type account: int
-    :param change: Bytom derivation change, defaults to False.
+    :param change: Vapor derivation change, defaults to False.
     :type change: bool
-    :param address: Bytom derivation address, defaults to 1.
+    :param address: Vapor derivation address, defaults to 1.
     :type address: int
-    :param path: Bytom derivation path, defaults to None.
+    :param path: Vapor derivation path, defaults to None.
     :type path: str
-    :param indexes: Bytom derivation indexes, defaults to None.
+    :param indexes: Vapor derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  RefundSolver -- Bytom refund solver instance.
 
-    >>> from swap.providers.bytom.solver import RefundSolver
+    :returns: RefundSolver -- Vapor refund solver instance.
+
+    >>> from swap.providers.vapor.solver import RefundSolver
     >>> sender_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
     >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
     >>> refund_solver = RefundSolver(xprivate_key=sender_xprivate_key, bytecode=bytecode)
-    <swap.providers.bytom.solver.RefundSolver object at 0x03FCCA60>
+    <swap.providers.vapor.solver.RefundSolver object at 0x03FCCA60>
     """
 
     def __init__(self, xprivate_key: str, bytecode: str,

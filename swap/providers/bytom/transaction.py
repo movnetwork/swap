@@ -30,7 +30,7 @@ from .utils import (
 from .wallet import Wallet
 
 # Bytom config
-config = bytom()
+config: dict = bytom()
 
 
 class Transaction(BytomTransaction):
@@ -39,6 +39,7 @@ class Transaction(BytomTransaction):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
+
     :returns:  Transaction -- Bytom transaction instance.
 
     .. note::
@@ -50,7 +51,7 @@ class Transaction(BytomTransaction):
         if not is_network(network=network):
             raise NetworkError(f"Invalid Bytom '{network}' network/type",
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
-        super().__init__(network)
+        super().__init__(network, vapor=False)
 
         self._network: str = network
         self._address: Optional[str] = None
@@ -152,12 +153,13 @@ class Transaction(BytomTransaction):
 
         :param detail: Bytom unsigned datas to see detail, defaults to False.
         :type detail: bool
+
         :returns: list -- Bytom transaction unsigned datas.
 
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
         >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
@@ -215,7 +217,7 @@ class Transaction(BytomTransaction):
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
         >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
@@ -236,6 +238,7 @@ class FundTransaction(Transaction):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
+
     :returns: FundTransaction -- Bytom fund transaction instance.
 
     .. warning::
@@ -260,6 +263,7 @@ class FundTransaction(Transaction):
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
+
         :returns: FundTransaction -- Bytom fund transaction instance.
 
         >>> from swap.providers.bytom.transaction import FundTransaction
@@ -297,7 +301,8 @@ class FundTransaction(Transaction):
                     control_address(
                         asset=asset,
                         amount=amount,
-                        address=self._htlc_address
+                        address=self._htlc_address,
+                        vapor=False
                     )
                 ]
             ),
@@ -314,12 +319,13 @@ class FundTransaction(Transaction):
 
         :param solver: Bytom fund solver.
         :type solver: bytom.solver.FundSolver
+
         :returns: FundTransaction -- Bytom fund transaction instance.
 
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
         >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
@@ -405,6 +411,7 @@ class ClaimTransaction(Transaction):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
+
     :returns: ClaimTransaction -- Bytom claim transaction instance.
 
     .. warning::
@@ -428,6 +435,7 @@ class ClaimTransaction(Transaction):
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
+
         :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
@@ -443,7 +451,8 @@ class ClaimTransaction(Transaction):
         # Find HTLC UTXO id.
         htlc_utxo_id = find_p2wsh_utxo(
             transaction_id=transaction_id,
-            network=self._network
+            network=self._network,
+            vapor=False
         )
         if htlc_utxo_id is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
@@ -470,7 +479,8 @@ class ClaimTransaction(Transaction):
                     control_address(
                         asset=asset,
                         amount=amount,
-                        address=self._address
+                        address=self._address,
+                        vapor=False
                     )
                 ]
             ),
@@ -487,12 +497,13 @@ class ClaimTransaction(Transaction):
 
         :param solver: Bytom claim solver.
         :type solver: bytom.solver.ClaimSolver
+
         :returns: ClaimTransaction -- Bytom claim transaction instance.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
         >>> from swap.providers.bytom.solver import ClaimSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet("mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit").from_path("m/44/153/1/0/1")
+        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
+        >>> recipient_wallet = Wallet("mainnet").from_entropy("6bc9e3bae5945876931963c2b3a3b040").from_path(DEFAULT_PATH)
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
         >>> claim_transaction = ClaimTransaction("mainnet")
@@ -585,6 +596,7 @@ class RefundTransaction(Transaction):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
+
     :returns: RefundTransaction -- Bytom refund transaction instance.
 
     .. warning::
@@ -607,6 +619,7 @@ class RefundTransaction(Transaction):
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
+
         :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
@@ -622,7 +635,8 @@ class RefundTransaction(Transaction):
         # Find HTLC UTXO id
         htlc_utxo_id = find_p2wsh_utxo(
             transaction_id=transaction_id,
-            network=self._network
+            network=self._network,
+            vapor=False
         )
         if htlc_utxo_id is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
@@ -649,7 +663,8 @@ class RefundTransaction(Transaction):
                     control_address(
                         asset=asset,
                         amount=amount,
-                        address=self._address
+                        address=self._address,
+                        vapor=False
                     )
                 ]
             ),
@@ -666,12 +681,13 @@ class RefundTransaction(Transaction):
 
         :param solver: Bytom refund solver.
         :type solver: bytom.solver.RefundSolver
+
         :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
         >>> from swap.providers.bytom.solver import RefundSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> refund_solver = RefundSolver(sender_wallet.xprivate_key(), bytecode=bytecode)
         >>> refund_transaction = RefundTransaction("mainnet")

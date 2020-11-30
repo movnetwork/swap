@@ -30,6 +30,7 @@ def get_balance(address: str, asset: str = config["asset"], network: str = confi
     :type headers: dict
     :param timeout: Request timeout, default to 15.
     :type timeout: int
+
     :returns: int -- Bytom asset balance (NEU amount).
 
     >>> from swap.providers.bytom.rpc import get_balance
@@ -71,6 +72,7 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: dict -- Bytom built transaction.
 
     >>> from swap.providers.bytom.rpc import build_transaction
@@ -87,7 +89,7 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
     url = f"{config[network]['blockcenter']}/merchant/build-advanced-tx"
     params = dict(address=address)
     response = requests.post(
-        url=url, data=json.dumps(transaction), params=params, headers=config["headers"], timeout=timeout
+        url=url, data=json.dumps(transaction), params=params, headers=headers, timeout=timeout
     )
     if response.status_code == 200 and response.json()["code"] == 300:
         raise APIError(response.json()["msg"], response.json()["code"])
@@ -124,6 +126,7 @@ def get_utxos(program: str, network: str = config["network"], asset: str = confi
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: list -- Bytom unspent transaction outputs (UTXO's).
 
     >>> from swap.providers.bytom.rpc import get_utxos
@@ -158,6 +161,7 @@ def get_transaction(transaction_id: str, network: str = config["network"],
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: dict -- Bytom transaction detail.
 
     >>> from swap.providers.bytom.rpc import get_transaction
@@ -169,14 +173,13 @@ def get_transaction(transaction_id: str, network: str = config["network"],
         raise NetworkError(f"Invalid Bytom '{network}' network",
                            "choose only 'mainnet', 'solonet' or 'testnet' networks.")
 
-    url = f"{config[network]['blockcenter']['v2']}/merchant/get-transaction"
-    response = requests.post(
-        url=url, data=json.dumps(dict(tx_id=transaction_id)), headers=headers, timeout=timeout
+    url = f"{config[network]['blockmeta']}/transaction/{transaction_id}"
+    response = requests.get(
+        url=url, headers=config["headers"], timeout=timeout
     )
-    response_json = response.json()
-    if response.status_code == 200 and response_json["code"] == 300:
-        raise APIError(response_json["msg"], response_json["code"])
-    return response_json["result"]["data"]
+    if response.status_code == 200 and response.json()["inputs"] is not None:
+        return response.json()
+    raise APIError(f"Not found this '{transaction_id}' transaction id.", 500)
 
 
 def decode_raw(raw: str, network: str = config["network"], 
@@ -192,6 +195,7 @@ def decode_raw(raw: str, network: str = config["network"],
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: dict -- Bytom decoded transaction raw.
 
     >>> from swap.providers.bytom.rpc import decode_raw
@@ -231,6 +235,7 @@ def submit_raw(address: str, raw: str, signatures: list, network: str = config["
     :type headers: dict
     :param timeout: Request timeout, default to 60.
     :type timeout: int
+
     :returns: str -- Bytom submitted transaction id/hash.
 
     >>> from swap.providers.bytom.rpc import submit_raw

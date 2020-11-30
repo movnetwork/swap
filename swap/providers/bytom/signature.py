@@ -24,7 +24,7 @@ from .utils import (
 )
 
 # Bytom config
-config = bytom()
+config: dict = bytom()
 
 
 class Signature(Transaction):
@@ -33,7 +33,8 @@ class Signature(Transaction):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
-    :returns:  Transaction -- Bytom transaction instance.
+
+    :returns: Signature -- Bytom signature instance.
 
     .. note::
         Bytom has only three networks, ``mainnet``, ``solonet`` and ``testnet``.
@@ -170,6 +171,7 @@ class Signature(Transaction):
         :type transaction_raw: str
         :param solver: Bytom solver
         :type solver: bytom.solver.FundSolver, bytom.solver.ClaimSolver, bytom.solver.RefundSolver
+
         :returns:  FundSignature, ClaimSignature, RefundSignature -- Bytom signature instance.
 
         >>> from swap.providers.bytom.signature import Signature
@@ -275,7 +277,8 @@ class FundSignature(Signature):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
-    :returns:  FundSignature -- Bytom fund signature instance.
+
+    :returns: FundSignature -- Bytom fund signature instance.
     """
 
     def __init__(self, network: str = config["network"]):
@@ -289,7 +292,8 @@ class FundSignature(Signature):
         :type transaction_raw: str
         :param solver: Bytom fund solver.
         :type solver: bytom.solver.FundSolver
-        :returns:  FundSignature -- Bytom fund signature instance.
+
+        :returns: FundSignature -- Bytom fund signature instance.
 
         >>> from swap.providers.bytom.signature import FundSignature
         >>> from swap.providers.bytom.solver import FundSolver
@@ -363,7 +367,8 @@ class ClaimSignature(Signature):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
-    :returns:  ClaimSignature -- Bytom claim signature instance.
+
+    :returns: ClaimSignature -- Bytom claim signature instance.
     """
 
     def __init__(self, network: str = config["network"]):
@@ -377,7 +382,8 @@ class ClaimSignature(Signature):
         :type transaction_raw: str
         :param solver: Bytom claim solver.
         :type solver: bytom.solver.ClaimSolver
-        :returns:  ClaimSignature -- Bytom claim signature instance.
+
+        :returns: ClaimSignature -- Bytom claim signature instance.
 
         >>> from swap.providers.bytom.signature import ClaimSignature
         >>> from swap.providers.bytom.solver import ClaimSolver
@@ -458,7 +464,8 @@ class RefundSignature(Signature):
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
-    :returns:  RefundSignature -- Bytom claim signature instance.
+
+    :returns: RefundSignature -- Bytom claim signature instance.
     """
 
     def __init__(self, network: str = config["network"]):
@@ -472,7 +479,8 @@ class RefundSignature(Signature):
         :type transaction_raw: str
         :param solver: Bytom refund solver.
         :type solver: bytom.solver.RefundSolver
-        :returns:  RefundSignature -- Bytom refund signature instance.
+        
+        :returns: RefundSignature -- Bytom refund signature instance.
 
         >>> from swap.providers.bytom.signature import RefundSignature
         >>> from swap.providers.bytom.solver import RefundSolver

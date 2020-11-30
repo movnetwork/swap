@@ -51,6 +51,7 @@ class HTLC:
 
     :param network: Bytom network, defaults to testnet.
     :type network: str
+
     :returns: HTLC -- Bytom HTLC instance.
 
     .. note::
@@ -80,6 +81,7 @@ class HTLC:
         :type sequence: int
         :param use_script: Initialize HTLC by using script, default to False.
         :type use_script: bool
+
         :returns: HTLC -- Bytom Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bytom.htlc import HTLC
@@ -133,6 +135,7 @@ class HTLC:
 
         :param bytecode: Bytom bytecode.
         :type bytecode: str
+
         :returns: HTLC -- Bytom Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bytom.htlc import HTLC

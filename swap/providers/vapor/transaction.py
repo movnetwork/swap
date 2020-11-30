@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pybytom.transaction import Transaction as BytomTransaction
+from pybytom.transaction import Transaction as VaporTransaction
 from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.transaction.actions import (
     spend_wallet, spend_utxo, control_address
@@ -17,7 +17,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     AddressError, NetworkError
 )
-from ..config import bytom
+from ..config import vapor
 from .rpc import (
     build_transaction, decode_raw
 )
@@ -29,28 +29,29 @@ from .utils import (
 )
 from .wallet import Wallet
 
-# Bytom config
-config = bytom()
+# Vapor config
+config: dict = vapor()
 
 
-class Transaction(BytomTransaction):
+class Transaction(VaporTransaction):
     """
-    Bytom Transaction.
+    Vapor Transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Vapor network, defaults to mainnet.
     :type network: str
-    :returns:  Transaction -- Bytom transaction instance.
+    
+    :returns:  Transaction -- Vapor transaction instance.
 
     .. note::
-        Bytom has only three networks, ``mainnet``. ``solonet`` and ``mainnet``.
+        Vapor has only three networks, ``mainnet``. ``solonet`` and ``mainnet``.
     """
 
     def __init__(self, network: str = config["network"]):
 
         if not is_network(network=network):
-            raise NetworkError(f"Invalid Bytom '{network}' network/type",
+            raise NetworkError(f"Invalid Vapor '{network}' network/type",
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
-        super().__init__(network)
+        super().__init__(network, vapor=True)
 
         self._network: str = network
         self._address: Optional[str] = None
@@ -65,9 +66,9 @@ class Transaction(BytomTransaction):
 
         :returns: int -- Bitcoin transaction fee.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
+        >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.fee()
         10000000
         """
@@ -76,13 +77,13 @@ class Transaction(BytomTransaction):
 
     def hash(self) -> str:
         """
-        Get Bytom transaction hash.
+        Get Vapor transaction hash.
 
-        :returns: str -- Bytom transaction id/hash.
+        :returns: str -- Vapor transaction id/hash.
 
-        >>> from swap.providers.bytom.transaction import FundTransaction
+        >>> from swap.providers.vapor.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
         >>> fund_transaction.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
@@ -94,15 +95,15 @@ class Transaction(BytomTransaction):
 
     def json(self) -> dict:
         """
-        Get Bytom transaction json format.
+        Get Vapor transaction json format.
 
-        :returns: dict -- Bytom transaction json format.
+        :returns: dict -- Vapor transaction json format.
 
-        >>> from swap.providers.bytom.transaction import RefundTransaction
+        >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.json()
-        {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
+        {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
 
         # Check transaction
@@ -112,13 +113,13 @@ class Transaction(BytomTransaction):
 
     def raw(self) -> str:
         """
-        Get Bytom transaction raw.
+        Get Vapor transaction raw.
 
-        :returns: str -- Bytom transaction raw.
+        :returns: str -- Vapor transaction raw.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
+        >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
@@ -134,9 +135,9 @@ class Transaction(BytomTransaction):
 
         :returns: str -- Bitcoin signature transaction type.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
+        >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.type()
         "bitcoin_claim_unsigned"
         """
@@ -148,19 +149,20 @@ class Transaction(BytomTransaction):
 
     def unsigned_datas(self, detail: bool = False) -> list:
         """
-        Get Bytom transaction unsigned datas(messages) with instruction.
+        Get Vapor transaction unsigned datas(messages) with instruction.
 
-        :param detail: Bytom unsigned datas to see detail, defaults to False.
+        :param detail: Vapor unsigned datas to see detail, defaults to False.
         :type detail: bool
-        :returns: list -- Bytom transaction unsigned datas.
 
-        >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.solver import FundSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        :returns: list -- Vapor transaction unsigned datas.
+
+        >>> from swap.providers.vapor.transaction import FundTransaction
+        >>> from swap.providers.vapor.solver import FundSolver
+        >>> from swap.providers.vapor.wallet import Wallet
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
         >>> fund_transaction.unsigned_datas(solver=fund_solver)
         [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
         """
@@ -208,17 +210,17 @@ class Transaction(BytomTransaction):
 
     def signatures(self) -> list:
         """
-        Get Bytom transaction signatures(signed datas).
+        Get Vapor transaction signatures(signed datas).
 
-        :returns: list -- Bytom transaction signatures.
+        :returns: list -- Vapor transaction signatures.
 
-        >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.solver import FundSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        >>> from swap.providers.vapor.transaction import FundTransaction
+        >>> from swap.providers.vapor.solver import FundSolver
+        >>> from swap.providers.vapor.wallet import Wallet
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
         >>> fund_transaction.sign(solver=fund_solver)
         >>> fund_transaction.signatures()
         [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
@@ -232,11 +234,11 @@ class Transaction(BytomTransaction):
 
 class FundTransaction(Transaction):
     """
-    Bytom Fund transaction.
+    Vapor Fund transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Vapor network, defaults to mainnet.
     :type network: str
-    :returns: FundTransaction -- Bytom fund transaction instance.
+    :returns: FundTransaction -- Vapor fund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize fund transaction.
@@ -250,29 +252,30 @@ class FundTransaction(Transaction):
     def build_transaction(self, address: str, htlc_address: str,
                           amount: int, asset: str = config["asset"]) -> "FundTransaction":
         """
-        Build Bytom fund transaction.
+        Build Vapor fund transaction.
 
-        :param address: Bytom sender wallet address.
+        :param address: Vapor sender wallet address.
         :type address: str
-        :param htlc_address: Bytom Hash Time Lock Contract (HTLC) address.
+        :param htlc_address: Vapor Hash Time Lock Contract (HTLC) address.
         :type htlc_address: str
-        :param amount: Bytom amount to fund.
+        :param amount: Vapor amount to fund.
         :type amount: int
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
-        :returns: FundTransaction -- Bytom fund transaction instance.
 
-        >>> from swap.providers.bytom.transaction import FundTransaction
+        :returns: FundTransaction -- Vapor fund transaction instance.
+
+        >>> from swap.providers.vapor.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc_address="bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", amount=10000)
-        <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
+        >>> fund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", htlc_address="vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", amount=10000)
+        <swap.providers.vapor.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
-            raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
+            raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
         if not is_address(htlc_address, self._network):
-            raise AddressError(f"Invalid Bytom HTLC '{htlc_address}' {self._network} address.")
+            raise AddressError(f"Invalid Vapor HTLC '{htlc_address}' {self._network} address.")
 
         # Set address, fee and confirmations
         self._address, self._htlc_address, self._fee, self._confirmations = (
@@ -297,7 +300,8 @@ class FundTransaction(Transaction):
                     control_address(
                         asset=asset,
                         amount=amount,
-                        address=self._htlc_address
+                        address=self._htlc_address,
+                        vapor=True
                     )
                 ]
             ),
@@ -305,31 +309,32 @@ class FundTransaction(Transaction):
         )
 
         # Set transaction type
-        self._type = "bytom_fund_unsigned"
+        self._type = "vapor_fund_unsigned"
         return self
 
     def sign(self, solver: FundSolver) -> "FundTransaction":
         """
-        Sign Bytom fund transaction.
+        Sign Vapor fund transaction.
 
-        :param solver: Bytom fund solver.
-        :type solver: bytom.solver.FundSolver
-        :returns: FundTransaction -- Bytom fund transaction instance.
+        :param solver: Vapor fund solver.
+        :type solver: vapor.solver.FundSolver
 
-        >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.solver import FundSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        :returns: FundTransaction -- Vapor fund transaction instance.
+
+        >>> from swap.providers.vapor.transaction import FundTransaction
+        >>> from swap.providers.vapor.solver import FundSolver
+        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
         >>> fund_transaction.sign(solver=fund_solver)
-        <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
+        <swap.providers.vapor.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not isinstance(solver, FundSolver):
-            raise TypeError(f"Solver must be Bytom FundSolver, not {type(solver).__name__} type.")
+            raise TypeError(f"Solver must be Vapor FundSolver, not {type(solver).__name__} type.")
 
         # Setting sender wallet
         wallet, path, indexes = solver.solve()
@@ -351,18 +356,18 @@ class FundTransaction(Transaction):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "bytom_fund_signed"
+        self._type = "vapor_fund_signed"
         return self
 
     def transaction_raw(self) -> str:
         """
-        Get Bytom fund transaction raw.
+        Get Vapor fund transaction raw.
 
-        :returns: str -- Bytom fund transaction raw.
+        :returns: str -- Vapor fund transaction raw.
 
-        >>> from swap.providers.bytom.transaction import FundTransaction
+        >>> from swap.providers.vapor.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
         >>> fund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -372,7 +377,7 @@ class FundTransaction(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
 
         # Encode fund transaction raw
-        if self._type == "bytom_fund_signed":
+        if self._type == "vapor_fund_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
                 address=self._address,
@@ -401,11 +406,12 @@ class FundTransaction(Transaction):
 
 class ClaimTransaction(Transaction):
     """
-    Bytom Claim transaction.
+    Vapor Claim transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Vapor network, defaults to mainnet.
     :type network: str
-    :returns: ClaimTransaction -- Bytom claim transaction instance.
+
+    :returns: ClaimTransaction -- Vapor claim transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize claim transaction.
@@ -418,32 +424,34 @@ class ClaimTransaction(Transaction):
     def build_transaction(self, address: str, transaction_id: str,
                           amount: int, asset: str = config["asset"]) -> "ClaimTransaction":
         """
-        Build Bytom claim transaction.
+        Build Vapor claim transaction.
 
-        :param address: Bytom recipient wallet address.
+        :param address: Vapor recipient wallet address.
         :type address: str
-        :param transaction_id: Bytom fund transaction id to redeem.
+        :param transaction_id: Vapor fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Bytom amount to withdraw.
+        :param amount: Vapor amount to withdraw.
         :type amount: int
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
-        :returns: ClaimTransaction -- Bytom claim transaction instance.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
+        :returns: ClaimTransaction -- Vapor claim transaction instance.
+
+        >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> claim_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        <swap.providers.vapor.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
-            raise AddressError(f"Invalid Bytom recipient '{address}' {self._network} address.")
+            raise AddressError(f"Invalid Vapor recipient '{address}' {self._network} address.")
 
         # Find HTLC UTXO id.
         htlc_utxo_id = find_p2wsh_utxo(
             transaction_id=transaction_id,
-            network=self._network
+            network=self._network,
+            vapor=True
         )
         if htlc_utxo_id is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
@@ -470,7 +478,8 @@ class ClaimTransaction(Transaction):
                     control_address(
                         asset=asset,
                         amount=amount,
-                        address=self._address
+                        address=self._address,
+                        vapor=True
                     )
                 ]
             ),
@@ -478,32 +487,33 @@ class ClaimTransaction(Transaction):
         )
 
         # Set transaction type
-        self._type = "bytom_claim_unsigned"
+        self._type = "vapor_claim_unsigned"
         return self
 
     def sign(self, solver: ClaimSolver) -> "ClaimTransaction":
         """
-        Sign Bytom claim transaction.
+        Sign Vapor claim transaction.
 
-        :param solver: Bytom claim solver.
-        :type solver: bytom.solver.ClaimSolver
-        :returns: ClaimTransaction -- Bytom claim transaction instance.
+        :param solver: Vapor claim solver.
+        :type solver: vapor.solver.ClaimSolver
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.solver import ClaimSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> recipient_wallet = Wallet("mainnet").from_mnemonic("hint excuse upgrade sleep easily deputy erase cluster section other ugly limit").from_path("m/44/153/1/0/1")
+        :returns: ClaimTransaction -- Vapor claim transaction instance.
+
+        >>> from swap.providers.vapor.transaction import ClaimTransaction
+        >>> from swap.providers.vapor.solver import ClaimSolver
+        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+        >>> recipient_wallet = Wallet("mainnet").from_entropy("6bc9e3bae5945876931963c2b3a3b040").from_path(DEFAULT_PATH)
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
         >>> claim_transaction = ClaimTransaction("mainnet")
         >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.sign(solver=claim_solver)
-        <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
+        <swap.providers.vapor.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not isinstance(solver, ClaimSolver):
-            raise TypeError(f"Solver must be Bytom ClaimSolver, not {type(solver).__name__} type.")
+            raise TypeError(f"Solver must be Vapor ClaimSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, secret, path, indexes = solver.solve()
@@ -531,18 +541,18 @@ class ClaimTransaction(Transaction):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "bytom_claim_signed"
+        self._type = "vapor_claim_signed"
         return self
 
     def transaction_raw(self) -> str:
         """
-        Get Bytom claim transaction raw.
+        Get Vapor claim transaction raw.
 
-        :returns: str -- Bytom claim transaction raw.
+        :returns: str -- Vapor claim transaction raw.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
+        >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -552,7 +562,7 @@ class ClaimTransaction(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
 
         # Encode claim transaction raw
-        if self._type == "bytom_claim_signed":
+        if self._type == "vapor_claim_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
                 address=self._address,
@@ -581,11 +591,12 @@ class ClaimTransaction(Transaction):
 
 class RefundTransaction(Transaction):
     """
-    Bytom Refund transaction.
+    Vapor Refund transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Vapor network, defaults to mainnet.
     :type network: str
-    :returns: RefundTransaction -- Bytom refund transaction instance.
+
+    :returns: RefundTransaction -- Vapor refund transaction instance.
 
     .. warning::
         Do not forget to build transaction after initialize refund transaction.
@@ -597,32 +608,34 @@ class RefundTransaction(Transaction):
     def build_transaction(self, address: str, transaction_id: str,
                           amount: int, asset: str = config["asset"]) -> "RefundTransaction":
         """
-        Build Bytom refund transaction.
+        Build Vapor refund transaction.
 
-        :param address: Bytom sender wallet address.
+        :param address: Vapor sender wallet address.
         :type address: str
-        :param transaction_id: Bytom fund transaction id to redeem.
+        :param transaction_id: Vapor fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Bytom amount to withdraw.
+        :param amount: Vapor amount to withdraw.
         :type amount: int
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
-        :returns: RefundTransaction -- Bytom refund transaction instance.
 
-        >>> from swap.providers.bytom.transaction import RefundTransaction
+        :returns: RefundTransaction -- Vapor refund transaction instance.
+
+        >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
+        >>> refund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        <swap.providers.vapor.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
-            raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
+            raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
 
         # Find HTLC UTXO id
         htlc_utxo_id = find_p2wsh_utxo(
             transaction_id=transaction_id,
-            network=self._network
+            network=self._network,
+            vapor=True
         )
         if htlc_utxo_id is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
@@ -649,7 +662,8 @@ class RefundTransaction(Transaction):
                     control_address(
                         asset=asset,
                         amount=amount,
-                        address=self._address
+                        address=self._address,
+                        vapor=True
                     )
                 ]
             ),
@@ -657,32 +671,33 @@ class RefundTransaction(Transaction):
         )
 
         # Set transaction type
-        self._type = "bytom_refund_unsigned"
+        self._type = "vapor_refund_unsigned"
         return self
 
     def sign(self, solver: RefundSolver) -> "RefundTransaction":
         """
-        Sign Bytom refund transaction.
+        Sign Vapor refund transaction.
 
-        :param solver: Bytom refund solver.
-        :type solver: bytom.solver.RefundSolver
-        :returns: RefundTransaction -- Bytom refund transaction instance.
+        :param solver: Vapor refund solver.
+        :type solver: vapor.solver.RefundSolver
 
-        >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> from swap.providers.bytom.solver import RefundSolver
-        >>> from swap.providers.bytom.wallet import Wallet
-        >>> sender_wallet = Wallet("mainnet").from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast").from_path("m/44/153/1/0/1")
+        :returns: RefundTransaction -- Vapor refund transaction instance.
+
+        >>> from swap.providers.vapor.transaction import RefundTransaction
+        >>> from swap.providers.vapor.solver import RefundSolver
+        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> refund_solver = RefundSolver(sender_wallet.xprivate_key(), bytecode=bytecode)
         >>> refund_transaction = RefundTransaction("mainnet")
         >>> refund_transaction.build_transaction(sender_wallet.address(), "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.sign(solver=refund_solver)
-        <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
+        <swap.providers.vapor.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not isinstance(solver, RefundSolver):
-            raise TypeError(f"Solver must be Bytom RefundSolver, not {type(solver).__name__} type.")
+            raise TypeError(f"Solver must be Vapor RefundSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, path, indexes = solver.solve()
@@ -709,18 +724,18 @@ class RefundTransaction(Transaction):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "bytom_refund_signed"
+        self._type = "vapor_refund_signed"
         return self
 
     def transaction_raw(self) -> str:
         """
-        Get Bytom refund transaction raw.
+        Get Vapor refund transaction raw.
 
-        :returns: str -- Bytom refund transaction raw.
+        :returns: str -- Vapor refund transaction raw.
 
-        >>> from swap.providers.bytom.transaction import RefundTransaction
+        >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -730,7 +745,7 @@ class RefundTransaction(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
 
         # Encode refund transaction raw
-        if self._type == "bytom_refund_signed":
+        if self._type == "vapor_refund_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
                 address=self._address,

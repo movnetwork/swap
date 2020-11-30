@@ -9,7 +9,7 @@ from ..config import bytom
 from .htlc import HTLC
 
 # Bytom config
-config = bytom()
+config: dict = bytom()
 
 
 class FundSolver:
@@ -28,6 +28,7 @@ class FundSolver:
     :type path: str
     :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
+
     :returns: FundSolver -- Bytom fund solver instance.
 
     >>> from swap.providers.bytom.solver import FundSolver
@@ -75,7 +76,8 @@ class ClaimSolver:
     :type path: str
     :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  ClaimSolver -- Bytom claim solver instance.
+
+    :returns: ClaimSolver -- Bytom claim solver instance.
 
     >>> from swap.providers.bytom.solver import ClaimSolver
     >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
@@ -129,7 +131,8 @@ class RefundSolver:
     :type path: str
     :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
-    :returns:  RefundSolver -- Bytom refund solver instance.
+
+    :returns: RefundSolver -- Bytom refund solver instance.
 
     >>> from swap.providers.bytom.solver import RefundSolver
     >>> sender_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"

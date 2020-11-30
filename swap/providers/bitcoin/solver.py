@@ -15,7 +15,7 @@ from .wallet import Wallet
 from .htlc import HTLC
 
 # Bitcoin config
-config = bitcoin()
+config: dict = bitcoin()
 
 
 class FundSolver:
@@ -32,6 +32,7 @@ class FundSolver:
     :type address: int
     :param path: Bitcoin derivation path, defaults to None.
     :type path: str
+
     :returns: FundSolver -- Bitcoin fund solver instance.
 
     >>> from swap.providers.bitcoin.solver import FundSolver
@@ -80,7 +81,8 @@ class ClaimSolver:
     :type address: int
     :param path: Bitcoin derivation path, defaults to None.
     :type path: str
-    :returns:  ClaimSolver -- Bitcoin claim solver instance.
+
+    :returns: ClaimSolver -- Bitcoin claim solver instance.
 
     >>> from swap.providers.bitcoin.solver import ClaimSolver
     >>> recipient_root_xprivate_key = "xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR"
@@ -142,7 +144,8 @@ class RefundSolver:
     :type address: int
     :param path: Bitcoin derivation path, defaults to None.
     :type path: str
-    :returns:  RefundSolver -- Bitcoin refund solver instance.
+
+    :returns: RefundSolver -- Bitcoin refund solver instance.
 
     >>> from swap.providers.bitcoin.solver import RefundSolver
     >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"

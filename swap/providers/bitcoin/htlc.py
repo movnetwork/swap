@@ -20,15 +20,16 @@ from .utils import (
 )
 
 # Bitcoin config
-config = bitcoin()
+config: dict = bitcoin()
 
 
 class HTLC:
     """
     Bitcoin Hash Time Lock Contract (HTLC).
 
-    :param network: Bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to mainnet.
     :type network: str
+
     :returns: HTLC -- Bitcoin HTLC instance.
 
     .. note::
@@ -60,6 +61,7 @@ class HTLC:
         :type sender_address: str
         :param sequence: Bitcoin sequence number of expiration block, defaults to 1000.
         :type sequence: int
+
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
@@ -72,9 +74,9 @@ class HTLC:
         # Check parameter instances
         if len(secret_hash) != 64:
             raise ValueError("Invalid secret hash, length must be 64.")
-        if not is_address(recipient_address, self._network):
+        if not is_address(address=recipient_address, network=self._network):
             raise AddressError(f"Invalid Bitcoin recipient '{recipient_address}' {self._network} address.")
-        if not is_address(sender_address, self._network):
+        if not is_address(address=sender_address, network=self._network):
             raise AddressError(f"Invalid Bitcoin sender '{sender_address}' {self._network} address.")
 
         self._script = IfElseScript(
@@ -99,6 +101,7 @@ class HTLC:
 
         :param opcode: Bitcoin opcode script.
         :type opcode: str
+
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
@@ -118,6 +121,7 @@ class HTLC:
 
         :param bytecode: Bitcoin bytecode.
         :type bytecode: str
+
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
