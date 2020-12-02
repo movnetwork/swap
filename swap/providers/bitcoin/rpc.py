@@ -9,13 +9,10 @@ import json
 from ...exceptions import (
     AddressError, APIError, NetworkError
 )
-from ..config import bitcoin
+from ..config import bitcoin as config
 from .utils import (
     is_network, is_address
 )
-
-# Bitcoin config
-config: dict = bitcoin()
 
 
 def get_balance(address: str, network: str = config["network"],

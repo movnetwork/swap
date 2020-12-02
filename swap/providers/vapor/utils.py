@@ -12,10 +12,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     NetworkError, APIError, TransactionRawError, SymbolError, AddressError
 )
-from ..config import vapor
-
-# Vapor config
-config: dict = vapor()
+from ..config import vapor as config
 
 
 def amount_converter(amount: Union[int, float], symbol: str = "NEU2BTM") -> Union[int, float]:

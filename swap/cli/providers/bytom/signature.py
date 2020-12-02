@@ -14,12 +14,8 @@ from ....providers.bytom.signature import (
     FundSignature, ClaimSignature, RefundSignature
 )
 from ....providers.bytom.utils import is_transaction_raw
-from ....providers.config import bytom
 from ....exceptions import TransactionRawError
 from ....utils import clean_transaction_raw
-
-# Bytom config
-bytom = bytom()
 
 
 @click.command("sign", options_metavar="[OPTIONS]",

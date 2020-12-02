@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.bytom.htlc import HTLC
-from ....providers.config import bytom
-
-# Bytom config
-config = bytom()
+from ....providers.config import bytom as config
 
 
 @click.command("htlc", options_metavar="[OPTIONS]",

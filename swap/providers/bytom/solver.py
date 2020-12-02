@@ -5,11 +5,8 @@ from typing import (
     Optional, List, Tuple
 )
 
-from ..config import bytom
+from ..config import bytom as config
 from .htlc import HTLC
-
-# Bytom config
-config: dict = bytom()
 
 
 class FundSolver:

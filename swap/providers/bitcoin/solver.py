@@ -10,12 +10,9 @@ from btcpy.structs.script import (
 from btcpy.structs.transaction import Sequence
 from typing import Optional, Union
 
-from ..config import bitcoin
+from ..config import bitcoin as config
 from .wallet import Wallet
 from .htlc import HTLC
-
-# Bitcoin config
-config: dict = bitcoin()
 
 
 class FundSolver:

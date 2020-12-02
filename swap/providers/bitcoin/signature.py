@@ -19,16 +19,13 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     TransactionRawError, NetworkError
 )
-from ..config import bitcoin
+from ..config import bitcoin as config
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
 from .utils import (
     is_transaction_raw, is_network
 )
-
-# Bitcoin config
-config: dict = bitcoin()
 
 
 class Signature:

@@ -17,7 +17,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     AddressError, NetworkError
 )
-from ..config import bytom
+from ..config import bytom as config
 from .rpc import (
     build_transaction, decode_raw
 )
@@ -27,10 +27,6 @@ from .solver import (
 from .utils import (
     amount_converter, is_network, is_address
 )
-from .wallet import Wallet
-
-# Bytom config
-config: dict = bytom()
 
 
 class Transaction(BytomTransaction):

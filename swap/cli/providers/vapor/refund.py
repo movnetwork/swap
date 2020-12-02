@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.vapor.transaction import RefundTransaction
-from ....providers.config import vapor
-
-# Vapor config
-config: dict = vapor()
+from ....providers.config import vapor as config
 
 
 @click.command("refund", options_metavar="[OPTIONS]",

@@ -17,7 +17,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     AddressError, NetworkError
 )
-from ..config import vapor
+from ..config import vapor as config
 from .rpc import (
     build_transaction, decode_raw
 )
@@ -27,10 +27,6 @@ from .solver import (
 from .utils import (
     amount_converter, is_network, is_address
 )
-from .wallet import Wallet
-
-# Vapor config
-config: dict = vapor()
 
 
 class Transaction(VaporTransaction):

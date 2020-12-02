@@ -6,13 +6,10 @@ import json
 from ...exceptions import (
     BalanceError, APIError, NetworkError, AddressError
 )
-from ..config import vapor
+from ..config import vapor as config
 from .utils import (
     is_network, is_address
 )
-
-# Vapor config
-config: dict = vapor()
 
 
 def get_balance(address: str, asset: str = config["asset"], network: str = config["network"],

@@ -6,13 +6,10 @@ import json
 from ...exceptions import (
     BalanceError, APIError, NetworkError, AddressError
 )
-from ..config import bytom
+from ..config import bytom as config
 from .utils import (
     is_network, is_address
 )
-
-# Bytom config
-config: dict = bytom()
 
 
 def get_balance(address: str, asset: str = config["asset"], network: str = config["network"],

@@ -14,13 +14,10 @@ import hashlib
 from ...exceptions import (
     AddressError, NetworkError
 )
-from ..config import bitcoin
+from ..config import bitcoin as config
 from .utils import (
     get_address_hash, is_address, is_network
 )
-
-# Bitcoin config
-config: dict = bitcoin()
 
 
 class HTLC:

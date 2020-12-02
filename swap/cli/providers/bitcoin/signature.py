@@ -14,12 +14,9 @@ from ....providers.bitcoin.signature import (
     FundSignature, ClaimSignature, RefundSignature
 )
 from ....providers.bitcoin.utils import is_transaction_raw
-from ....providers.config import bitcoin
+from ....providers.config import bitcoin as config
 from ....exceptions import TransactionRawError
 from ....utils import clean_transaction_raw
-
-# Bitcoin config
-config = bitcoin()
 
 
 @click.command("sign", options_metavar="[OPTIONS]",

@@ -5,11 +5,8 @@ from typing import (
     Optional, List, Tuple
 )
 
-from ..config import vapor
+from ..config import vapor as config
 from .htlc import HTLC
-
-# Vapor config
-config: dict = vapor()
 
 
 class FundSolver:

@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.bytom.transaction import FundTransaction
-from ....providers.config import bytom
-
-# Bytom config
-config = bytom()
+from ....providers.config import bytom as config
 
 
 @click.command("fund", options_metavar="[OPTIONS]",

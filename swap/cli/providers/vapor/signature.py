@@ -14,12 +14,8 @@ from ....providers.vapor.signature import (
     FundSignature, ClaimSignature, RefundSignature
 )
 from ....providers.vapor.utils import is_transaction_raw
-from ....providers.config import vapor
 from ....exceptions import TransactionRawError
 from ....utils import clean_transaction_raw
-
-# Vapor config
-vapor: dict = vapor()
 
 
 @click.command("sign", options_metavar="[OPTIONS]",

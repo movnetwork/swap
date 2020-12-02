@@ -14,11 +14,9 @@ from typing import (
 )
 
 from ...exceptions import NetworkError
-from ..config import bytom
+from ..config import bytom as config
 from .utils import is_network
 
-# Bytom config
-config: dict = bytom()
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script
 HTLC_SCRIPT: str = """
@@ -111,7 +109,7 @@ class HTLC:
                 .compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
         else:
             # Compile HTLC by script binary
-            builder = Builder()
+            builder: Builder = Builder()
             builder.add_int(sequence)
             builder.add_bytes(bytes.fromhex(sender_public_key))
             builder.add_bytes(bytes.fromhex(recipient_public_key))

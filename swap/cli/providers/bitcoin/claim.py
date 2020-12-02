@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.bitcoin.transaction import ClaimTransaction
-from ....providers.config import bitcoin
-
-# Bitcoin config
-config = bitcoin()
+from ....providers.config import bitcoin as config
 
 
 @click.command("claim", options_metavar="[OPTIONS]",

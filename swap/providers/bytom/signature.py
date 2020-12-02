@@ -13,7 +13,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     TransactionRawError, NetworkError
 )
-from ..config import bytom
+from ..config import bytom as config
 from .transaction import Transaction
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
@@ -22,9 +22,6 @@ from .rpc import decode_raw
 from .utils import (
     is_network, is_transaction_raw
 )
-
-# Bytom config
-config: dict = bytom()
 
 
 class Signature(Transaction):

@@ -12,10 +12,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     NetworkError, APIError, TransactionRawError, SymbolError, AddressError
 )
-from ..config import bytom
-
-# Bytom config
-config: dict = bytom()
+from ..config import bytom as config
 
 
 def amount_converter(amount: Union[int, float], symbol: str = "NEU2BTM") -> Union[int, float]:

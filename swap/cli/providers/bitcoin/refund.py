@@ -6,10 +6,7 @@ import sys
 
 from ....cli import click
 from ....providers.bitcoin.transaction import RefundTransaction
-from ....providers.config import bitcoin
-
-# Bitcoin config
-config = bitcoin()
+from ....providers.config import bitcoin as config
 
 
 @click.command("refund", options_metavar="[OPTIONS]",

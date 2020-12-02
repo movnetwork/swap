@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.bitcoin.htlc import HTLC
-from ....providers.config import bitcoin
-
-# Bitcoin config
-config = bitcoin()
+from ....providers.config import bitcoin as config
 
 
 @click.command("htlc", options_metavar="[OPTIONS]",

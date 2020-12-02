@@ -8,13 +8,11 @@ from typing import (
 
 from ...utils import is_mnemonic
 from ...exceptions import NetworkError
-from ..config import bytom
+from ..config import bytom as config
 from .rpc import (
     get_balance, get_utxos
 )
 
-# Bytom config
-config: dict = bytom()
 # Default path and indexes derivation
 DEFAULT_PATH: str = config["path"]
 DEFAULT_INDEXES: List[str] = config["indexes"]

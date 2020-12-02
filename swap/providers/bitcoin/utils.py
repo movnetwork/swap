@@ -25,10 +25,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     AddressError, NetworkError, APIError, SymbolError, TransactionRawError
 )
-from ..config import bitcoin
-
-# Bitcoin config
-config: dict = bitcoin()
+from ..config import bitcoin as config
 
 
 def amount_converter(amount: Union[int, float], symbol: str = "SATOSHI2BTC") -> Union[int, float]:

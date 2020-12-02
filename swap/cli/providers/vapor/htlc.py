@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.vapor.htlc import HTLC
-from ....providers.config import vapor
-
-# Vapor config
-config: dict = vapor()
+from ....providers.config import vapor as config
 
 
 @click.command("htlc", options_metavar="[OPTIONS]",

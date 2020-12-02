@@ -13,7 +13,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     TransactionRawError, NetworkError
 )
-from ..config import vapor
+from ..config import vapor as config
 from .transaction import Transaction
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
@@ -22,9 +22,6 @@ from .rpc import decode_raw
 from .utils import (
     is_network, is_transaction_raw
 )
-
-# Vapor config
-config: dict = vapor()
 
 
 class Signature(Transaction):

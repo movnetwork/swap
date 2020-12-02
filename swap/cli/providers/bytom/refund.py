@@ -5,10 +5,7 @@ import sys
 
 from ....cli import click
 from ....providers.bytom.transaction import RefundTransaction
-from ....providers.config import bytom
-
-# Bytom config
-config = bytom()
+from ....providers.config import bytom as config
 
 
 @click.command("refund", options_metavar="[OPTIONS]",

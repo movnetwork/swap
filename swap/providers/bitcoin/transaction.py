@@ -17,7 +17,7 @@ from ...utils import clean_transaction_raw
 from ...exceptions import (
     BalanceError, AddressError, NetworkError
 )
-from ..config import bitcoin
+from ..config import bitcoin as config
 from .utils import (
     fee_calculator, is_address, is_network, _get_previous_transaction_indexes,
     _build_inputs, _build_outputs, get_address_hash
@@ -28,9 +28,6 @@ from .solver import (
 from .rpc import (
     get_transaction, get_utxos
 )
-
-# Bitcoin config
-config: dict = bitcoin()
 
 
 class Transaction:

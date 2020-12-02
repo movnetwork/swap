@@ -14,11 +14,9 @@ from typing import (
 )
 
 from ...exceptions import NetworkError
-from ..config import vapor
+from ..config import vapor as config
 from .utils import is_network
 
-# Vapor config
-config: dict = vapor()
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script
 HTLC_SCRIPT: str = """
@@ -107,11 +105,12 @@ class HTLC:
                 sequence
             ]
             # Compile HTLC by script
-            self._script = Equity(config[self._network]["vapor-core"])\
-                .compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
+            self._script = Equity(
+                url=config[self._network]["vapor-core"], timeout=config["sequence"]
+            ).compile_source(HTLC_SCRIPT, HTLC_AGREEMENTS)
         else:
             # Compile HTLC by script binary
-            builder = Builder()
+            builder: Builder = Builder()
             builder.add_int(sequence)
             builder.add_bytes(bytes.fromhex(sender_public_key))
             builder.add_bytes(bytes.fromhex(recipient_public_key))
