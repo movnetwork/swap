@@ -15,6 +15,9 @@ from ...exceptions import (
     AddressError, NetworkError
 )
 from ..config import bitcoin as config
+from .rpc import (
+    get_balance, get_utxos
+)
 from .utils import (
     get_address_hash, is_address, is_network
 )
@@ -204,3 +207,50 @@ class HTLC:
         return str(P2shScript(self._script.p2sh_hash()).address(
             mainnet=(True if self._network == "mainnet" else False)
         ))
+
+    def balance(self) -> int:
+        """
+        Get Bitcoin HTLC balance.
+
+        :return: int -- Bitcoin HTLC balance (SATOSHI amount).
+
+        >>> from swap.providers.bitcoin.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
+        >>> htlc.balance()
+        10000
+        """
+
+        return get_balance(address=self.address(), network=self._network)
+
+    def utxos(self, limit: int = 15) -> list:
+        """
+        Get Bitcoin HTLC unspent transaction output (UTXO's).
+
+        :param limit: Limit of UTXO's, default is 15.
+        :type limit: int
+
+        :return: list -- Bitcoin unspent transaction outputs.
+
+        >>> from swap.providers.bitcoin.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
+        >>> htlc.utxos()
+        [{'index': 0, 'hash': '9825b68e57c8a924285828dde37869c2eca3bb3784b171353962f0d7e7577da1', 'output_index': 0, 'amount': 10000, 'script': 'a9149418feed4647e156d6663db3e0cef7c050d0386787'}]
+        """
+
+        utxos = list()
+        _utxos = get_utxos(
+            address=self.address(), network=self._network, limit=limit
+        )
+        for index, utxo in enumerate(_utxos):
+            utxos.append(dict(
+                index=index,
+                hash=utxo["tx_hash"],
+                output_index=utxo["tx_output_n"],
+                amount=utxo["value"],
+                script=utxo["script"]
+            ))
+        return utxos

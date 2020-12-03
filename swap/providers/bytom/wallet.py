@@ -547,7 +547,7 @@ class Wallet(HDWallet):
 
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :param limit: Bytom balance, default is 15.
+        :param limit: Limit of UTXO's, default is 15.
         :type limit: int
 
         :return: list -- Bytom unspent transaction outputs.

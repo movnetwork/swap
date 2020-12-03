@@ -584,7 +584,7 @@ class Wallet(HDWallet):
         """
         Get Bitcoin wallet balance.
 
-        :return: int -- Bitcoin wallet balance.
+        :return: int -- Bitcoin wallet balance (SATOSHI amount).
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -594,13 +594,13 @@ class Wallet(HDWallet):
         67966
         """
 
-        return get_balance(self.address(), self._network)
+        return get_balance(address=self.address(), network=self._network)
 
     def utxos(self, limit: int = 15) -> list:
         """
         Get Bitcoin wallet unspent transaction output (UTXO's).
 
-        :param limit: Bitcoin balance, default is 15.
+        :param limit: Limit of UTXO's, default is 15.
         :type limit: int
 
         :return: list -- Bitcoin unspent transaction outputs.

@@ -548,7 +548,7 @@ class Wallet(HDWallet):
 
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
-        :param limit: Vapor balance, default is 15.
+        :param limit: Limit of UTXO's, default is 15.
         :type limit: int
         :return: list -- Vapor unspent transaction outputs.
 

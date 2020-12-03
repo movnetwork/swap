@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pybytom.script import (
-    get_script_hash, get_p2wsh_address
+    get_script_hash, get_p2wsh_program, get_p2wsh_address
 )
 from pybytom.script.builder import Builder
 from pybytom.script.opcode import (
@@ -15,6 +15,9 @@ from typing import (
 
 from ...exceptions import NetworkError
 from ..config import vapor as config
+from .rpc import (
+    get_utxos, get_balance
+)
 from .utils import is_network
 
 
@@ -220,3 +223,43 @@ class HTLC:
         if not self._script or "program" not in self._script:
             raise ValueError("HTLC script is None, first build HTLC.")
         return get_p2wsh_address(script_hash=self.hash(), network=self._network, vapor=True)
+    
+    def balance(self, asset: str = config["asset"]) -> int:
+        """
+        Get Vapor HTLC balance.
+
+        :param asset: Vapor asset id, defaults to BTM asset.
+        :type asset: str
+
+        :return: int -- Vapor HTLC balance (NEU amount).
+
+        >>> from swap.providers.vapor.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
+        >>> htlc.balance(asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        30000
+        """
+
+        return get_balance(address=self.address(), asset=asset, network=self._network)
+
+    def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
+        """
+        Get Vapor HTLC unspent transaction output (UTXO's).
+
+        :param asset: Vapor asset id, defaults to BTM asset.
+        :type asset: str
+        :param limit: Limit of UTXO's, default is 15.
+        :type limit: int
+
+        :return: list -- Vapor unspent transaction outputs.
+
+        >>> from swap.providers.vapor.htlc import HTLC
+        >>> from swap.utils import sha256
+        >>> htlc = HTLC(network="mainnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
+        >>> htlc.utxos(asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        [{'hash': '8a0d861767240a284ebed0320b11b81253727ecdac0c80bc6a88127327c0d8a1', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}, {'hash': '76c9ec09f4990122337b1cb9925abc5c5de115065cb1eea7adb7b5fdeb2c6e1e', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}, {'hash': '2637748a967aa5428008aa57159b9795f3aff63b81c72df0575041e7df1efe01', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}]
+        """
+
+        return get_utxos(program=get_p2wsh_program(script_hash=self.hash()), asset=asset, limit=limit)
