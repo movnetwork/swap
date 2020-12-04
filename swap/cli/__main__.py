@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-# IMPORT ALL PACKAGES
 from .. import __version__
 from ..cli import click
 
-# IMPORT PROVIDERS
 from ..cli.providers.bitcoin import bitcoin
 from ..cli.providers.bytom import bytom
+from ..cli.providers.vapor import vapor
 
 CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"],
@@ -48,3 +47,5 @@ def main():
 main.add_command(bitcoin)
 # Add Bytom provider
 main.add_command(bytom)
+# Add Vapor provider
+main.add_command(vapor)

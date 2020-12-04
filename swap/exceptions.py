@@ -9,7 +9,7 @@ class APIError(Exception):
 
     def __str__(self):
         if self.error_detail:
-            return "(%s) %s" % (self.error_detail, self.error_message)
+            return "(%s), %s" % (self.error_detail, self.error_message)
         else:
             return self.error_message
 

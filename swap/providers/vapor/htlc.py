@@ -50,7 +50,7 @@ class HTLC:
     """
     Vapor Hash Time Lock Contract (HTLC).
 
-    :param network: Vapor network, defaults to testnet.
+    :param network: Vapor network, defaults to mainnet.
     :type network: str
 
     :returns: HTLC -- Vapor HTLC instance.
