@@ -14,21 +14,21 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bytom_cli_refund(cli_tester):
+def test_vapor_cli_refund(cli_tester):
 
     refund = cli_tester.invoke(
         cli_main, [
-            "bytom",
+            "vapor",
             "refund",
-            "--address", _["bytom"]["wallet"]["sender"]["address"],
-            "--transaction-id", _["bytom"]["transaction_id"],
-            "--asset", _["bytom"]["asset"],
-            "--amount", _["bytom"]["amount"],
-            "--network", _["bytom"]["network"]
+            "--address", _["vapor"]["wallet"]["sender"]["address"],
+            "--transaction-id", _["vapor"]["transaction_id"],
+            "--asset", _["vapor"]["asset"],
+            "--amount", _["vapor"]["amount"],
+            "--network", _["vapor"]["network"]
         ]
     )
 
     assert refund.exit_code == 0
     assert refund.output == clean_transaction_raw(
-        transaction_raw=_["bytom"]["refund"]["unsigned"]["transaction_raw"]
+        transaction_raw=_["vapor"]["refund"]["unsigned"]["transaction_raw"]
     ) + "\n"

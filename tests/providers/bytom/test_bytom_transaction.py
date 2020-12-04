@@ -26,6 +26,7 @@ def test_bytom_fund_transaction():
     unsigned_fund_transaction.build_transaction(
         address=_["bytom"]["wallet"]["sender"]["address"],
         htlc_address=_["bytom"]["htlc"]["address"],
+        asset=_["bytom"]["asset"],
         amount=_["bytom"]["amount"]
     )
 
@@ -69,6 +70,7 @@ def test_bytom_claim_transaction():
     unsigned_claim_transaction.build_transaction(
         transaction_id=_["bytom"]["transaction_id"],
         address=_["bytom"]["wallet"]["recipient"]["address"],
+        asset=_["bytom"]["asset"],
         amount=_["bytom"]["amount"]
     )
 
@@ -114,6 +116,7 @@ def test_bytom_refund_transaction():
     unsigned_refund_transaction.build_transaction(
         transaction_id=_["bytom"]["transaction_id"],
         address=_["bytom"]["wallet"]["sender"]["address"],
+        asset=_["bytom"]["asset"],
         amount=_["bytom"]["amount"]
     )
 

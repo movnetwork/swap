@@ -1,61 +1,44 @@
 #!/usr/bin/env python3
 
 from swap.exceptions import (
-    NetworkError, BalanceError, APIError, AddressError, InvalidURLError, ClientError, NotFoundError
+    NetworkError, BalanceError, APIError, AddressError, InvalidURLError,
+    ClientError, NotFoundError, SymbolError, TransactionRawError
 )
 
 import pytest
 
 
-def exceptions(error=""):
-    if error == "network":
-        raise NetworkError("Invalid network type.")
-    elif error == "network_detail":
-        raise NetworkError("Invalid network type.", "testnet")
-    elif error == "balance":
-        raise BalanceError("0")
-    elif error == "balance_detail":
-        raise BalanceError("0", "you don't enough coin")
-    elif error == "api":
-        raise APIError("Server error.")
-    elif error == "api_detail":
-        raise APIError("Server error.", "connection loss..")
-    elif error == "address":
-        raise AddressError("Invalid bitcoin mainnet address.")
-    elif error == "address_detail":
-        raise AddressError("Invalid bitcoin mainnet address.", "2N3NKQpymf1KunR4W8BpZjs8za5La5pV5hF")
-    elif error == "url":
-        raise InvalidURLError("Invalid URL address.")
-    elif error == "client":
-        raise ClientError("Invalid transaction raw.")
-    elif error == "client_detail":
-        raise ClientError("Invalid transaction raw.", "--raw enasdsarue5kj5435345...")
-    elif error == "not_found":
-        raise NotFoundError("Not Found.")
-
-
 def test_exceptions():
-    with pytest.raises(NetworkError, match=r".* network .*"):
-        exceptions("network")
-    with pytest.raises(NetworkError, match=r".* network .*, testnet"):
-        exceptions("network_detail")
-    with pytest.raises(BalanceError, match="0"):
-        exceptions("balance")
-    with pytest.raises(BalanceError, match="0, you don't enough coin"):
-        exceptions("balance_detail")
-    with pytest.raises(APIError, match=r".*."):
-        exceptions("api")
-    with pytest.raises(APIError, match=r".*."):
-        exceptions("api_detail")
-    with pytest.raises(AddressError, match="Invalid bitcoin mainnet address."):
-        exceptions("address")
-    with pytest.raises(AddressError, match="Invalid bitcoin mainnet address., 2N3NKQpymf1KunR4W8BpZjs8za5La5pV5hF"):
-        exceptions("address_detail")
-    with pytest.raises(InvalidURLError, match=".* URL .*"):
-        exceptions("url")
-    with pytest.raises(ClientError, match="Invalid transaction raw."):
-        exceptions("client")
-    with pytest.raises(ClientError, match="--raw enasdsarue5kj5435345..."):
-        exceptions("client_detail", )
-    with pytest.raises(NotFoundError, match="Not Found."):
-        exceptions("not_found")
+
+    with pytest.raises(NetworkError, match="error"):
+        raise NetworkError("error")
+    with pytest.raises(NetworkError, match="error, error"):
+        raise NetworkError("error", "error")
+    with pytest.raises(BalanceError, match="error"):
+        raise BalanceError("error")
+    with pytest.raises(BalanceError, match="error, error"):
+        raise BalanceError("error", "error")
+    with pytest.raises(APIError, match="error"):
+        raise APIError("error")
+    with pytest.raises(APIError):
+        raise APIError("error", "error")
+    with pytest.raises(AddressError, match="error"):
+        raise AddressError("error")
+    with pytest.raises(AddressError, match="error, error"):
+        raise AddressError("error", "error")
+    with pytest.raises(InvalidURLError, match="error"):
+        raise InvalidURLError("error")
+    with pytest.raises(ClientError, match="error"):
+        raise ClientError("error")
+    with pytest.raises(ClientError):
+        raise ClientError("error", "error")
+    with pytest.raises(NotFoundError, match="error"):
+        raise NotFoundError("error")
+    with pytest.raises(SymbolError, match="error"):
+        raise SymbolError("error")
+    with pytest.raises(SymbolError, match="error, error"):
+        raise SymbolError("error", "error")
+    with pytest.raises(TransactionRawError, match="error"):
+        raise TransactionRawError("error")
+    with pytest.raises(TransactionRawError, match="error, error"):
+        raise TransactionRawError("error", "error")

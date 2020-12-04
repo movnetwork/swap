@@ -14,20 +14,20 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bytom_cli_claim(cli_tester):
+def test_vapor_cli_claim(cli_tester):
 
     claim = cli_tester.invoke(
         cli_main, [
-            "bytom",
+            "vapor",
             "claim",
-            "--address", _["bytom"]["wallet"]["recipient"]["address"],
-            "--transaction-id", _["bytom"]["transaction_id"],
-            "--asset", _["bytom"]["asset"],
-            "--amount", _["bytom"]["amount"],
-            "--network", _["bytom"]["network"]
+            "--address", _["vapor"]["wallet"]["recipient"]["address"],
+            "--transaction-id", _["vapor"]["transaction_id"],
+            "--asset", _["vapor"]["asset"],
+            "--amount", _["vapor"]["amount"],
+            "--network", _["vapor"]["network"]
         ]
     )
     assert claim.exit_code == 0
     assert claim.output == clean_transaction_raw(
-        transaction_raw=_["bytom"]["claim"]["unsigned"]["transaction_raw"]
+        transaction_raw=_["vapor"]["claim"]["unsigned"]["transaction_raw"]
     ) + "\n"
