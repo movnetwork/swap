@@ -19,7 +19,7 @@ from ...exceptions import (
 )
 from ..config import vapor as config
 from .rpc import (
-    build_transaction, decode_raw
+    estimate_transaction_fee, build_transaction, decode_raw
 )
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
@@ -245,8 +245,8 @@ class FundTransaction(Transaction):
 
         self._htlc_address: Optional[str] = None
 
-    def build_transaction(self, address: str, htlc_address: str,
-                          amount: int, asset: str = config["asset"]) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc_address: str, amount: int, asset: str = config["asset"],
+                          estimate_fee: bool = config["estimate_fee"]) -> "FundTransaction":
         """
         Build Vapor fund transaction.
 
@@ -258,6 +258,8 @@ class FundTransaction(Transaction):
         :type amount: int
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
+        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
+        :type estimate_fee: bool
 
         :returns: FundTransaction -- Vapor fund transaction instance.
 
@@ -274,9 +276,16 @@ class FundTransaction(Transaction):
             raise AddressError(f"Invalid Vapor HTLC '{htlc_address}' {self._network} address.")
 
         # Set address, fee and confirmations
-        self._address, self._htlc_address, self._fee, self._confirmations = (
-            address, htlc_address, config["fee"], config["confirmations"]
+        self._address, self._htlc_address, self._confirmations = (
+            address, htlc_address, config["confirmations"]
         )
+        if estimate_fee:
+            self._fee = estimate_transaction_fee(
+                address=self._address, amount=amount, asset=asset,
+                confirmations=self._confirmations, network=self._network
+            )
+        else:
+            self._fee = config["fee"]
 
         # Build transaction
         self._transaction = build_transaction(
@@ -417,8 +426,8 @@ class ClaimTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-    def build_transaction(self, address: str, transaction_id: str,
-                          amount: int, asset: str = config["asset"]) -> "ClaimTransaction":
+    def build_transaction(self, address: str, transaction_id: str, amount: int, asset: str = config["asset"],
+                          estimate_fee: bool = config["estimate_fee"]) -> "ClaimTransaction":
         """
         Build Vapor claim transaction.
 
@@ -430,6 +439,8 @@ class ClaimTransaction(Transaction):
         :type amount: int
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
+        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
+        :type estimate_fee: bool
 
         :returns: ClaimTransaction -- Vapor claim transaction instance.
 
@@ -453,9 +464,16 @@ class ClaimTransaction(Transaction):
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
 
         # Set address, fee and confirmations
-        self._address, self._fee, self._confirmations = (
-            address, config["fee"], config["confirmations"]
+        self._address, self._confirmations = (
+            address, config["confirmations"]
         )
+        if estimate_fee:
+            self._fee = estimate_transaction_fee(
+                address=self._address, amount=amount, asset=asset,
+                confirmations=self._confirmations, network=self._network
+            )
+        else:
+            self._fee = config["fee"]
 
         # Build transaction
         self._transaction = build_transaction(
@@ -601,8 +619,8 @@ class RefundTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-    def build_transaction(self, address: str, transaction_id: str,
-                          amount: int, asset: str = config["asset"]) -> "RefundTransaction":
+    def build_transaction(self, address: str, transaction_id: str, amount: int, asset: str = config["asset"],
+                          estimate_fee: bool = config["estimate_fee"]) -> "RefundTransaction":
         """
         Build Vapor refund transaction.
 
@@ -614,6 +632,8 @@ class RefundTransaction(Transaction):
         :type amount: int
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
+        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
+        :type estimate_fee: bool
 
         :returns: RefundTransaction -- Vapor refund transaction instance.
 
@@ -637,9 +657,16 @@ class RefundTransaction(Transaction):
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
 
         # Set address, fee and confirmations
-        self._address, self._fee, self._confirmations = (
-            address, config["fee"], config["confirmations"]
+        self._address, self._confirmations = (
+            address, config["confirmations"]
         )
+        if estimate_fee:
+            self._fee = estimate_transaction_fee(
+                address=self._address, amount=amount, asset=asset,
+                confirmations=self._confirmations, network=self._network
+            )
+        else:
+            self._fee = config["fee"]
 
         # Build transaction
         self._transaction = build_transaction(

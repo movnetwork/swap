@@ -50,7 +50,7 @@ class HTLC:
     """
     Bytom Hash Time Lock Contract (HTLC).
 
-    :param network: Bytom network, defaults to testnet.
+    :param network: Bytom network, defaults to mainnet.
     :type network: str
 
     :returns: HTLC -- Bytom HTLC instance.

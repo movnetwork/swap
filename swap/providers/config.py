@@ -50,7 +50,7 @@ bytom: dict = {
         "mov": None
     },
     "testnet": {
-        "bytom-code": "http://localhost:9888",
+        "bytom-core": "http://localhost:9888",
         "blockmeta": None,
         "blockcenter": None,
         "mov": None
@@ -62,6 +62,7 @@ bytom: dict = {
     "timeout": 60,
     "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "fee": 10_000_000,
+    "estimate_fee": True,
     "confirmations": 1,
     "network": "mainnet",
     "forbid_chain_tx": False,
@@ -88,7 +89,7 @@ vapor: dict = {
         "mov": None
     },
     "testnet": {
-        "vapor-core ": "http://localhost:9889",
+        "vapor-core": "http://localhost:9889",
         "blockmeta": None,
         "blockcenter": None,
         "mov": None
@@ -100,6 +101,7 @@ vapor: dict = {
     "timeout": 60,
     "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "fee": 10_000_000,
+    "estimate_fee": True,
     "confirmations": 1,
     "network": "mainnet",
     "forbid_chain_tx": False,
