@@ -5,5 +5,5 @@ python-hdwallet>=0.2.1,<1
 mnemonic>=0.19,<1
 py-equity>=0.1.0,<1
 click>=7.1.2,<8
-pybytom>=1.5.1,<2
+pybytom>=1.5.3,<2
 six>=1.15.0,<2
