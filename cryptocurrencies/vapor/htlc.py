@@ -2,7 +2,6 @@
 
 from swap.providers.vapor.htlc import HTLC
 from swap.providers.vapor.assets import BTM as ASSET
-from swap.providers.vapor.rpc import get_balance
 from swap.providers.vapor.utils import amount_converter
 from swap.utils import sha256
 
@@ -34,8 +33,5 @@ print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC OP_Code:", htlc.opcode())
 print("HTLC Hash:", htlc.hash())
 print("HTLC Address:", htlc.address())
-
-# Get the balance of HTLC contract (BTM amount)
-print("HTLC Balance:", amount_converter(amount=get_balance(
-    address=htlc.address(), asset=ASSET, network=NETWORK
-), symbol="NEU2BTM"), "BTM")
+print("HTLC Balance:", amount_converter(amount=htlc.balance(asset=ASSET), symbol="NEU2BTM"), "BTM")
+print("HTLC UTXO's:", htlc.utxos(asset=ASSET))

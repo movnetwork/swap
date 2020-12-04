@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from swap.providers.bitcoin.htlc import HTLC
-from swap.providers.bitcoin.rpc import get_balance
 from swap.providers.bitcoin.utils import amount_converter
 from swap.utils import sha256
 
@@ -33,8 +32,5 @@ print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC OP_Code:", htlc.opcode())
 print("HTLC Hash:", htlc.hash())
 print("HTLC Address:", htlc.address())
-
-# Get the balance of HTLC contract (BTC amount)
-print("HTLC Balance:", amount_converter(amount=get_balance(
-    address=htlc.address(), network=NETWORK
-), symbol="SATOSHI2BTC"), "BTC")
+print("HTLC Balance:", amount_converter(amount=htlc.balance(), symbol="SATOSHI2BTC"), "BTC")
+print("HTLC UTXO's:", htlc.utxos())
