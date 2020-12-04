@@ -16,6 +16,7 @@ After you have installed, type ``swap`` to verify that it worked:
     Commands:
       bitcoin  Select Bitcoin provider.
       bytom    Select Bytom provider.
+      vapor    Select Vapor provider.
 
 
 .. click:: swap.cli.__main__:main

@@ -22,3 +22,4 @@ Swap
 
     Bitcoin API <providers/bitcoin/bitcoin.rst>
     Bytom API <providers/bytom/bytom.rst>
+    Vapor API <providers/vapor/vapor.rst>

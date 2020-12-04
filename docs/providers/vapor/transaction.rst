@@ -2,9 +2,9 @@
 
 Transaction
 ===========
-Bytom transaction in blockchain network.
+Bitcoin transaction in blockchain network.
 
-.. automodule:: swap.providers.bytom.transaction
+.. automodule:: swap.providers.vapor.transaction
 
 .. autoclass:: Transaction
    :members:
