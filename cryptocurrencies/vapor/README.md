@@ -1,6 +1,6 @@
 # CLI - Vapor Commands
 
-<img align="right" height="80" src="https://github.com/meherett/swap/blob/master/docs/static/svg/vapor.svg">
+<img align="right" height="80" src="https://github.com/meherett/swap/blob/vapor/docs/static/svg/vapor.svg">
 
   - [HTLC Command](#htlc-command)
   - [Fund Command](#fund-command)
