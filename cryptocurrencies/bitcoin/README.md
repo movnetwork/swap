@@ -326,6 +326,8 @@ Options:
 ```
 </details>
 
+**Note**: Don't forget when you are signing `claim` transaction you have to be use `--secret-key` option.
+
 > **Example** -> swap bitcoin `sign` command
 
 **Root XPrivate Key** _(str)_ -> tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR **[required]**<br/>

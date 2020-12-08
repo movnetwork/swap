@@ -101,7 +101,7 @@ Options:
   -ha, --htlc-address TEXT  Set Bytom Hash Time Lock Contract (HTLC) address.  [required]
   -am, --amount INTEGER     Set Bytom amount (NEU).  [required]
   -as, --asset TEXT         Set Bytom asset id.  [default: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]
-  -n, --network TEXT        Set Bitcoin network.  [default: mainnet]
+  -n, --network TEXT        Set Bytom network.  [default: mainnet]
   -h, --help                Show this message and exit.
 ```
 </details>
@@ -147,7 +147,7 @@ Options:
   -ti, --transaction-id TEXT  Set Bytom funded transaction id/hash.  [required]
   -am, --amount INTEGER       Set Bytom amount (NEU).  [required]
   -as, --asset TEXT           Set Bytom asset id.  [default: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]
-  -n, --network TEXT          Set Bitcoin network.  [default: mainnet]
+  -n, --network TEXT          Set Bytom network.  [default: mainnet]
   -h, --help                  Show this message and exit.
 ```
 </details>
@@ -193,7 +193,7 @@ Options:
   -ti, --transaction-id TEXT  Set Bytom funded transaction id/hash.  [required]
   -am, --amount INTEGER       Set Bytom amount (NEU).  [required]
   -as, --asset TEXT           Set Bytom asset id.  [default: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]
-  -n, --network TEXT          Set Bitcoin network.  [default: mainnet]
+  -n, --network TEXT          Set Bytom network.  [default: mainnet]
   -h, --help                  Show this message and exit.
 ```
 </details>
@@ -367,7 +367,7 @@ Options:
 ```
 </details>
 
-**Note**: Don't forget when you are signing `claim` transaction you have to be use `--secret` option.
+**Note**: Don't forget when you are signing `claim` transaction you have to be use `--secret-key` option.
 
 > **Example** -> swap bytom `sign` command
 

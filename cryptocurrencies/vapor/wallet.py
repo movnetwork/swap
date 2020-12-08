@@ -23,7 +23,7 @@ PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
 wallet: Wallet = Wallet(network=NETWORK)
 # Get Vapor wallet from entropy
 wallet.from_entropy(
-    entropy=ENTROPY, passphrase=PASSPHRASE, language=LANGUAGE
+    entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE
 )
 # Drive Vapor wallet from path
 wallet.from_path(path=DEFAULT_PATH)
