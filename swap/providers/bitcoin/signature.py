@@ -46,7 +46,7 @@ class Signature:
     def __init__(self, network: str = config["network"], version: int = config["version"]):
         
         if not is_network(network=network):
-            raise NetworkError(f"Invalid Bitcoin '{network}' network/type",
+            raise NetworkError(f"Invalid Bitcoin '{network}' network",
                                "choose only 'mainnet' or 'testnet' networks.")
 
         self._network: str = network

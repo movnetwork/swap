@@ -47,7 +47,7 @@ class Wallet(HDWallet):
             self._cryptocurrency: Any = BitcoinTestnet
             self._hdwallet: HDWallet = HDWallet(cryptocurrency=BitcoinTestnet)
         else:
-            raise NetworkError(f"Invalid '{network}' network",
+            raise NetworkError(f"Invalid Bitcoin '{network}' network",
                                "choose only 'mainnet' or 'testnet' networks.")
         super().__init__(cryptocurrency=self._cryptocurrency)
 

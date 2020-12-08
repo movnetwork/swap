@@ -45,7 +45,7 @@ class Transaction(BytomTransaction):
     def __init__(self, network: str = config["network"]):
 
         if not is_network(network=network):
-            raise NetworkError(f"Invalid Bytom '{network}' network/type",
+            raise NetworkError(f"Invalid Bytom '{network}' network",
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
         super().__init__(network, vapor=False)
 

@@ -46,7 +46,7 @@ class Wallet(HDWallet):
             self._network: str = "testnet"
             self._hdwallet: HDWallet = HDWallet(network=self._network)
         else:
-            raise NetworkError(f"Invalid '{network}' network",
+            raise NetworkError(f"Invalid Bytom '{network}' network",
                                "choose only 'mainnet', 'solonet' or 'testnet' networks.")
         super().__init__(network=self._network)
 
