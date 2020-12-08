@@ -1,8 +1,8 @@
 requests>=2.25.0,<3
 cryptos>=1.36,<2
-ecdsa>=0.16.1,<1
+ecdsa>=0.13.0,<1
 chainside-btcpy>=0.6.5,<1
-hdwallet>=0.1.0,<1
+hdwallet>=0.1.1,<1
 mnemonic>=0.19,<1
 py-equity>=0.1.0,<1
 click>=7.1.2,<8
