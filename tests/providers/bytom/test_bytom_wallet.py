@@ -19,8 +19,8 @@ def test_bytom_wallet_from_entropy():
 
     wallet.from_entropy(
         entropy=_["bytom"]["wallet"]["sender"]["entropy"],
-        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"],
-        language=_["bytom"]["wallet"]["sender"]["language"]
+        language=_["bytom"]["wallet"]["sender"]["language"],
+        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"]
     )
 
     wallet.from_path(
@@ -55,8 +55,8 @@ def test_bytom_wallet_from_mnemonic():
 
     wallet.from_mnemonic(
         mnemonic=_["bytom"]["wallet"]["sender"]["mnemonic"],
-        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"],
-        language=_["bytom"]["wallet"]["sender"]["language"]
+        language=_["bytom"]["wallet"]["sender"]["language"],
+        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"]
     )
 
     wallet.from_path(

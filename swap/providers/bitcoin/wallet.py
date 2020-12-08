@@ -3,8 +3,8 @@
 from btcpy.structs.crypto import PublicKey
 from btcpy.structs.address import Address
 from btcpy.structs.script import P2pkhScript
-from python_hdwallet import PythonHDWallet as HDWallet
-from python_hdwallet.cryptocurrencies import (
+from hdwallet import HDWallet
+from hdwallet.cryptocurrencies import (
     BitcoinMainnet, BitcoinTestnet
 )
 from typing import (
@@ -51,16 +51,16 @@ class Wallet(HDWallet):
                                "choose only 'mainnet' or 'testnet' networks.")
         super().__init__(cryptocurrency=self._cryptocurrency)
 
-    def from_entropy(self, entropy: str, passphrase: Optional[str] = None, language: str = "english") -> "Wallet":
+    def from_entropy(self, entropy: str, language: str = "english", passphrase: Optional[str] = None) -> "Wallet":
         """
         Initialize wallet from entropy.
 
         :param entropy: Bitcoin wallet entropy.
         :type entropy: str
-        :param passphrase: Bitcoin wallet passphrase, default to None.
-        :type passphrase: str
         :param language: Bitcoin wallet language, default to english.
         :type language: str
+        :param passphrase: Bitcoin wallet passphrase, default to None.
+        :type passphrase: str
 
         :returns: Wallet -- Bitcoin wallet instance.
 
@@ -70,20 +70,20 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_entropy(entropy, passphrase, language)
+        self._hdwallet.from_entropy(entropy=entropy, language=language, passphrase=passphrase)
         return self
 
-    def from_mnemonic(self, mnemonic: str, passphrase: Optional[str] = None,
-                      language: Optional[str] = None) -> "Wallet":
+    def from_mnemonic(self, mnemonic: str, language: Optional[str] = None,
+                      passphrase: Optional[str] = None) -> "Wallet":
         """
         Initialize wallet from mnemonic.
 
         :param mnemonic: Bitcoin wallet mnemonic.
         :type mnemonic: str
-        :param passphrase: Bitcoin wallet passphrase, default to None.
-        :type passphrase: str
         :param language: Bitcoin wallet language, default to english.
         :type language: str
+        :param passphrase: Bitcoin wallet passphrase, default to None.
+        :type passphrase: str
 
         :returns: Wallet -- Bitcoin wallet instance.
 
@@ -97,7 +97,7 @@ class Wallet(HDWallet):
         if not is_mnemonic(mnemonic=mnemonic, language=language):
             raise ValueError("Invalid Mnemonic words.")
 
-        self._hdwallet.from_mnemonic(mnemonic, passphrase, language)
+        self._hdwallet.from_mnemonic(mnemonic=mnemonic, language=language, passphrase=passphrase)
         return self
 
     def from_seed(self, seed: str) -> "Wallet":
@@ -115,7 +115,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_seed(seed)
+        self._hdwallet.from_seed(seed=seed)
         return self
 
     def from_root_xprivate_key(self, root_xprivate_key: str) -> "Wallet":
@@ -133,7 +133,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_root_xprivate_key(root_xprivate_key)
+        self._hdwallet.from_root_xprivate_key(root_xprivate_key=root_xprivate_key)
         return self
 
     def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
@@ -151,7 +151,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_xprivate_key(xprivate_key)
+        self._hdwallet.from_xprivate_key(xprivate_key=xprivate_key)
         return self
 
     def from_wif(self, wif: str) -> "Wallet":
@@ -169,7 +169,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_wif(wif)
+        self._hdwallet.from_wif(wif=wif)
         return self
 
     def from_private_key(self, private_key) -> "Wallet":
@@ -187,7 +187,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_private_key(private_key)
+        self._hdwallet.from_private_key(private_key=private_key)
         return self
 
     def from_path(self, path: str) -> "Wallet":
@@ -206,7 +206,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_path(path)
+        self._hdwallet.from_path(path=path)
         return self
 
     def from_index(self, index: int, harden: bool = False) -> "Wallet":
@@ -231,7 +231,7 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_index(index, harden)
+        self._hdwallet.from_index(index=index, harden=harden)
         return self
 
     def clean_derivation(self) -> "Wallet":
@@ -361,7 +361,7 @@ class Wallet(HDWallet):
         "tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR"
         """
 
-        return self._hdwallet.root_xprivate_key(encoded)
+        return self._hdwallet.root_xprivate_key(encoded=encoded)
 
     def root_xpublic_key(self, encoded: bool = True) -> Optional[str]:
         """
@@ -379,7 +379,7 @@ class Wallet(HDWallet):
         "tpubD6NzVbkrYhZ4Xoz25chThXrwuf83FafuDtKKNAj9vL72eqK1myxkDpi2aq9PKCbaQEbJZEaQBwiDQvYuMFZSWPNbypVJkNLfDHwvswpn4m4"
         """
 
-        return self._hdwallet.root_xpublic_key(encoded)
+        return self._hdwallet.root_xpublic_key(encoded=encoded)
 
     def xprivate_key(self, encoded=True) -> Optional[str]:
         """
@@ -398,7 +398,7 @@ class Wallet(HDWallet):
         "tprv8kPCFydoWU9ybQunXq7g17Me57ac5gcj8RartGqetP4wAnoDHQAVnLY4RtbYE3WH6xBLHbBJ1VZcRutM712SRQkLFM2PCeoKfsPpndYUajZ"
         """
 
-        return self._hdwallet.xprivate_key(encoded)
+        return self._hdwallet.xprivate_key(encoded=encoded)
 
     def xpublic_key(self, encoded: bool = True) -> Optional[str]:
         """
@@ -417,7 +417,7 @@ class Wallet(HDWallet):
         "tpubDH5EQPg3eqqeUswaRUnGQX1ke96YF1odhjBeAnsxJesL1H3yunz5xq9vbzGdsRqx3hnsMwZxn9icChmwC8W2gJEJR29iUaRBtCUbPrE7WXm"
         """
 
-        return self._hdwallet.xpublic_key(encoded)
+        return self._hdwallet.xpublic_key(encoded=encoded)
 
     def uncompressed(self) -> str:
         """
@@ -497,7 +497,7 @@ class Wallet(HDWallet):
         "02065e8cb5fa76699079860a450bddd0e37e0ad3dbf2ddfd01d7b600231e6cde8e"
         """
 
-        return self._hdwallet.public_key(private_key)
+        return self._hdwallet.public_key(private_key=private_key)
 
     def path(self) -> Optional[str]:
         """

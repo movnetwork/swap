@@ -19,8 +19,8 @@ def test_vapor_wallet_from_entropy():
 
     wallet.from_entropy(
         entropy=_["vapor"]["wallet"]["sender"]["entropy"],
-        passphrase=_["vapor"]["wallet"]["sender"]["passphrase"],
-        language=_["vapor"]["wallet"]["sender"]["language"]
+        language=_["vapor"]["wallet"]["sender"]["language"],
+        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"]
     )
 
     wallet.from_path(
@@ -55,8 +55,8 @@ def test_vapor_wallet_from_mnemonic():
 
     wallet.from_mnemonic(
         mnemonic=_["vapor"]["wallet"]["sender"]["mnemonic"],
-        passphrase=_["vapor"]["wallet"]["sender"]["passphrase"],
-        language=_["vapor"]["wallet"]["sender"]["language"]
+        language=_["vapor"]["wallet"]["sender"]["language"],
+        passphrase=_["bytom"]["wallet"]["sender"]["passphrase"],
     )
 
     wallet.from_path(
