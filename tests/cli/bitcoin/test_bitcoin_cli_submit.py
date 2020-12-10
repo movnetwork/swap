@@ -23,5 +23,5 @@ def test_bitcoin_cli_submit(cli_tester):
         ]
     )
     assert submit.exit_code == 0
-    assert submit.output == "Error: (REQ_ERROR) 16: mandatory-script-verify-flag-failed " \
+    assert submit.output == "Error: (REQ_ERROR), 16: mandatory-script-verify-flag-failed " \
                             "(Operation not valid with the current stack size)" + "\n"

@@ -23,4 +23,4 @@ def test_vapor_cli_submit(cli_tester):
         ]
     )
     assert submit.exit_code == 0
-    assert submit.output == "Error: (600) finalize tx fail" + "\n"
+    assert submit.output == "Error: (600), finalize tx fail" + "\n"
