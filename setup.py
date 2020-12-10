@@ -33,17 +33,17 @@ setup(
     install_requires=requirements,
     extras_require={
         "tests": [
-            "pytest>=6.0.1,<7",
+            "pytest>=6.1.2,<7",
             "pytest-cov>=2.10.1,<3"
         ],
         "docs": [
-            "sphinx>=3.2.1,<4",
+            "sphinx>=3.3.1,<4",
             "sphinx_rtd_theme>=0.5.0,<1",
             "sphinx_click>=2.5.0,<3"
         ]
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
