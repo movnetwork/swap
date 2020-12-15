@@ -69,7 +69,7 @@ def sign(root_xprivate_key: str, transaction_raw: str, bytecode: str,
         elif loaded_transaction_raw["type"] == "bitcoin_claim_unsigned":
             if secret_key is None:
                 click.echo(click.style("Error: {}").format(
-                    "Secret key is required for claim, use -s or --secret_key \"Hello Meheret!\""
+                    "Secret key is required for claim, use -sk or --secret-key \"Hello Meheret!\""
                 ), err=True)
                 sys.exit()
             if bytecode is None:
