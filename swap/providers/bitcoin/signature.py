@@ -17,14 +17,14 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    TransactionRawError, NetworkError
+    TransactionRawError, NetworkError, SymbolError
 )
 from ..config import bitcoin as config
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
 from .utils import (
-    is_transaction_raw, is_network
+    is_transaction_raw, is_network, amount_converter
 )
 
 
@@ -58,11 +58,14 @@ class Signature:
 
         setup(network, strict=True, force=True)
 
-    def fee(self) -> int:
+    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
         """
         Get Bitcoin transaction fee.
 
-        :returns: int -- Bitcoin transaction fee.
+        :param symbol: Bitcoin symbol, default to SATOSHI.
+        :type symbol: str
+
+        :returns: int, float -- Bitcoin transaction fee.
 
         >>> from swap.providers.bitcoin.signature import Signature
         >>> from swap.providers.bitcoin.solver import FundSolver
@@ -71,13 +74,16 @@ class Signature:
         >>> fund_solver = FundSolver(sender_root_xprivate_key)
         >>> signature = Signature("testnet")
         >>> signature.sign(unsigned_fund_transaction_raw, fund_solver)
-        >>> signature.fee()
+        >>> signature.fee(symbol="SATOSHI")
         678
         """
 
         if self._transaction is None:
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
-        return self._fee
+        if symbol not in ["BTC", "mBTC", "SATOSHI"]:
+            raise SymbolError("Invalid Bitcoin symbol, choose only BTC, mBTC or SATOSHI symbols.")
+        return self._fee if symbol == "SATOSHI" else \
+            amount_converter(amount=self._fee, symbol=f"SATOSHI2{symbol}")
 
     def hash(self) -> str:
         """

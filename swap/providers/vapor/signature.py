@@ -11,7 +11,7 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    TransactionRawError, NetworkError
+    TransactionRawError, NetworkError, SymbolError
 )
 from ..config import vapor as config
 from .transaction import Transaction
@@ -20,7 +20,7 @@ from .solver import (
 )
 from .rpc import decode_raw
 from .utils import (
-    is_network, is_transaction_raw
+    is_network, is_transaction_raw, amount_converter
 )
 
 
@@ -53,11 +53,14 @@ class Signature(Transaction):
 
         super().__init__(network)
 
-    def fee(self) -> int:
+    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
         """
         Get Vapor transaction fee.
 
-        :returns: int -- Vapor transaction fee.
+        :param symbol: Vapor symbol, default to NEU.
+        :type symbol: str
+
+        :returns: int, float -- Vapor transaction fee.
 
         >>> from swap.providers.vapor.signature import Signature
         >>> from swap.providers.vapor.solver import FundSolver
@@ -66,13 +69,16 @@ class Signature(Transaction):
         >>> fund_solver = FundSolver(sender_xprivate_key)
         >>> signature = Signature("mainnet")
         >>> signature.sign(unsigned_fund_transaction_raw, fund_solver)
-        >>> signature.fee()
-        10000000
+        >>> signature.fee(symbol="BTM")
+        0.1
         """
 
         if self._transaction is None:
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
-        return self._fee
+        if symbol not in ["BTM", "mBTM", "NEU"]:
+            raise SymbolError("Invalid Vapor symbol, choose only BTM, mBTM or NEU symbols.")
+        return self._fee if symbol == "NEU" else \
+            amount_converter(amount=self._fee, symbol=f"NEU2{symbol}")
 
     def hash(self) -> str:
         """

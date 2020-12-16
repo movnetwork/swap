@@ -3,12 +3,15 @@
 from pybytom.wallet import Wallet as HDWallet
 from pybytom.rpc import account_create
 from typing import (
-    Optional, List
+    Optional, List, Union
 )
 
 from ...utils import is_mnemonic
-from ...exceptions import NetworkError
+from ...exceptions import (
+    NetworkError, SymbolError
+)
 from ..config import vapor as config
+from .utils import amount_converter
 from .rpc import (
     get_balance, get_utxos
 )
@@ -524,23 +527,30 @@ class Wallet(HDWallet):
             network = self._network
         return self._hdwallet.address(network=network, vapor=True)
 
-    def balance(self, asset: str = config["asset"]) -> int:
+    def balance(self, asset: str = config["asset"], symbol: str = config["symbol"]) -> Union[int, float]:
         """
         Get Vapor wallet balance.
 
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
-        :return: int -- Vapor wallet balance (NEU amount).
+        :param symbol: Vapor symbol, default to NEU.
+        :type symbol: str
+
+        :return: int, float -- Vapor wallet balance.
 
         >>> from swap.providers.vapor.wallet import Wallet
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
         >>> wallet.from_path("m/44/153/1/0/1")
-        >>> wallet.balance()
-        47000000
+        >>> wallet.balance(symbol="BTM")
+        0.47000000
         """
 
-        return get_balance(address=self.address(), asset=asset, network=self._network)
+        if symbol not in ["BTM", "mBTM", "NEU"]:
+            raise SymbolError("Invalid Vapor symbol, choose only BTM, mBTM or NEU symbols.")
+        _balance: int = get_balance(address=self.address(), asset=asset, network=self._network)
+        return _balance if symbol == "NEU" else \
+            amount_converter(amount=_balance, symbol=f"NEU2{symbol}")
 
     def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
         """
