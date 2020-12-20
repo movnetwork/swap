@@ -10,16 +10,19 @@ from pybytom.script.opcode import (
 from equity import Equity
 from ctypes import c_int64
 from typing import (
-    Optional, List
+    Optional, List, Union
 )
 
-from ...exceptions import NetworkError
-from ..config import vapor as config
+from ...exceptions import (
+    NetworkError, SymbolError
+)
+from ..config import bytom as config
 from .rpc import (
     get_utxos, get_balance
 )
-from .utils import is_network
-
+from .utils import (
+    is_network, amount_converter
+)
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script
 HTLC_SCRIPT: str = """
@@ -224,24 +227,30 @@ class HTLC:
             raise ValueError("HTLC script is None, first build HTLC.")
         return get_p2wsh_address(script_hash=self.hash(), network=self._network, vapor=True)
     
-    def balance(self, asset: str = config["asset"]) -> int:
+    def balance(self, asset: str = config["asset"], symbol: str = config["symbol"]) -> Union[int, float]:
         """
         Get Vapor HTLC balance.
 
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
+        :param symbol: Vapor symbol, default to NEU.
+        :type symbol: str
 
-        :return: int -- Vapor HTLC balance (NEU amount).
+        :return: int, float -- Vapor HTLC balance.
 
         >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
         >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
-        >>> htlc.balance(asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        30000
+        >>> htlc.balance(asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", symbol="BTM")
+        0.22358
         """
 
-        return get_balance(address=self.address(), asset=asset, network=self._network)
+        if symbol not in ["BTM", "mBTM", "NEU"]:
+            raise SymbolError("Invalid Bytom symbol, choose only BTM, mBTM or NEU symbols.")
+        _balance: int = get_balance(address=self.address(), asset=asset, network=self._network)
+        return _balance if symbol == "NEU" else \
+            amount_converter(amount=_balance, symbol=f"NEU2{symbol}")
 
     def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
         """

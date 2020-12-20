@@ -12,14 +12,14 @@ from binascii import unhexlify
 import hashlib
 
 from ...exceptions import (
-    AddressError, NetworkError
+    AddressError, NetworkError, SymbolError
 )
 from ..config import bitcoin as config
 from .rpc import (
     get_balance, get_utxos
 )
 from .utils import (
-    get_address_hash, is_address, is_network
+    get_address_hash, is_address, is_network, amount_converter
 )
 
 
@@ -208,21 +208,28 @@ class HTLC:
             mainnet=(True if self._network == "mainnet" else False)
         ))
 
-    def balance(self) -> int:
+    def balance(self, symbol: str = config["symbol"]) -> Union[int, float]:
         """
         Get Bitcoin HTLC balance.
 
-        :return: int -- Bitcoin HTLC balance (SATOSHI amount).
+        :param symbol: Bitcoin symbol, default to SATOSHI.
+        :type symbol: str
+
+        :return: int, float -- Bitcoin wallet balance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="testnet")
         >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
-        >>> htlc.balance()
-        10000
+        >>> htlc.balance(symbol="SATOSHI")
+        1000010
         """
 
-        return get_balance(address=self.address(), network=self._network)
+        if symbol not in ["BTC", "mBTC", "SATOSHI"]:
+            raise SymbolError("Invalid Bitcoin symbol, choose only BTC, mBTC or SATOSHI symbols.")
+        _balance: int = get_balance(address=self.address(), network=self._network)
+        return _balance if symbol == "SATOSHI" else \
+            amount_converter(amount=_balance, symbol=f"SATOSHI2{symbol}")
 
     def utxos(self, limit: int = 15) -> list:
         """
