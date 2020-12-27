@@ -435,13 +435,10 @@ class ClaimSignature(Signature):
             elif indexes:
                 wallet.from_indexes(indexes)
             for unsigned_data in unsigned_datas:
-                if index == 0:
-                    signed_data.append(bytearray(secret.encode()).hex())
-                    signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str("00"))
-                    signed_data.append(solver.witness(self._network))
-                else:
-                    signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(bytearray(secret.encode()).hex())
+                signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(str("00"))
+                signed_data.append(solver.witness(self._network))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
 
@@ -532,12 +529,9 @@ class RefundSignature(Signature):
             elif indexes:
                 wallet.from_indexes(indexes)
             for unsigned_data in unsigned_datas:
-                if index == 0:
-                    signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str("01"))
-                    signed_data.append(solver.witness(self._network))
-                else:
-                    signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(str("01"))
+                signed_data.append(solver.witness(self._network))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
 

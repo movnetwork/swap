@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from pybytom.transaction import Transaction as VaporTransaction
-from pybytom.transaction.tools import find_p2wsh_utxo
 from pybytom.transaction.actions import (
     spend_wallet, spend_utxo, control_address
 )
@@ -9,17 +8,17 @@ from pybytom.wallet.tools import (
     indexes_to_path, get_program, get_address
 )
 from base64 import b64encode
-from typing import Optional
+from typing import Optional, Union
 
 import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    AddressError, NetworkError
+    AddressError, NetworkError, BalanceError, SymbolError
 )
 from ..config import vapor as config
 from .rpc import (
-    estimate_transaction_fee, build_transaction, decode_raw
+    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw
 )
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
@@ -56,20 +55,26 @@ class Transaction(VaporTransaction):
         self._fee: int = config["fee"]
         self._confirmations: int = config["confirmations"]
 
-    def fee(self) -> int:
+    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
         """
-        Get Bitcoin transaction fee.
+        Get Vapor transaction fee.
 
-        :returns: int -- Bitcoin transaction fee.
+        :param symbol: Vapor symbol, default to NEU.
+        :type symbol: str
+
+        :returns: int, float -- Vapor transaction fee.
 
         >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
         >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.fee()
+        >>> claim_transaction.fee(symbol="NEU")
         10000000
         """
 
-        return self._fee
+        if symbol not in ["BTM", "mBTM", "NEU"]:
+            raise SymbolError("Invalid Vapor symbol, choose only BTM, mBTM or NEU symbols.")
+        return self._fee if symbol == "NEU" else \
+            amount_converter(amount=self._fee, symbol=f"NEU2{symbol}")
 
     def hash(self) -> str:
         """
@@ -246,7 +251,7 @@ class FundTransaction(Transaction):
         self._htlc_address: Optional[str] = None
 
     def build_transaction(self, address: str, htlc_address: str, amount: int, asset: str = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"]) -> "FundTransaction":
+                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "FundTransaction":
         """
         Build Vapor fund transaction.
 
@@ -276,16 +281,36 @@ class FundTransaction(Transaction):
             raise AddressError(f"Invalid Vapor HTLC '{htlc_address}' {self._network} address.")
 
         # Set address, fee and confirmations
-        self._address, self._htlc_address, self._confirmations = (
-            address, htlc_address, config["confirmations"]
+        self._address, self._htlc_address, self._confirmations, i = (
+            address, htlc_address, config["confirmations"], None
         )
+        if "a" in kwargs.keys() and "p" in kwargs.keys():
+            i = int((amount * kwargs.get("p")) / 100)
+        amount = (amount + 449000) if isinstance(kwargs.get("f"), bool) and kwargs.get("f") else amount
+        amount = (amount + (i / 2)) if isinstance(kwargs.get("i"), bool) and kwargs.get("i") else amount
         if estimate_fee:
             self._fee = estimate_transaction_fee(
-                address=self._address, amount=amount, asset=asset,
-                confirmations=self._confirmations, network=self._network
+                address=self._address,
+                amount=amount if not i else (
+                        amount + ((i / 2) if isinstance(kwargs.get("i"), bool) and kwargs.get("i") else i)
+                ),
+                asset=asset, confirmations=self._confirmations, network=self._network
             )
         else:
             self._fee = config["fee"]
+        if not i and amount < self._fee or i and amount < (self._fee + i):
+            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+
+        outputs: list = [control_address(
+            asset=asset, amount=amount,
+            address=self._htlc_address, vapor=True
+        )]
+        if i:
+            outputs.append(control_address(
+                asset=asset, amount=(
+                    (i / 2) if isinstance(kwargs.get("i"), bool) and kwargs.get("i") else i
+                ), address=kwargs.get("a"), vapor=True
+            ))
 
         # Build transaction
         self._transaction = build_transaction(
@@ -301,14 +326,7 @@ class FundTransaction(Transaction):
                         amount=amount
                     )
                 ],
-                outputs=[
-                    control_address(
-                        asset=asset,
-                        amount=amount,
-                        address=self._htlc_address,
-                        vapor=True
-                    )
-                ]
+                outputs=outputs
             ),
             network=self._network
         )
@@ -426,8 +444,11 @@ class ClaimTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-    def build_transaction(self, address: str, transaction_id: str, amount: int, asset: str = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"]) -> "ClaimTransaction":
+        self._htlc_utxo: Optional[dict] = None
+
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
+                          max_amount: bool = config["max_amount"], asset: str = config["asset"],
+                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "ClaimTransaction":
         """
         Build Vapor claim transaction.
 
@@ -435,8 +456,10 @@ class ClaimTransaction(Transaction):
         :type address: str
         :param transaction_id: Vapor fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Vapor amount to withdraw.
+        :param amount: Vapor amount to withdraw, default to None.
         :type amount: int
+        :param max_amount: Vapor maximum amount to withdraw, default to True.
+        :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
         :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
@@ -455,29 +478,51 @@ class ClaimTransaction(Transaction):
             raise AddressError(f"Invalid Vapor recipient '{address}' {self._network} address.")
 
         # Find HTLC UTXO id.
-        htlc_utxo_id = find_p2wsh_utxo(
+        self._htlc_utxo, _ = find_p2wsh_utxo(
             transaction_id=transaction_id,
-            network=self._network,
-            vapor=True
+            network=self._network
         )
-        if htlc_utxo_id is None:
-            raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
+        # print(json.dumps(_, indent=4))
+        if self._htlc_utxo is None:
+            raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH) address.")
+        if max_amount:
+            amount = self._htlc_utxo["amount"]
+        elif amount is None:
+            raise ValueError("Amount is None, Set NEU amount or maximum amount.")
 
         # Set address, fee and confirmations
-        self._address, self._confirmations = (
-            address, config["confirmations"]
+        self._address, self._confirmations, i = (
+            address, config["confirmations"], None
         )
+        if "a" in kwargs.keys():
+            for output in _:
+                if output["address"] == kwargs.get("a") and output["position"] == 1:
+                    i = output["amount"]
         if estimate_fee:
             self._fee = estimate_transaction_fee(
-                address=self._address, amount=amount, asset=asset,
+                address=self._htlc_utxo["address"], amount=amount, asset=asset,
                 confirmations=self._confirmations, network=self._network
             )
         else:
             self._fee = config["fee"]
+        if amount < self._fee:
+            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+        if not self._htlc_utxo["amount"] >= ((amount - self._fee) if not i else (amount - (self._fee + i))):
+            raise BalanceError("Insufficient spend UTXO's",
+                               f"maximum you can withdraw {self._htlc_utxo['amount']} NEU amount.")
+        outputs: list = [control_address(
+            asset=asset, amount=((amount - self._fee) if not i else (amount - (self._fee + i))),
+            address=self._address, vapor=True
+        )]
+        if i:
+            outputs.append(control_address(
+                asset=asset, amount=i,
+                address=kwargs.get("a"), vapor=True
+            ))
 
         # Build transaction
         self._transaction = build_transaction(
-            address=self._address,
+            address=self._htlc_utxo["address"],
             transaction=dict(
                 fee=str(amount_converter(
                     amount=self._fee, symbol="NEU2BTM"
@@ -485,17 +530,10 @@ class ClaimTransaction(Transaction):
                 confirmations=self._confirmations,
                 inputs=[
                     spend_utxo(
-                        utxo=htlc_utxo_id
+                        utxo=self._htlc_utxo["id"]
                     )
                 ],
-                outputs=[
-                    control_address(
-                        asset=asset,
-                        amount=amount,
-                        address=self._address,
-                        vapor=True
-                    )
-                ]
+                outputs=outputs
             ),
             network=self._network
         )
@@ -544,13 +582,10 @@ class ClaimTransaction(Transaction):
             elif indexes:
                 wallet.from_indexes(indexes)
             for unsigned_data in unsigned_datas:
-                if index == 0:
-                    signed_data.append(bytearray(secret.encode()).hex())
-                    signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str("00"))
-                    signed_data.append(solver.witness(self._network))
-                else:
-                    signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(bytearray(secret.encode()).hex())
+                signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(str("00"))
+                signed_data.append(solver.witness(self._network))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
 
@@ -579,7 +614,7 @@ class ClaimTransaction(Transaction):
         if self._type == "vapor_claim_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
-                address=self._address,
+                address=self._htlc_utxo["address"],
                 raw=self.raw(),
                 hash=self.hash(),
                 unsigned_datas=self.unsigned_datas(
@@ -591,7 +626,7 @@ class ClaimTransaction(Transaction):
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
-            address=self._address,
+            address=self._htlc_utxo["address"],
             raw=self.raw(),
             hash=self.hash(),
             unsigned_datas=self.unsigned_datas(
@@ -617,10 +652,13 @@ class RefundTransaction(Transaction):
     """
 
     def __init__(self, network: str = config["network"]):
-        super().__init__(network)
+        super().__init__(network=network)
 
-    def build_transaction(self, address: str, transaction_id: str, amount: int, asset: str = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"]) -> "RefundTransaction":
+        self._htlc_utxo: Optional[dict] = None
+
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
+                          max_amount: bool = config["max_amount"], asset: str = config["asset"],
+                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "RefundTransaction":
         """
         Build Vapor refund transaction.
 
@@ -628,8 +666,10 @@ class RefundTransaction(Transaction):
         :type address: str
         :param transaction_id: Vapor fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Vapor amount to withdraw.
+        :param amount: Vapor amount to withdraw, default to None.
         :type amount: int
+        :param max_amount: Vapor maximum amount to withdraw, default to True.
+        :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str
         :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
@@ -647,30 +687,52 @@ class RefundTransaction(Transaction):
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
 
-        # Find HTLC UTXO id
-        htlc_utxo_id = find_p2wsh_utxo(
+        # Find HTLC UTXO id.
+        self._htlc_utxo, _ = find_p2wsh_utxo(
             transaction_id=transaction_id,
-            network=self._network,
-            vapor=True
+            network=self._network
         )
-        if htlc_utxo_id is None:
-            raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH).")
+        # print(json.dumps(_, indent=4))
+        if self._htlc_utxo is None:
+            raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH) address.")
+        if max_amount:
+            amount = self._htlc_utxo["amount"]
+        elif amount is None:
+            raise ValueError("Amount is None, Set NEU amount or maximum amount.")
 
         # Set address, fee and confirmations
-        self._address, self._confirmations = (
-            address, config["confirmations"]
+        self._address, self._confirmations, i = (
+            address, config["confirmations"], None
         )
+        if "a" in kwargs.keys():
+            for output in _:
+                if output["address"] == kwargs.get("a") and output["position"] == 1:
+                    i = output["amount"]
         if estimate_fee:
             self._fee = estimate_transaction_fee(
-                address=self._address, amount=amount, asset=asset,
+                address=self._htlc_utxo["address"], amount=amount, asset=asset,
                 confirmations=self._confirmations, network=self._network
             )
         else:
             self._fee = config["fee"]
+        if amount < self._fee:
+            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+        if not self._htlc_utxo["amount"] >= ((amount - self._fee) if not i else (amount - (self._fee + i))):
+            raise BalanceError("Insufficient spend UTXO's",
+                               f"maximum you can withdraw {self._htlc_utxo['amount']} NEU amount.")
+        outputs: list = [control_address(
+            asset=asset, amount=((amount - self._fee) if not i else (amount - (self._fee + i))),
+            address=self._address, vapor=True
+        )]
+        if i:
+            outputs.append(control_address(
+                asset=asset, amount=i,
+                address=kwargs.get("a"), vapor=True
+            ))
 
         # Build transaction
         self._transaction = build_transaction(
-            address=self._address,
+            address=self._htlc_utxo["address"],
             transaction=dict(
                 fee=str(amount_converter(
                     amount=self._fee, symbol="NEU2BTM"
@@ -678,17 +740,10 @@ class RefundTransaction(Transaction):
                 confirmations=self._confirmations,
                 inputs=[
                     spend_utxo(
-                        utxo=htlc_utxo_id
+                        utxo=self._htlc_utxo["id"]
                     )
                 ],
-                outputs=[
-                    control_address(
-                        asset=asset,
-                        amount=amount,
-                        address=self._address,
-                        vapor=True
-                    )
-                ]
+                outputs=outputs
             ),
             network=self._network
         )
@@ -737,12 +792,9 @@ class RefundTransaction(Transaction):
             elif indexes:
                 wallet.from_indexes(indexes)
             for unsigned_data in unsigned_datas:
-                if index == 0:
-                    signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str("01"))
-                    signed_data.append(solver.witness(self._network))
-                else:
-                    signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(str("01"))
+                signed_data.append(solver.witness(self._network))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
 
@@ -771,7 +823,7 @@ class RefundTransaction(Transaction):
         if self._type == "vapor_refund_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
-                address=self._address,
+                address=self._htlc_utxo["address"],
                 raw=self.raw(),
                 hash=self.hash(),
                 unsigned_datas=self.unsigned_datas(
@@ -783,7 +835,7 @@ class RefundTransaction(Transaction):
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
-            address=self._address,
+            address=self._htlc_utxo["address"],
             hash=self.hash(),
             raw=self.raw(),
             unsigned_datas=self.unsigned_datas(

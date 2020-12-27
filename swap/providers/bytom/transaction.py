@@ -668,7 +668,7 @@ class RefundTransaction(Transaction):
         :type address: str
         :param transaction_id: Bytom fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Bytom amount to withdraw.
+        :param amount: Bytom amount to withdraw, default to None.
         :type amount: int
         :param max_amount: Bytom maximum amount to withdraw, default to True.
         :type max_amount: bool
