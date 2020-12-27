@@ -4,7 +4,7 @@ from base64 import (
     b64encode, b64decode
 )
 from typing import (
-    Optional, Union
+    Optional, Union, List
 )
 
 import json
@@ -208,7 +208,7 @@ class Signature(Transaction):
                 transaction_raw=transaction_raw, solver=solver
             )
 
-    def unsigned_datas(self, *args, **kwargs) -> list:
+    def unsigned_datas(self, *args, **kwargs) -> List[dict]:
         """
         Get Bytom transaction unsigned datas with instruction.
 
@@ -230,7 +230,7 @@ class Signature(Transaction):
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
         return self._transaction["unsigned_datas"]
 
-    def signatures(self) -> list:
+    def signatures(self) -> List[List[str]]:
         """
         Get Bytom transaction signatures(signed datas).
 
@@ -435,13 +435,10 @@ class ClaimSignature(Signature):
             elif indexes:
                 wallet.from_indexes(indexes)
             for unsigned_data in unsigned_datas:
-                if index == 0:
-                    signed_data.append(bytearray(secret.encode()).hex())
-                    signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str("00"))
-                    signed_data.append(solver.witness(self._network))
-                else:
-                    signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(bytearray(secret.encode()).hex())
+                signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(str("00"))
+                signed_data.append(solver.witness(self._network))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
 
@@ -532,12 +529,9 @@ class RefundSignature(Signature):
             elif indexes:
                 wallet.from_indexes(indexes)
             for unsigned_data in unsigned_datas:
-                if index == 0:
-                    signed_data.append(wallet.sign(unsigned_data))
-                    signed_data.append(str("01"))
-                    signed_data.append(solver.witness(self._network))
-                else:
-                    signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(wallet.sign(unsigned_data))
+                signed_data.append(str("01"))
+                signed_data.append(solver.witness(self._network))
             self._signatures.append(signed_data)
             wallet.clean_derivation()
 
