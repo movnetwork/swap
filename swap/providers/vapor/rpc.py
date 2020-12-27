@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+from pybytom.libs.segwit import decode
+from binascii import unhexlify
+from typing import Optional
+
 import requests
 import json
 
@@ -231,6 +235,44 @@ def get_transaction(transaction_id: str, network: str = config["network"],
     if response.status_code == 200 and response.json()["code"] == 200:
         return response.json()["data"]["transaction"]
     raise APIError(f"Not found this '{transaction_id}' vapor transaction id.", 500)
+
+
+def find_p2wsh_utxo(transaction_id: str, network: str = config["network"]) -> tuple:
+    """
+    Find Vapor segwit pay to script hash UTXO info's.
+
+    :param transaction_id: Vapor transaction id/hash.
+    :type transaction_id: str
+    :param network: Vapor network, defaults to mainnet.
+    :type network: str
+
+    :returns: dict -- Pay to Witness Secript Hash (P2WSH) UTXO info's.
+
+    >>> from swap.providers.vapor.rpc import find_p2wsh_utxo
+    >>> find_p2wsh_utxo("0a1ac169a45be47583f72401e4d4fab70a41536cf298d6f261c15c9059cd0d03", "mainnet", False)
+    "cd0d03e4d4fab70a41536cf298d6f261c0a1ac169a45be47583f7240115c9059"
+    """
+
+    if network == "mainnet":
+        hrp = "vp"
+    elif network == "solonet":
+        hrp = "sp"
+    elif network == "testnet":
+        hrp = "tp"
+    else:
+        raise NetworkError(f"Invalid Vapor '{network}' network",
+                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+    contract_transaction: dict = get_transaction(
+        transaction_id=transaction_id, network=network
+    )
+    contract_outputs, utxo = contract_transaction["outputs"], None
+    for contract_output in contract_outputs:
+        _, address_hash = decode(hrp, contract_output["address"])
+        if address_hash is not None and \
+                len(unhexlify(bytearray(address_hash).hex())) == 32:  # deep
+            utxo = contract_output
+            break
+    return utxo, contract_outputs
 
 
 def decode_raw(raw: str, network: str = config["network"], 
