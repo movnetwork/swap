@@ -2,7 +2,6 @@
 
 from swap.providers.vapor.htlc import HTLC
 from swap.providers.vapor.assets import BTM as ASSET
-from swap.providers.vapor.utils import amount_converter
 from swap.utils import sha256
 
 # Choose network mainnet, solonet or testnet
@@ -33,5 +32,5 @@ print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC OP_Code:", htlc.opcode())
 print("HTLC Hash:", htlc.hash())
 print("HTLC Address:", htlc.address())
-print("HTLC Balance:", amount_converter(amount=htlc.balance(asset=ASSET), symbol="NEU2BTM"), "BTM")
+print("HTLC Balance:", htlc.balance(asset=ASSET, symbol="BTM"), "BTM")
 print("HTLC UTXO's:", htlc.utxos(asset=ASSET))

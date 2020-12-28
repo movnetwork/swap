@@ -5,16 +5,14 @@ from swap.providers.vapor.transaction import ClaimTransaction
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.providers.vapor.solver import ClaimSolver
 from swap.providers.vapor.signature import ClaimSignature
-from swap.providers.vapor.utils import (
-    submit_transaction_raw, amount_converter
-)
+from swap.providers.vapor.utils import submit_transaction_raw
 
 import json
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Vapor funded transaction id/hash
-TRANSACTION_ID: str = "969d871257b53c067f473b3894c68bf7be11673e4f3905d432954d97dbf34751"
+TRANSACTION_ID: str = "28168825b2eaded02973313b1c4152a6362157590ec8cd3f530306259eb390ce"
 # Vapor recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Witness Hash Time Lock Contract (HTLC) bytecode
@@ -24,8 +22,8 @@ BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b
                 "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
 # Secret key of HTLC
 SECRET_KEY: str = "Hello Meheret!"
-# Vapor fund amount
-AMOUNT: int = amount_converter(0.0001, "BTM2NEU")
+# Vapor maximum withdraw amount
+MAX_AMOUNT: bool = True
 
 print("=" * 10, "Recipient Vapor Account")
 
@@ -41,10 +39,8 @@ print("XPrivate Key:", recipient_wallet.xprivate_key())
 print("XPublic Key:", recipient_wallet.xpublic_key())
 print("Private Key:", recipient_wallet.private_key())
 print("Public Key:", recipient_wallet.public_key())
-print("Program:", recipient_wallet.program())
-print("Path:", recipient_wallet.path())
 print("Address:", recipient_wallet.address())
-print("Balance:", recipient_wallet.balance())
+print("Balance:", recipient_wallet.balance(asset=ASSET, symbol="BTM"), "BTM")
 
 print("=" * 10, "Unsigned Claim Transaction")
 
@@ -54,11 +50,11 @@ unsigned_claim_transaction: ClaimTransaction = ClaimTransaction(network=NETWORK)
 unsigned_claim_transaction.build_transaction(
     address=recipient_wallet.address(),
     transaction_id=TRANSACTION_ID,
-    amount=AMOUNT,
+    max_amount=MAX_AMOUNT,
     asset=ASSET
 )
 
-print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee())
+print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee(symbol="BTM"), "BTM")
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Main Raw:", unsigned_claim_transaction.raw())
 # print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
@@ -81,7 +77,7 @@ claim_solver: ClaimSolver = ClaimSolver(
 # Sign unsigned claim transaction
 signed_claim_transaction: ClaimTransaction = unsigned_claim_transaction.sign(claim_solver)
 
-print("Signed Claim Transaction Fee:", signed_claim_transaction.fee())
+print("Signed Claim Transaction Fee:", signed_claim_transaction.fee(symbol="BTM"), "BTM")
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Main Raw:", signed_claim_transaction.raw())
 # print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
@@ -102,7 +98,7 @@ claim_signature.sign(
     solver=claim_solver
 )
 
-print("Claim Signature Fee:", claim_signature.fee())
+print("Claim Signature Fee:", claim_signature.fee(symbol="BTM"), "BTM")
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Main Raw:", claim_signature.raw())
 # print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))

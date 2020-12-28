@@ -4,26 +4,24 @@ from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
 from swap.providers.bitcoin.transaction import ClaimTransaction
 from swap.providers.bitcoin.solver import ClaimSolver
 from swap.providers.bitcoin.signature import ClaimSignature
-from swap.providers.bitcoin.utils import (
-    submit_transaction_raw, amount_converter
-)
+from swap.providers.bitcoin.utils import submit_transaction_raw
 
 import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Bitcoin funded transaction id/hash
-TRANSACTION_ID: str = "5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318"
+TRANSACTION_ID: str = "868f81fd172b8f1d24e0c195af011489c3a7948513521d4b6257b8b5fb2ef409"
 # Bitcoin recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Witness Hash Time Lock Contract (HTLC) bytecode
-BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876" \
-                "a914acf8419eecab574c494febbe03fd07fdae7bf2f488ac6702e803b27576a9141d0f671c" \
-                "26a3ef7a865d1eda0fbd085e98adcc2388ac68"
+BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0" \
+                "1588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b275" \
+                "76a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
 # Secret key of HTLC
 SECRET_KEY: str = "Hello Meheret!"
-# Bitcoin claim amount
-AMOUNT: int = amount_converter(0.0001, "BTC2SATOSHI")
+# Bitcoin maximum withdraw amount
+MAX_AMOUNT: bool = True
 
 print("=" * 10, "Recipient Bitcoin Account")
 
@@ -35,25 +33,25 @@ recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
 recipient_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bitcoin recipient wallet info's
+print("Root XPrivate Key:", recipient_wallet.root_xprivate_key())
+print("Root XPublic Key:", recipient_wallet.root_xprivate_key())
 print("Private Key:", recipient_wallet.private_key())
 print("Public Key:", recipient_wallet.public_key())
-print("Wallet Important Format (WIF):", recipient_wallet.wif())
-print("Path:", recipient_wallet.path())
 print("Address:", recipient_wallet.address())
-print("Balance:", recipient_wallet.balance())
+print("Balance:", recipient_wallet.balance(symbol="BTC"), "BTC")
 
 print("=" * 10, "Unsigned Claim Transaction")
 
 # Initialize claim transaction
-unsigned_claim_transaction: ClaimTransaction = ClaimTransaction(version=2, network=NETWORK)
+unsigned_claim_transaction: ClaimTransaction = ClaimTransaction(network=NETWORK, version=2)
 # Build claim transaction
 unsigned_claim_transaction.build_transaction(
     address=recipient_wallet.address(),
     transaction_id=TRANSACTION_ID,
-    amount=AMOUNT
+    max_amount=MAX_AMOUNT
 )
 
-print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee())
+print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee(symbol="SATOSHI"), "SATOSHI")
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Main Raw:", unsigned_claim_transaction.raw())
 # print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
@@ -74,7 +72,7 @@ claim_solver: ClaimSolver = ClaimSolver(
 # Sing unsigned claim transaction
 signed_claim_transaction: ClaimTransaction = unsigned_claim_transaction.sign(solver=claim_solver)
 
-print("Signed Claim Transaction Fee:", signed_claim_transaction.fee())
+print("Signed Claim Transaction Fee:", signed_claim_transaction.fee(symbol="SATOSHI"), "SATOSHI")
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Main Raw:", signed_claim_transaction.raw())
 # print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
@@ -93,7 +91,7 @@ claim_signature.sign(
     solver=claim_solver
 )
 
-print("Claim Signature Fee:", claim_signature.fee())
+print("Claim Signature Fee:", claim_signature.fee(symbol="SATOSHI"), "SATOSHI")
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Main Raw:", claim_signature.raw())
 # print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))

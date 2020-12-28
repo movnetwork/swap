@@ -5,16 +5,14 @@ from swap.providers.vapor.transaction import RefundTransaction
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.providers.vapor.solver import RefundSolver
 from swap.providers.vapor.signature import RefundSignature
-from swap.providers.vapor.utils import (
-    submit_transaction_raw, amount_converter
-)
+from swap.providers.vapor.utils import submit_transaction_raw
 
 import json
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Vapor funded transaction id/hash
-TRANSACTION_ID: str = "969d871257b53c067f473b3894c68bf7be11673e4f3905d432954d97dbf34751"
+TRANSACTION_ID: str = "28168825b2eaded02973313b1c4152a6362157590ec8cd3f530306259eb390ce"
 # Vapor sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Witness Hash Time Lock Contract (HTLC) bytecode
@@ -22,8 +20,8 @@ BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b
                 "0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead1" \
                 "5a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa8" \
                 "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-# Vapor fund amount
-AMOUNT: int = amount_converter(0.0001, "BTM2NEU")
+# Vapor maximum refund amount
+MAX_AMOUNT: bool = True
 
 print("=" * 10, "Sender Vapor Account")
 
@@ -39,10 +37,8 @@ print("XPrivate Key:", sender_wallet.xprivate_key())
 print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
-print("Program:", sender_wallet.program())
-print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
-print("Balance:", sender_wallet.balance())
+print("Balance:", sender_wallet.balance(asset=ASSET, symbol="BTM"), "BTM")
 
 print("=" * 10, "Unsigned Refund Transaction")
 
@@ -52,11 +48,11 @@ unsigned_refund_transaction: RefundTransaction = RefundTransaction(network=NETWO
 unsigned_refund_transaction.build_transaction(
     address=sender_wallet.address(),
     transaction_id=TRANSACTION_ID,
-    amount=AMOUNT,
+    max_amount=MAX_AMOUNT,
     asset=ASSET
 )
 
-print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee())
+print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee(symbol="BTM"), "BTM")
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
 print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw())
 # print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
@@ -78,7 +74,7 @@ refund_solver: RefundSolver = RefundSolver(
 # Sign unsigned refund transaction
 signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(refund_solver)
 
-print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
+print("Signed Refund Transaction Fee:", signed_refund_transaction.fee(symbol="BTM"), "BTM")
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
 print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
@@ -99,7 +95,7 @@ refund_signature.sign(
     solver=refund_solver
 )
 
-print("Refund Signature Fee:", refund_signature.fee())
+print("Refund Signature Fee:", refund_signature.fee(symbol="BTM"), "BTM")
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Main Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))

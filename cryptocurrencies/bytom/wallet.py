@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-from swap.providers.bytom.utils import amount_converter
 from swap.providers.bytom.assets import BTM as ASSET
 from swap.utils import generate_entropy, generate_passphrase
 from typing import Optional
@@ -47,5 +46,5 @@ print("Private Key:", wallet.private_key())
 print("Public Key:", wallet.public_key())
 print("Program:", wallet.program())
 print("Address:", wallet.address())
-print("Balance:", amount_converter(amount=wallet.balance(asset=ASSET), symbol="NEU2BTM"), "BTM")
+print("Balance:", wallet.balance(asset=ASSET, symbol="BTM"), "BTM")
 print("UTXO's:", wallet.utxos(asset=ASSET))

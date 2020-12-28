@@ -4,24 +4,22 @@ from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
 from swap.providers.bitcoin.transaction import RefundTransaction
 from swap.providers.bitcoin.solver import RefundSolver
 from swap.providers.bitcoin.signature import RefundSignature
-from swap.providers.bitcoin.utils import (
-    submit_transaction_raw, amount_converter
-)
+from swap.providers.bitcoin.utils import submit_transaction_raw
 
 import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Bitcoin funded transaction id/hash
-TRANSACTION_ID: str = "5a9c45b067b26edb6ea3e735d20851efe23fe0653ad15d84276f5f8c9af32318"
+TRANSACTION_ID: str = "868f81fd172b8f1d24e0c195af011489c3a7948513521d4b6257b8b5fb2ef409"
 # Bitcoin sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Witness Hash Time Lock Contract (HTLC) bytecode
-BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876" \
-                "a914acf8419eecab574c494febbe03fd07fdae7bf2f488ac6702e803b27576a9141d0f671c" \
-                "26a3ef7a865d1eda0fbd085e98adcc2388ac68"
-# Bitcoin refund amount
-AMOUNT: int = amount_converter(0.0001, "BTC2SATOSHI")
+BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0" \
+                "1588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b275" \
+                "76a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+# Bitcoin maximum refund amount
+MAX_AMOUNT: bool = True
 
 print("=" * 10, "Sender Bitcoin Account")
 
@@ -33,12 +31,12 @@ sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bitcoin sender wallet info's
+print("Root XPrivate Key:", sender_wallet.root_xprivate_key())
+print("Root XPublic Key:", sender_wallet.root_xprivate_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
-print("Wallet Important Format (WIF):", sender_wallet.wif())
-print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
-print("Balance:", sender_wallet.balance())
+print("Balance:", sender_wallet.balance(symbol="BTC"), "BTC")
 
 print("=" * 10, "Unsigned Refund Transaction")
 
@@ -48,10 +46,10 @@ unsigned_refund_transaction: RefundTransaction = RefundTransaction(network=NETWO
 unsigned_refund_transaction.build_transaction(
     address=sender_wallet.address(),
     transaction_id=TRANSACTION_ID,
-    amount=AMOUNT
+    max_amount=MAX_AMOUNT
 )
 
-print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee())
+print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee(symbol="SATOSHI"), "SATOSHI")
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
 print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw())
 # print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
@@ -72,7 +70,7 @@ refund_solver: RefundSolver = RefundSolver(
 # Sing unsigned refund transaction
 signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(refund_solver)
 
-print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
+print("Signed Refund Transaction Fee:", signed_refund_transaction.fee(symbol="SATOSHI"), "SATOSHI")
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
 print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
@@ -91,7 +89,7 @@ refund_signature.sign(
     solver=refund_solver
 )
 
-print("Refund Signature Fee:", refund_signature.fee())
+print("Refund Signature Fee:", refund_signature.fee(symbol="SATOSHI"), "SATOSHI")
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Main Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))

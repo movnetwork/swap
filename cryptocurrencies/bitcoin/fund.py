@@ -17,7 +17,7 @@ SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing ov
 # Bitcoin Hash Time Lock Contract (HTLC) address
 HTLC_ADDRESS: str = "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae"
 # Bitcoin fund amount
-AMOUNT: int = amount_converter(0.0001, "BTC2SATOSHI")
+AMOUNT: int = amount_converter(amount=0.1, symbol="BTC2SATOSHI")
 
 print("=" * 10, "Sender Bitcoin Account")
 
@@ -29,12 +29,12 @@ sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bitcoin sender wallet info's
+print("Root XPrivate Key:", sender_wallet.root_xprivate_key())
+print("Root XPublic Key:", sender_wallet.root_xprivate_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
-print("Wallet Important Format (WIF):", sender_wallet.wif())
-print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
-print("Balance:", sender_wallet.balance())
+print("Balance:", sender_wallet.balance(symbol="BTC"), "BTC")
 
 print("=" * 10, "Unsigned Fund Transaction")
 
@@ -47,7 +47,7 @@ unsigned_fund_transaction.build_transaction(
     amount=AMOUNT
 )
 
-print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee())
+print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee(symbol="SATOSHI"), "SATOSHI")
 print("Unsigned Fund Transaction Hash:", unsigned_fund_transaction.hash())
 print("Unsigned Fund Transaction Main Raw:", unsigned_fund_transaction.raw())
 # print("Unsigned Fund Transaction Json:", json.dumps(unsigned_fund_transaction.json(), indent=4))
@@ -66,7 +66,7 @@ fund_solver: FundSolver = FundSolver(
 # Sing unsigned fund transaction
 signed_fund_transaction: FundTransaction = unsigned_fund_transaction.sign(solver=fund_solver)
 
-print("Signed Fund Transaction Fee:", signed_fund_transaction.fee())
+print("Signed Fund Transaction Fee:", signed_fund_transaction.fee(symbol="SATOSHI"), "SATOSHI")
 print("Signed Fund Transaction Hash:", signed_fund_transaction.hash())
 print("Signed Fund Transaction Main Raw:", signed_fund_transaction.raw())
 # print("Signed Fund Transaction Json:", json.dumps(signed_fund_transaction.json(), indent=4))
@@ -85,7 +85,7 @@ fund_signature.sign(
     solver=fund_solver
 )
 
-print("Fund Signature Fee:", fund_signature.fee())
+print("Fund Signature Fee:", fund_signature.fee(symbol="SATOSHI"), "SATOSHI")
 print("Fund Signature Hash:", fund_signature.hash())
 print("Fund Signature Main Raw:", fund_signature.raw())
 # print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))

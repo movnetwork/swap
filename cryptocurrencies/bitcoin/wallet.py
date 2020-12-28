@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
-from swap.providers.bitcoin.utils import amount_converter
 from swap.utils import generate_entropy, generate_passphrase
 from typing import Optional
 
@@ -43,11 +42,11 @@ print("Compressed:", wallet.compressed())
 print("Chain Code:", wallet.chain_code())
 print("Private Key:", wallet.private_key())
 print("Public Key:", wallet.public_key())
-print("Wallet Important Format (WIF):", wallet.wif())
-print("Public Kay/Address Hash:", wallet.hash())
+print("Wallet Important Format:", wallet.wif())
 print("Pay to Public Key Hash (P2PKH):", wallet.p2pkh())
+print("Hash:", wallet.hash())
 print("Finger Print:", wallet.finger_print())
 print("Path:", wallet.path())
 print("Address:", wallet.address())
-print("Balance:", amount_converter(amount=wallet.balance(), symbol="SATOSHI2BTC"), "BTC")
+print("Balance:", wallet.balance(symbol="BTC"), "BTC")
 print("UTXO's:", wallet.utxos())
