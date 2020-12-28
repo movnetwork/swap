@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from btcpy.structs.transaction import MutableTransaction
+from btcpy.structs.script import P2shScript
 from btcpy.setup import setup as stp
+from typing import Optional
 
 import requests
 import json
@@ -11,7 +13,7 @@ from ...exceptions import (
 )
 from ..config import bitcoin as config
 from .utils import (
-    is_network, is_address
+    is_network, is_address, get_address_type
 )
 
 
@@ -125,6 +127,28 @@ def get_transaction(transaction_id: str, network: str = config["network"],
     )
     response_json = response.json()
     return response_json
+
+
+def find_p2sh_utxo(transaction: dict) -> Optional[dict]:
+    """
+    Find Bitcoin pay to script hash UTXO info's.
+
+    :param transaction: Bitcoin transaction detail.
+    :type transaction: dict
+
+    :returns: dict -- Pay to Secript Hash (P2SH) UTXO info's.
+
+    >>> from swap.providers.bitcoin.rpc import find_p2sh_utxo, get_transaction
+    >>> find_p2sh_utxo(transaction=get_transaction("868f81fd172b8f1d24e0c195af011489c3a7948513521d4b6257b8b5fb2ef409", "testnet"))
+    {'value': 10050780, 'script': 'a9149418feed4647e156d6663db3e0cef7c050d0386787', 'addresses': ['2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae'], 'script_type': 'pay-to-script-hash'}
+    """
+
+    transaction_outputs, utxo = transaction["outputs"], None
+    for transaction_output in transaction_outputs:
+        if transaction_output["script_type"] == "pay-to-script-hash":
+            utxo = transaction_output
+            break
+    return utxo
 
 
 def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
