@@ -9,24 +9,26 @@ from btcpy.structs.transaction import (
 )
 from btcpy.structs.sig import P2shSolver
 from btcpy.setup import setup
-from typing import Optional
+from typing import (
+    Optional, Union
+)
 
 import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    BalanceError, AddressError, NetworkError
+    BalanceError, AddressError, NetworkError, SymbolError
 )
 from ..config import bitcoin as config
 from .utils import (
     fee_calculator, is_address, is_network, _get_previous_transaction_indexes,
-    _build_inputs, _build_outputs, get_address_hash
+    _build_inputs, _build_outputs, get_address_hash, amount_converter, get_address_type
 )
 from .solver import (
     FundSolver, ClaimSolver, RefundSolver
 )
 from .rpc import (
-    get_transaction, get_utxos
+    get_transaction, get_utxos, find_p2sh_utxo
 )
 
 
@@ -61,20 +63,26 @@ class Transaction:
 
         setup(network, strict=True, force=True)
 
-    def fee(self) -> int:
+    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
         """
         Get Bitcoin transaction fee.
 
-        :returns: int -- Bitcoin transaction fee.
+        :param symbol: Bitcoin symbol, default to SATOSHI.
+        :type symbol: str
+
+        :returns: int, float -- Bitcoin transaction fee.
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
         >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
-        >>> claim_transaction.fee()
+        >>> claim_transaction.fee(symbol="SATOSHI")
         576
         """
 
-        return self._fee
+        if symbol not in ["BTC", "mBTC", "SATOSHI"]:
+            raise SymbolError("Invalid Bitcoin symbol, choose only BTC, mBTC or SATOSHI symbols.")
+        return self._fee if symbol == "SATOSHI" else \
+            amount_converter(amount=self._fee, symbol=f"SATOSHI2{symbol}")
 
     def hash(self) -> str:
         """
@@ -169,9 +177,10 @@ class FundTransaction(Transaction):
         self._htlc_address: Optional[str] = None
         self._utxos: Optional[list] = None
         self._previous_transaction_indexes: Optional[list] = None
+        self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, htlc_address: str,
-                          amount: int, locktime: int = config["locktime"]) -> "FundTransaction":
+                          amount: int, locktime: int = config["locktime"], **kwargs) -> "FundTransaction":
         """
         Build Bitcoin fund transaction.
 
@@ -195,47 +204,73 @@ class FundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
-        if not is_address(htlc_address, self._network):
+        if not is_address(htlc_address, self._network) and get_address_type(htlc_address) == "p2sh":
             raise AddressError(f"Invalid Bitcoin HTLC '{htlc_address}' {self._network} address.")
 
-        self._address, self._htlc_address, self._amount = address, htlc_address, amount
-        # Get sender UTXO's
-        self._utxos = get_utxos(address=self._address, network=self._network)
-        # Find previous transaction indexes
-        self._previous_transaction_indexes = _get_previous_transaction_indexes(
-            utxos=self._utxos, amount=self._amount
+        self._address, self._htlc_address, self._amount = (
+            address, htlc_address, amount
+        )
+        # Get Sender UTXO's
+        self._utxos = get_utxos(
+            address=self._address, network=self._network
         )
 
-        # Build transaction input
-        inputs, amount = _build_inputs(
-            utxos=self._utxos,
-            previous_transaction_indexes=self._previous_transaction_indexes
+        if "options" in kwargs.keys():
+            options: dict = kwargs.get("options")
+            if "address" in options and "percent" in options:
+                self._interest = int((self._amount * options["percent"]) / 100)
+            if "fee" in options:
+                self._amount = (self._amount + fee_calculator(1, 2)) if options["fee"] else self._amount
+            if "interest" in options and self._interest:
+                self._amount = (self._amount + (self._interest / 2)) if options["interest"] else self._amount
+
+        # Get previous transaction indexes
+        self._previous_transaction_indexes, max_amount = _get_previous_transaction_indexes(
+            utxos=self._utxos, amount=(
+                self._amount if not self._interest else (self._amount + (
+                    self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
+            ), transaction_output=(2 if not self._interest else 3)
         )
-        # Calculating Bitcoin fee
-        self._fee = fee_calculator(len(inputs), 2)
-        if amount < (self._amount + self._fee):
+        # Build transaction inputs
+        inputs, amount = _build_inputs(
+            utxos=self._utxos, previous_transaction_indexes=self._previous_transaction_indexes
+        )
+
+        # Calculate the fee
+        self._fee = fee_calculator(len(inputs), (
+            2 if not self._interest else 3
+        ))
+        if amount < ((self._amount + self._fee) if not self._interest else (self._amount + self._fee + (
+                self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))):
             raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
 
-        # Build mutable Bitcoin transaction
-        self._transaction = MutableTransaction(
-            version=self._version,
-            ins=inputs,
-            outs=[
-                TxOut(
-                    value=self._amount,
-                    n=0,
-                    script_pubkey=get_address_hash(
-                        address=self._htlc_address, script=True
-                    )
-                ),
-                TxOut(
-                    value=(amount - (self._fee + self._amount)),
-                    n=1,
-                    script_pubkey=get_address_hash(
-                        address=self._address, script=True
-                    )
+        outputs: list = [TxOut(
+            value=int(self._amount), n=0,
+            script_pubkey=get_address_hash(
+                address=self._htlc_address, script=True
+            )
+        ), TxOut(
+            value=int(amount - ((self._amount + self._fee) if not self._interest else (self._amount + self._fee + (
+                self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))), n=1,
+            script_pubkey=get_address_hash(
+                address=self._address, script=True
+            )
+        )]
+        if self._interest:
+            outputs.append(TxOut(
+                value=int(
+                    self._interest if not kwargs["options"]["interest"] else (self._interest / 2)
+                ), n=2, script_pubkey=get_address_hash(
+                    address=kwargs["options"]["address"], script=True
                 )
-            ], locktime=Locktime(locktime))
+            ))
+
+        # Build mutable transaction
+        self._transaction = MutableTransaction(
+            version=self._version, ins=inputs, outs=outputs, locktime=Locktime(locktime)
+        )
+
+        # Set transaction type
         self._type = "bitcoin_fund_unsigned"
         return self
 
@@ -266,14 +301,15 @@ class FundTransaction(Transaction):
 
         # Organize outputs
         outputs = _build_outputs(
-            utxos=self._utxos,
-            previous_transaction_indexes=self._previous_transaction_indexes
+            utxos=self._utxos, previous_transaction_indexes=self._previous_transaction_indexes
         )
         # Sign fund transaction
         self._transaction.spend(
             txouts=outputs,
             solvers=[solver.solve(network=self._network) for _ in outputs]
         )
+
+        # Set transaction type
         self._type = "bitcoin_fund_signed"
         return self
 
@@ -334,11 +370,12 @@ class ClaimTransaction(Transaction):
         super().__init__(network=network, version=version)
 
         self._transaction_id: Optional[str] = None
-        self._transaction_detail: Optional[list] = None
-        self._htlc_detail: Optional[dict] = None
+        self._transaction_detail: Optional[dict] = None
+        self._htlc_utxo: Optional[dict] = None
 
     def build_transaction(self, address: str, transaction_id: str,
-                          amount: int, locktime: int = config["locktime"]) -> "ClaimTransaction":
+                          amount: Optional[int] = None, max_amount: bool = config["max_amount"],
+                          locktime: int = config["locktime"], **kwargs) -> "ClaimTransaction":
         """
         Build Bitcoin claim transaction.
 
@@ -346,8 +383,10 @@ class ClaimTransaction(Transaction):
         :type address: str
         :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Bitcoin amount to withdraw.
+        :param amount: Bitcoin amount to withdraw, default to None.
         :type amount: int
+        :param max_amount: Bitcoin maximum amount to withdraw, default to True.
+        :type max_amount: bool
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -363,45 +402,79 @@ class ClaimTransaction(Transaction):
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin recipient '{address}' {self._network} address.")
 
-        self._address, self._transaction_id, self._amount = address, transaction_id, amount
-        # Get transaction detail
+        self._address, self._transaction_id, = address, transaction_id
+        # Get transaction
         self._transaction_detail = get_transaction(
             transaction_id=self._transaction_id, network=self._network
         )
-        try:
-            # Get Hash time lock contract output detail
-            self._htlc_detail = self._transaction_detail["outputs"][0]
-        except KeyError:
-            raise ValueError("Invalid transaction id/hash, please check network/hash.")
+        # Find HTLC UTXO
+        self._htlc_utxo = find_p2sh_utxo(transaction=self._transaction_detail)
+        if self._htlc_utxo is None:
+            raise ValueError("Invalid transaction id, there is no pay to script hash (P2SH) address.")
 
-        # Calculate fee
-        self._fee = fee_calculator(1, 1)
-        if amount < self._fee:
+        if max_amount:
+            self._amount = self._htlc_utxo["value"]
+        elif amount is None:
+            raise ValueError("Amount is None, Set SATOSHI amount or set maximum amount true.")
+        else:
+            self._amount = amount
+
+        interest: Optional[int] = None
+        if "options" in kwargs.keys():
+            options: dict = kwargs.get("options")
+            for transaction_output in self._transaction_detail["outputs"]:
+                if transaction_output["script"] == get_address_hash(
+                        address=options["address"], script=True).hexlify():
+                    interest = transaction_output["value"]
+        # Calculate the fee
+        self._fee = fee_calculator(1, ((
+            1 if self._htlc_utxo["value"] == self._amount else 2
+        ) if not interest else (
+            2 if self._htlc_utxo["value"] == self._amount else 3
+        )))
+
+        if self._amount < self._fee:
             raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
-        elif not self._htlc_detail["value"] >= (amount - self._fee):
+        elif self._htlc_utxo["value"] < self._amount:
             raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can withdraw {self._htlc_detail['value']} amount.")
+                               f"maximum you can withdraw {self._htlc_utxo['value']} SATOSHI amount.")
 
-        # Build transaction
+        outputs: list = [TxOut(
+            value=(
+                (self._amount - self._fee) if not interest else (self._amount - (self._fee + interest))
+            ), n=0, script_pubkey=get_address_hash(
+                address=self._address, script=True
+            )
+        )]
+        if self._htlc_utxo["value"] != self._amount:
+            outputs.append(TxOut(
+                value=(
+                    self._htlc_utxo["value"] - self._amount
+                ), n=len(outputs), script_pubkey=P2shScript.unhexlify(
+                    self._htlc_utxo["script"]
+                )
+            ))
+        if interest:
+            options: dict = kwargs.get("options")
+            outputs.append(TxOut(
+                value=interest, n=len(outputs), script_pubkey=get_address_hash(
+                    address=options["address"], script=True
+                )
+            ))
+
+        # Build mutable transaction
         self._transaction = MutableTransaction(
             version=self._version,
-            ins=[
-                TxIn(
-                    txid=self._transaction_id,
-                    txout=0,
-                    script_sig=ScriptSig.empty(),
-                    sequence=Sequence.max()
-                )
-            ],
-            outs=[
-                TxOut(
-                    value=(amount - self._fee),
-                    n=0,
-                    script_pubkey=get_address_hash(
-                        address=self._address, script=True
-                    )
-                )
-            ], locktime=Locktime(locktime))
+            ins=[TxIn(
+                txid=self._transaction_id,
+                txout=0, script_sig=ScriptSig.empty(),
+                sequence=Sequence.max()
+            )],
+            outs=outputs,
+            locktime=Locktime(locktime)
+        )
+
+        # Set transaction type
         self._type = "bitcoin_claim_unsigned"
         return self
 
@@ -434,10 +507,10 @@ class ClaimTransaction(Transaction):
 
         self._transaction.spend([
             TxOut(
-                value=self._htlc_detail["value"],
+                value=self._htlc_utxo["value"],
                 n=0,
                 script_pubkey=P2shScript.unhexlify(
-                    hex_string=self._htlc_detail["script"]
+                    hex_string=self._htlc_utxo["script"]
                 )
             )
         ], [
@@ -450,6 +523,8 @@ class ClaimTransaction(Transaction):
                 )
             )
         ])
+
+        # Set transaction type
         self._type = "bitcoin_claim_signed"
         return self
 
@@ -482,9 +557,9 @@ class ClaimTransaction(Transaction):
             fee=self._fee,
             raw=self._transaction.hexlify(),
             outputs=dict(
-                value=self._htlc_detail["value"],
+                value=self._htlc_utxo["value"],
                 tx_output_n=0,
-                script=self._htlc_detail["script"]
+                script=self._htlc_utxo["script"]
             ),
             network=self._network,
             type=self._type
@@ -511,10 +586,11 @@ class RefundTransaction(Transaction):
 
         self._transaction_id: Optional[str] = None
         self._transaction_detail: Optional[list] = None
-        self._htlc_detail: Optional[dict] = None
+        self._htlc_utxo: Optional[dict] = None
 
     def build_transaction(self, address: str, transaction_id: str,
-                          amount: int, locktime: int = config["locktime"]) -> "RefundTransaction":
+                          amount: Optional[int] = None, max_amount: bool = config["max_amount"],
+                          locktime: int = config["locktime"], **kwargs) -> "RefundTransaction":
         """
         Build Bitcoin refund transaction.
 
@@ -522,8 +598,10 @@ class RefundTransaction(Transaction):
         :type address: str
         :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
-        :param amount: Bitcoin amount to withdraw.
+        :param amount: Bitcoin amount to withdraw, default to None.
         :type amount: int
+        :param max_amount: Bitcoin maximum amount to withdraw, default to True.
+        :type max_amount: bool
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -539,45 +617,80 @@ class RefundTransaction(Transaction):
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
 
-        self._address, self._transaction_id, self._amount = address, transaction_id, amount
-        # Get transaction detail
+        self._address, self._transaction_id, = address, transaction_id
+        # Get transaction
         self._transaction_detail = get_transaction(
             transaction_id=self._transaction_id, network=self._network
         )
-        try:
-            # Get Hash time lock contract output detail
-            self._htlc_detail = self._transaction_detail["outputs"][0]
-        except KeyError:
-            raise ValueError("Invalid transaction id/hash, please check network/hash.")
+        # Find HTLC UTXO
+        self._htlc_utxo = find_p2sh_utxo(transaction=self._transaction_detail)
+        if self._htlc_utxo is None:
+            raise ValueError("Invalid transaction id, there is no pay to script hash (P2SH) address.")
 
-        # Calculate fee
-        self._fee = fee_calculator(1, 1)
-        if amount < self._fee:
+        if max_amount:
+            self._amount = self._htlc_utxo["value"]
+        elif amount is None:
+            raise ValueError("Amount is None, Set SATOSHI amount or set maximum amount true.")
+        else:
+            self._amount = amount
+
+        interest: Optional[int] = None
+        if "options" in kwargs.keys():
+            options: dict = kwargs.get("options")
+            for transaction_output in self._transaction_detail["outputs"]:
+                if transaction_output["script"] == get_address_hash(
+                        address=options["address"], script=True).hexlify():
+                    interest = transaction_output["value"]
+
+        # Calculate the fee
+        self._fee = fee_calculator(1, ((
+           1 if self._htlc_utxo["value"] == self._amount else 2
+       ) if not interest else (
+            2 if self._htlc_utxo["value"] == self._amount else 3
+        )))
+
+        if self._amount < self._fee:
             raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
-        elif not self._htlc_detail["value"] >= (amount - self._fee):
+        elif self._htlc_utxo["value"] < self._amount:
             raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can withdraw {self._htlc_detail['value']} amount.")
+                               f"maximum you can refund {self._htlc_utxo['value']} SATOSHI amount.")
 
-        # Build transaction
+        outputs: list = [TxOut(
+            value=(
+                (self._amount - self._fee) if not interest else (self._amount - (self._fee + interest))
+            ), n=0, script_pubkey=get_address_hash(
+                address=self._address, script=True
+            )
+        )]
+        if self._htlc_utxo["value"] != self._amount:
+            outputs.append(TxOut(
+                value=(
+                        self._htlc_utxo["value"] - self._amount
+                ), n=len(outputs), script_pubkey=P2shScript.unhexlify(
+                    self._htlc_utxo["script"]
+                )
+            ))
+        if interest:
+            options: dict = kwargs.get("options")
+            outputs.append(TxOut(
+                value=interest, n=len(outputs), script_pubkey=get_address_hash(
+                    address=options["address"], script=True
+                )
+            ))
+
+        # Build mutable transaction
         self._transaction = MutableTransaction(
             version=self._version,
-            ins=[
-                TxIn(
-                    txid=self._transaction_id,
-                    txout=0,
-                    script_sig=ScriptSig.empty(),
-                    sequence=Sequence.max()
-                )
-            ],
-            outs=[
-                TxOut(
-                    value=(amount - self._fee),
-                    n=0,
-                    script_pubkey=get_address_hash(
-                        address=self._address, script=True
-                    )
-                )
-            ], locktime=Locktime(locktime))
+            ins=[TxIn(
+                txid=self._transaction_id,
+                txout=0, script_sig=ScriptSig.empty(),
+                sequence=Sequence.max()
+            )],
+            outs=outputs,
+            locktime=Locktime(locktime)
+        )
+
+        # Set transaction type
         self._type = "bitcoin_refund_unsigned"
         return self
 
@@ -610,10 +723,10 @@ class RefundTransaction(Transaction):
 
         self._transaction.spend([
             TxOut(
-                value=self._htlc_detail["value"],
+                value=self._htlc_utxo["value"],
                 n=0,
                 script_pubkey=P2shScript.unhexlify(
-                    hex_string=self._htlc_detail["script"]
+                    hex_string=self._htlc_utxo["script"]
                 )
             )
         ], [
@@ -626,6 +739,8 @@ class RefundTransaction(Transaction):
                 )
             )
         ])
+
+        # Set transaction type
         self._type = "bitcoin_refund_signed"
         return self
 
@@ -658,9 +773,9 @@ class RefundTransaction(Transaction):
             fee=self._fee,
             raw=self._transaction.hexlify(),
             outputs=dict(
-                value=self._htlc_detail["value"],
+                value=self._htlc_utxo["value"],
                 tx_output_n=0,
-                script=self._htlc_detail["script"]
+                script=self._htlc_utxo["script"]
             ),
             network=self._network,
             type=self._type

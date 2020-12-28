@@ -13,7 +13,7 @@ from btcpy.structs.script import (
 )
 from base64 import b64decode
 from typing import (
-    Union, Optional
+    Union, Optional, Tuple
 )
 
 import requests
@@ -325,16 +325,18 @@ def get_address_hash(address: str, script: bool = False) -> Union[str, P2pkhScri
         return P2shScript(loaded_address)
 
 
-def _get_previous_transaction_indexes(utxos: list, amount: int) -> list:
-    temp_amount = int()
-    previous_transaction_indexes = list()
+def _get_previous_transaction_indexes(utxos: list, amount: int, transaction_output: int = 2) -> Tuple[list, int]:
+    temp_amount, max_amount = 0, 0
+    previous_transaction_indexes: list = []
     for index, utxo in enumerate(utxos):
         temp_amount += utxo["value"]
-        if temp_amount > (amount + fee_calculator((index + 1), 2)):
+        if temp_amount > (amount + fee_calculator((index + 1), transaction_output)):
             previous_transaction_indexes.append(index)
             break
         previous_transaction_indexes.append(index)
-    return previous_transaction_indexes
+    for utxo in utxos:
+        max_amount += utxo["value"]
+    return previous_transaction_indexes, max_amount
 
 
 def _build_inputs(utxos: list, previous_transaction_indexes: Optional[list] = None) -> tuple:
