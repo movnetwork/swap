@@ -204,7 +204,7 @@ class FundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
-        if not is_address(htlc_address, self._network) and get_address_type(htlc_address) == "p2sh":
+        if not is_address(htlc_address, self._network) and get_address_type(htlc_address) != "p2sh":
             raise AddressError(f"Invalid Bitcoin HTLC '{htlc_address}' {self._network} address.")
 
         self._address, self._htlc_address, self._amount = (
@@ -372,6 +372,7 @@ class ClaimTransaction(Transaction):
         self._transaction_id: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
+        self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, transaction_id: str,
                           amount: Optional[int] = None, max_amount: bool = config["max_amount"],
@@ -402,6 +403,7 @@ class ClaimTransaction(Transaction):
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin recipient '{address}' {self._network} address.")
 
+        # Set address and transaction_id
         self._address, self._transaction_id, = address, transaction_id
         # Get transaction
         self._transaction_detail = get_transaction(
@@ -419,17 +421,17 @@ class ClaimTransaction(Transaction):
         else:
             self._amount = amount
 
-        interest: Optional[int] = None
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
             for transaction_output in self._transaction_detail["outputs"]:
                 if transaction_output["script"] == get_address_hash(
                         address=options["address"], script=True).hexlify():
-                    interest = transaction_output["value"]
+                    self._interest = transaction_output["value"]
+
         # Calculate the fee
         self._fee = fee_calculator(1, ((
             1 if self._htlc_utxo["value"] == self._amount else 2
-        ) if not interest else (
+        ) if not self._interest else (
             2 if self._htlc_utxo["value"] == self._amount else 3
         )))
 
@@ -441,7 +443,7 @@ class ClaimTransaction(Transaction):
 
         outputs: list = [TxOut(
             value=(
-                (self._amount - self._fee) if not interest else (self._amount - (self._fee + interest))
+                (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
             ), n=0, script_pubkey=get_address_hash(
                 address=self._address, script=True
             )
@@ -454,10 +456,10 @@ class ClaimTransaction(Transaction):
                     self._htlc_utxo["script"]
                 )
             ))
-        if interest:
+        if self._interest:
             options: dict = kwargs.get("options")
             outputs.append(TxOut(
-                value=interest, n=len(outputs), script_pubkey=get_address_hash(
+                value=self._interest, n=len(outputs), script_pubkey=get_address_hash(
                     address=options["address"], script=True
                 )
             ))
