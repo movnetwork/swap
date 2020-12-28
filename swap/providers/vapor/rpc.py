@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from pybytom.libs.segwit import decode
-from binascii import unhexlify
 from typing import Optional
 
 import requests
@@ -12,7 +10,7 @@ from ...exceptions import (
 )
 from ..config import vapor as config
 from .utils import (
-    is_network, is_address, amount_converter
+    is_network, is_address, amount_converter, get_address_type
 )
 
 
@@ -237,42 +235,26 @@ def get_transaction(transaction_id: str, network: str = config["network"],
     raise APIError(f"Not found this '{transaction_id}' vapor transaction id.", 500)
 
 
-def find_p2wsh_utxo(transaction_id: str, network: str = config["network"]) -> tuple:
+def find_p2wsh_utxo(transaction: dict) -> Optional[dict]:
     """
-    Find Vapor segwit pay to script hash UTXO info's.
+    Find Vapor pay to witness script hash UTXO info's.
 
-    :param transaction_id: Vapor transaction id/hash.
-    :type transaction_id: str
-    :param network: Vapor network, defaults to mainnet.
-    :type network: str
+    :param transaction: Vapor transaction detail.
+    :type transaction: dict
 
     :returns: dict -- Pay to Witness Secript Hash (P2WSH) UTXO info's.
 
-    >>> from swap.providers.vapor.rpc import find_p2wsh_utxo
-    >>> find_p2wsh_utxo("0a1ac169a45be47583f72401e4d4fab70a41536cf298d6f261c15c9059cd0d03", "mainnet", False)
-    "cd0d03e4d4fab70a41536cf298d6f261c0a1ac169a45be47583f7240115c9059"
+    >>> from swap.providers.vapor.rpc import find_p2wsh_utxo, get_transaction
+    >>> find_p2wsh_utxo(transaction=get_transaction("28168825b2eaded02973313b1c4152a6362157590ec8cd3f530306259eb390ce", "mainnet"))
+    {'type': 'control', 'id': 'e99f811f25837d0472321e4e237631f40912bf4ca40766a46c8064ccff77d03a', 'position': 0, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10499000, 'control_program': '00204f8f0e88d0a44b3d884b07b6dd4536518ffcbb596a91ca0e6b2f37e96463bbfc', 'address': 'vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37', 'decimals': 8, 'decode_program': ['DUP ', 'SHA3 ', 'DATA_32 4f8f0e88d0a44b3d884b07b6dd4536518ffcbb596a91ca0e6b2f37e96463bbfc', 'EQUALVERIFY ', 'DATA_8 ffffffffffffffff', 'SWAP ', 'FALSE ', 'CHECKPREDICATE '], 'symbol': 'BTM'}
     """
 
-    if network == "mainnet":
-        hrp = "vp"
-    elif network == "solonet":
-        hrp = "sp"
-    elif network == "testnet":
-        hrp = "tp"
-    else:
-        raise NetworkError(f"Invalid Vapor '{network}' network",
-                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
-    contract_transaction: dict = get_transaction(
-        transaction_id=transaction_id, network=network
-    )
-    contract_outputs, utxo = contract_transaction["outputs"], None
-    for contract_output in contract_outputs:
-        _, address_hash = decode(hrp, contract_output["address"])
-        if address_hash is not None and \
-                len(unhexlify(bytearray(address_hash).hex())) == 32:  # deep
-            utxo = contract_output
+    transaction_outputs, utxo = transaction["outputs"], None
+    for transaction_output in transaction_outputs:
+        if get_address_type(transaction_output["address"]) == "p2wsh":
+            utxo = transaction_output
             break
-    return utxo, contract_outputs
+    return utxo
 
 
 def decode_raw(raw: str, network: str = config["network"], 
