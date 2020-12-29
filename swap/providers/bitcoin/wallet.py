@@ -13,10 +13,10 @@ from typing import (
 
 from ...utils import is_mnemonic
 from ...exceptions import (
-    NetworkError, SymbolError
+    NetworkError, UnitError
 )
 from ..config import bitcoin as config
-from .utils import amount_converter
+from .utils import amount_unit_converter
 from .rpc import (
     get_balance, get_utxos
 )
@@ -583,12 +583,12 @@ class Wallet(HDWallet):
 
         return P2pkhScript(Address.from_string(self.address())).hexlify()
 
-    def balance(self, symbol: str = config["symbol"]) -> Union[int, float]:
+    def balance(self, unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bitcoin wallet balance.
 
-        :param symbol: Bitcoin symbol, default to SATOSHI.
-        :type symbol: str
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
 
         :return: int, float -- Bitcoin wallet balance.
 
@@ -596,15 +596,15 @@ class Wallet(HDWallet):
         >>> wallet = Wallet(network="testnet")
         >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
         >>> wallet.from_path("m/44'/0'/0'/0/0")
-        >>> wallet.balance(symbol="SATOSHI")
+        >>> wallet.balance(unit="SATOSHI")
         67966
         """
 
-        if symbol not in ["BTC", "mBTC", "SATOSHI"]:
-            raise SymbolError("Invalid Bitcoin symbol, choose only BTC, mBTC or SATOSHI symbols.")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or SATOSHI units.")
         _balance: int = get_balance(address=self.address(), network=self._network)
-        return _balance if symbol == "SATOSHI" else \
-            amount_converter(amount=_balance, symbol=f"SATOSHI2{symbol}")
+        return _balance if unit == "SATOSHI" else \
+            amount_unit_converter(amount=_balance, unit_from=f"SATOSHI2{unit}")
 
     def utxos(self, limit: int = 15) -> list:
         """

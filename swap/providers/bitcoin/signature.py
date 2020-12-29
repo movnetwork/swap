@@ -17,14 +17,14 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    TransactionRawError, NetworkError, SymbolError
+    TransactionRawError, NetworkError, UnitError
 )
 from ..config import bitcoin as config
 from .solver import (
     NormalSolver, FundSolver, ClaimSolver, RefundSolver
 )
 from .utils import (
-    is_transaction_raw, is_network, amount_converter
+    is_transaction_raw, is_network, amount_unit_converter
 )
 
 
@@ -58,12 +58,12 @@ class Signature:
 
         setup(network, strict=True, force=True)
 
-    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
+    def fee(self, unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bitcoin transaction fee.
 
-        :param symbol: Bitcoin symbol, default to SATOSHI.
-        :type symbol: str
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
 
         :returns: int, float -- Bitcoin transaction fee.
 
@@ -74,16 +74,16 @@ class Signature:
         >>> fund_solver = FundSolver(sender_root_xprivate_key)
         >>> signature = Signature("testnet")
         >>> signature.sign(unsigned_fund_transaction_raw, fund_solver)
-        >>> signature.fee(symbol="SATOSHI")
+        >>> signature.fee(unit="SATOSHI")
         678
         """
 
         if self._transaction is None:
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
-        if symbol not in ["BTC", "mBTC", "SATOSHI"]:
-            raise SymbolError("Invalid Bitcoin symbol, choose only BTC, mBTC or SATOSHI symbols.")
-        return self._fee if symbol == "SATOSHI" else \
-            amount_converter(amount=self._fee, symbol=f"SATOSHI2{symbol}")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or SATOSHI units.")
+        return self._fee if unit == "SATOSHI" else \
+            amount_unit_converter(amount=self._fee, unit_from=f"SATOSHI2{unit}")
 
     def hash(self) -> str:
         """

@@ -17,12 +17,12 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    BalanceError, AddressError, NetworkError, SymbolError
+    BalanceError, AddressError, NetworkError, UnitError
 )
 from ..config import bitcoin as config
 from .utils import (
     fee_calculator, is_address, is_network, _get_previous_transaction_indexes,
-    _build_inputs, _build_outputs, get_address_hash, amount_converter, get_address_type
+    _build_inputs, _build_outputs, get_address_hash, amount_unit_converter, get_address_type
 )
 from .solver import (
     NormalSolver, FundSolver, ClaimSolver, RefundSolver
@@ -63,26 +63,26 @@ class Transaction:
 
         setup(network, strict=True, force=True)
 
-    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
+    def fee(self, unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bitcoin transaction fee.
 
-        :param symbol: Bitcoin symbol, default to SATOSHI.
-        :type symbol: str
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
 
         :returns: int, float -- Bitcoin transaction fee.
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
         >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
-        >>> claim_transaction.fee(symbol="SATOSHI")
+        >>> claim_transaction.fee(unit="SATOSHI")
         576
         """
 
-        if symbol not in ["BTC", "mBTC", "SATOSHI"]:
-            raise SymbolError("Invalid Bitcoin symbol, choose only BTC, mBTC or SATOSHI symbols.")
-        return self._fee if symbol == "SATOSHI" else \
-            amount_converter(amount=self._fee, symbol=f"SATOSHI2{symbol}")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or SATOSHI units.")
+        return self._fee if unit == "SATOSHI" else \
+            amount_unit_converter(amount=self._fee, unit_from=f"SATOSHI2{unit}")
 
     def hash(self) -> str:
         """

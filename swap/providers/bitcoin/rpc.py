@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from btcpy.structs.transaction import MutableTransaction
-from btcpy.structs.script import P2shScript
 from btcpy.setup import setup as stp
 from typing import Optional
 
@@ -13,7 +12,7 @@ from ...exceptions import (
 )
 from ..config import bitcoin as config
 from .utils import (
-    is_network, is_address, get_address_type
+    is_network, is_address
 )
 
 
