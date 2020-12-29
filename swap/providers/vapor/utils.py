@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from base64 import b64decode
-from pybytom.utils import is_address as btm_is_address
+from pyvapor.utils import is_address as btm_is_address
 from typing import Optional, Union
 
 import requests
@@ -15,40 +15,40 @@ from ...exceptions import (
 from ..config import vapor as config
 
 
-def amount_converter(amount: Union[int, float], symbol: str = "NEU2BTM") -> Union[int, float]:
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM") -> Union[int, float]:
     """
-    Vapor amount converter.
+    Vapor amount unit converter
 
-    :param amount: Vapor amount.
+    :param amount: Vapor any amount.
     :type amount: int, float
-    :param symbol: Vapor symbol, default to NEU2BTM.
-    :type symbol: str
+    :param unit_from: Vapor unit convert from symbol, default to NEU2BTM.
+    :type unit_from: str
 
     :returns: int, float -- BTM asset amount.
 
-    >>> from swap.providers.vapor.utils import amount_converter
-    >>> amount_converter(amount=10_000_000, symbol="NEU2BTM")
+    >>> from swap.providers.vapor.utils import amount_unit_converter
+    >>> amount_unit_converter(amount=10_000_000, unit_from="NEU2BTM")
     0.1
     """
 
-    if symbol not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
-        raise SymbolError(f"Invalid '{symbol}' symbol/type",
+    if unit_from not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
+        raise SymbolError(f"Invalid Vapor '{unit_from}' unit convert from symbol",
                           "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', 'NEU2BTM' or 'NEU2mBTM' symbols.")
 
-    # Constant values
+    # Constant unit values
     BTM, mBTM, NEU = (1, 1000, 100_000_000)
 
-    if symbol == "BTM2mBTM":
+    if unit_from == "BTM2mBTM":
         return float((amount * mBTM) / BTM)
-    elif symbol == "BTM2NEU":
+    elif unit_from == "BTM2NEU":
         return int((amount * NEU) / BTM)
-    elif symbol == "mBTM2BTM":
+    elif unit_from == "mBTM2BTM":
         return float((amount * BTM) / mBTM)
-    elif symbol == "mBTM2NEU":
+    elif unit_from == "mBTM2NEU":
         return int((amount * NEU) / mBTM)
-    elif symbol == "NEU2BTM":
+    elif unit_from == "NEU2BTM":
         return float((amount * BTM) / NEU)
-    elif symbol == "NEU2mBTM":
+    elif unit_from == "NEU2mBTM":
         return int((amount * mBTM) / NEU)
 
 

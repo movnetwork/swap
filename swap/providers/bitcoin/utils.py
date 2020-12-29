@@ -28,41 +28,41 @@ from ...exceptions import (
 from ..config import bitcoin as config
 
 
-def amount_converter(amount: Union[int, float], symbol: str = "SATOSHI2BTC") -> Union[int, float]:
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "SATOSHI2BTC") -> Union[int, float]:
     """
-    Bitcoin amount converter
+    Bitcoin amount unit converter
 
-    :param amount: Bitcoin amount.
+    :param amount: Bitcoin any amount.
     :type amount: Union[int, float]
-    :param symbol: Bitcoin symbol, default to SATOSHI2BTC.
-    :type symbol: str
+    :param unit_from: Bitcoin unit convert from symbol, default to SATOSHI2BTC.
+    :type unit_from: str
 
     :returns: int, float -- BTC asset amount.
 
-    >>> from swap.providers.bitcoin.utils import amount_converter
-    >>> amount_converter(amount=10_000_000, symbol="SATOSHI2BTC")
+    >>> from swap.providers.bitcoin.utils import amount_unit_converter
+    >>> amount_unit_converter(amount=10_000_000, symbol="SATOSHI2BTC")
     0.1
     """
 
-    if symbol not in ["BTC2mBTC", "BTC2SATOSHI", "mBTC2BTC", "mBTC2SATOSHI", "SATOSHI2BTC", "SATOSHI2mBTC"]:
-        raise SymbolError(f"Invalid '{symbol}' symbol/type",
+    if unit_from not in ["BTC2mBTC", "BTC2SATOSHI", "mBTC2BTC", "mBTC2SATOSHI", "SATOSHI2BTC", "SATOSHI2mBTC"]:
+        raise SymbolError(f"Invalid '{unit_from}' symbol/type",
                           "choose only 'BTC2mBTC', 'BTC2SATOSHI', 'mBTC2BTC', "
                           "'mBTC2SATOSHI', 'SATOSHI2BTC' or 'SATOSHI2mBTC' symbols.")
 
-    # Constant values
+    # Constant unit values
     BTC, mBTC, SATOSHI = (1, 1000, 100_000_000)
 
-    if symbol == "BTC2mBTC":
+    if unit_from == "BTC2mBTC":
         return float((amount * mBTC) / BTC)
-    elif symbol == "BTC2SATOSHI":
+    elif unit_from == "BTC2SATOSHI":
         return int((amount * SATOSHI) / BTC)
-    elif symbol == "mBTC2BTC":
+    elif unit_from == "mBTC2BTC":
         return float((amount * BTC) / mBTC)
-    elif symbol == "mBTC2SATOSHI":
+    elif unit_from == "mBTC2SATOSHI":
         return int((amount * SATOSHI) / mBTC)
-    elif symbol == "SATOSHI2BTC":
+    elif unit_from == "SATOSHI2BTC":
         return float((amount * BTC) / SATOSHI)
-    elif symbol == "SATOSHI2mBTC":
+    elif unit_from == "SATOSHI2mBTC":
         return int((amount * mBTC) / SATOSHI)
 
 
