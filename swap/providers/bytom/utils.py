@@ -10,7 +10,7 @@ import datetime
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    NetworkError, APIError, TransactionRawError, SymbolError, AddressError
+    NetworkError, APIError, TransactionRawError, UnitError, AddressError
 )
 from ..config import bytom as config
 
@@ -32,8 +32,9 @@ def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM")
     """
 
     if unit_from not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
-        raise SymbolError(f"Invalid Bytom '{unit_from}' unit convert from symbol",
-                          "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', 'NEU2BTM' or 'NEU2mBTM' symbols.")
+        raise UnitError(f"Invalid Bytom '{unit_from}' unit from",
+                        "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', "
+                        "'NEU2BTM' or 'NEU2mBTM' units.")
 
     # Constant unit values
     BTM, mBTM, NEU = (1, 1000, 100_000_000)
@@ -114,7 +115,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
 
     if not isinstance(transaction_raw, str):
         raise TypeError(f"Transaction raw must be str, not '{type(transaction_raw)}' type.")
-    
+
     try:
         transaction_raw = clean_transaction_raw(transaction_raw)
         decoded_transaction_raw = b64decode(transaction_raw.encode())
@@ -148,7 +149,7 @@ def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers
     >>> decode_transaction_raw(transaction_raw=transaction_raw)
     {'fee': ..., 'type': '...', 'address': '...', 'transaction': {...}, 'unsigned_datas': [...], 'signatures': [...], 'network': '...'}
     """
-    
+
     if not is_transaction_raw(transaction_raw=transaction_raw):
         raise TransactionRawError("Invalid Bytom transaction raw.")
 
