@@ -11,6 +11,7 @@ from ...exceptions import (
     NetworkError, UnitError
 )
 from ..config import vapor as config
+from .assets import AssetNamespace
 from .utils import amount_unit_converter
 from .rpc import (
     get_balance, get_utxos
@@ -527,12 +528,13 @@ class Wallet(HDWallet):
             network = self._network
         return self._hdwallet.address(network=network, vapor=True)
 
-    def balance(self, asset: str = config["asset"], unit: str = config["unit"]) -> Union[int, float]:
+    def balance(self, asset: Union[str, AssetNamespace] = config["asset"],
+                unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Vapor wallet balance.
 
         :param asset: Vapor asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, vapor.assets.AssetNamespace
         :param unit: Vapor unit, default to NEU.
         :type unit: str
 
@@ -548,16 +550,20 @@ class Wallet(HDWallet):
 
         if unit not in ["BTM", "mBTM", "NEU"]:
             raise UnitError("Invalid Vapor unit, choose only BTM, mBTM or NEU units.")
-        _balance: int = get_balance(address=self.address(), asset=asset, network=self._network)
+        _balance: int = get_balance(
+            address=self.address(),
+            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            network=self._network
+        )
         return _balance if unit == "NEU" else \
             amount_unit_converter(amount=_balance, unit_from=f"NEU2{unit}")
 
-    def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
+    def utxos(self, asset: Union[str, AssetNamespace] = config["asset"], limit: int = 15) -> list:
         """
         Get Vapor wallet unspent transaction output (UTXO's).
 
         :param asset: Vapor asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, vapor.assets.AssetNamespace
         :param limit: Limit of UTXO's, default is 15.
         :type limit: int
         :return: list -- Vapor unspent transaction outputs.
@@ -570,4 +576,8 @@ class Wallet(HDWallet):
         [{'hash': '4e2a17b01b9307107f0abb48ef757bec56befc74b903cfdb763981943bbe318b', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 47000000}]
         """
 
-        return get_utxos(program=self.program(), asset=asset, limit=limit)
+        return get_utxos(
+            program=self.program(),
+            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            limit=limit
+        )

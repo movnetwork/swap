@@ -19,6 +19,7 @@ from ...exceptions import (
     AddressError, NetworkError, BalanceError, UnitError
 )
 from ..config import bytom as config
+from .assets import AssetNamespace
 from .rpc import (
     estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
 )
@@ -256,7 +257,7 @@ class NormalTransaction(Transaction):
         self._htlc_address: Optional[str] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, recipients: dict, asset: str = config["asset"],
+    def build_transaction(self, address: str, recipients: dict, asset: Union[str, AssetNamespace] = config["asset"],
                           estimate_fee: bool = config["estimate_fee"], **kwargs) -> "NormalTransaction":
         """
         Build Bytom normal transaction.
@@ -266,7 +267,7 @@ class NormalTransaction(Transaction):
         :param recipients: Recipients Bytom address and amount.
         :type recipients: dict
         :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, bytom.assets.AssetNamespace
         :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
         :type estimate_fee: bool
 
@@ -284,7 +285,8 @@ class NormalTransaction(Transaction):
 
         # Set address, fee and confirmations
         self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
-            address, asset, config["confirmations"], [], [], sum(recipients.values())
+            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            config["confirmations"], [], [], sum(recipients.values())
         )
 
         # Outputs action
@@ -449,7 +451,8 @@ class FundTransaction(Transaction):
         self._htlc_address: Optional[str] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, htlc_address: str, amount: int, asset: str = config["asset"],
+    def build_transaction(self, address: str, htlc_address: str, amount: int,
+                          asset: Union[str, AssetNamespace] = config["asset"],
                           estimate_fee: bool = config["estimate_fee"], **kwargs) -> "FundTransaction":
         """
         Build Bytom fund transaction.
@@ -461,7 +464,7 @@ class FundTransaction(Transaction):
         :param amount: Bytom amount to fund.
         :type amount: int
         :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, bytom.assets.AssetNamespace
         :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
         :type estimate_fee: bool
 
@@ -481,7 +484,8 @@ class FundTransaction(Transaction):
 
         # Set address, fee and confirmations
         self._address, self._asset, self._htlc_address, self._amount, self._confirmations = (
-            address, asset, htlc_address, amount, config["confirmations"]
+            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            htlc_address, amount, config["confirmations"]
         )
 
         if "options" in kwargs.keys():
@@ -654,7 +658,7 @@ class ClaimTransaction(Transaction):
         self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
-                          max_amount: bool = config["max_amount"], asset: str = config["asset"],
+                          max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
                           estimate_fee: bool = config["estimate_fee"], **kwargs) -> "ClaimTransaction":
         """
         Build Bytom claim transaction.
@@ -668,7 +672,7 @@ class ClaimTransaction(Transaction):
         :param max_amount: Bytom maximum amount to withdraw, default to True.
         :type max_amount: bool
         :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, bytom.assets.AssetNamespace
         :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
         :type estimate_fee: bool
 
@@ -686,7 +690,8 @@ class ClaimTransaction(Transaction):
 
         # Set address, asset, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
-            address, asset, config["confirmations"], transaction_id
+            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            config["confirmations"], transaction_id
         )
         # Get transaction
         self._transaction_detail = get_transaction(
@@ -873,7 +878,7 @@ class RefundTransaction(Transaction):
         self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
-                          max_amount: bool = config["max_amount"], asset: str = config["asset"],
+                          max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
                           estimate_fee: bool = config["estimate_fee"], **kwargs) -> "RefundTransaction":
         """
         Build Bytom refund transaction.
@@ -887,7 +892,7 @@ class RefundTransaction(Transaction):
         :param max_amount: Bytom maximum amount to withdraw, default to True.
         :type max_amount: bool
         :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, bytom.assets.AssetNamespace
         :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
         :type estimate_fee: bool
 
@@ -905,7 +910,8 @@ class RefundTransaction(Transaction):
 
         # Set address, fee, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
-            address, asset, config["confirmations"], transaction_id
+            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            config["confirmations"], transaction_id
         )
         # Get transaction
         self._transaction_detail = get_transaction(

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from typing import Optional
+from typing import (
+    Optional, Union
+)
 
 import requests
 import json
@@ -9,12 +11,13 @@ from ...exceptions import (
     BalanceError, APIError, NetworkError, AddressError
 )
 from ..config import bytom as config
+from .assets import AssetNamespace
 from .utils import (
     is_network, is_address, amount_unit_converter, get_address_type
 )
 
 
-def get_balance(address: str, asset: str = config["asset"], network: str = config["network"],
+def get_balance(address: str, asset: Union[str, AssetNamespace] = config["asset"], network: str = config["network"],
                 headers: dict = config["headers"], timeout: int = config["timeout"]) -> int:
     """
     Get Bytom balance.
@@ -22,7 +25,7 @@ def get_balance(address: str, asset: str = config["asset"], network: str = confi
     :param address: Bytom address.
     :type address: str
     :param asset: Bytom asset, default to BTM asset.
-    :type asset: str
+    :type asset: str, bytom.assets.AssetNamespace
     :param network: Bytom network, defaults to mainnet.
     :type network: str
     :param headers: Request headers, default to common headers.
@@ -52,12 +55,12 @@ def get_balance(address: str, asset: str = config["asset"], network: str = confi
     if response_json is None:
         return 0
     for _asset in response_json:
-        if asset == _asset["asset_id"]:
+        if (asset.ID if isinstance(asset, AssetNamespace) else asset) == _asset["asset_id"]:
             return int(_asset["balance"])
     return 0
 
 
-def get_utxos(program: str, network: str = config["network"], asset: str = config["asset"],
+def get_utxos(program: str, network: str = config["network"], asset: Union[str, AssetNamespace] = config["asset"],
               limit: int = 15, by: str = "amount", order: str = "desc",
               headers: dict = config["headers"], timeout: int = config["timeout"]) -> list:
     """
@@ -68,7 +71,7 @@ def get_utxos(program: str, network: str = config["network"], asset: str = confi
     :param network: Bytom network, defaults to mainnet.
     :type network: str
     :param asset: Bytom asset id, defaults to BTM asset.
-    :type asset: str
+    :type asset: str, bytom.assets.AssetNamespace
     :param limit: Bytom utxo's limit, defaults to 15.
     :type limit: int
     :param by: Sort by, defaults to amount.
@@ -92,7 +95,9 @@ def get_utxos(program: str, network: str = config["network"], asset: str = confi
                            "choose only 'mainnet' or 'testnet' networks.")
 
     url = f"{config[network]['blockcenter']}/q/utxos"
-    data = dict(filter=dict(script=program, asset=asset), sort=dict(by=by, order=order))
+    data = dict(filter=dict(
+        script=program, asset=(asset.ID if isinstance(asset, AssetNamespace) else asset)
+    ), sort=dict(by=by, order=order))
     params = dict(limit=limit)
     response = requests.post(
         url=url, data=json.dumps(data), params=params, headers=headers, timeout=timeout
@@ -101,7 +106,7 @@ def get_utxos(program: str, network: str = config["network"], asset: str = confi
     return response_json["data"]
 
 
-def estimate_transaction_fee(address: str, amount: int, asset: str = config["asset"],
+def estimate_transaction_fee(address: str, amount: int, asset: Union[str, AssetNamespace] = config["asset"],
                              confirmations: int = config["confirmations"], network: str = config["network"],
                              headers: dict = config["headers"], timeout: int = config["timeout"]) -> int:
     """
@@ -112,7 +117,7 @@ def estimate_transaction_fee(address: str, amount: int, asset: str = config["ass
     :param amount: Bytom amount (NEU amount).
     :type amount: int
     :param asset: Bytom asset id, default to BTM asset.
-    :type asset: str
+    :type asset: str, bytom.assets.AssetNamespace
     :param confirmations: Bytom confirmations, default to 1.
     :type confirmations: int
     :param network: Bytom network, defaults to solonet.
@@ -139,7 +144,7 @@ def estimate_transaction_fee(address: str, amount: int, asset: str = config["ass
     url = f"{config[network]['mov']}/merchant/estimate-tx-fee"
     data = dict(
         asset_amounts={
-            asset: str(amount_unit_converter(
+            (asset.ID if isinstance(asset, AssetNamespace) else asset): str(amount_unit_converter(
                 amount=amount, unit_from="NEU2BTM"
             ))
         },

@@ -14,14 +14,15 @@ from typing import (
 )
 
 from ...exceptions import (
-    NetworkError, SymbolError
+    NetworkError, UnitError
 )
 from ..config import bytom as config
+from .assets import AssetNamespace
 from .rpc import (
     get_utxos, get_balance
 )
 from .utils import (
-    is_network, amount_converter
+    is_network, amount_unit_converter
 )
 
 # Equity smart contract -> Hash Time Lock Contract (HTLC) Script
@@ -227,14 +228,15 @@ class HTLC:
             raise ValueError("HTLC script is None, first build HTLC.")
         return get_p2wsh_address(script_hash=self.hash(), network=self._network, vapor=True)
     
-    def balance(self, asset: str = config["asset"], symbol: str = config["symbol"]) -> Union[int, float]:
+    def balance(self, asset: Union[str, AssetNamespace] = config["asset"],
+                unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Vapor HTLC balance.
 
         :param asset: Vapor asset id, defaults to BTM asset.
-        :type asset: str
-        :param symbol: Vapor symbol, default to NEU.
-        :type symbol: str
+        :type asset: str, vapor.assets.AssetNamespace
+        :param unit: Vapor unit, default to NEU.
+        :type unit: str
 
         :return: int, float -- Vapor HTLC balance.
 
@@ -242,22 +244,26 @@ class HTLC:
         >>> from swap.utils import sha256
         >>> htlc = HTLC(network="mainnet")
         >>> htlc.build_htlc(sha256("Hello Meheret!"), "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2", 1000, False)
-        >>> htlc.balance(asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", symbol="BTM")
+        >>> htlc.balance(asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         0.22358
         """
 
-        if symbol not in ["BTM", "mBTM", "NEU"]:
-            raise SymbolError("Invalid Bytom symbol, choose only BTM, mBTM or NEU symbols.")
-        _balance: int = get_balance(address=self.address(), asset=asset, network=self._network)
-        return _balance if symbol == "NEU" else \
-            amount_converter(amount=_balance, symbol=f"NEU2{symbol}")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Bytom unit, choose only BTM, mBTM or NEU units.")
+        _balance: int = get_balance(
+            address=self.address(),
+            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            network=self._network
+        )
+        return _balance if unit == "NEU" else \
+            amount_unit_converter(amount=_balance, unit_from=f"NEU2{unit}")
 
-    def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
+    def utxos(self, asset: Union[str, AssetNamespace] = config["asset"], limit: int = 15) -> list:
         """
         Get Vapor HTLC unspent transaction output (UTXO's).
 
         :param asset: Vapor asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, vapor.assets.AssetNamespace
         :param limit: Limit of UTXO's, default is 15.
         :type limit: int
 
@@ -271,4 +277,8 @@ class HTLC:
         [{'hash': '8a0d861767240a284ebed0320b11b81253727ecdac0c80bc6a88127327c0d8a1', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}, {'hash': '76c9ec09f4990122337b1cb9925abc5c5de115065cb1eea7adb7b5fdeb2c6e1e', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}, {'hash': '2637748a967aa5428008aa57159b9795f3aff63b81c72df0575041e7df1efe01', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000}]
         """
 
-        return get_utxos(program=get_p2wsh_program(script_hash=self.hash()), asset=asset, limit=limit)
+        return get_utxos(
+            program=get_p2wsh_program(script_hash=self.hash()),
+            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            limit=limit
+        )

@@ -11,6 +11,7 @@ from ...exceptions import (
     NetworkError, UnitError
 )
 from ..config import bytom as config
+from .assets import AssetNamespace
 from .utils import amount_unit_converter
 from .rpc import (
     get_balance, get_utxos
@@ -528,12 +529,13 @@ class Wallet(HDWallet):
             network = self._network
         return self._hdwallet.address(network=network, vapor=False)
 
-    def balance(self, asset: str = config["asset"], unit: str = config["unit"]) -> Union[int, float]:
+    def balance(self, asset: Union[str, AssetNamespace] = config["asset"],
+                unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bytom wallet balance.
 
         :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, bytom.assets.AssetNamespace
         :param unit: Bytom unit, default to NEU.
         :type unit: str
 
@@ -549,16 +551,20 @@ class Wallet(HDWallet):
 
         if unit not in ["BTM", "mBTM", "NEU"]:
             raise UnitError("Invalid Bytom unit, choose only BTM, mBTM or NEU units.")
-        _balance: int = get_balance(address=self.address(), asset=asset, network=self._network)
+        _balance: int = get_balance(
+            address=self.address(),
+            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            network=self._network
+        )
         return _balance if unit == "NEU" else \
             amount_unit_converter(amount=_balance, unit_from=f"NEU2{unit}")
 
-    def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
+    def utxos(self, asset: Union[str, AssetNamespace] = config["asset"], limit: int = 15) -> list:
         """
         Get Bytom wallet unspent transaction output (UTXO's).
 
         :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str
+        :type asset: str, bytom.assets.AssetNamespace
         :param limit: Limit of UTXO's, default is 15.
         :type limit: int
 
@@ -572,4 +578,8 @@ class Wallet(HDWallet):
         [{'hash': '7c1e20e6ff719176a3ed6f5332ec3ff665ab28754d2511950e591267e0e675df', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 71510800}, {'hash': '01b07c3523085b75f1e047be3a73b263635d0b86f9b751457a51b26c5a97a110', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 50000}, {'hash': 'e46cfecc1f1a26413172ce81c78affb19408e613915642fa5fb04d3b0a4ffa65', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 100}]
         """
 
-        return get_utxos(program=self.program(), asset=asset, limit=limit)
+        return get_utxos(
+            program=self.program(),
+            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            limit=limit
+        )

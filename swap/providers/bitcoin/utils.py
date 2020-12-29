@@ -46,8 +46,8 @@ def amount_unit_converter(amount: Union[int, float], unit_from: str = "SATOSHI2B
 
     if unit_from not in ["BTC2mBTC", "BTC2SATOSHI", "mBTC2BTC", "mBTC2SATOSHI", "SATOSHI2BTC", "SATOSHI2mBTC"]:
         raise UnitError(f"Invalid Bitcoin '{unit_from}' unit from",
-                          "choose only 'BTC2mBTC', 'BTC2SATOSHI', 'mBTC2BTC', 'mBTC2SATOSHI', "
-                          "'SATOSHI2BTC' or 'SATOSHI2mBTC' units.")
+                        "choose only 'BTC2mBTC', 'BTC2SATOSHI', 'mBTC2BTC', 'mBTC2SATOSHI', "
+                        "'SATOSHI2BTC' or 'SATOSHI2mBTC' units.")
 
     # Constant unit values
     BTC, mBTC, SATOSHI = (1, 1000, 100_000_000)

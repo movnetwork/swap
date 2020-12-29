@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from types import SimpleNamespace
 from mnemonic.mnemonic import Mnemonic
 from binascii import (
     hexlify, unhexlify
@@ -15,6 +16,16 @@ import hashlib
 
 # Alphabet and digits.
 letters = string.ascii_letters + string.digits
+
+
+class NestedNamespace(SimpleNamespace):
+    def __init__(self, dictionary, **kwargs):
+        super().__init__(**kwargs)
+        for key, value in dictionary.items():
+            if isinstance(value, dict):
+                self.__setattr__(key, NestedNamespace(value))
+            else:
+                self.__setattr__(key, value)
 
 
 def generate_passphrase(length: int = 32) -> str:
