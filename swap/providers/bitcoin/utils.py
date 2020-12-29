@@ -167,6 +167,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loads_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loads_transaction_raw["type"] in [
+            "bitcoin_normal_unsigned", "bitcoin_normal_signed",
             "bitcoin_fund_unsigned", "bitcoin_fund_signed",
             "bitcoin_claim_unsigned", "bitcoin_claim_signed",
             "bitcoin_refund_unsigned", "bitcoin_refund_signed"

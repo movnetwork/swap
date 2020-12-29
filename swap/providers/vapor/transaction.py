@@ -21,7 +21,7 @@ from .rpc import (
     estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
 )
 from .solver import (
-    FundSolver, ClaimSolver, RefundSolver
+    NormalSolver, FundSolver, ClaimSolver, RefundSolver
 )
 from .utils import (
     amount_converter, is_network, is_address, get_address_type
@@ -235,6 +235,202 @@ class Transaction(VaporTransaction):
         return self._signatures
 
 
+class NormalTransaction(Transaction):
+    """
+    Vapor Normal transaction.
+
+    :param network: Vapor network, defaults to mainnet.
+    :type network: str
+
+    :returns: NormalTransaction -- Vapor normal transaction instance.
+
+    .. warning::
+        Do not forget to build transaction after initialize normal transaction.
+    """
+
+    def __init__(self, network: str = config["mainnet"]):
+        super().__init__(network)
+
+        self._htlc_address: Optional[str] = None
+        self._interest: Optional[int] = None
+
+    def build_transaction(self, address: str, recipients: dict, asset: str = config["asset"],
+                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "NormalTransaction":
+        """
+        Build Vapor normal transaction.
+
+        :param address: Vapor sender wallet address.
+        :type address: str
+        :param recipients: Recipients Vapor address and amount.
+        :type recipients: dict
+        :param asset: Vapor asset id, defaults to BTM asset.
+        :type asset: str
+        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
+        :type estimate_fee: bool
+
+        :returns: NormalTransaction -- Vapor normal transaction instance.
+
+        >>> from swap.providers.vapor.transaction import NormalTransaction
+        >>> normal_transaction = NormalTransaction("mainnet")
+        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc_address="bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", amount=10000)
+        <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not is_address(address, self._network):
+            raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
+
+        # Set address, fee and confirmations
+        self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
+            address, asset, config["confirmations"], [], [], sum(recipients.values())
+        )
+
+        # Outputs action
+        for _address, _amount in recipients.items():
+            if not is_address(_address, self._network):
+                raise AddressError(f"Invalid Vapor recipients '{_address}' {self._network} address.")
+            outputs.append(
+                control_address(
+                    asset=asset, address=_address, amount=_amount,
+                    vapor=True, symbol="NEU"
+                )
+            )
+
+        if "options" in kwargs.keys():
+            options: dict = kwargs.get("options")
+            if "address" in options and "percent" in options:
+                self._interest = int((self._amount * options["percent"]) / 100)
+
+        if estimate_fee:
+            self._fee = estimate_transaction_fee(
+                address=self._address, asset=self._asset,
+                amount=(self._amount if not self._interest else (self._amount + self._interest)),
+                confirmations=self._confirmations, network=self._network
+            )
+        else:
+            self._fee = config["fee"]
+
+        if not self._interest and self._amount < self._fee or self._interest and self._amount < (self._fee + self._interest):
+            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+
+        if self._interest:
+            outputs.append(control_address(
+                asset=self._asset, amount=int(self._interest),
+                address=kwargs["options"]["address"], vapor=True
+            ))
+
+        # Build transaction
+        self._transaction = build_transaction(
+            address=self._address,
+            transaction=dict(
+                fee=str(amount_converter(
+                    amount=self._fee, symbol="NEU2BTM"
+                )),
+                confirmations=self._confirmations,
+                inputs=[spend_wallet(
+                    asset=self._asset, amount=self._amount
+                )],
+                outputs=outputs
+            ),
+            network=self._network
+        )
+
+        # Set transaction type
+        self._type = "vapor_normal_unsigned"
+        return self
+
+    def sign(self, solver: NormalSolver) -> "NormalTransaction":
+        """
+        Sign Vapor normal transaction.
+
+        :param solver: Vapor normal solver.
+        :type solver: vapor.solver.NormalSolver
+
+        :returns: NormalTransaction -- Vapor normal transaction instance.
+
+        >>> from swap.providers.vapor.transaction import NormalTransaction
+        >>> from swap.providers.vapor.solver import NormalSolver
+        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
+        >>> normal_solver = NormalSolver(sender_wallet.xprivate_key())
+        >>> normal_transaction = NormalTransaction("mainnet")
+        >>> normal_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> normal_transaction.sign(solver=normal_solver)
+        <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not isinstance(solver, NormalSolver):
+            raise TypeError(f"Solver must be Vapor NormalSolver, not {type(solver).__name__} type.")
+
+        # Setting sender wallet
+        wallet, path, indexes = solver.solve()
+        # Clean derivation indexes/path
+        wallet.clean_derivation()
+        # Signing normal transaction
+        for unsigned in self.unsigned_datas(detail=True):
+            signed_data = []
+            unsigned_datas = unsigned["datas"]
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif path:
+                wallet.from_path(path)
+            elif indexes:
+                wallet.from_indexes(indexes)
+            for unsigned_data in unsigned_datas:
+                signed_data.append(wallet.sign(unsigned_data))
+            self._signatures.append(signed_data)
+            wallet.clean_derivation()
+
+        # Set transaction type
+        self._type = "vapor_normal_signed"
+        return self
+
+    def transaction_raw(self) -> str:
+        """
+        Get Vapor normal transaction raw.
+
+        :returns: str -- Vapor normal transaction raw.
+
+        >>> from swap.providers.vapor.transaction import NormalTransaction
+        >>> normal_transaction = NormalTransaction("mainnet")
+        >>> normal_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> normal_transaction.transaction_raw()
+        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        """
+
+        # Check transaction
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
+
+        # Encode normal transaction raw
+        if self._type == "vapor_normal_signed":
+            return clean_transaction_raw(b64encode(str(json.dumps(dict(
+                fee=self._fee,
+                address=self._address,
+                raw=self.raw(),
+                hash=self.hash(),
+                unsigned_datas=self.unsigned_datas(
+                    detail=False
+                ),
+                signatures=self.signatures(),
+                network=self._network,
+                type=self._type
+            ))).encode()).decode())
+        return clean_transaction_raw(b64encode(str(json.dumps(dict(
+            fee=self._fee,
+            address=self._address,
+            raw=self.raw(),
+            hash=self.hash(),
+            unsigned_datas=self.unsigned_datas(
+                detail=False
+            ),
+            signatures=[],
+            network=self._network,
+            type=self._type
+        ))).encode()).decode())
+
+
 class FundTransaction(Transaction):
     """
     Vapor Fund transaction.
@@ -331,12 +527,10 @@ class FundTransaction(Transaction):
                     amount=self._fee, symbol="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[
-                    spend_wallet(
-                        asset=self._asset,
-                        amount=self._amount
-                    )
-                ],
+                inputs=[spend_wallet(
+                    asset=self._asset,
+                    amount=self._amount
+                )],
                 outputs=outputs
             ),
             network=self._network
@@ -374,7 +568,7 @@ class FundTransaction(Transaction):
         wallet, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Signing refund transaction
+        # Signing fund transaction
         for unsigned in self.unsigned_datas(detail=True):
             signed_data = []
             unsigned_datas = unsigned["datas"]

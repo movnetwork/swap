@@ -15,6 +15,51 @@ from .wallet import Wallet
 from .htlc import HTLC
 
 
+class NormalSolver:
+    """
+    Bitcoin Normal solver.
+
+    :param root_xprivate_key: Bitcoin sender root xprivate key.
+    :type root_xprivate_key: str
+    :param account: Bitcoin derivation account, defaults to 0.
+    :type account: int
+    :param change: Bitcoin derivation change, defaults to False.
+    :type change: bool
+    :param address: Bitcoin derivation address, defaults to 0.
+    :type address: int
+    :param path: Bitcoin derivation path, defaults to None.
+    :type path: str
+
+    :returns: NormalSolver -- Bitcoin normal solver instance.
+
+    >>> from swap.providers.bitcoin.solver import NormalSolver
+    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> normal_solver = NormalSolver(root_xprivate_key=sender_root_xprivate_key)
+    <swap.providers.bitcoin.solver.NormalSolver object at 0x03FCCA60>
+    """
+
+    def __init__(self, root_xprivate_key: str, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None):
+        if path is None:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
+
+        self._root_xprivate_key: str = root_xprivate_key
+        self._path: Optional[str] = path
+
+    def solve(self, network: str = config["network"]) -> P2pkhSolver:
+        return P2pkhSolver(
+            privk=PrivateKey.unhexlify(
+                hexa=Wallet(network=network).from_root_xprivate_key(
+                    root_xprivate_key=self._root_xprivate_key
+                ).from_path(
+                    path=self._path
+                ).private_key()
+            )
+        )
+
+
 class FundSolver:
     """
     Bitcoin Fund solver.

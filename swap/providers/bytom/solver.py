@@ -9,6 +9,50 @@ from ..config import bytom as config
 from .htlc import HTLC
 
 
+class NormalSolver:
+    """
+    Bytom Normal solver.
+
+    :param xprivate_key: Bytom sender xprivate key.
+    :type xprivate_key: str
+    :param account: Bytom derivation account, defaults to 1.
+    :type account: int
+    :param change: Bytom derivation change, defaults to False.
+    :type change: bool
+    :param address: Bytom derivation address, defaults to 1.
+    :type address: int
+    :param path: Bytom derivation path, defaults to None.
+    :type path: str
+    :param indexes: Bytom derivation indexes, defaults to None.
+    :type indexes: list
+
+    :returns: NormalSolver -- Bytom normal solver instance.
+
+    >>> from swap.providers.bytom.solver import NormalSolver
+    >>> sender_xprivate_key = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+    >>> normal_solver = NormalSolver(xprivate_key=sender_xprivate_key)
+    <swap.providers.bytom.solver.NormalSolver object at 0x03FCCA60>
+    """
+
+    def __init__(self, xprivate_key: str, account: int = 1, change: bool = False,
+                 address: int = 1, path: Optional[str] = None, indexes: Optional[List[str]] = None):
+        if path is None and not indexes:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
+
+        self._xprivate_key: str = xprivate_key
+        self._path: Optional[str] = path
+        self._indexes: Optional[List[str]] = indexes
+
+    def solve(self, network: str = config["network"]) -> Tuple[Wallet, Optional[str], Optional[List[str]]]:
+        return (
+            Wallet(network=network).from_xprivate_key(
+                xprivate_key=self._xprivate_key
+            ), self._path, self._indexes
+        )
+
+
 class FundSolver:
     """
     Bytom Fund solver.

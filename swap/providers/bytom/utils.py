@@ -120,6 +120,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
+            "bytom_normal_unsigned", "bytom_normal_signed",
             "bytom_fund_unsigned", "bytom_fund_signed",
             "bytom_claim_unsigned", "bytom_claim_signed",
             "bytom_refund_unsigned", "bytom_refund_signed"
