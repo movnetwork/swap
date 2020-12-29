@@ -11,7 +11,7 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    TransactionRawError, NetworkError, SymbolError
+    TransactionRawError, NetworkError, UnitError
 )
 from ..config import bytom as config
 from .transaction import Transaction
@@ -20,7 +20,7 @@ from .solver import (
 )
 from .rpc import decode_raw
 from .utils import (
-    is_network, is_transaction_raw, amount_converter
+    is_network, is_transaction_raw, amount_unit_converter
 )
 
 
@@ -53,12 +53,12 @@ class Signature(Transaction):
 
         super().__init__(network)
 
-    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
+    def fee(self, unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bytom transaction fee.
 
-        :param symbol: Bytom symbol, default to NEU.
-        :type symbol: str
+        :param unit: Bytom unit, default to NEU.
+        :type unit: str
 
         :returns: int, float -- Bytom transaction fee.
 
@@ -69,16 +69,16 @@ class Signature(Transaction):
         >>> fund_solver = FundSolver(sender_xprivate_key)
         >>> signature = Signature("mainnet")
         >>> signature.sign(unsigned_fund_transaction_raw, fund_solver)
-        >>> signature.fee(symbol="BTM")
+        >>> signature.fee(unit="BTM")
         0.1
         """
 
         if self._transaction is None:
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
-        if symbol not in ["BTM", "mBTM", "NEU"]:
-            raise SymbolError("Invalid Bytom symbol, choose only BTM, mBTM or NEU symbols.")
-        return self._fee if symbol == "NEU" else \
-            amount_converter(amount=self._fee, symbol=f"NEU2{symbol}")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Bytom unit, choose only BTM, mBTM or NEU units.")
+        return self._fee if unit == "NEU" else \
+            amount_unit_converter(amount=self._fee, unit_from=f"NEU2{unit}")
 
     def hash(self) -> str:
         """

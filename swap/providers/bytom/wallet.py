@@ -8,10 +8,10 @@ from typing import (
 
 from ...utils import is_mnemonic
 from ...exceptions import (
-    NetworkError, SymbolError
+    NetworkError, UnitError
 )
 from ..config import bytom as config
-from .utils import amount_converter
+from .utils import amount_unit_converter
 from .rpc import (
     get_balance, get_utxos
 )
@@ -528,14 +528,14 @@ class Wallet(HDWallet):
             network = self._network
         return self._hdwallet.address(network=network, vapor=False)
 
-    def balance(self, asset: str = config["asset"], symbol: str = config["symbol"]) -> Union[int, float]:
+    def balance(self, asset: str = config["asset"], unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bytom wallet balance.
 
         :param asset: Bytom asset id, defaults to BTM asset.
         :type asset: str
-        :param symbol: Bytom symbol, default to NEU.
-        :type symbol: str
+        :param unit: Bytom unit, default to NEU.
+        :type unit: str
 
         :return: int, float -- Bytom wallet balance.
 
@@ -543,15 +543,15 @@ class Wallet(HDWallet):
         >>> wallet = Wallet(network="mainnet")
         >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
         >>> wallet.from_path("m/44/153/1/0/1")
-        >>> wallet.balance(symbol="BTM")
+        >>> wallet.balance(unit="BTM")
         0.71510800
         """
 
-        if symbol not in ["BTM", "mBTM", "NEU"]:
-            raise SymbolError("Invalid Bytom symbol, choose only BTM, mBTM or NEU symbols.")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Bytom unit, choose only BTM, mBTM or NEU units.")
         _balance: int = get_balance(address=self.address(), asset=asset, network=self._network)
-        return _balance if symbol == "NEU" else \
-            amount_converter(amount=_balance, symbol=f"NEU2{symbol}")
+        return _balance if unit == "NEU" else \
+            amount_unit_converter(amount=_balance, unit_from=f"NEU2{unit}")
 
     def utxos(self, asset: str = config["asset"], limit: int = 15) -> list:
         """

@@ -16,7 +16,7 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    AddressError, NetworkError, BalanceError, SymbolError
+    AddressError, NetworkError, BalanceError, UnitError
 )
 from ..config import bytom as config
 from .rpc import (
@@ -26,7 +26,7 @@ from .solver import (
     NormalSolver, FundSolver, ClaimSolver, RefundSolver
 )
 from .utils import (
-    amount_converter, is_network, is_address, get_address_type
+    amount_unit_converter, is_network, is_address, get_address_type
 )
 
 
@@ -59,26 +59,26 @@ class Transaction(BytomTransaction):
         self._confirmations: int = config["confirmations"]
         self._amount: int = 0
 
-    def fee(self, symbol: str = config["symbol"]) -> Union[int, float]:
+    def fee(self, unit: str = config["unit"]) -> Union[int, float]:
         """
         Get Bytom transaction fee.
 
-        :param symbol: Bytom symbol, default to NEU.
-        :type symbol: str
+        :param unit: Bytom unit, default to NEU.
+        :type unit: str
 
         :returns: int, float -- Bytom transaction fee.
 
         >>> from swap.providers.bytom.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
         >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.fee(symbol="NEU")
+        >>> claim_transaction.fee(unit="NEU")
         10000000
         """
 
-        if symbol not in ["BTM", "mBTM", "NEU"]:
-            raise SymbolError("Invalid Bytom symbol, choose only BTM, mBTM or NEU symbols.")
-        return self._fee if symbol == "NEU" else \
-            amount_converter(amount=self._fee, symbol=f"NEU2{symbol}")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Bytom unit, choose only BTM, mBTM or NEU units.")
+        return self._fee if unit == "NEU" else \
+            amount_unit_converter(amount=self._fee, unit_from=f"NEU2{unit}")
 
     def hash(self) -> str:
         """
@@ -291,12 +291,9 @@ class NormalTransaction(Transaction):
         for _address, _amount in recipients.items():
             if not is_address(_address, self._network):
                 raise AddressError(f"Invalid Bytom recipients '{_address}' {self._network} address.")
-            outputs.append(
-                control_address(
-                    asset=asset, address=_address, amount=_amount,
-                    vapor=False, symbol="NEU"
-                )
-            )
+            outputs.append(control_address(
+                asset=asset, address=_address, amount=_amount, vapor=False
+            ))
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -325,8 +322,8 @@ class NormalTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._address,
             transaction=dict(
-                fee=str(amount_converter(
-                    amount=self._fee, symbol="NEU2BTM"
+                fee=str(amount_unit_converter(
+                    amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
                 inputs=[spend_wallet(
@@ -526,8 +523,8 @@ class FundTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._address,
             transaction=dict(
-                fee=str(amount_converter(
-                    amount=self._fee, symbol="NEU2BTM"
+                fee=str(amount_unit_converter(
+                    amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
                 inputs=[spend_wallet(
@@ -742,8 +739,8 @@ class ClaimTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
             transaction=dict(
-                fee=str(amount_converter(
-                    amount=self._fee, symbol="NEU2BTM"
+                fee=str(amount_unit_converter(
+                    amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
                 inputs=[spend_utxo(
@@ -961,8 +958,8 @@ class RefundTransaction(Transaction):
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
             transaction=dict(
-                fee=str(amount_converter(
-                    amount=self._fee, symbol="NEU2BTM"
+                fee=str(amount_unit_converter(
+                    amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
                 inputs=[spend_utxo(
