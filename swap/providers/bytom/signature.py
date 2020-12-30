@@ -165,17 +165,17 @@ class Signature(Transaction):
             raise ValueError("Type is none, sign unsigned transaction raw first.")
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, ClaimSolver, RefundSolver]) \
-            -> Union["FundSignature", "ClaimSignature", "RefundSignature"]:
+    def sign(self, transaction_raw: str, solver: Union[NormalSolver, FundSolver, ClaimSolver, RefundSolver]) \
+            -> Union["NormalSignature", "FundSignature", "ClaimSignature", "RefundSignature"]:
         """
         Sign unsigned transaction raw.
 
         :param transaction_raw: Bytom unsigned transaction raw.
         :type transaction_raw: str
         :param solver: Bytom solver
-        :type solver: bytom.solver.FundSolver, bytom.solver.ClaimSolver, bytom.solver.RefundSolver
+        :type solver: bytom.solver.NormalSolver, bytom.solver.FundSolver, bytom.solver.ClaimSolver, bytom.solver.RefundSolver
 
-        :returns:  FundSignature, ClaimSignature, RefundSignature -- Bytom signature instance.
+        :returns: NormalSignature, FundSignature, ClaimSignature, RefundSignature -- Bytom signature instance.
 
         >>> from swap.providers.bytom.signature import Signature
         >>> from swap.providers.bytom.solver import FundSolver
@@ -195,7 +195,11 @@ class Signature(Transaction):
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
         self._type = loaded_transaction_raw["type"]
-        if loaded_transaction_raw["type"] == "bytom_fund_unsigned":
+        if loaded_transaction_raw["type"] == "bytom_normal_unsigned":
+            return NormalSignature(network=self._network).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "bytom_fund_unsigned":
             return FundSignature(network=self._network).sign(
                 transaction_raw=transaction_raw, solver=solver
             )

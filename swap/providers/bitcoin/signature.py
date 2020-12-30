@@ -171,17 +171,17 @@ class Signature:
             raise ValueError("Type is none, sign unsigned transaction raw first.")
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, ClaimSolver, RefundSolver]) \
-            -> Union["FundSignature", "ClaimSignature", "RefundSignature"]:
+    def sign(self, transaction_raw: str, solver: Union[NormalSolver, FundSolver, ClaimSolver, RefundSolver]) \
+            -> Union["NormalSignature", "FundSignature", "ClaimSignature", "RefundSignature"]:
         """
         Sign unsigned transaction raw.
 
         :param transaction_raw: Bitcoin unsigned transaction raw.
         :type transaction_raw: str
         :param solver: Bitcoin solver
-        :type solver: bitcoin.solver.FundSolver, bitcoin.solver.ClaimSolver, bitcoin.solver.RefundSolver
+        :type solver: bitcoin.solver.NormalSolver, bitcoin.solver.FundSolver, bitcoin.solver.ClaimSolver, bitcoin.solver.RefundSolver
 
-        :returns: FundSignature, ClaimSignature, RefundSignature -- Bitcoin signature instance.
+        :returns: NormalSignature, ClaimSignature, RefundSignature -- Bitcoin signature instance.
 
         >>> from swap.providers.bitcoin.signature import Signature
         >>> from swap.providers.bitcoin.solver import FundSolver
@@ -201,7 +201,13 @@ class Signature:
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
         self._type = loaded_transaction_raw["type"]
-        if loaded_transaction_raw["type"] == "bitcoin_fund_unsigned":
+        if loaded_transaction_raw["type"] == "bitcoin_normal_unsigned":
+            return NormalSignature(
+                network=self._network, version=self._version
+            ).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "bitcoin_fund_unsigned":
             return FundSignature(
                 network=self._network, version=self._version
             ).sign(
