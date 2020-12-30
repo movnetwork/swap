@@ -9,7 +9,7 @@ from ....providers.bitcoin.utils import decode_transaction_raw
 
 
 @click.command("decode", options_metavar="[OPTIONS]",
-               short_help="Select Bitcoin transaction raw decoder.")
+               short_help="Select Bitcoin Transaction raw decoder.")
 @click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Bitcoin transaction raw.")
 @click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)
 @click.option("-o", "--offline", type=bool, default=True,

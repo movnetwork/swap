@@ -9,7 +9,7 @@ from ....providers.vapor.utils import decode_transaction_raw
 
 
 @click.command("decode", options_metavar="[OPTIONS]",
-               short_help="Select Vapor transaction raw decoder.")
+               short_help="Select Vapor Transaction raw decoder.")
 @click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Vapor transaction raw.")
 @click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)
 def decode(transaction_raw: str, indent: int):

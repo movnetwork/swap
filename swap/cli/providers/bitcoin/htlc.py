@@ -19,16 +19,17 @@ from ....providers.config import bitcoin as config
               help="Set Bitcoin network.", show_default=True)
 def htlc(secret_hash: str, recipient_address: str, sender_address: str, sequence: int, network: str):
     try:
-        click.echo(
-            HTLC(
-                network=network
-            ).build_htlc(
-                secret_hash=secret_hash,
-                recipient_address=recipient_address,
-                sender_address=sender_address,
-                sequence=sequence
-            ).bytecode()
+        _htlc: HTLC = HTLC(
+            network=network
+        ).build_htlc(
+            secret_hash=secret_hash,
+            recipient_address=recipient_address,
+            sender_address=sender_address,
+            sequence=sequence
         )
+        click.echo(dict(
+            bytecode=_htlc.bytecode(), address=_htlc.address()
+        ))
     except Exception as exception:
         click.echo(click.style("Error: {}")
                    .format(str(exception)), err=True)

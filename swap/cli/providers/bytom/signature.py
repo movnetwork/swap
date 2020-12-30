@@ -19,7 +19,7 @@ from ....utils import clean_transaction_raw
 
 
 @click.command("sign", options_metavar="[OPTIONS]",
-               short_help="Select Bytom transaction raw signer.")
+               short_help="Select Bytom Transaction raw signer.")
 @click.option("-xk", "--xprivate-key", type=str, required=True, help="Set Bytom xprivate key.")
 @click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Bytom unsigned transaction raw.")
 @click.option("-b", "--bytecode", type=str, default=None,

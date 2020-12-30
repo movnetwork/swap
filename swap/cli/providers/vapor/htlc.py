@@ -19,16 +19,17 @@ from ....providers.config import vapor as config
               help="Set Vapor network.", show_default=True)
 def htlc(secret_hash: str, recipient_public_key: str, sender_public_key: str, sequence: int, network: str):
     try:
-        click.echo(
-            HTLC(
-                network=network
-            ).build_htlc(
-                secret_hash=secret_hash,
-                recipient_public_key=recipient_public_key,
-                sender_public_key=sender_public_key,
-                sequence=sequence
-            ).bytecode()
+        _htlc: HTLC = HTLC(
+            network=network
+        ).build_htlc(
+            secret_hash=secret_hash,
+            recipient_public_key=recipient_public_key,
+            sender_public_key=sender_public_key,
+            sequence=sequence
         )
+        click.echo(dict(
+            bytecode=_htlc.bytecode(), address=_htlc.address()
+        ))
     except Exception as exception:
         click.echo(click.style("Error: {}")
                    .format(str(exception)), err=True)

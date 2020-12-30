@@ -8,7 +8,7 @@ from ....providers.bytom.utils import submit_transaction_raw
 
 
 @click.command("submit", options_metavar="[OPTIONS]",
-               short_help="Select Bytom transaction raw submitter.")
+               short_help="Select Bytom Transaction raw submitter.")
 @click.option("-tr", "--transaction-raw", type=str, required=True, help="Set signed Bytom transaction raw.")
 def submit(transaction_raw: str):
     try:
