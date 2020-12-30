@@ -302,15 +302,13 @@ class NormalSignature(Signature):
         # Organize outputs
         outputs = []
         for output in loaded_transaction_raw["outputs"]:
-            outputs.append(
-                TxOut(
-                    value=output["value"],
-                    n=output["tx_output_n"],
-                    script_pubkey=Script.unhexlify(
-                        hex_string=output["script"]
-                    )
+            outputs.append(TxOut(
+                value=output["value"],
+                n=output["tx_output_n"],
+                script_pubkey=Script.unhexlify(
+                    hex_string=output["script"]
                 )
-            )
+            ))
 
         # Sign normal transaction
         self._transaction.spend(
@@ -389,15 +387,13 @@ class FundSignature(Signature):
         # Organize outputs
         outputs = []
         for output in loaded_transaction_raw["outputs"]:
-            outputs.append(
-                TxOut(
-                    value=output["value"],
-                    n=output["tx_output_n"],
-                    script_pubkey=Script.unhexlify(
-                        hex_string=output["script"]
-                    )
+            outputs.append(TxOut(
+                value=output["value"],
+                n=output["tx_output_n"],
+                script_pubkey=Script.unhexlify(
+                    hex_string=output["script"]
                 )
-            )
+            ))
 
         # Sign fund transaction
         self._transaction.spend(
@@ -475,24 +471,20 @@ class ClaimSignature(Signature):
         )
 
         # Sign claim transaction
-        self._transaction.spend([
-            TxOut(
-                value=loaded_transaction_raw["outputs"]["value"],
-                n=loaded_transaction_raw["outputs"]["tx_output_n"],
-                script_pubkey=P2shScript.unhexlify(
-                    hex_string=loaded_transaction_raw["outputs"]["script"]
-                )
+        self._transaction.spend([TxOut(
+            value=loaded_transaction_raw["outputs"]["value"],
+            n=loaded_transaction_raw["outputs"]["tx_output_n"],
+            script_pubkey=P2shScript.unhexlify(
+                hex_string=loaded_transaction_raw["outputs"]["script"]
             )
-        ], [
-            P2shSolver(
-                redeem_script=solver.witness(
-                    network=self._network
-                ),
-                redeem_script_solver=solver.solve(
-                    network=self._network
-                )
+        )], [P2shSolver(
+            redeem_script=solver.witness(
+                network=self._network
+            ),
+            redeem_script_solver=solver.solve(
+                network=self._network
             )
-        ])
+        )])
 
         # Encode claim transaction raw
         self._type = "bitcoin_claim_signed"
@@ -563,24 +555,20 @@ class RefundSignature(Signature):
         )
 
         # Sign refund transaction
-        self._transaction.spend([
-            TxOut(
-                value=loaded_transaction_raw["outputs"]["value"],
-                n=loaded_transaction_raw["outputs"]["tx_output_n"],
-                script_pubkey=P2shScript.unhexlify(
-                    hex_string=loaded_transaction_raw["outputs"]["script"]
-                )
+        self._transaction.spend([TxOut(
+            value=loaded_transaction_raw["outputs"]["value"],
+            n=loaded_transaction_raw["outputs"]["tx_output_n"],
+            script_pubkey=P2shScript.unhexlify(
+                hex_string=loaded_transaction_raw["outputs"]["script"]
             )
-        ], [
-            P2shSolver(
-                redeem_script=solver.witness(
-                    network=self._network
-                ),
-                redeem_script_solver=solver.solve(
-                    network=self._network
-                )
+        )], [P2shSolver(
+            redeem_script=solver.witness(
+                network=self._network
+            ),
+            redeem_script_solver=solver.solve(
+                network=self._network
             )
-        ])
+        )])
 
         # Encode refund transaction raw
         self._type = "bitcoin_refund_signed"

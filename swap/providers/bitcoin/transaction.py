@@ -212,14 +212,12 @@ class NormalTransaction(Transaction):
         for _address, _amount in recipients.items():
             if not is_address(_address, self._network):
                 raise AddressError(f"Invalid Bitcoin recipients '{_address}' {self._network} address.")
-            outputs.append(
-                TxOut(
-                    value=int(_amount), n=len(outputs),
-                    script_pubkey=get_address_hash(
-                        address=_address, script=True
-                    )
+            outputs.append(TxOut(
+                value=int(_amount), n=len(outputs),
+                script_pubkey=get_address_hash(
+                    address=_address, script=True
                 )
-            )
+            ))
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -660,7 +658,8 @@ class ClaimTransaction(Transaction):
             version=self._version,
             ins=[TxIn(
                 txid=self._transaction_id,
-                txout=0, script_sig=ScriptSig.empty(),
+                txout=self._htlc_utxo["position"],
+                script_sig=ScriptSig.empty(),
                 sequence=Sequence.max()
             )],
             outs=outputs,
@@ -698,24 +697,20 @@ class ClaimTransaction(Transaction):
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
 
-        self._transaction.spend([
-            TxOut(
-                value=self._htlc_utxo["value"],
-                n=0,
-                script_pubkey=P2shScript.unhexlify(
-                    hex_string=self._htlc_utxo["script"]
-                )
+        self._transaction.spend([TxOut(
+            value=self._htlc_utxo["value"],
+            n=0,
+            script_pubkey=P2shScript.unhexlify(
+                hex_string=self._htlc_utxo["script"]
             )
-        ], [
-            P2shSolver(
-                redeem_script=solver.witness(
-                    network=self._network
-                ),
-                redeem_script_solver=solver.solve(
-                    network=self._network
-                )
+        )], [P2shSolver(
+            redeem_script=solver.witness(
+                network=self._network
+            ),
+            redeem_script_solver=solver.solve(
+                network=self._network
             )
-        ])
+        )])
 
         # Set transaction type
         self._type = "bitcoin_claim_signed"
@@ -778,8 +773,9 @@ class RefundTransaction(Transaction):
         super().__init__(network=network, version=version)
 
         self._transaction_id: Optional[str] = None
-        self._transaction_detail: Optional[list] = None
+        self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
+        self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, transaction_id: str,
                           amount: Optional[int] = None, max_amount: bool = config["max_amount"],
@@ -810,6 +806,7 @@ class RefundTransaction(Transaction):
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
 
+        # Set address and transaction_id
         self._address, self._transaction_id, = address, transaction_id
         # Get transaction
         self._transaction_detail = get_transaction(
@@ -827,18 +824,17 @@ class RefundTransaction(Transaction):
         else:
             self._amount = amount
 
-        interest: Optional[int] = None
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
             for transaction_output in self._transaction_detail["outputs"]:
                 if transaction_output["script"] == get_address_hash(
                         address=options["address"], script=True).hexlify():
-                    interest = transaction_output["value"]
+                    self._interest = transaction_output["value"]
 
         # Calculate the fee
         self._fee = fee_calculator(1, ((
-           1 if self._htlc_utxo["value"] == self._amount else 2
-       ) if not interest else (
+            1 if self._htlc_utxo["value"] == self._amount else 2
+        ) if not self._interest else (
             2 if self._htlc_utxo["value"] == self._amount else 3
         )))
 
@@ -850,7 +846,7 @@ class RefundTransaction(Transaction):
 
         outputs: list = [TxOut(
             value=(
-                (self._amount - self._fee) if not interest else (self._amount - (self._fee + interest))
+                (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
             ), n=0, script_pubkey=get_address_hash(
                 address=self._address, script=True
             )
@@ -858,15 +854,15 @@ class RefundTransaction(Transaction):
         if self._htlc_utxo["value"] != self._amount:
             outputs.append(TxOut(
                 value=(
-                        self._htlc_utxo["value"] - self._amount
+                    self._htlc_utxo["value"] - self._amount
                 ), n=len(outputs), script_pubkey=P2shScript.unhexlify(
                     self._htlc_utxo["script"]
                 )
             ))
-        if interest:
+        if self._interest:
             options: dict = kwargs.get("options")
             outputs.append(TxOut(
-                value=interest, n=len(outputs), script_pubkey=get_address_hash(
+                value=self._interest, n=len(outputs), script_pubkey=get_address_hash(
                     address=options["address"], script=True
                 )
             ))
@@ -876,7 +872,8 @@ class RefundTransaction(Transaction):
             version=self._version,
             ins=[TxIn(
                 txid=self._transaction_id,
-                txout=0, script_sig=ScriptSig.empty(),
+                txout=self._htlc_utxo["position"],
+                script_sig=ScriptSig.empty(),
                 sequence=Sequence.max()
             )],
             outs=outputs,
@@ -914,24 +911,20 @@ class RefundTransaction(Transaction):
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
 
-        self._transaction.spend([
-            TxOut(
-                value=self._htlc_utxo["value"],
-                n=0,
-                script_pubkey=P2shScript.unhexlify(
-                    hex_string=self._htlc_utxo["script"]
-                )
+        self._transaction.spend([TxOut(
+            value=self._htlc_utxo["value"],
+            n=0,
+            script_pubkey=P2shScript.unhexlify(
+                hex_string=self._htlc_utxo["script"]
             )
-        ], [
-            P2shSolver(
-                redeem_script=solver.witness(
-                    network=self._network
-                ),
-                redeem_script_solver=solver.solve(
-                    network=self._network
-                )
+        )], [P2shSolver(
+            redeem_script=solver.witness(
+                network=self._network
+            ),
+            redeem_script_solver=solver.solve(
+                network=self._network
             )
-        ])
+        )])
 
         # Set transaction type
         self._type = "bitcoin_refund_signed"

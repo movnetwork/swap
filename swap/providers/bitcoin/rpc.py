@@ -142,12 +142,13 @@ def find_p2sh_utxo(transaction: dict) -> Optional[dict]:
     {'value': 10050780, 'script': 'a9149418feed4647e156d6663db3e0cef7c050d0386787', 'addresses': ['2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae'], 'script_type': 'pay-to-script-hash'}
     """
 
-    transaction_outputs, utxo = transaction["outputs"], None
-    for transaction_output in transaction_outputs:
+    transaction_outputs, utxo, position = transaction["outputs"], None, 0
+    for index, transaction_output in enumerate(transaction_outputs):
         if transaction_output["script_type"] == "pay-to-script-hash":
             utxo = transaction_output
+            position += index
             break
-    return utxo
+    return dict(position=position, **utxo)
 
 
 def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
