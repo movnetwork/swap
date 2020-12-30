@@ -508,7 +508,7 @@ class Wallet(HDWallet):
 
         return self._hdwallet.program()
 
-    def address(self, network: Optional[str] = config["network"]) -> str:
+    def address(self, network: Optional[str] = None) -> str:
         """
         Get Bytom wallet address.
 
