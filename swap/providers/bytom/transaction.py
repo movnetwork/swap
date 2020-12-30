@@ -479,8 +479,8 @@ class FundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
-        if not is_address(htlc_address, self._network) and get_address_type(address) != "p2wsh":
-            raise AddressError(f"Invalid Bytom HTLC '{htlc_address}' {self._network} address.")
+        if not is_address(htlc_address, self._network) or get_address_type(htlc_address) != "p2wsh":
+            raise AddressError(f"Invalid Bytom HTLC '{htlc_address}' {self._network} P2WSH address.")
 
         # Set address, fee and confirmations
         self._address, self._asset, self._htlc_address, self._amount, self._confirmations = (

@@ -393,8 +393,8 @@ class FundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
-        if not is_address(htlc_address, self._network) and get_address_type(htlc_address) != "p2sh":
-            raise AddressError(f"Invalid Bitcoin HTLC '{htlc_address}' {self._network} address.")
+        if not is_address(htlc_address, self._network) or get_address_type(htlc_address) != "p2sh":
+            raise AddressError(f"Invalid Bitcoin HTLC '{htlc_address}' {self._network} P2SH address.")
 
         self._address, self._htlc_address, self._amount = (
             address, htlc_address, amount
