@@ -252,7 +252,7 @@ class HTLC:
             raise UnitError("Invalid Bytom unit, choose only BTM, mBTM or NEU units.")
         _balance: int = get_balance(
             address=self.address(),
-            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            asset=(str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             network=self._network
         )
         return _balance if unit == "NEU" else \
@@ -279,6 +279,6 @@ class HTLC:
 
         return get_utxos(
             program=get_p2wsh_program(script_hash=self.hash()),
-            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            asset=(str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             limit=limit
         )

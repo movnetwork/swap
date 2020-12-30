@@ -54,7 +54,7 @@ def get_balance(address: str, asset: Union[str, AssetNamespace] = config["asset"
     if response.json() is None or response.json()["data"] is None:
         return 0
     for _asset in response.json()["data"]["address"]:
-        if (asset.ID if isinstance(asset, AssetNamespace) else asset) == _asset["asset_id"]:
+        if (str(asset.ID) if isinstance(asset, AssetNamespace) else asset) == _asset["asset_id"]:
             return int(_asset["balance"])
     return 0
 
@@ -96,7 +96,7 @@ def get_utxos(program: str, asset: Union[str, AssetNamespace] = config["asset"],
 
     url = f"{config[network]['blockcenter']}/q/utxos"
     data = dict(filter=dict(
-        script=program, asset=(asset.ID if isinstance(asset, AssetNamespace) else asset)
+        script=program, asset=(str(asset.ID) if isinstance(asset, AssetNamespace) else asset)
     ), sort=dict(by=by, order=order))
     params = dict(limit=limit)
     response = requests.post(
@@ -144,7 +144,7 @@ def estimate_transaction_fee(address: str, amount: int, asset: Union[str, AssetN
     url = f"{config[network]['mov']}/merchant/estimate-tx-fee"
     data = dict(
         asset_amounts={
-            (asset.ID if isinstance(asset, AssetNamespace) else asset): str(amount_unit_converter(
+            (str(asset.ID) if isinstance(asset, AssetNamespace) else asset): str(amount_unit_converter(
                 amount=amount, unit_from="NEU2BTM"
             ))
         },

@@ -283,7 +283,7 @@ class NormalTransaction(Transaction):
 
         # Set address, fee and confirmations
         self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             config["confirmations"], [], [], sum(recipients.values())
         )
 
@@ -292,7 +292,7 @@ class NormalTransaction(Transaction):
             if not is_address(_address, self._network):
                 raise AddressError(f"Invalid Vapor recipients '{_address}' {self._network} address.")
             outputs.append(control_address(
-                asset=asset, address=_address, amount=_amount, vapor=True
+                asset=self._asset, address=_address, amount=_amount, vapor=True
             ))
 
         if "options" in kwargs.keys():
@@ -481,7 +481,7 @@ class FundTransaction(Transaction):
 
         # Set address, fee and confirmations
         self._address, self._asset, self._htlc_address, self._amount, self._confirmations = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             htlc_address, amount, config["confirmations"]
         )
 
@@ -688,7 +688,7 @@ class ClaimTransaction(Transaction):
 
         # Set address, asset, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             config["confirmations"], transaction_id
         )
         # Get transaction
@@ -908,7 +908,7 @@ class RefundTransaction(Transaction):
 
         # Set address, fee, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             config["confirmations"], transaction_id
         )
         # Get transaction

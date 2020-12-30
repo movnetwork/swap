@@ -285,7 +285,7 @@ class NormalTransaction(Transaction):
 
         # Set address, fee and confirmations
         self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             config["confirmations"], [], [], sum(recipients.values())
         )
 
@@ -294,7 +294,7 @@ class NormalTransaction(Transaction):
             if not is_address(_address, self._network):
                 raise AddressError(f"Invalid Bytom recipients '{_address}' {self._network} address.")
             outputs.append(control_address(
-                asset=asset, address=_address, amount=_amount, vapor=False
+                asset=self._asset, address=_address, amount=_amount, vapor=False
             ))
 
         if "options" in kwargs.keys():
@@ -484,7 +484,7 @@ class FundTransaction(Transaction):
 
         # Set address, fee and confirmations
         self._address, self._asset, self._htlc_address, self._amount, self._confirmations = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             htlc_address, amount, config["confirmations"]
         )
 
@@ -493,7 +493,7 @@ class FundTransaction(Transaction):
             if "address" in options and "percent" in options:
                 self._interest = int((self._amount * options["percent"]) / 100)
             if "fee" in options:
-                self._amount = (self._amount + 449000) if options["fee"] else self._amount
+                self._amount = (self._amount + (449000 + 60000)) if options["fee"] else self._amount
             if "interest" in options and self._interest:
                 self._amount = (self._amount + (self._interest / 2)) if options["interest"] else self._amount
 
@@ -690,7 +690,7 @@ class ClaimTransaction(Transaction):
 
         # Set address, asset, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             config["confirmations"], transaction_id
         )
         # Get transaction
@@ -719,7 +719,7 @@ class ClaimTransaction(Transaction):
             self._fee = estimate_transaction_fee(
                 address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
                 confirmations=self._confirmations, network=self._network
-            )
+            ) + 60000
         else:
             self._fee = config["fee"]
 
@@ -910,7 +910,7 @@ class RefundTransaction(Transaction):
 
         # Set address, fee, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
-            address, (asset.ID if isinstance(asset, AssetNamespace) else asset),
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             config["confirmations"], transaction_id
         )
         # Get transaction
@@ -939,7 +939,7 @@ class RefundTransaction(Transaction):
             self._fee = estimate_transaction_fee(
                 address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
                 confirmations=self._confirmations, network=self._network
-            )
+            ) + 60000
         else:
             self._fee = config["fee"]
 

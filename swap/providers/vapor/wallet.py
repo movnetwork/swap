@@ -552,7 +552,7 @@ class Wallet(HDWallet):
             raise UnitError("Invalid Vapor unit, choose only BTM, mBTM or NEU units.")
         _balance: int = get_balance(
             address=self.address(),
-            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            asset=(str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             network=self._network
         )
         return _balance if unit == "NEU" else \
@@ -578,6 +578,6 @@ class Wallet(HDWallet):
 
         return get_utxos(
             program=self.program(),
-            asset=(asset.ID if isinstance(asset, AssetNamespace) else asset),
+            asset=(str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
             limit=limit
         )
