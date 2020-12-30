@@ -69,7 +69,7 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.fee(unit="NEU")
         10000000
         """
@@ -87,7 +87,7 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
+        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> fund_transaction.hash()
         "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
         """
@@ -105,7 +105,7 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.json()
         {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
         """
@@ -123,7 +123,7 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
@@ -141,7 +141,7 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.type()
         "bitcoin_claim_unsigned"
         """
@@ -162,11 +162,11 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> from swap.providers.vapor.solver import FundSolver
-        >>> from swap.providers.vapor.wallet import Wallet
+        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
         >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> fund_transaction.unsigned_datas(solver=fund_solver)
         [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
         """
@@ -220,11 +220,11 @@ class Transaction(VaporTransaction):
 
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> from swap.providers.vapor.solver import FundSolver
-        >>> from swap.providers.vapor.wallet import Wallet
+        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
         >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> fund_transaction.sign(solver=fund_solver)
         >>> fund_transaction.signatures()
         [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
@@ -273,7 +273,7 @@ class NormalTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import NormalTransaction
         >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc_address="bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", amount=10000)
+        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", recipients={"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
         """
 
@@ -353,7 +353,7 @@ class NormalTransaction(Transaction):
         >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> normal_solver = NormalSolver(sender_wallet.xprivate_key())
         >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> normal_transaction.build_transaction(sender_wallet.address(), {"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> normal_transaction.sign(solver=normal_solver)
         <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
         """
@@ -393,7 +393,7 @@ class NormalTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import NormalTransaction
         >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000)
+        >>> normal_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", {"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> normal_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -469,7 +469,7 @@ class FundTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", htlc_address="vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", amount=10000)
+        >>> fund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", htlc_address="vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", amount=10000000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.vapor.transaction.FundTransaction object at 0x0409DAF0>
         """
 
@@ -556,7 +556,7 @@ class FundTransaction(Transaction):
         >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
+        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.vapor.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -596,7 +596,7 @@ class FundTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000)
+        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> fund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -678,7 +678,7 @@ class ClaimTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.vapor.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
@@ -774,7 +774,7 @@ class ClaimTransaction(Transaction):
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.sign(solver=claim_solver)
         <swap.providers.vapor.transaction.ClaimTransaction object at 0x0409DAF0>
         """
@@ -817,7 +817,7 @@ class ClaimTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> claim_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -898,7 +898,7 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", amount=10000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.vapor.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
@@ -994,7 +994,7 @@ class RefundTransaction(Transaction):
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> refund_solver = RefundSolver(sender_wallet.xprivate_key(), bytecode=bytecode)
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(sender_wallet.address(), "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction(sender_wallet.address(), "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.vapor.transaction.RefundTransaction object at 0x0409DAF0>
         """
@@ -1036,7 +1036,7 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """

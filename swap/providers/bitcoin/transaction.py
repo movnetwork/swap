@@ -74,7 +74,7 @@ class Transaction:
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
-        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> claim_transaction.fee(unit="SATOSHI")
         576
         """
@@ -92,7 +92,7 @@ class Transaction:
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("testnet")
-        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
+        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000000)
         >>> fund_transaction.hash()
         "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7"
         """
@@ -109,7 +109,7 @@ class Transaction:
 
         >>> from swap.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("testnet")
-        >>> refund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> refund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> refund_transaction.json()
         {"hex": "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000", "txid": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "hash": "9cc0524fb8e7b2c5fecaee4eb91d43a3dc5cc18e9906abcb35a5732ff52efcc7", "size": 117, "vsize": 117, "version": 2, "locktime": 0, "vin": [{"txid": "be346626628199608926792d775381e54d8632c14b3ce702f90639481722392c", "vout": 1, "scriptSig": {"asm": "", "hex": ""}, "sequence": "4294967295"}], "vout": [{"value": "0.00001000", "n": 0, "scriptPubKey": {"asm": "OP_HASH160 971894c58d85981c16c2059d422bcde0b156d044 OP_EQUAL", "hex": "a914971894c58d85981c16c2059d422bcde0b156d04487", "type": "p2sh", "address": "2N729UBGZB3xjsGFRgKivy4bSjkaJGMVSpB"}}, {"value": "0.00010662", "n": 1, "scriptPubKey": {"asm": "OP_DUP OP_HASH160 6bce65e58a50b97989930e9a4ff1ac1a77515ef1 OP_EQUALVERIFY OP_CHECKSIG", "hex": "76a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac", "type": "p2pkh", "address": "mqLyrNDjpENRMZAoDpspH7kR9RtgvhWzYE"}}]}
         """
@@ -127,7 +127,7 @@ class Transaction:
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
-        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> claim_transaction.raw()
         "02000000012c392217483906f902e73c4bc132864de58153772d79268960998162266634be0100000000ffffffff02e80300000000000017a914971894c58d85981c16c2059d422bcde0b156d04487a6290000000000001976a9146bce65e58a50b97989930e9a4ff1ac1a77515ef188ac00000000"
         """
@@ -145,7 +145,7 @@ class Transaction:
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
-        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> claim_transaction.type()
         "bitcoin_claim_unsigned"
         """
@@ -166,6 +166,9 @@ class NormalTransaction(Transaction):
     :type version: int
 
     :returns: NormalTransaction -- Bitcoin normal transaction instance.
+    
+    .. warning::
+        Do not forget to build transaction after initialize normal transaction.
     """
 
     def __init__(self, network: str = config["network"], version: int = config["version"]):
@@ -191,7 +194,7 @@ class NormalTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import NormalTransaction
         >>> normal_transaction = NormalTransaction("testnet")
-        >>> normal_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc_address="2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", amount=10000)
+        >>> normal_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", recipients={"2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae": 10000000}, locktime=0)
         <swap.providers.bitcoin.transaction.NormalTransaction object at 0x0409DAF0>
         """
 
@@ -282,7 +285,7 @@ class NormalTransaction(Transaction):
         >>> from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
         >>> sender_wallet = Wallet("testnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> normal_solver = NormalSolver(sender_wallet.root_xprivate_key())
-        >>> normal_transaction = NormalTransaction("testnet").build_transaction(sender_wallet.address(), "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
+        >>> normal_transaction = NormalTransaction("testnet").build_transaction(sender_wallet.address(), {"2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae": 10000000})
         >>> normal_transaction.sign(solver=normal_solver)
         <swap.providers.bitcoin.transaction.NormalTransaction object at 0x0409DAF0>
         """
@@ -315,7 +318,7 @@ class NormalTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import NormalTransaction
         >>> normal_transaction = NormalTransaction("testnet")
-        >>> normal_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
+        >>> normal_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", {"2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae": 10000000})
         >>> normal_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -386,7 +389,7 @@ class FundTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("testnet")
-        >>> fund_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc_address="2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", amount=10000)
+        >>> fund_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", htlc_address="2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", amount=10000000)
         <swap.providers.bitcoin.transaction.FundTransaction object at 0x0409DAF0>
         """
 
@@ -477,7 +480,7 @@ class FundTransaction(Transaction):
         >>> from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
         >>> sender_wallet = Wallet("testnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> fund_solver = FundSolver(sender_wallet.root_xprivate_key())
-        >>> fund_transaction = FundTransaction("testnet").build_transaction(sender_wallet.address(), "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
+        >>> fund_transaction = FundTransaction("testnet").build_transaction(sender_wallet.address(), "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000000)
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.bitcoin.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -510,7 +513,7 @@ class FundTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import FundTransaction
         >>> fund_transaction = FundTransaction("testnet")
-        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000)
+        >>> fund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae", 10000000)
         >>> fund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -584,7 +587,7 @@ class ClaimTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
-        >>> claim_transaction.build_transaction(address="mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000)
+        >>> claim_transaction.build_transaction(address="mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000000, max_amount=False)
         <swap.providers.bitcoin.transaction.ClaimTransaction object at 0x0409DAF0>
         """
 
@@ -686,7 +689,7 @@ class ClaimTransaction(Transaction):
         >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
         >>> claim_solver = ClaimSolver(recipient_wallet.root_xprivate_key(), "Hello Meheret!", bytecode)
         >>> claim_transaction = ClaimTransaction("testnet")
-        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> claim_transaction.sign(solver=claim_solver)
         <swap.providers.bitcoin.transaction.ClaimTransaction object at 0x0409DAF0>
         """
@@ -724,7 +727,7 @@ class ClaimTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import ClaimTransaction
         >>> claim_transaction = ClaimTransaction("testnet")
-        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> claim_transaction.build_transaction("mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> claim_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -798,7 +801,7 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("testnet")
-        >>> refund_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000)
+        >>> refund_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", amount=10000000, max_amount=False)
         <swap.providers.bitcoin.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
@@ -900,7 +903,7 @@ class RefundTransaction(Transaction):
         >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
         >>> refund_solver = RefundSolver(sender_wallet.root_xprivate_key(), bytecode, sequence=1000)
         >>> refund_transaction = RefundTransaction("testnet")
-        >>> refund_transaction.build_transaction(sender_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> refund_transaction.build_transaction(sender_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.bitcoin.transaction.RefundTransaction object at 0x0409DAF0>
         """
@@ -938,7 +941,7 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.bitcoin.transaction import RefundTransaction
         >>> refund_transaction = RefundTransaction("testnet")
-        >>> refund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000)
+        >>> refund_transaction.build_transaction("mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False)
         >>> refund_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
