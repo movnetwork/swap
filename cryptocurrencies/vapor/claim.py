@@ -40,7 +40,7 @@ print("XPublic Key:", recipient_wallet.xpublic_key())
 print("Private Key:", recipient_wallet.private_key())
 print("Public Key:", recipient_wallet.public_key())
 print("Address:", recipient_wallet.address())
-print("Balance:", recipient_wallet.balance(asset=ASSET, symbol="BTM"), "BTM")
+print("Balance:", recipient_wallet.balance(asset=ASSET, unit="BTM"), "BTM")
 
 print("=" * 10, "Unsigned Claim Transaction")
 
@@ -54,7 +54,7 @@ unsigned_claim_transaction.build_transaction(
     asset=ASSET
 )
 
-print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee(symbol="BTM"), "BTM")
+print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee(unit="BTM"), "BTM")
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Main Raw:", unsigned_claim_transaction.raw())
 # print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
@@ -77,7 +77,7 @@ claim_solver: ClaimSolver = ClaimSolver(
 # Sign unsigned claim transaction
 signed_claim_transaction: ClaimTransaction = unsigned_claim_transaction.sign(claim_solver)
 
-print("Signed Claim Transaction Fee:", signed_claim_transaction.fee(symbol="BTM"), "BTM")
+print("Signed Claim Transaction Fee:", signed_claim_transaction.fee(unit="BTM"), "BTM")
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Main Raw:", signed_claim_transaction.raw())
 # print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
@@ -98,7 +98,7 @@ claim_signature.sign(
     solver=claim_solver
 )
 
-print("Claim Signature Fee:", claim_signature.fee(symbol="BTM"), "BTM")
+print("Claim Signature Fee:", claim_signature.fee(unit="BTM"), "BTM")
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Main Raw:", claim_signature.raw())
 # print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))

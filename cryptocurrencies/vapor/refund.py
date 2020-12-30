@@ -38,7 +38,7 @@ print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
 print("Address:", sender_wallet.address())
-print("Balance:", sender_wallet.balance(asset=ASSET, symbol="BTM"), "BTM")
+print("Balance:", sender_wallet.balance(asset=ASSET, unit="BTM"), "BTM")
 
 print("=" * 10, "Unsigned Refund Transaction")
 
@@ -52,7 +52,7 @@ unsigned_refund_transaction.build_transaction(
     asset=ASSET
 )
 
-print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee(symbol="BTM"), "BTM")
+print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee(unit="BTM"), "BTM")
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
 print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw())
 # print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
@@ -74,7 +74,7 @@ refund_solver: RefundSolver = RefundSolver(
 # Sign unsigned refund transaction
 signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(refund_solver)
 
-print("Signed Refund Transaction Fee:", signed_refund_transaction.fee(symbol="BTM"), "BTM")
+print("Signed Refund Transaction Fee:", signed_refund_transaction.fee(unit="BTM"), "BTM")
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
 print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
 # print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
@@ -95,7 +95,7 @@ refund_signature.sign(
     solver=refund_solver
 )
 
-print("Refund Signature Fee:", refund_signature.fee(symbol="BTM"), "BTM")
+print("Refund Signature Fee:", refund_signature.fee(unit="BTM"), "BTM")
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Main Raw:", refund_signature.raw())
 # print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))

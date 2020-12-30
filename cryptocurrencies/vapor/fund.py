@@ -6,7 +6,7 @@ from swap.providers.vapor.assets import BTM as ASSET
 from swap.providers.vapor.solver import FundSolver
 from swap.providers.vapor.signature import FundSignature
 from swap.providers.vapor.utils import (
-    submit_transaction_raw, amount_converter
+    submit_transaction_raw, amount_unit_converter
 )
 
 import json
@@ -18,7 +18,7 @@ SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing ov
 # Vapor Hash Time Lock Contract (HTLC) address
 HTLC_ADDRESS: str = "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37"
 # Vapor fund amount
-AMOUNT: int = amount_converter(0.1, "BTM2NEU")
+AMOUNT: int = amount_unit_converter(0.1, "BTM2NEU")
 
 print("=" * 10, "Sender Vapor Account")
 
@@ -35,7 +35,7 @@ print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
 print("Address:", sender_wallet.address())
-print("Balance:", sender_wallet.balance(asset=ASSET, symbol="BTM"), "BTM")
+print("Balance:", sender_wallet.balance(asset=ASSET, unit="BTM"), "BTM")
 
 print("=" * 10, "Unsigned Fund Transaction")
 
@@ -49,7 +49,7 @@ unsigned_fund_transaction.build_transaction(
     asset=ASSET
 )
 
-print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee(symbol="NEU"), "NEU")
+print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee(unit="NEU"), "NEU")
 print("Unsigned Fund Transaction Hash:", unsigned_fund_transaction.hash())
 print("Unsigned Fund Transaction Main Raw:", unsigned_fund_transaction.raw())
 # print("Unsigned Fund Transaction Json:", json.dumps(unsigned_fund_transaction.json(), indent=4))
@@ -70,7 +70,7 @@ fund_solver: FundSolver = FundSolver(
 # Sing unsigned fund transaction
 signed_fund_transaction: FundTransaction = unsigned_fund_transaction.sign(fund_solver)
 
-print("Signed Fund Transaction Fee:", signed_fund_transaction.fee(symbol="NEU"), "NEU")
+print("Signed Fund Transaction Fee:", signed_fund_transaction.fee(unit="NEU"), "NEU")
 print("Signed Fund Transaction Hash:", signed_fund_transaction.hash())
 print("Signed Fund Transaction Raw:", signed_fund_transaction.raw())
 # print("Signed Fund Transaction Json:", json.dumps(signed_fund_transaction.json(), indent=4))
@@ -91,7 +91,7 @@ fund_signature.sign(
     solver=fund_solver
 )
 
-print("Fund Signature Fee:", fund_signature.fee(symbol="NEU"), "NEU")
+print("Fund Signature Fee:", fund_signature.fee(unit="NEU"), "NEU")
 print("Fund Signature Hash:", fund_signature.hash())
 print("Fund Signature Raw:", fund_signature.raw())
 # print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
