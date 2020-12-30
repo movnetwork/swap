@@ -12,7 +12,7 @@ import json
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Vapor funded transaction id/hash
-TRANSACTION_ID: str = "28168825b2eaded02973313b1c4152a6362157590ec8cd3f530306259eb390ce"
+TRANSACTION_ID: str = "96db48d3f3a4d9f3e490bcb3e1ad1cc8b11f8e51ceee816ecf6085374c824f0e"
 # Vapor sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Witness Hash Time Lock Contract (HTLC) bytecode

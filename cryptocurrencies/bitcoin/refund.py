@@ -11,7 +11,7 @@ import json
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Bitcoin funded transaction id/hash
-TRANSACTION_ID: str = "868f81fd172b8f1d24e0c195af011489c3a7948513521d4b6257b8b5fb2ef409"
+TRANSACTION_ID: str = "161da7d35fc7ec2f9a3b5f6469b2d3526d3a72ad7c4b124aae5838245a8bc64a"
 # Bitcoin sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Witness Hash Time Lock Contract (HTLC) bytecode

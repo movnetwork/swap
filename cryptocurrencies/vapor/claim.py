@@ -12,7 +12,7 @@ import json
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Vapor funded transaction id/hash
-TRANSACTION_ID: str = "28168825b2eaded02973313b1c4152a6362157590ec8cd3f530306259eb390ce"
+TRANSACTION_ID: str = "96db48d3f3a4d9f3e490bcb3e1ad1cc8b11f8e51ceee816ecf6085374c824f0e"
 # Vapor recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Witness Hash Time Lock Contract (HTLC) bytecode
@@ -54,7 +54,7 @@ unsigned_claim_transaction.build_transaction(
     asset=ASSET
 )
 
-print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee(unit="BTM"), "BTM")
+print("Unsigned Claim Transaction Fee:", unsigned_claim_transaction.fee(unit="NEU"), "NEU")
 print("Unsigned Claim Transaction Hash:", unsigned_claim_transaction.hash())
 print("Unsigned Claim Transaction Main Raw:", unsigned_claim_transaction.raw())
 # print("Unsigned Claim Transaction Json:", json.dumps(unsigned_claim_transaction.json(), indent=4))
@@ -77,7 +77,7 @@ claim_solver: ClaimSolver = ClaimSolver(
 # Sign unsigned claim transaction
 signed_claim_transaction: ClaimTransaction = unsigned_claim_transaction.sign(claim_solver)
 
-print("Signed Claim Transaction Fee:", signed_claim_transaction.fee(unit="BTM"), "BTM")
+print("Signed Claim Transaction Fee:", signed_claim_transaction.fee(unit="NEU"), "NEU")
 print("Signed Claim Transaction Hash:", signed_claim_transaction.hash())
 print("Signed Claim Transaction Main Raw:", signed_claim_transaction.raw())
 # print("Signed Claim Transaction Json:", json.dumps(signed_claim_transaction.json(), indent=4))
@@ -98,7 +98,7 @@ claim_signature.sign(
     solver=claim_solver
 )
 
-print("Claim Signature Fee:", claim_signature.fee(unit="BTM"), "BTM")
+print("Claim Signature Fee:", claim_signature.fee(unit="NEU"), "NEU")
 print("Claim Signature Hash:", claim_signature.hash())
 print("Claim Signature Main Raw:", claim_signature.raw())
 # print("Claim Signature Json:", json.dumps(claim_signature.json(), indent=4))

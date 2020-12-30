@@ -12,7 +12,7 @@ import json
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Bytom funded transaction id/hash
-TRANSACTION_ID: str = "b6d12407bbd238938941246fd0dd3e5234f1e3c370bef3fcbc1f60ebee022e76"
+TRANSACTION_ID: str = "0dbf27e5e0dcfff583e1db18265e367f7e66556979e194213ad859383ea3f6dc"
 # Bytom sender wallet mnemonic
 SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
 # Witness Hash Time Lock Contract (HTLC) bytecode
