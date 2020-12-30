@@ -14,7 +14,7 @@ from ....providers.config import vapor as config
 @click.option("-a", "--address", type=str, required=True, help="Set Vapor sender address.")
 @click.option("-ha", "--htlc-address", type=str, required=True,
               help="Set Vapor Hash Time Lock Contract (HTLC) address.")
-@click.option("-am", "--amount", type=int, required=True, help="Set Vapor fund amount.")
+@click.option("-am", "--amount", type=float, required=True, help="Set Vapor fund amount.")
 @click.option("-u", "--unit", type=str, default=config["unit"],
               help="Set Vapor amount unit.", show_default=True)
 @click.option("-as", "--asset", type=str, default=config["asset"],

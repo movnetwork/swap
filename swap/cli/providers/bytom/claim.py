@@ -13,8 +13,8 @@ from ....providers.config import bytom as config
                short_help="Select Bytom Claim transaction builder.")
 @click.option("-a", "--address", type=str, required=True, help="Set Bytom recipient address.")
 @click.option("-ti", "--transaction-id", type=str, required=True, help="Set Bytom funded transaction id/hash.")
-@click.option("-am", "--amount", type=int, default=None,
-              help="Set Bytom withdraw amount.  [default: None]", show_default=True)
+@click.option("-am", "--amount", type=float, default=0,
+              help="Set Bytom withdraw amount.  [default: None]", show_default=False)
 @click.option("-ma", "--max-amount", type=bool, default=True,
               help="Set Bytom withdraw max amount.", show_default=True)
 @click.option("-u", "--unit", type=str, default=config["unit"],

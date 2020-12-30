@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import json
 import sys
 
 from ....cli import click
@@ -17,7 +18,8 @@ from ....providers.config import vapor as config
               help="Set Vapor sequence/expiration block.", show_default=True)
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set Vapor network.", show_default=True)
-def htlc(secret_hash: str, recipient_public_key: str, sender_public_key: str, sequence: int, network: str):
+@click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)
+def htlc(secret_hash: str, recipient_public_key: str, sender_public_key: str, sequence: int, network: str, indent: int):
     try:
         _htlc: HTLC = HTLC(
             network=network
@@ -27,9 +29,9 @@ def htlc(secret_hash: str, recipient_public_key: str, sender_public_key: str, se
             sender_public_key=sender_public_key,
             sequence=sequence
         )
-        click.echo(dict(
+        click.echo(json.dumps(dict(
             bytecode=_htlc.bytecode(), address=_htlc.address()
-        ))
+        ), indent=indent))
     except Exception as exception:
         click.echo(click.style("Error: {}")
                    .format(str(exception)), err=True)

@@ -13,8 +13,8 @@ from ....providers.config import bitcoin as config
                short_help="Select Bitcoin Refund transaction builder.")
 @click.option("-a", "--address", type=str, required=True, help="Set Bitcoin sender address.")
 @click.option("-ti", "--transaction-id", type=str, required=True, help="Set Bitcoin funded transaction id/hash.")
-@click.option("-am", "--amount", type=int, default=None,
-              help="Set Bitcoin refund amount.  [default: None]", show_default=True)
+@click.option("-am", "--amount", type=float, default=0,
+              help="Set Bitcoin refund amount.  [default: None]", show_default=False)
 @click.option("-ma", "--max-amount", type=bool, default=True,
               help="Set Bitcoin refund max amount.", show_default=True)
 @click.option("-u", "--unit", type=str, default=config["unit"],

@@ -13,8 +13,8 @@ from ....providers.config import vapor as config
                short_help="Select Vapor Refund transaction builder.")
 @click.option("-a", "--address", type=str, required=True, help="Set Vapor sender address.")
 @click.option("-ti", "--transaction-id", type=str, required=True, help="Set Vapor funded transaction id/hash.")
-@click.option("-am", "--amount", type=int, default=None,
-              help="Set Vapor refund amount.  [default: None]", show_default=True)
+@click.option("-am", "--amount", type=float, default=0,
+              help="Set Vapor refund amount.  [default: None]", show_default=False)
 @click.option("-ma", "--max-amount", type=bool, default=True,
               help="Set Vapor refund max amount.", show_default=True)
 @click.option("-u", "--unit", type=str, default=config["unit"],
