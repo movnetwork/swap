@@ -28,4 +28,7 @@ def test_bytom_cli_htlc(cli_tester):
     )
 
     assert htlc.exit_code == 0
-    assert htlc.output == _["bytom"]["htlc"]["bytecode"] + "\n"
+    assert htlc.output == str(json.dumps(dict(
+        bytecode=_["bytom"]["htlc"]["bytecode"],
+        address=_["bytom"]["htlc"]["address"]
+    ), indent=4)) + "\n"

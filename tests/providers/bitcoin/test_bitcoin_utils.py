@@ -40,7 +40,7 @@ def test_bitcoin_utils():
 
     assert decode_transaction_raw(transaction_raw=_["bitcoin"]["fund"]["unsigned"]["transaction_raw"]) == \
         {
-            "fee": 678,
+            "fee": _["bitcoin"]["fund"]["unsigned"]["fee"],
             "network": _["bitcoin"]["network"],
             "tx": _["bitcoin"]["fund"]["unsigned"]["json"],
             "type": "bitcoin_fund_unsigned"

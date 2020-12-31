@@ -25,9 +25,9 @@ def test_bitcoin_cli_decode(cli_tester):
     )
 
     assert decode.exit_code == 0
-    assert decode.output != str({
-        "fee": 678,
-        "type": 'bitcoin_fund_unsigned',
-        "tx": _["bitcoin"]["fund"]["unsigned"]["json"],
-        "network": _["bitcoin"]["network"]
-    }) + "\n"
+    assert decode.output != str(json.dumps(dict(
+        fee=_["bitcoin"]["fund"]["unsigned"]["fee"],
+        network=_["bitcoin"]["network"],
+        tx=_["bitcoin"]["fund"]["unsigned"]["json"],
+        type=_["bitcoin"]["fund"]["unsigned"]["type"],
+    ), indent=4)) + "\n"

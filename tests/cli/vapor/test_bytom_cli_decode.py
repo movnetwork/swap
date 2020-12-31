@@ -25,12 +25,12 @@ def test_vapor_cli_decode(cli_tester):
     )
 
     assert decode.exit_code == 0
-    assert decode.output != str({
-        "address": _["vapor"]["wallet"]["sender"]["address"],
-        "fee": 10000000,
-        "network": _["vapor"]["network"],
-        "signatures": [],
-        "tx": _["vapor"]["fund"]["unsigned"]["json"],
-        "type": "vapor_fund_unsigned",
-        "unsigned_datas": _["vapor"]["fund"]["unsigned"]["unsigned_datas"]
-    }) + "\n"
+    assert decode.output != str(json.dumps(dict(
+        bytecode=_["vapor"]["wallet"]["sender"]["address"],
+        fee=_["vapor"]["fund"]["unsigned"]["fee"],
+        network=_["vapor"]["network"],
+        signatures=[],
+        tx=_["vapor"]["fund"]["unsigned"]["json"],
+        type=_["vapor"]["fund"]["unsigned"]["type"],
+        unsigned_datas=_["vapor"]["fund"]["unsigned"]["unsigned_datas"],
+    ), indent=4)) + "\n"

@@ -24,6 +24,8 @@ def test_bytom_cli_refund(cli_tester):
             "--transaction-id", _["bytom"]["transaction_id"],
             "--asset", _["bytom"]["asset"],
             "--amount", _["bytom"]["amount"],
+            "--max-amount", _["bytom"]["max_amount"],
+            "--unit", _["bytom"]["unit"],
             "--network", _["bytom"]["network"]
         ]
     )

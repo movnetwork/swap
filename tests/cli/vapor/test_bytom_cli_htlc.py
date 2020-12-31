@@ -28,4 +28,7 @@ def test_vapor_cli_htlc(cli_tester):
     )
 
     assert htlc.exit_code == 0
-    assert htlc.output == _["vapor"]["htlc"]["bytecode"] + "\n"
+    assert htlc.output == str(json.dumps(dict(
+        bytecode=_["vapor"]["htlc"]["bytecode"],
+        address=_["vapor"]["htlc"]["address"]
+    ), indent=4)) + "\n"

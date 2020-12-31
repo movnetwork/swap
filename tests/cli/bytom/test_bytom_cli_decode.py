@@ -25,12 +25,12 @@ def test_bytom_cli_decode(cli_tester):
     )
 
     assert decode.exit_code == 0
-    assert decode.output != str({
-        "address": _["bytom"]["wallet"]["sender"]["address"],
-        "fee": 10000000,
-        "network": _["bytom"]["network"],
-        "signatures": [],
-        "tx": _["bytom"]["fund"]["unsigned"]["json"],
-        "type": "bytom_fund_unsigned",
-        "unsigned_datas": _["bytom"]["fund"]["unsigned"]["unsigned_datas"]
-    }) + "\n"
+    assert decode.output != str(json.dumps(dict(
+        bytecode=_["bytom"]["wallet"]["sender"]["address"],
+        fee=_["bytom"]["fund"]["unsigned"]["fee"],
+        network=_["bytom"]["network"],
+        signatures=[],
+        tx=_["bytom"]["fund"]["unsigned"]["json"],
+        type=_["bytom"]["fund"]["unsigned"]["type"],
+        unsigned_datas=_["bytom"]["fund"]["unsigned"]["unsigned_datas"],
+    ), indent=4)) + "\n"

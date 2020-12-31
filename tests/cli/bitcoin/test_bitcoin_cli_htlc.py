@@ -28,4 +28,7 @@ def test_bitcoin_cli_htlc(cli_tester):
     )
 
     assert htlc.exit_code == 0
-    assert htlc.output == _["bitcoin"]["htlc"]["bytecode"] + "\n"
+    assert htlc.output == str(json.dumps(dict(
+        bytecode=_["bitcoin"]["htlc"]["bytecode"],
+        address=_["bitcoin"]["htlc"]["address"]
+    ), indent=4)) + "\n"

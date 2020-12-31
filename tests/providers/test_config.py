@@ -22,9 +22,10 @@ def test_config():
 
     assert bitcoin["path"] == "m/44'/0'/0'/0/0"
     assert bitcoin["BIP44"] == "m/44'/0'/{account}'/{change}/{address}"
-    assert bitcoin["symbol"] == "SATOSHI"
+    assert bitcoin["unit"] == "SATOSHI"
     assert bitcoin["timeout"] == 60
     assert bitcoin["locktime"] == 0
+    assert bitcoin["max_amount"] == True
     assert bitcoin["version"] == 2
     assert bitcoin["network"] == "mainnet"
     assert bitcoin["sequence"] == 1000
@@ -51,12 +52,13 @@ def test_config():
 
     assert bytom["path"] == "m/44/153/1/0/1"
     assert bytom["BIP44"] == "m/44/153/{account}/{change}/{address}"
-    assert bytom["symbol"] == "NEU"
+    assert bytom["unit"] == "NEU"
     assert bytom["timeout"] == 60
     assert bytom["asset"] == "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     assert bytom["fee"] == 10_000_000
     assert bytom["estimate_fee"] is True
     assert bytom["confirmations"] == 1
+    assert bytom["max_amount"] == True
     assert bytom["network"] == "mainnet"
     assert bytom["forbid_chain_tx"] is False
     assert bytom["sequence"] == 1000
@@ -83,12 +85,13 @@ def test_config():
 
     assert vapor["path"] == "m/44/153/1/0/1"
     assert vapor["BIP44"] == "m/44/153/{account}/{change}/{address}"
-    assert vapor["symbol"] == "NEU"
+    assert vapor["unit"] == "NEU"
     assert vapor["timeout"] == 60
     assert vapor["asset"] == "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     assert vapor["fee"] == 10_000_000
     assert vapor["estimate_fee"] is True
     assert vapor["confirmations"] == 1
+    assert vapor["max_amount"] == True
     assert vapor["network"] == "mainnet"
     assert vapor["forbid_chain_tx"] is False
     assert vapor["sequence"] == 1000

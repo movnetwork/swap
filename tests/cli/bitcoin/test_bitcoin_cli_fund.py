@@ -23,6 +23,7 @@ def test_bitcoin_cli_fund(cli_tester):
             "--address", _["bitcoin"]["wallet"]["sender"]["address"],
             "--htlc-address", _["bitcoin"]["htlc"]["address"],
             "--amount", _["bitcoin"]["amount"],
+            "--unit", _["bitcoin"]["unit"],
             "--version", _["bitcoin"]["version"],
             "--network", _["bitcoin"]["network"]
         ]

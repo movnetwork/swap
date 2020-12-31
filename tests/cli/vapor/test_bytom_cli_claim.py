@@ -24,6 +24,8 @@ def test_vapor_cli_claim(cli_tester):
             "--transaction-id", _["vapor"]["transaction_id"],
             "--asset", _["vapor"]["asset"],
             "--amount", _["vapor"]["amount"],
+            "--max-amount", _["vapor"]["max_amount"],
+            "--unit", _["vapor"]["unit"],
             "--network", _["vapor"]["network"]
         ]
     )

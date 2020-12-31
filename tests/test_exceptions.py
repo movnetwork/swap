@@ -2,7 +2,7 @@
 
 from swap.exceptions import (
     NetworkError, BalanceError, APIError, AddressError, InvalidURLError,
-    ClientError, NotFoundError, SymbolError, TransactionRawError
+    ClientError, NotFoundError, UnitError, SymbolError, TransactionRawError
 )
 
 import pytest
@@ -38,6 +38,10 @@ def test_exceptions():
         raise SymbolError("error")
     with pytest.raises(SymbolError, match="error, error"):
         raise SymbolError("error", "error")
+    with pytest.raises(UnitError, match="error"):
+        raise UnitError("error")
+    with pytest.raises(UnitError, match="error, error"):
+        raise UnitError("error", "error")
     with pytest.raises(TransactionRawError, match="error"):
         raise TransactionRawError("error")
     with pytest.raises(TransactionRawError, match="error, error"):
