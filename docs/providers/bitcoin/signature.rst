@@ -1,7 +1,7 @@
 :orphan:
 
 Signature
-===========
+=========
 Bitcoin signature.
 
 .. automodule:: swap.providers.bitcoin.signature
@@ -9,17 +9,22 @@ Bitcoin signature.
 .. autoclass:: Signature
    :members:
 
-FundSignature
+NormalSignature
 ---------------
+.. autoclass:: NormalSignature
+   :members:
+
+FundSignature
+-------------
 .. autoclass:: FundSignature
    :members:
 
 ClaimSignature
-----------------
+--------------
 .. autoclass:: ClaimSignature
    :members:
 
 RefundSignature
------------------
+---------------
 .. autoclass:: RefundSignature
    :members:

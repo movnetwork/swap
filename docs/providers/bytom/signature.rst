@@ -1,7 +1,7 @@
 :orphan:
 
 Signature
-===========
+=========
 Bytom signature.
 
 .. automodule:: swap.providers.bytom.signature
@@ -9,17 +9,22 @@ Bytom signature.
 .. autoclass:: Signature
    :members:
 
-FundSignature
+NormalSignature
 ---------------
+.. autoclass:: NormalSignature
+   :members:
+
+FundSignature
+-------------
 .. autoclass:: FundSignature
    :members:
 
 ClaimSignature
-----------------
+--------------
 .. autoclass:: ClaimSignature
    :members:
 
 RefundSignature
------------------
+---------------
 .. autoclass:: RefundSignature
    :members:
