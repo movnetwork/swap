@@ -72,7 +72,7 @@ signed_fund_transaction: FundTransaction = unsigned_fund_transaction.sign(fund_s
 
 print("Signed Fund Transaction Fee:", signed_fund_transaction.fee(unit="NEU"), "NEU")
 print("Signed Fund Transaction Hash:", signed_fund_transaction.hash())
-print("Signed Fund Transaction Raw:", signed_fund_transaction.raw())
+print("Signed Fund Transaction Main Raw:", signed_fund_transaction.raw())
 # print("Signed Fund Transaction Json:", json.dumps(signed_fund_transaction.json(), indent=4))
 print("Signed Fund Transaction Unsigned Datas:", json.dumps(signed_fund_transaction.unsigned_datas(), indent=4))
 print("Signed Fund Transaction Signatures:", json.dumps(signed_fund_transaction.signatures(), indent=4))
@@ -93,7 +93,7 @@ fund_signature.sign(
 
 print("Fund Signature Fee:", fund_signature.fee(unit="NEU"), "NEU")
 print("Fund Signature Hash:", fund_signature.hash())
-print("Fund Signature Raw:", fund_signature.raw())
+print("Fund Signature Main Raw:", fund_signature.raw())
 # print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
 print("Fund Signature Unsigned Datas:", json.dumps(fund_signature.unsigned_datas(), indent=4))
 print("Fund Signature Signatures:", json.dumps(fund_signature.signatures(), indent=4))

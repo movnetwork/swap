@@ -69,7 +69,7 @@ signed_normal_transaction: NormalTransaction = unsigned_normal_transaction.sign(
 
 print("Signed Normal Transaction Fee:", signed_normal_transaction.fee(unit="NEU"), "NEU")
 print("Signed Normal Transaction Hash:", signed_normal_transaction.hash())
-print("Signed Normal Transaction Raw:", signed_normal_transaction.raw())
+print("Signed Normal Transaction Main Raw:", signed_normal_transaction.raw())
 # print("Signed Normal Transaction Json:", json.dumps(signed_normal_transaction.json(), indent=4))
 print("Signed Normal Transaction Unsigned Datas:", json.dumps(signed_normal_transaction.unsigned_datas(), indent=4))
 print("Signed Normal Transaction Signatures:", json.dumps(signed_normal_transaction.signatures(), indent=4))
@@ -90,7 +90,7 @@ normal_signature.sign(
 
 print("Normal Signature Fee:", normal_signature.fee(unit="NEU"), "NEU")
 print("Normal Signature Hash:", normal_signature.hash())
-print("Normal Signature Raw:", normal_signature.raw())
+print("Normal Signature Main Raw:", normal_signature.raw())
 # print("Normal Signature Json:", json.dumps(normal_signature.json(), indent=4))
 print("Normal Signature Unsigned Datas:", json.dumps(normal_signature.unsigned_datas(), indent=4))
 print("Normal Signature Signatures:", json.dumps(normal_signature.signatures(), indent=4))
