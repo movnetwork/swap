@@ -251,7 +251,7 @@ class NormalTransaction(Transaction):
         Do not forget to build transaction after initialize normal transaction.
     """
 
-    def __init__(self, network: str = config["mainnet"]):
+    def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
         self._htlc_address: Optional[str] = None
@@ -445,7 +445,7 @@ class FundTransaction(Transaction):
         Do not forget to build transaction after initialize fund transaction.
     """
 
-    def __init__(self, network: str = config["mainnet"]):
+    def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
         self._htlc_address: Optional[str] = None
