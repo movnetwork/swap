@@ -86,7 +86,7 @@ normal_signature.sign(
 print("Normal Signature Fee:", normal_signature.fee(unit="SATOSHI"), "SATOSHI")
 print("Normal Signature Hash:", normal_signature.hash())
 print("Normal Signature Main Raw:", normal_signature.raw())
-print("Normal Signature Json:", json.dumps(normal_signature.json(), indent=4))
+# print("Normal Signature Json:", json.dumps(normal_signature.json(), indent=4))
 print("Normal Signature Type:", normal_signature.type())
 
 signed_normal_signature_transaction_raw: str = normal_signature.transaction_raw()
