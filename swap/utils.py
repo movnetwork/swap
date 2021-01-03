@@ -10,6 +10,7 @@ from typing import (
     Optional, Union
 )
 
+import unicodedata
 import string
 import os
 import hashlib
@@ -34,6 +35,7 @@ def generate_passphrase(length: int = 32) -> str:
 
     :param length: Passphrase length, default to 32.
     :type length: int
+
     :returns: str -- Passphrase hex string.
 
     >>> from swap.utils import generate_passphrase
@@ -50,6 +52,7 @@ def generate_entropy(strength: int = 128) -> str:
 
     :param strength: Entropy strength, default to 128.
     :type strength: int
+
     :returns: str -- Entropy hex string.
 
     >>> from swap.utils import generate_entropy
@@ -68,12 +71,13 @@ def generate_entropy(strength: int = 128) -> str:
 
 def generate_mnemonic(language: str = "english", strength: int = 128) -> str:
     """
-    Generate 12 word mnemonic.
+    Generate mnemonic words.
 
     :param language: Mnemonic language, default to english.
     :type language: str
     :param strength: Entropy strength, default to 128.
     :type strength: int
+
     :returns: str -- Mnemonic words.
 
     >>> from swap.utils import generate_mnemonic
@@ -95,14 +99,32 @@ def generate_mnemonic(language: str = "english", strength: int = 128) -> str:
     return Mnemonic(language=language).generate(strength=strength)
 
 
+def is_entropy(entropy: str) -> bool:
+    """
+    Check entropy hex string.
+
+    :param entropy: Mnemonic words.
+    :type entropy: str
+
+    :returns: bool -- Entropy valid/invalid.
+
+    >>> from swap.utils import is_entropy
+    >>> is_entropy(entropy="ee535b143b0d9d1f87546f9df0d06b1a")
+    True
+    """
+
+    return len(unhexlify(entropy)) in [16, 20, 24, 28, 32]
+
+
 def is_mnemonic(mnemonic: str, language: Optional[str] = None) -> bool:
     """
-    Check mnemonic.
+    Check mnemonic words.
 
     :param mnemonic: Mnemonic words.
     :type mnemonic: str
     :param language: Mnemonic language, default to None.
     :type language: str
+
     :returns: bool -- Mnemonic valid/invalid.
 
     >>> from swap.utils import is_mnemonic
@@ -115,6 +137,7 @@ def is_mnemonic(mnemonic: str, language: Optional[str] = None) -> bool:
         raise ValueError("invalid language, use only this options english, french, "
                          "italian, spanish, chinese_simplified, chinese_traditional, japanese or korean languages.")
     try:
+        mnemonic = unicodedata.normalize("NFKD", mnemonic)
         if language is None:
             for _language in ["english", "french", "italian",
                               "chinese_simplified", "chinese_traditional", "japanese", "korean", "spanish"]:
@@ -129,12 +152,75 @@ def is_mnemonic(mnemonic: str, language: Optional[str] = None) -> bool:
         return False
 
 
+def get_entropy_strength(entropy: str) -> int:
+    """
+    Get entropy strength.
+
+    :param entropy: Entropy hex string.
+    :type entropy: str
+
+    :returns: int -- Entropy strength.
+
+    >>> from swap.utils import get_entropy_strength
+    >>> get_entropy_strength(entropy="ee535b143b0d9d1f87546f9df0d06b1a")
+    128
+    """
+
+    if not is_entropy(entropy=entropy):
+        raise ValueError("Invalid entropy hex string.")
+
+    length = len(unhexlify(entropy))
+    if length == 16:
+        return 128
+    elif length == 20:
+        return 160
+    elif length == 24:
+        return 192
+    elif length == 28:
+        return 224
+    elif length == 32:
+        return 256
+
+
+def get_mnemonic_strength(mnemonic: str, language: Optional[str] = None) -> int:
+    """
+    Get mnemonic strength.
+
+    :param mnemonic: Mnemonic words.
+    :type mnemonic: str
+    :param language: Mnemonic language, default to None.
+    :type language: str
+
+    :returns: int -- Mnemonic strength.
+
+    >>> from swap.utils import get_mnemonic_strength
+    >>> get_mnemonic_strength(mnemonic="sceptre capter séquence girafe absolu relatif fleur zoologie muscle sirop saboter parure")
+    128
+    """
+
+    if not is_mnemonic(mnemonic=mnemonic, language=language):
+        raise ValueError("Invalid mnemonic words.")
+
+    words = len(unicodedata.normalize("NFKD", mnemonic).split(" "))
+    if words == 12:
+        return 128
+    elif words == 15:
+        return 160
+    elif words == 18:
+        return 192
+    elif words == 21:
+        return 224
+    elif words == 24:
+        return 256
+
+
 def get_mnemonic_language(mnemonic: str) -> str:
     """
     Get mnemonic language.
 
     :param mnemonic: Mnemonic words.
     :type mnemonic: str
+
     :returns: str -- Mnemonic language.
 
     >>> from swap.utils import get_mnemonic_language
@@ -143,15 +229,67 @@ def get_mnemonic_language(mnemonic: str) -> str:
     """
 
     if not is_mnemonic(mnemonic=mnemonic):
-        raise ValueError("invalid 12 word mnemonic.")
+        raise ValueError("Invalid mnemonic words.")
 
     language = None
+    mnemonic = unicodedata.normalize("NFKD", mnemonic)
     for _language in ["english", "french", "italian",
                       "chinese_simplified", "chinese_traditional", "japanese", "korean", "spanish"]:
         if Mnemonic(language=_language).check(mnemonic=mnemonic) is True:
             language = _language
             break
     return language
+
+
+def entropy_to_mnemonic(entropy: str, language: str = "english") -> str:
+    """
+    Get mnemonic from entropy hex string.
+
+    :param entropy: Entropy hex string.
+    :type entropy: str
+    :param language: Mnemonic language, default to english.
+    :type language: str
+
+    :returns: str -- Mnemonic words.
+
+    >>> from swap.utils import entropy_to_mnemonic
+    >>> entropy_to_mnemonic(entropy="ee535b143b0d9d1f87546f9df0d06b1a", language="korean")
+    "학력 외침 주민 스위치 출연 연습 근본 여전히 울음 액수 귀신 마누라"
+    """
+
+    if not is_entropy(entropy=entropy):
+        raise ValueError("Invalid entropy hex string.")
+
+    if language and language not in ["english", "french", "italian", "japanese",
+                                     "chinese_simplified", "chinese_traditional", "korean", "spanish"]:
+        raise ValueError("Invalid language, use only this options english, french, "
+                         "italian, spanish, chinese_simplified, chinese_traditional, japanese or korean languages.")
+
+    return Mnemonic(language=language).to_mnemonic(unhexlify(entropy))
+
+
+def mnemonic_to_entropy(mnemonic: str, language: Optional[str] = None) -> str:
+    """
+    Get entropy from mnemonic words.
+
+    :param mnemonic: Mnemonic words.
+    :type mnemonic: str
+    :param language: Mnemonic language, default to english.
+    :type language: str
+
+    :returns: str -- Enropy hex string.
+
+    >>> from swap.utils import mnemonic_to_entropy
+    >>> mnemonic_to_entropy(mnemonic="학력 외침 주민 스위치 출연 연습 근본 여전히 울음 액수 귀신 마누라", language="korean")
+    "ee535b143b0d9d1f87546f9df0d06b1a"
+    """
+
+    if not is_mnemonic(mnemonic=mnemonic, language=language):
+        raise ValueError("Invalid mnemonic words.")
+
+    mnemonic = unicodedata.normalize("NFKD", mnemonic)
+    language = language if language else get_mnemonic_language(mnemonic=mnemonic)
+    return Mnemonic(language=language).to_entropy(mnemonic).hex()
 
 
 def sha256(data: Union[str, bytes]) -> str:
