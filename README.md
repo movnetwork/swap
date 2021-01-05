@@ -18,7 +18,7 @@ You can swap the following available cryptocurrencies:
 
 | Cryptocurrencies                                                                                                  | Mainnet | Testnet | Solonet | 
 | ----------------------------------------------------------------------------------------------------------------- | :-----: | :-----: | :-----: |
-| [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                               | Yes     | Yes     | None    |
+| [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                               | Yes     | Yes     | -       |
 | [Bytom](https://github.com/bytom/bytom) `BTM`, `BTC`, `ETH` ... [More Assets](https://blockmeta.com/assets)       | Yes     | No      | No      |
 | [Vapor](https://github.com/bytom/vapor) `BTM`, `BTC`, `ETH` ... [More Assets](https://vapor.blockmeta.com/assets) | Yes     | No      | No      |
 
