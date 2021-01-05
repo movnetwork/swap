@@ -19,7 +19,7 @@ from ...exceptions import (
 from ..config import vapor as config
 from .assets import AssetNamespace
 from .rpc import (
-    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
+    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction, get_balance
 )
 from .solver import (
     NormalSolver, FundSolver, ClaimSolver, RefundSolver
@@ -54,9 +54,10 @@ class Transaction(VaporTransaction):
         self._asset: Optional[str] = None
         self._transaction: Optional[dict] = None
         self._type: Optional[str] = None
-        self._fee: int = config["fee"]
         self._confirmations: int = config["confirmations"]
+        self._interest: int = 0
         self._amount: int = 0
+        self._fee: int = 0
 
     def fee(self, unit: str = config["unit"]) -> Union[int, float]:
         """
@@ -252,11 +253,8 @@ class NormalTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-        self._htlc_address: Optional[str] = None
-        self._interest: Optional[int] = None
-
     def build_transaction(self, address: str, recipients: dict, asset: Union[str, AssetNamespace] = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "NormalTransaction":
+                          fee: Optional[int] = None, **kwargs) -> "NormalTransaction":
         """
         Build Vapor normal transaction.
 
@@ -266,14 +264,14 @@ class NormalTransaction(Transaction):
         :type recipients: dict
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
-        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
-        :type estimate_fee: bool
+        :param fee: Vapor custom fee, defaults to None.
+        :type fee: int
 
         :returns: NormalTransaction -- Vapor normal transaction instance.
 
         >>> from swap.providers.vapor.transaction import NormalTransaction
         >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", recipients={"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> normal_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", recipients={"vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
         """
 
@@ -287,6 +285,35 @@ class NormalTransaction(Transaction):
             config["confirmations"], [], [], sum(recipients.values())
         )
 
+        if "options" in kwargs.keys():
+            options: dict = kwargs.get("options")
+            if "address" in options and "percent" in options:
+                self._interest = int((self._amount * options["percent"]) / 100)
+
+        maximum_amount: int = get_balance(self._address, self._asset)
+        if maximum_amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's", f"you don't have enough amount. "
+                f"You can spend maximum {maximum_amount} NEU sum of recipients amounts."
+            )
+
+        if fee is None:
+            # Estimating transaction fee
+            self._fee = estimate_transaction_fee(
+                address=self._address, asset=self._asset,
+                amount=(self._amount if not self._interest else (self._amount + self._interest)),
+                confirmations=self._confirmations, network=self._network
+            )
+        else:
+            self._fee = fee
+
+        fi: int = (self._fee if not self._interest else (self._fee + self._interest))
+        if maximum_amount < (self._amount + fi):
+            raise BalanceError(
+                f"You don't have enough amount to pay {fi} NEU fee",
+                f"you can spend maximum {maximum_amount - fi} NEU amount."
+            )
+
         # Outputs action
         for _address, _amount in recipients.items():
             if not is_address(_address, self._network):
@@ -295,26 +322,9 @@ class NormalTransaction(Transaction):
                 asset=self._asset, address=_address, amount=_amount, vapor=True
             ))
 
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            if "address" in options and "percent" in options:
-                self._interest = int((self._amount * options["percent"]) / 100)
-
-        if estimate_fee:
-            self._fee = estimate_transaction_fee(
-                address=self._address, asset=self._asset,
-                amount=(self._amount if not self._interest else (self._amount + self._interest)),
-                confirmations=self._confirmations, network=self._network
-            )
-        else:
-            self._fee = config["fee"]
-
-        if not self._interest and self._amount < self._fee or self._interest and self._amount < (self._fee + self._interest):
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
-
         if self._interest:
             outputs.append(control_address(
-                asset=self._asset, amount=int(self._interest),
+                asset=self._asset, amount=self._interest,
                 address=kwargs["options"]["address"], vapor=True
             ))
 
@@ -353,7 +363,7 @@ class NormalTransaction(Transaction):
         >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
         >>> normal_solver = NormalSolver(sender_wallet.xprivate_key())
         >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(sender_wallet.address(), {"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> normal_transaction.build_transaction(sender_wallet.address(), {"vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> normal_transaction.sign(solver=normal_solver)
         <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
         """
@@ -393,7 +403,7 @@ class NormalTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import NormalTransaction
         >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", {"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> normal_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", {"vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> normal_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
@@ -446,11 +456,10 @@ class FundTransaction(Transaction):
         super().__init__(network)
 
         self._htlc_address: Optional[str] = None
-        self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, htlc_address: str, amount: int,
-                          asset: Union[str, AssetNamespace] = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc_address: str, amount: Optional[int] = None,
+                          max_amount: bool = False, asset: Union[str, AssetNamespace] = config["asset"],
+                          fee: Optional[int] = None, **kwargs) -> "FundTransaction":
         """
         Build Vapor fund transaction.
 
@@ -458,12 +467,14 @@ class FundTransaction(Transaction):
         :type address: str
         :param htlc_address: Vapor Hash Time Lock Contract (HTLC) address.
         :type htlc_address: str
-        :param amount: Vapor amount to fund.
+        :param amount: Vapor amount to fund, default to None.
         :type amount: int
+        :param max_amount: Vapor maximum amount to fund, default to False.
+        :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
-        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
-        :type estimate_fee: bool
+        :param fee: Vapor custom fee, defaults to None.
+        :type fee: int
 
         :returns: FundTransaction -- Vapor fund transaction instance.
 
@@ -480,37 +491,70 @@ class FundTransaction(Transaction):
             raise AddressError(f"Invalid Vapor HTLC '{htlc_address}' {self._network} P2WSH address.")
 
         # Set address, fee and confirmations
-        self._address, self._asset, self._htlc_address, self._amount, self._confirmations = (
+        self._address, self._asset, self._htlc_address, self._confirmations = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            htlc_address, amount, config["confirmations"]
+            htlc_address, config["confirmations"]
         )
 
+        maximum_amount: int = get_balance(
+            address=self._address, asset=self._asset, network=self._network
+        )
+        if max_amount:
+            self._amount = maximum_amount
+        elif amount is None:
+            raise ValueError("Amount is None, Set NEU amount or maximum amount.")
+        else:
+            self._amount = amount
+        if maximum_amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's", f"you don't have enough amount. "
+                f"You can fund minimum {449001} / maximum {maximum_amount} NEU amount."
+            )
+
+        temp_amount: int = self._amount
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
             if "address" in options and "percent" in options:
-                self._interest = int((self._amount * options["percent"]) / 100)
-            if "fee" in options:
-                self._amount = (self._amount + 449000) if options["fee"] else self._amount
-            if "interest" in options and self._interest:
-                self._amount = (self._amount + (self._interest / 2)) if options["interest"] else self._amount
+                self._interest += int((self._amount * options["percent"]) / 100)
+                temp_amount += self._interest
+            if "fee" in options and options["fee"]:
+                temp_amount += int(449000 + 60000)
 
-        if estimate_fee:
+        if fee is not None:
+            self._fee = fee
+        elif max_amount or maximum_amount < temp_amount:
+            max_amount = True
             self._fee = estimate_transaction_fee(
                 address=self._address,
-                amount=(
+                amount=maximum_amount,
+                asset=self._asset,
+                confirmations=self._confirmations,
+                network=self._network
+            )
+        else:
+            max_amount = False
+            if "options" in kwargs.keys():
+                options: dict = kwargs.get("options")
+                if "fee" in options and options["fee"]:
+                    self._amount += int(449000 + 60000)
+                if self._interest and "interest" in options and options["interest"]:
+                    self._amount += int(self._interest / 2)
+
+            self._fee = estimate_transaction_fee(
+                address=self._address,
+                amount=int(
                     self._amount if not self._interest else (self._amount + (
                         self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
                 ),
-                asset=self._asset, confirmations=self._confirmations, network=self._network
+                asset=self._asset,
+                confirmations=self._confirmations,
+                network=self._network
             )
-        else:
-            self._fee = config["fee"]
 
-        if not self._interest and self._amount < self._fee or self._interest and self._amount < (self._fee + self._interest):
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
-
+        fi: int = int(self._fee if not self._interest else (self._fee + (
+            self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))
         outputs: list = [control_address(
-            asset=self._asset, amount=self._amount,
+            asset=self._asset, amount=(self._amount - fi),
             address=self._htlc_address, vapor=True
         )]
         if self._interest:
@@ -519,6 +563,11 @@ class FundTransaction(Transaction):
                     self._interest if not kwargs["options"]["interest"] else (self._interest / 2)
                 ), address=kwargs["options"]["address"], vapor=True
             ))
+        if self._amount < self._fee:
+            raise BalanceError(
+                "Insufficient spend UTXO's", f"you don't have enough amount. "
+                f"You can fund minimum {449001} NEU amount."
+            )
 
         # Build transaction
         self._transaction = build_transaction(
@@ -530,7 +579,10 @@ class FundTransaction(Transaction):
                 confirmations=self._confirmations,
                 inputs=[spend_wallet(
                     asset=self._asset,
-                    amount=self._amount
+                    amount=(maximum_amount if max_amount else int(
+                        self._amount if not self._interest else (self._amount + (
+                            self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
+                    ))
                 )],
                 outputs=outputs
             ),
@@ -538,7 +590,7 @@ class FundTransaction(Transaction):
         )
 
         # Set transaction type
-        self._type = "vapor_fund_unsigned"
+        self._type = "bytom_fund_unsigned"
         return self
 
     def sign(self, solver: FundSolver) -> "FundTransaction":
@@ -653,11 +705,10 @@ class ClaimTransaction(Transaction):
         self._transaction_id: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
-        self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "ClaimTransaction":
+                          fee: Optional[int] = None, **kwargs) -> "ClaimTransaction":
         """
         Build Vapor claim transaction.
 
@@ -671,8 +722,8 @@ class ClaimTransaction(Transaction):
         :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
-        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
-        :type estimate_fee: bool
+        :param fee: Vapor custom fee, defaults to None.
+        :type fee: int
 
         :returns: ClaimTransaction -- Vapor claim transaction instance.
 
@@ -713,16 +764,18 @@ class ClaimTransaction(Transaction):
                 if transaction_output["address"] == options["address"]:
                     self._interest = transaction_output["amount"]
 
-        if estimate_fee:
+        if fee is None:
+            # Estimating transaction fee
             self._fee = estimate_transaction_fee(
                 address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
                 confirmations=self._confirmations, network=self._network
-            )
+            ) + 60000
         else:
-            self._fee = config["fee"]
+            self._fee = fee
 
         if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+            raise BalanceError("Insufficient spend UTXO's",
+                               f"minimum you can withdraw {self._fee + 1} NEU amount.")
         if self._htlc_utxo["amount"] < self._amount:
             raise BalanceError("Insufficient spend UTXO's",
                                f"maximum you can withdraw {self._htlc_utxo['amount']} NEU amount.")
@@ -873,11 +926,10 @@ class RefundTransaction(Transaction):
         self._transaction_id: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
-        self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          estimate_fee: bool = config["estimate_fee"], **kwargs) -> "RefundTransaction":
+                          fee: Optional[int] = None, **kwargs) -> "RefundTransaction":
         """
         Build Vapor refund transaction.
 
@@ -891,8 +943,8 @@ class RefundTransaction(Transaction):
         :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
-        :param estimate_fee: Estimate Vapor transaction fee, defaults to True.
-        :type estimate_fee: bool
+        :param fee: Vapor custom fee, defaults to None.
+        :type fee: int
 
         :returns: RefundTransaction -- Vapor refund transaction instance.
 
@@ -933,16 +985,18 @@ class RefundTransaction(Transaction):
                 if transaction_output["address"] == options["address"]:
                     self._interest = transaction_output["amount"]
 
-        if estimate_fee:
+        if fee is None:
+            # Estimating transaction fee
             self._fee = estimate_transaction_fee(
                 address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
                 confirmations=self._confirmations, network=self._network
-            )
+            ) + 60000
         else:
-            self._fee = config["fee"]
+            self._fee = fee
 
         if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+            raise BalanceError("Insufficient spend UTXO's",
+                               f"minimum you can refund {self._fee + 1} NEU amount.")
         if self._htlc_utxo["amount"] < self._amount:
             raise BalanceError("Insufficient spend UTXO's",
                                f"maximum you can refund {self._htlc_utxo['amount']} NEU amount.")

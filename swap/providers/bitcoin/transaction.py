@@ -28,7 +28,7 @@ from .solver import (
     NormalSolver, FundSolver, ClaimSolver, RefundSolver
 )
 from .rpc import (
-    get_transaction, get_utxos, find_p2sh_utxo
+    get_transaction, get_utxos, find_p2sh_utxo, get_balance
 )
 
 
@@ -178,7 +178,7 @@ class NormalTransaction(Transaction):
         self._previous_transaction_indexes: Optional[list] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, recipients: dict,
+    def build_transaction(self, address: str, recipients: dict, fee: Optional[int] = None,
                           locktime: int = config["locktime"], **kwargs) -> "NormalTransaction":
         """
         Build Bitcoin normal transaction.
@@ -187,6 +187,8 @@ class NormalTransaction(Transaction):
         :type address: str
         :param recipients: Recipients Bitcoin address and amount.
         :type recipients: dict
+        :param fee: Bitcoin custom fee, default to None.
+        :type fee: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -238,12 +240,25 @@ class NormalTransaction(Transaction):
             utxos=self._utxos, previous_transaction_indexes=self._previous_transaction_indexes
         )
 
-        # Calculate the fee
-        self._fee = fee_calculator(len(inputs), (
-            len(outputs) if not self._interest else (len(outputs) + 1)
-        ))
-        if amount < ((self._amount + self._fee) if not self._interest else (self._amount + self._fee + self._interest)):
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+        if fee is None:
+            # Calculate the fee
+            self._fee = fee_calculator(len(inputs), (
+                len(outputs) if not self._interest else (len(outputs) + 1)
+            ))
+        else:
+            self._fee = fee
+
+        fi: int = (self._fee if not self._interest else (self._fee + self._interest))
+        if amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's",
+                f"you don't have enough amount. You can spend maximum {amount - fi} SATOSHI sum of recipients amounts."
+            )
+        elif amount < (self._amount + fi):
+            raise BalanceError(
+                f"You don't have enough amount to pay {fi} SATOSHI fee",
+                f"you can spend maximum {amount - fi} SATOSHI amount."
+            )
 
         if amount != self._amount:
             outputs.append(TxOut(
@@ -371,8 +386,9 @@ class FundTransaction(Transaction):
         self._previous_transaction_indexes: Optional[list] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, htlc_address: str,
-                          amount: int, locktime: int = config["locktime"], **kwargs) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc_address: str, amount: Optional[int] = None,
+                          max_amount: bool = False, fee: Optional[int] = None,
+                          locktime: int = config["locktime"], **kwargs) -> "FundTransaction":
         """
         Build Bitcoin fund transaction.
 
@@ -380,8 +396,12 @@ class FundTransaction(Transaction):
         :type address: str
         :param htlc_address: Bitcoin Hash Time Lock Contract (HTLC) address.
         :type htlc_address: str
-        :param amount: Bitcoin amount to fund.
+        :param amount: Bitcoin amount to fund, default to None.
         :type amount: int
+        :param max_amount: Bitcoin maximum amount to fund, default to False.
+        :type max_amount: bool
+        :param fee: Bitcoin custom fee, default to None.
+        :type fee: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -402,10 +422,25 @@ class FundTransaction(Transaction):
         self._address, self._htlc_address, self._amount = (
             address, htlc_address, amount
         )
+
+        maximum_amount: int = get_balance(
+            address=self._address, network=self._network
+        )
+        if max_amount:
+            self._amount = maximum_amount
+        elif amount is None:
+            raise ValueError("Amount is None, Set SATOSHI amount or maximum amount.")
+        else:
+            self._amount = amount
         # Get Sender UTXO's
         self._utxos = get_utxos(
             address=self._address, network=self._network
         )
+        if maximum_amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's", f"you don't have enough amount. "
+                f"You can fund minimum {576} / maximum {maximum_amount} SATOSHI amount."
+            )
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -428,31 +463,49 @@ class FundTransaction(Transaction):
             utxos=self._utxos, previous_transaction_indexes=self._previous_transaction_indexes
         )
 
-        # Calculate the fee
-        self._fee = fee_calculator(len(inputs), (
-            2 if not self._interest else 3
-        ))
-        if amount < ((self._amount + self._fee) if not self._interest else (self._amount + self._fee + (
-                self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))):
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+        if fee is None:
+            # Calculate the fee
+            self._fee = fee_calculator(len(inputs), (
+                2 if not self._interest else 3
+            ))
+        else:
+            self._fee = fee
+
+        fi: int = (self._fee if not self._interest else (self._fee + (
+                self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))
+        if amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's",
+                f"you don't have enough amount. You can spend maximum {amount - fi} SATOSHI amount."
+            )
+        elif amount < (self._amount + fi):
+            raise BalanceError(
+                f"You don't have enough amount to pay {fi} SATOSHI fee",
+                f"you can spend maximum {amount - fi} SATOSHI amount."
+            )
+
+        return_amount: int = int(amount - (
+            (self._amount + self._fee) if not self._interest else (self._amount + self._fee + (
+                self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))))
 
         outputs: list = [TxOut(
-            value=int(self._amount), n=0,
+            value=self._amount, n=0,
             script_pubkey=get_address_hash(
                 address=self._htlc_address, script=True
             )
-        ), TxOut(
-            value=int(amount - ((self._amount + self._fee) if not self._interest else (self._amount + self._fee + (
-                self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))), n=1,
-            script_pubkey=get_address_hash(
-                address=self._address, script=True
-            )
         )]
+        if return_amount != 0:
+            outputs.append(TxOut(
+                value=return_amount, n=len(outputs),
+                script_pubkey=get_address_hash(
+                    address=self._address, script=True
+                )
+            ))
         if self._interest:
             outputs.append(TxOut(
                 value=int(
                     self._interest if not kwargs["options"]["interest"] else (self._interest / 2)
-                ), n=2, script_pubkey=get_address_hash(
+                ), n=len(outputs), script_pubkey=get_address_hash(
                     address=kwargs["options"]["address"], script=True
                 )
             ))
@@ -566,8 +619,8 @@ class ClaimTransaction(Transaction):
         self._htlc_utxo: Optional[dict] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, transaction_id: str,
-                          amount: Optional[int] = None, max_amount: bool = config["max_amount"],
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None, 
+                          max_amount: bool = config["max_amount"], fee: Optional[int] = None,
                           locktime: int = config["locktime"], **kwargs) -> "ClaimTransaction":
         """
         Build Bitcoin claim transaction.
@@ -580,6 +633,8 @@ class ClaimTransaction(Transaction):
         :type amount: int
         :param max_amount: Bitcoin maximum amount to withdraw, default to True.
         :type max_amount: bool
+        :param fee: Bitcoin custom fee, default to None.
+        :type fee: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -620,18 +675,27 @@ class ClaimTransaction(Transaction):
                         address=options["address"], script=True).hexlify():
                     self._interest = transaction_output["value"]
 
-        # Calculate the fee
-        self._fee = fee_calculator(1, ((
-            1 if self._htlc_utxo["value"] == self._amount else 2
-        ) if not self._interest else (
-            2 if self._htlc_utxo["value"] == self._amount else 3
-        )))
+        if fee is None:
+            # Calculate the fee
+            self._fee = fee_calculator(1, ((
+                1 if self._htlc_utxo["value"] == self._amount else 2
+            ) if not self._interest else (
+                2 if self._htlc_utxo["value"] == self._amount else 3
+            )))
+        else:
+            self._fee = fee
 
-        if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+        fi: int = (self._fee if not self._interest else (self._fee + self._interest))
+        if self._amount < fi:
+            raise BalanceError(
+                f"You don't have enough amount to pay {fi} SATOSHI fee",
+                f"you can withdraw minimum {fi + 1} or maximum {self._htlc_utxo['value']} SATOSHI amounts."
+            )
         elif self._htlc_utxo["value"] < self._amount:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can withdraw {self._htlc_utxo['value']} SATOSHI amount.")
+            raise BalanceError(
+                "Insufficient spend UTXO's",
+                f"you can withdraw minimum {fi + 1} or maximum {self._htlc_utxo['value']} SATOSHI amounts."
+            )
 
         outputs: list = [TxOut(
             value=(
@@ -780,8 +844,8 @@ class RefundTransaction(Transaction):
         self._htlc_utxo: Optional[dict] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, transaction_id: str,
-                          amount: Optional[int] = None, max_amount: bool = config["max_amount"],
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
+                          max_amount: bool = config["max_amount"], fee: Optional[int] = None,
                           locktime: int = config["locktime"], **kwargs) -> "RefundTransaction":
         """
         Build Bitcoin refund transaction.
@@ -794,6 +858,8 @@ class RefundTransaction(Transaction):
         :type amount: int
         :param max_amount: Bitcoin maximum amount to withdraw, default to True.
         :type max_amount: bool
+        :param fee: Bitcoin custom fee, default to None.
+        :type fee: int
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -834,18 +900,27 @@ class RefundTransaction(Transaction):
                         address=options["address"], script=True).hexlify():
                     self._interest = transaction_output["value"]
 
-        # Calculate the fee
-        self._fee = fee_calculator(1, ((
-            1 if self._htlc_utxo["value"] == self._amount else 2
-        ) if not self._interest else (
-            2 if self._htlc_utxo["value"] == self._amount else 3
-        )))
+        if fee is None:
+            # Calculate the fee
+            self._fee = fee_calculator(1, ((
+                1 if self._htlc_utxo["value"] == self._amount else 2
+            ) if not self._interest else (
+                2 if self._htlc_utxo["value"] == self._amount else 3
+            )))
+        else:
+            self._fee = fee
 
-        if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's", "you don't have enough amount.")
+        fi: int = (self._fee if not self._interest else (self._fee + self._interest))
+        if self._amount < fi:
+            raise BalanceError(
+                f"You don't have enough amount to pay {fi} SATOSHI fee",
+                f"you can withdraw minimum {fi + 1} or maximum {self._htlc_utxo['value']} SATOSHI amounts."
+            )
         elif self._htlc_utxo["value"] < self._amount:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can refund {self._htlc_utxo['value']} SATOSHI amount.")
+            raise BalanceError(
+                "Insufficient spend UTXO's",
+                f"you can withdraw minimum {fi + 1} or maximum {self._htlc_utxo['value']} SATOSHI amounts."
+            )
 
         outputs: list = [TxOut(
             value=(
