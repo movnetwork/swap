@@ -590,7 +590,7 @@ class FundTransaction(Transaction):
         )
 
         # Set transaction type
-        self._type = "bytom_fund_unsigned"
+        self._type = "vapor_fund_unsigned"
         return self
 
     def sign(self, solver: FundSolver) -> "FundTransaction":
@@ -769,7 +769,7 @@ class ClaimTransaction(Transaction):
             self._fee = estimate_transaction_fee(
                 address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
                 confirmations=self._confirmations, network=self._network
-            ) + 60000
+            )
         else:
             self._fee = fee
 
@@ -990,7 +990,7 @@ class RefundTransaction(Transaction):
             self._fee = estimate_transaction_fee(
                 address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
                 confirmations=self._confirmations, network=self._network
-            ) + 60000
+            )
         else:
             self._fee = fee
 
