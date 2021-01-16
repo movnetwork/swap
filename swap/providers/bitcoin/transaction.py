@@ -80,7 +80,7 @@ class Transaction:
         """
 
         if unit not in ["BTC", "mBTC", "SATOSHI"]:
-            raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or SATOSHI units.")
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'SATOSHI' units.")
         return self._fee if unit == "SATOSHI" else \
             amount_unit_converter(amount=self._fee, unit_from=f"SATOSHI2{unit}")
 
@@ -178,7 +178,7 @@ class NormalTransaction(Transaction):
         self._previous_transaction_indexes: Optional[list] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, recipients: dict, fee: Optional[int] = None,
+    def build_transaction(self, address: str, recipients: dict, fee: Optional[int] = None, unit: str = config["unit"],
                           locktime: int = config["locktime"], **kwargs) -> "NormalTransaction":
         """
         Build Bitcoin normal transaction.
@@ -189,6 +189,8 @@ class NormalTransaction(Transaction):
         :type recipients: dict
         :param fee: Bitcoin custom fee, default to None.
         :type fee: int
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -203,10 +205,17 @@ class NormalTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'SATOSHI' units.")
 
         # Set address and outputs
         self._address, outputs, self._amount = (
-            address, [], sum(recipients.values())
+            address, [], (
+                sum(recipients.values()) if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=sum(recipients.values()), unit_from=f"{unit}2SATOSHI"
+                )
+            )
         )
         # Get Sender UTXO's
         self._utxos = get_utxos(
@@ -246,7 +255,12 @@ class NormalTransaction(Transaction):
                 len(outputs) if not self._interest else (len(outputs) + 1)
             ))
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2SATOSHI"
+                )
+            )
 
         fi: int = (self._fee if not self._interest else (self._fee + self._interest))
         if amount < self._amount:
@@ -387,7 +401,7 @@ class FundTransaction(Transaction):
         self._interest: Optional[int] = None
 
     def build_transaction(self, address: str, htlc_address: str, amount: Optional[int] = None,
-                          max_amount: bool = False, fee: Optional[int] = None,
+                          max_amount: bool = False, fee: Optional[int] = None, unit: str = config["unit"],
                           locktime: int = config["locktime"], **kwargs) -> "FundTransaction":
         """
         Build Bitcoin fund transaction.
@@ -402,6 +416,8 @@ class FundTransaction(Transaction):
         :type max_amount: bool
         :param fee: Bitcoin custom fee, default to None.
         :type fee: int
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -418,9 +434,16 @@ class FundTransaction(Transaction):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
         if not is_address(htlc_address, self._network) or get_address_type(htlc_address) != "p2sh":
             raise AddressError(f"Invalid Bitcoin HTLC '{htlc_address}' {self._network} P2SH address.")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'SATOSHI' units.")
 
         self._address, self._htlc_address, self._amount = (
-            address, htlc_address, amount
+            address, htlc_address, (
+                amount if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2SATOSHI"
+                )
+            )
         )
 
         maximum_amount: int = get_balance(
@@ -469,7 +492,12 @@ class FundTransaction(Transaction):
                 2 if not self._interest else 3
             ))
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2SATOSHI"
+                )
+            )
 
         fi: int = (self._fee if not self._interest else (self._fee + (
                 self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))
@@ -621,7 +649,8 @@ class ClaimTransaction(Transaction):
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None, 
                           max_amount: bool = config["max_amount"], fee: Optional[int] = None,
-                          locktime: int = config["locktime"], **kwargs) -> "ClaimTransaction":
+                          unit: str = config["unit"], locktime: int = config["locktime"],
+                          **kwargs) -> "ClaimTransaction":
         """
         Build Bitcoin claim transaction.
 
@@ -635,6 +664,8 @@ class ClaimTransaction(Transaction):
         :type max_amount: bool
         :param fee: Bitcoin custom fee, default to None.
         :type fee: int
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -649,6 +680,8 @@ class ClaimTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin recipient '{address}' {self._network} address.")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'SATOSHI' units.")
 
         # Set address and transaction_id
         self._address, self._transaction_id, = address, transaction_id
@@ -664,9 +697,14 @@ class ClaimTransaction(Transaction):
         if max_amount:
             self._amount = self._htlc_utxo["value"]
         elif amount is None:
-            raise ValueError("Amount is None, Set SATOSHI amount or set maximum amount true.")
+            raise ValueError("Amount is None, Set amount or maximum amount set true.")
         else:
-            self._amount = amount
+            self._amount = (
+                amount if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2SATOSHI"
+                )
+            )
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -683,7 +721,12 @@ class ClaimTransaction(Transaction):
                 2 if self._htlc_utxo["value"] == self._amount else 3
             )))
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2SATOSHI"
+                )
+            )
 
         fi: int = (self._fee if not self._interest else (self._fee + self._interest))
         if self._amount < fi:
@@ -846,7 +889,8 @@ class RefundTransaction(Transaction):
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
                           max_amount: bool = config["max_amount"], fee: Optional[int] = None,
-                          locktime: int = config["locktime"], **kwargs) -> "RefundTransaction":
+                          unit: str = config["unit"], locktime: int = config["locktime"],
+                          **kwargs) -> "RefundTransaction":
         """
         Build Bitcoin refund transaction.
 
@@ -860,6 +904,8 @@ class RefundTransaction(Transaction):
         :type max_amount: bool
         :param fee: Bitcoin custom fee, default to None.
         :type fee: int
+        :param unit: Bitcoin unit, default to SATOSHI.
+        :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
         :type locktime: int
 
@@ -874,6 +920,8 @@ class RefundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
+        if unit not in ["BTC", "mBTC", "SATOSHI"]:
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'SATOSHI' units.")
 
         # Set address and transaction_id
         self._address, self._transaction_id, = address, transaction_id
@@ -889,9 +937,14 @@ class RefundTransaction(Transaction):
         if max_amount:
             self._amount = self._htlc_utxo["value"]
         elif amount is None:
-            raise ValueError("Amount is None, Set SATOSHI amount or set maximum amount true.")
+            raise ValueError("Amount is None, Set amount or maximum amount set true.")
         else:
-            self._amount = amount
+            self._amount = (
+                amount if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2SATOSHI"
+                )
+            )
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -908,7 +961,12 @@ class RefundTransaction(Transaction):
                 2 if self._htlc_utxo["value"] == self._amount else 3
             )))
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2SATOSHI"
+                )
+            )
 
         fi: int = (self._fee if not self._interest else (self._fee + self._interest))
         if self._amount < fi:

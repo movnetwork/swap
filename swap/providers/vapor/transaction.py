@@ -76,7 +76,7 @@ class Transaction(VaporTransaction):
         """
 
         if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Vapor unit, choose only BTM, mBTM or NEU units.")
+            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
         return self._fee if unit == "NEU" else \
             amount_unit_converter(amount=self._fee, unit_from=f"NEU2{unit}")
 
@@ -254,7 +254,7 @@ class NormalTransaction(Transaction):
         super().__init__(network)
 
     def build_transaction(self, address: str, recipients: dict, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, **kwargs) -> "NormalTransaction":
+                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "NormalTransaction":
         """
         Build Vapor normal transaction.
 
@@ -266,6 +266,8 @@ class NormalTransaction(Transaction):
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
         :type fee: int
+        :param unit: Vapor unit, default to NEU.
+        :type unit: str
 
         :returns: NormalTransaction -- Vapor normal transaction instance.
 
@@ -278,11 +280,18 @@ class NormalTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
         # Set address, fee and confirmations
         self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], [], [], sum(recipients.values())
+            config["confirmations"], [], [], (
+                sum(recipients.values()) if unit == "NEU" else
+                amount_unit_converter(
+                    amount=sum(recipients.values()), unit_from=f"{unit}2NEU"
+                )
+            )
         )
 
         if "options" in kwargs.keys():
@@ -305,7 +314,12 @@ class NormalTransaction(Transaction):
                 confirmations=self._confirmations, network=self._network
             )
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "NEU" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2NEU"
+                )
+            )
 
         fi: int = (self._fee if not self._interest else (self._fee + self._interest))
         if maximum_amount < (self._amount + fi):
@@ -459,7 +473,7 @@ class FundTransaction(Transaction):
 
     def build_transaction(self, address: str, htlc_address: str, amount: Optional[int] = None,
                           max_amount: bool = False, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, **kwargs) -> "FundTransaction":
+                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "FundTransaction":
         """
         Build Vapor fund transaction.
 
@@ -475,6 +489,8 @@ class FundTransaction(Transaction):
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
         :type fee: int
+        :param unit: Vapor unit, default to NEU.
+        :type unit: str
 
         :returns: FundTransaction -- Vapor fund transaction instance.
 
@@ -489,6 +505,8 @@ class FundTransaction(Transaction):
             raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
         if not is_address(htlc_address, self._network) or get_address_type(htlc_address) != "p2wsh":
             raise AddressError(f"Invalid Vapor HTLC '{htlc_address}' {self._network} P2WSH address.")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
         # Set address, fee and confirmations
         self._address, self._asset, self._htlc_address, self._confirmations = (
@@ -502,9 +520,14 @@ class FundTransaction(Transaction):
         if max_amount:
             self._amount = maximum_amount
         elif amount is None:
-            raise ValueError("Amount is None, Set NEU amount or maximum amount.")
+            raise ValueError("Amount is None, Set amount or maximum amount set true.")
         else:
-            self._amount = amount
+            self._amount = (
+                amount if unit == "NEU" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2NEU"
+                )
+            )
         if maximum_amount < self._amount:
             raise BalanceError(
                 "Insufficient spend UTXO's", f"you don't have enough amount. "
@@ -521,7 +544,12 @@ class FundTransaction(Transaction):
                 temp_amount += int(449000 + 60000)
 
         if fee is not None:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "NEU" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2NEU"
+                )
+            )
         elif max_amount or maximum_amount < temp_amount:
             max_amount = True
             self._fee = estimate_transaction_fee(
@@ -708,7 +736,7 @@ class ClaimTransaction(Transaction):
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, **kwargs) -> "ClaimTransaction":
+                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "ClaimTransaction":
         """
         Build Vapor claim transaction.
 
@@ -724,6 +752,8 @@ class ClaimTransaction(Transaction):
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
         :type fee: int
+        :param unit: Vapor unit, default to NEU.
+        :type unit: str
 
         :returns: ClaimTransaction -- Vapor claim transaction instance.
 
@@ -736,6 +766,8 @@ class ClaimTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor recipient '{address}' {self._network} address.")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
         # Set address, asset, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
@@ -754,9 +786,14 @@ class ClaimTransaction(Transaction):
         if max_amount:
             self._amount = self._htlc_utxo["amount"]
         elif amount is None:
-            raise ValueError("Amount is None, Set NEU amount or maximum amount.")
+            raise ValueError("Amount is None, Set amount or maximum amount set true.")
         else:
-            self._amount = amount
+            self._amount = (
+                amount if unit == "NEU" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2NEU"
+                )
+            )
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -771,7 +808,12 @@ class ClaimTransaction(Transaction):
                 confirmations=self._confirmations, network=self._network
             )
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "NEU" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2NEU"
+                )
+            )
 
         if self._amount < self._fee:
             raise BalanceError("Insufficient spend UTXO's",
@@ -929,7 +971,7 @@ class RefundTransaction(Transaction):
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, **kwargs) -> "RefundTransaction":
+                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "RefundTransaction":
         """
         Build Vapor refund transaction.
 
@@ -945,6 +987,8 @@ class RefundTransaction(Transaction):
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
         :type fee: int
+        :param unit: Vapor unit, default to NEU.
+        :type unit: str
 
         :returns: RefundTransaction -- Vapor refund transaction instance.
 
@@ -957,6 +1001,8 @@ class RefundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
         # Set address, fee, confirmations and transaction_id
         self._address, self._asset, self._confirmations, self._transaction_id = (
@@ -975,9 +1021,14 @@ class RefundTransaction(Transaction):
         if max_amount:
             self._amount = self._htlc_utxo["amount"]
         elif amount is None:
-            raise ValueError("Amount is None, Set NEU amount or maximum amount.")
+            raise ValueError("Amount is None, Set amount or maximum amount set true.")
         else:
-            self._amount = amount
+            self._amount = (
+                amount if unit == "NEU" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2NEU"
+                )
+            )
 
         if "options" in kwargs.keys():
             options: dict = kwargs.get("options")
@@ -992,7 +1043,12 @@ class RefundTransaction(Transaction):
                 confirmations=self._confirmations, network=self._network
             )
         else:
-            self._fee = fee
+            self._fee = (
+                fee if unit == "NEU" else
+                amount_unit_converter(
+                    amount=fee, unit_from=f"{unit}2NEU"
+                )
+            )
 
         if self._amount < self._fee:
             raise BalanceError("Insufficient spend UTXO's",
