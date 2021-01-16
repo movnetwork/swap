@@ -88,6 +88,28 @@ def fee_calculator(transaction_input: int = 1, transaction_output: int = 1) -> i
     return transaction_input + transaction_output
 
 
+def get_address_type(address: str) -> str:
+    """
+    Get Bitcoin address type.
+
+    :param address: Bitcoin address.
+    :type address: str
+
+    :returns: str -- Bitcoin address type (P2PKH, P2SH).
+
+    >>> from swap.providers.bitcoin.utils import get_address_type
+    >>> get_address_type(address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH")
+    "p2pkh"
+    """
+
+    if not is_address(address=address):
+        raise AddressError(f"Invalid Bitcoin '{address}' address.")
+
+    loaded_address = Address.from_string(address)
+    address_type = loaded_address.get_type()
+    return str(address_type)
+
+
 def is_network(network: str) -> bool:
     """
     Check Bitcoin network.
@@ -107,7 +129,7 @@ def is_network(network: str) -> bool:
     return network in ["mainnet", "testnet"]
 
 
-def is_address(address: str, network: Optional[str] = None) -> bool:
+def is_address(address: str, network: Optional[str] = None, address_type: Optional[str] = None) -> bool:
     """
     Check Bitcoin address.
 
@@ -115,6 +137,8 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
     :type address: str
     :param network: Bitcoin network, defaults to None.
     :type network: str
+    :param address_type: Bitcoin address type, defaults to None.
+    :type address_type: str
 
     :returns: bool -- Bitcoin valid/invalid address.
 
@@ -125,6 +149,8 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
 
     if not isinstance(address, str):
         raise TypeError(f"Address must be str, not '{type(address)}' type.")
+    if address_type and address_type not in ["p2pkh", "p2sh"]:
+        raise TypeError("Address type must be str and choose only 'p2pkh' or 'p2sh' types.")
 
     if network is None:
         for boolean in [True, False]:
@@ -132,16 +158,24 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
             if cryptos.Bitcoin(testnet=boolean).is_address(address):
                 valid = True
                 break
+        if address_type:
+            valid = True if valid and (get_address_type(address=address) == address_type) else False
         return valid
 
     if not is_network(network=network):
         raise NetworkError(f"Invalid Bitcoin '{network}' network",
                            "choose only 'mainnet' or 'testnet' networks.")
 
+    valid: bool = False
     if network == "mainnet":
-        return cryptos.Bitcoin(testnet=False).is_address(address)
+        valid = cryptos.Bitcoin(testnet=False).is_address(address)
+        if address_type:
+            valid = True if valid and (get_address_type(address=address) == address_type) else False
     elif network == "testnet":
-        return cryptos.Bitcoin(testnet=True).is_address(address)
+        valid = cryptos.Bitcoin(testnet=True).is_address(address)
+        if address_type:
+            valid = True if valid and (get_address_type(address=address) == address_type) else False
+    return valid
 
 
 def is_transaction_raw(transaction_raw: str) -> bool:
@@ -273,28 +307,6 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
         )
     else:
         raise APIError("Unknown Bitcoin submit payment error.")
-
-
-def get_address_type(address: str) -> str:
-    """
-    Get Bitcoin address type.
-
-    :param address: Bitcoin address.
-    :type address: str
-
-    :returns: str -- Bitcoin address type (P2PKH, P2SH).
-
-    >>> from swap.providers.bitcoin.utils import get_address_type
-    >>> get_address_type(address="mrmtGq2HMmqAogSsGDjCtXUpxrb7rHThFH")
-    "p2pkh"
-    """
-
-    if not is_address(address=address):
-        raise AddressError(f"Invalid Bitcoin '{address}' address.")
-
-    loaded_address = Address.from_string(address)
-    address_type = loaded_address.get_type()
-    return str(address_type)
 
 
 def get_address_hash(address: str, script: bool = False) -> Union[str, P2pkhScript, P2shScript]:

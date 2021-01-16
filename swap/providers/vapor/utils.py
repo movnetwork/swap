@@ -53,6 +53,31 @@ def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM")
         return int((amount * mBTM) / NEU)
 
 
+def get_address_type(address: str) -> Optional[str]:
+    """
+    Get Vapor address type.
+
+    :param address: Vapor address.
+    :type address: str
+
+    :returns: str -- Vapor address type (P2WPKH, P2WSH).
+
+    >>> from swap.providers.vapor.utils import get_address_type
+    >>> get_address_type(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag")
+    "p2wpkh"
+    """
+
+    if not is_address(address=address):
+        raise AddressError(f"Invalid Vapor '{address}' address.")
+
+    if len(address) == 42:
+        return "p2wpkh"
+    elif len(address) == 62:
+        return "p2wsh"
+    else:
+        return None
+
+
 def is_network(network: str) -> bool:
     """
     Check Vapor network.
@@ -72,7 +97,7 @@ def is_network(network: str) -> bool:
     return network in ["mainnet", "solonet", "testnet"]
 
 
-def is_address(address: str, network: Optional[str] = None) -> bool:
+def is_address(address: str, network: Optional[str] = None, address_type: Optional[str] = None) -> bool:
     """
     Check Vapor address.
 
@@ -80,6 +105,8 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
     :type address: str
     :param network: Vapor network, defaults to None.
     :type network: str
+    :param address_type: Vapor address type, defaults to None.
+    :type address_type: str
 
     :returns: bool -- Vapor valid/invalid address.
 
@@ -90,12 +117,19 @@ def is_address(address: str, network: Optional[str] = None) -> bool:
 
     if not isinstance(address, str):
         raise TypeError(f"Address must be str, not '{type(address)}' type.")
+    if address_type and address_type not in ["p2wpkh", "p2wsh"]:
+        raise TypeError("Address type must be str and choose only 'p2wpkh' or 'p2wsh' types.")
+
     if network is None:
-        return btm_is_address(address=address, vapor=True)
+        valid = btm_is_address(address=address, vapor=True)
     elif not is_network(network=network):
         raise NetworkError(f"Invalid Vapor '{network}' network",
                            "choose only 'mainnet', 'solonet' or 'testnet' networks.")
-    return btm_is_address(address=address, network=network, vapor=True)
+    else:
+        valid = btm_is_address(address=address, network=network, vapor=True)
+    if address_type:
+        return True if valid and (get_address_type(address=address) == address_type) else False
+    return valid
 
 
 def is_transaction_raw(transaction_raw: str) -> bool:
@@ -221,28 +255,3 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
         network=loaded_transaction_raw["network"],
         date=str(datetime.datetime.utcnow())
     )
-
-
-def get_address_type(address: str) -> Optional[str]:
-    """
-    Get Vapor address type.
-
-    :param address: Vapor address.
-    :type address: str
-
-    :returns: str -- Vapor address type (P2WPKH, P2WSH).
-
-    >>> from swap.providers.vapor.utils import get_address_type
-    >>> get_address_type(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag")
-    "p2wpkh"
-    """
-
-    if not is_address(address=address):
-        raise AddressError(f"Invalid Vapor '{address}' address.")
-
-    if len(address) == 42:
-        return "p2wpkh"
-    elif len(address) == 62:
-        return "p2wsh"
-    else:
-        return None
