@@ -50,11 +50,13 @@ class Signature:
                                "choose only 'mainnet' or 'testnet' networks.")
 
         self._network: str = network
+        self._mainnet: bool = True if network == "mainnet" else False
         self._version: int = version
         self._transaction: Optional[MutableTransaction] = None
-        self._fee: int = 0
         self._type: Optional[str] = None
         self._signed_raw: Optional[str] = None
+        self._datas: dict = {}
+        self._fee: int = 0
 
         setup(network, strict=True, force=True)
 
@@ -226,6 +228,9 @@ class Signature:
                 transaction_raw=transaction_raw, solver=solver
             )
 
+    def datas(self) -> dict:
+        return self._datas
+
     def transaction_raw(self) -> str:
         """
         Get Bitcoin transaction raw.
@@ -300,8 +305,8 @@ class NormalSignature(Signature):
             raise TypeError(f"Solver must be Bitcoin NormalSolver, not {type(solver).__name__} type.")
 
         # Set transaction fee, type, network and transaction
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
         )
 
@@ -328,7 +333,8 @@ class NormalSignature(Signature):
             raw=self._transaction.hexlify(),
             fee=self._fee,
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self
 
@@ -385,8 +391,8 @@ class FundSignature(Signature):
             raise TypeError(f"Solver must be Bitcoin FundSolver, not {type(solver).__name__} type.")
 
         # Set transaction fee, type, network and transaction
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
         )
 
@@ -413,7 +419,8 @@ class FundSignature(Signature):
             raw=self._transaction.hexlify(),
             fee=self._fee,
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self
 
@@ -471,8 +478,8 @@ class ClaimSignature(Signature):
             raise TypeError(f"Solver must be Bitcoin ClaimSolver, not {type(solver).__name__} type.")
 
         # Set transaction fee, type, network and transaction
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
         )
 
@@ -498,7 +505,8 @@ class ClaimSignature(Signature):
             raw=self._transaction.hexlify(),
             fee=self._fee,
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self
 
@@ -555,8 +563,8 @@ class RefundSignature(Signature):
             raise TypeError(f"Solver must be Bitcoin RefundSolver, not {type(solver).__name__} type.")
 
         # Set transaction fee, type, network and transaction
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
         )
 
@@ -582,6 +590,7 @@ class RefundSignature(Signature):
             raw=self._transaction.hexlify(),
             fee=self._fee,
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self

@@ -54,12 +54,14 @@ class Transaction:
                                "choose only 'mainnet' or 'testnet' networks.")
 
         self._network: str = network
+        self._mainnet: bool = True if network == "mainnet" else False
         self._version: int = version
         self._transaction: Optional[MutableTransaction] = None
-        self._fee: int = 0
         self._type: Optional[str] = None
         self._address: Optional[str] = None
+        self._datas: dict = {}
         self._amount: int = 0
+        self._fee: int = 0
 
         setup(network, strict=True, force=True)
 
@@ -98,7 +100,7 @@ class Transaction:
         """
 
         if self._transaction is None:
-            raise ValueError("Transaction is none, build transaction first..")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._transaction.txid
 
     def json(self) -> dict:
@@ -116,7 +118,7 @@ class Transaction:
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("Transaction is none, build transaction first..")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._transaction.to_json()
 
     def raw(self) -> str:
@@ -134,7 +136,7 @@ class Transaction:
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("Transaction is none, build transaction first..")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._transaction.hexlify()
 
     def type(self) -> str:
@@ -152,8 +154,11 @@ class Transaction:
 
         # Check transaction
         if self._transaction is None:
-            raise ValueError("Transaction is none, build transaction first..")
+            raise ValueError("Transaction is none, build transaction first.")
         return self._type
+
+    def datas(self) -> dict:
+        return self._datas
 
 
 class NormalTransaction(Transaction):
@@ -178,7 +183,7 @@ class NormalTransaction(Transaction):
         self._previous_transaction_indexes: Optional[list] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, recipients: dict, fee: Optional[int] = None, unit: str = config["unit"],
+    def build_transaction(self, address: str, recipients: dict, fee: Optional[Union[int, float]] = None, unit: str = config["unit"],
                           locktime: int = config["locktime"], **kwargs) -> "NormalTransaction":
         """
         Build Bitcoin normal transaction.
@@ -188,7 +193,7 @@ class NormalTransaction(Transaction):
         :param recipients: Recipients Bitcoin address and amount.
         :type recipients: dict
         :param fee: Bitcoin custom fee, default to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Bitcoin unit, default to SATOSHI.
         :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -362,7 +367,8 @@ class NormalTransaction(Transaction):
                 raw=self._transaction.hexlify(),
                 fee=self._fee,
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -373,7 +379,8 @@ class NormalTransaction(Transaction):
                 only_dict=True
             ),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
 
 
@@ -400,8 +407,8 @@ class FundTransaction(Transaction):
         self._previous_transaction_indexes: Optional[list] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, htlc_address: str, amount: Optional[int] = None,
-                          max_amount: bool = False, fee: Optional[int] = None, unit: str = config["unit"],
+    def build_transaction(self, address: str, htlc_address: str, amount: Optional[Union[int, float]] = None,
+                          max_amount: bool = False, fee: Optional[Union[int, float]] = None, unit: str = config["unit"],
                           locktime: int = config["locktime"], **kwargs) -> "FundTransaction":
         """
         Build Bitcoin fund transaction.
@@ -411,11 +418,11 @@ class FundTransaction(Transaction):
         :param htlc_address: Bitcoin Hash Time Lock Contract (HTLC) address.
         :type htlc_address: str
         :param amount: Bitcoin amount to fund, default to None.
-        :type amount: int
+        :type amount: int, float, float
         :param max_amount: Bitcoin maximum amount to fund, default to False.
         :type max_amount: bool
         :param fee: Bitcoin custom fee, default to None.
-        :type fee: int
+        :type fee: int, float, float
         :param unit: Bitcoin unit, default to SATOSHI.
         :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -437,15 +444,9 @@ class FundTransaction(Transaction):
         if unit not in ["BTC", "mBTC", "SATOSHI"]:
             raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'SATOSHI' units.")
 
-        self._address, self._htlc_address, self._amount = (
-            address, htlc_address, (
-                amount if unit == "SATOSHI" else
-                amount_unit_converter(
-                    amount=amount, unit_from=f"{unit}2SATOSHI"
-                )
-            )
+        self._address, self._htlc_address = (
+            address, htlc_address
         )
-
         maximum_amount: int = get_balance(
             address=self._address, network=self._network
         )
@@ -454,7 +455,12 @@ class FundTransaction(Transaction):
         elif amount is None:
             raise ValueError("Amount is None, Set SATOSHI amount or maximum amount.")
         else:
-            self._amount = amount
+            self._amount = (
+                amount if unit == "SATOSHI" else
+                amount_unit_converter(
+                    amount=amount, unit_from=f"{unit}2SATOSHI"
+                )
+            )
         # Get Sender UTXO's
         self._utxos = get_utxos(
             address=self._address, network=self._network
@@ -538,11 +544,13 @@ class FundTransaction(Transaction):
                 )
             ))
 
+        self._datas.setdefault("address", self._address)
+        self._datas.setdefault("htlc_address", self._htlc_address)
+        self._datas.setdefault("amount", self._amount)
         # Build mutable transaction
         self._transaction = MutableTransaction(
             version=self._version, ins=inputs, outs=outputs, locktime=Locktime(locktime)
         )
-
         # Set transaction type
         self._type = "bitcoin_fund_unsigned"
         return self
@@ -609,7 +617,8 @@ class FundTransaction(Transaction):
                 raw=self._transaction.hexlify(),
                 fee=self._fee,
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -620,7 +629,8 @@ class FundTransaction(Transaction):
                 only_dict=True
             ),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
 
 
@@ -647,8 +657,8 @@ class ClaimTransaction(Transaction):
         self._htlc_utxo: Optional[dict] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None, 
-                          max_amount: bool = config["max_amount"], fee: Optional[int] = None,
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None, 
+                          max_amount: bool = config["max_amount"], fee: Optional[Union[int, float]] = None,
                           unit: str = config["unit"], locktime: int = config["locktime"],
                           **kwargs) -> "ClaimTransaction":
         """
@@ -659,11 +669,11 @@ class ClaimTransaction(Transaction):
         :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
         :param amount: Bitcoin amount to withdraw, default to None.
-        :type amount: int
+        :type amount: int, float
         :param max_amount: Bitcoin maximum amount to withdraw, default to True.
         :type max_amount: bool
         :param fee: Bitcoin custom fee, default to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Bitcoin unit, default to SATOSHI.
         :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -740,10 +750,9 @@ class ClaimTransaction(Transaction):
                 f"you can withdraw minimum {fi + 1} or maximum {self._htlc_utxo['value']} SATOSHI amounts."
             )
 
+        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
         outputs: list = [TxOut(
-            value=(
-                (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-            ), n=0, script_pubkey=get_address_hash(
+            value=_amount, n=0, script_pubkey=get_address_hash(
                 address=self._address, script=True
             )
         )]
@@ -763,6 +772,11 @@ class ClaimTransaction(Transaction):
                 )
             ))
 
+        self._datas.setdefault("address", self._address)
+        self._datas.setdefault("htlc_address", str(P2shScript.unhexlify(
+            self._htlc_utxo["script"]
+        ).address(mainnet=self._mainnet)))
+        self._datas.setdefault("amount", _amount)
         # Build mutable transaction
         self._transaction = MutableTransaction(
             version=self._version,
@@ -849,7 +863,8 @@ class ClaimTransaction(Transaction):
                 raw=self._transaction.hexlify(),
                 fee=self._fee,
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -860,7 +875,8 @@ class ClaimTransaction(Transaction):
                 script=self._htlc_utxo["script"]
             ),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
 
 
@@ -887,8 +903,8 @@ class RefundTransaction(Transaction):
         self._htlc_utxo: Optional[dict] = None
         self._interest: Optional[int] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
-                          max_amount: bool = config["max_amount"], fee: Optional[int] = None,
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
+                          max_amount: bool = config["max_amount"], fee: Optional[Union[int, float]] = None,
                           unit: str = config["unit"], locktime: int = config["locktime"],
                           **kwargs) -> "RefundTransaction":
         """
@@ -899,11 +915,11 @@ class RefundTransaction(Transaction):
         :param transaction_id: Bitcoin fund transaction id to redeem.
         :type transaction_id: str
         :param amount: Bitcoin amount to withdraw, default to None.
-        :type amount: int
+        :type amount: int, float
         :param max_amount: Bitcoin maximum amount to withdraw, default to True.
         :type max_amount: bool
         :param fee: Bitcoin custom fee, default to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Bitcoin unit, default to SATOSHI.
         :type unit: str
         :param locktime: Bitcoin transaction lock time, defaults to 0.
@@ -980,10 +996,9 @@ class RefundTransaction(Transaction):
                 f"you can withdraw minimum {fi + 1} or maximum {self._htlc_utxo['value']} SATOSHI amounts."
             )
 
+        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
         outputs: list = [TxOut(
-            value=(
-                (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-            ), n=0, script_pubkey=get_address_hash(
+            value=_amount, n=0, script_pubkey=get_address_hash(
                 address=self._address, script=True
             )
         )]
@@ -1003,6 +1018,11 @@ class RefundTransaction(Transaction):
                 )
             ))
 
+        self._datas.setdefault("address", self._address)
+        self._datas.setdefault("htlc_address", str(P2shScript.unhexlify(
+            self._htlc_utxo["script"]
+        ).address(mainnet=self._mainnet)))
+        self._datas.setdefault("amount", _amount)
         # Build mutable transaction
         self._transaction = MutableTransaction(
             version=self._version,
@@ -1089,7 +1109,8 @@ class RefundTransaction(Transaction):
                 raw=self._transaction.hexlify(),
                 fee=self._fee,
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -1100,5 +1121,6 @@ class RefundTransaction(Transaction):
                 script=self._htlc_utxo["script"]
             ),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())

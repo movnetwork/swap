@@ -47,9 +47,10 @@ class Signature(Transaction):
         self._address: Optional[str] = None
         self._transaction: Optional[dict] = None
         self._type: Optional[str] = None
-        self._fee: int = config["fee"]
+        self._datas: dict = {}
         self._confirmations: int = config["confirmations"]
         self._signed_raw: Optional[str] = None
+        self._fee: int = 0
 
         super().__init__(network)
 
@@ -256,6 +257,9 @@ class Signature(Transaction):
             raise ValueError("Transaction is none, build transaction first.")
         return self._signatures
 
+    def datas(self) -> dict:
+        return self._datas
+
     def transaction_raw(self) -> str:
         """
         Get Bytom signed transaction raw.
@@ -328,8 +332,8 @@ class NormalSignature(Signature):
             raise TypeError(f"Solver must be Bytom NormalSolver, not {type(solver).__name__} type.")
 
         # Set transaction, fee, type and network
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], loaded_transaction_raw
         )
 
@@ -363,7 +367,8 @@ class NormalSignature(Signature):
             unsigned_datas=self.unsigned_datas(),
             signatures=self.signatures(),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self
 
@@ -418,8 +423,8 @@ class FundSignature(Signature):
             raise TypeError(f"Solver must be Bytom FundSolver, not {type(solver).__name__} type.")
 
         # Set transaction, fee, type and network
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], loaded_transaction_raw
         )
 
@@ -453,7 +458,8 @@ class FundSignature(Signature):
             unsigned_datas=self.unsigned_datas(),
             signatures=self.signatures(),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self
 
@@ -509,8 +515,8 @@ class ClaimSignature(Signature):
             raise TypeError(f"Solver must be Bytom ClaimSolver, not {type(solver).__name__} type.")
 
         # Set transaction, fee, type and network
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], loaded_transaction_raw
         )
 
@@ -547,7 +553,8 @@ class ClaimSignature(Signature):
             unsigned_datas=self.unsigned_datas(),
             signatures=self.signatures(),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self
 
@@ -603,8 +610,8 @@ class RefundSignature(Signature):
             raise TypeError(f"Solver must be Bytom RefundSolver, not {type(solver).__name__} type.")
 
         # Set transaction, fee, type and network
-        self._fee, self._type, self._network, self._transaction = (
-            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+        self._fee, self._type, self._datas, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"], loaded_transaction_raw["datas"],
             loaded_transaction_raw["network"], loaded_transaction_raw
         )
 
@@ -639,6 +646,7 @@ class RefundSignature(Signature):
             unsigned_datas=self.unsigned_datas(),
             signatures=self.signatures(),
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode()
         return self

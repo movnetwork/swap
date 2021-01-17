@@ -55,6 +55,7 @@ class Transaction(VaporTransaction):
         self._transaction: Optional[dict] = None
         self._type: Optional[str] = None
         self._confirmations: int = config["confirmations"]
+        self._datas: dict = {}
         self._interest: int = 0
         self._amount: int = 0
         self._fee: int = 0
@@ -236,6 +237,9 @@ class Transaction(VaporTransaction):
             raise ValueError("Transaction is none, build transaction first.")
         return self._signatures
 
+    def datas(self) -> dict:
+        return self._datas
+
 
 class NormalTransaction(Transaction):
     """
@@ -254,7 +258,7 @@ class NormalTransaction(Transaction):
         super().__init__(network)
 
     def build_transaction(self, address: str, recipients: dict, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "NormalTransaction":
+                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "NormalTransaction":
         """
         Build Vapor normal transaction.
 
@@ -265,7 +269,7 @@ class NormalTransaction(Transaction):
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Vapor unit, default to NEU.
         :type unit: str
 
@@ -438,7 +442,8 @@ class NormalTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -450,7 +455,8 @@ class NormalTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
 
 
@@ -471,9 +477,9 @@ class FundTransaction(Transaction):
 
         self._htlc_address: Optional[str] = None
 
-    def build_transaction(self, address: str, htlc_address: str, amount: Optional[int] = None,
+    def build_transaction(self, address: str, htlc_address: str, amount: Optional[Union[int, float]] = None,
                           max_amount: bool = False, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "FundTransaction":
+                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "FundTransaction":
         """
         Build Vapor fund transaction.
 
@@ -482,13 +488,13 @@ class FundTransaction(Transaction):
         :param htlc_address: Vapor Hash Time Lock Contract (HTLC) address.
         :type htlc_address: str
         :param amount: Vapor amount to fund, default to None.
-        :type amount: int
+        :type amount: int, float
         :param max_amount: Vapor maximum amount to fund, default to False.
         :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Vapor unit, default to NEU.
         :type unit: str
 
@@ -597,6 +603,9 @@ class FundTransaction(Transaction):
                 f"You can fund minimum {449001} NEU amount."
             )
 
+        self._datas.setdefault("address", self._address)
+        self._datas.setdefault("htlc_address", self._htlc_address)
+        self._datas.setdefault("amount", (self._amount - fi))
         # Build transaction
         self._transaction = build_transaction(
             address=self._address,
@@ -697,7 +706,8 @@ class FundTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -709,7 +719,8 @@ class FundTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
 
 
@@ -734,9 +745,9 @@ class ClaimTransaction(Transaction):
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "ClaimTransaction":
+                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "ClaimTransaction":
         """
         Build Vapor claim transaction.
 
@@ -745,13 +756,13 @@ class ClaimTransaction(Transaction):
         :param transaction_id: Vapor fund transaction id to redeem.
         :type transaction_id: str
         :param amount: Vapor amount to withdraw, default to None.
-        :type amount: int
+        :type amount: int, float
         :param max_amount: Vapor maximum amount to withdraw, default to True.
         :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Vapor unit, default to NEU.
         :type unit: str
 
@@ -822,10 +833,10 @@ class ClaimTransaction(Transaction):
             raise BalanceError("Insufficient spend UTXO's",
                                f"maximum you can withdraw {self._htlc_utxo['amount']} NEU amount.")
 
+        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
         outputs: list = [control_address(
-            asset=self._asset, amount=(
-                (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-            ), address=self._address, vapor=True
+            asset=self._asset, amount=_amount,
+            address=self._address, vapor=True
         )]
         if self._interest:
             outputs.append(control_address(
@@ -833,6 +844,9 @@ class ClaimTransaction(Transaction):
                 address=kwargs["options"]["address"], vapor=True
             ))
 
+        self._datas.setdefault("address", self._address)
+        self._datas.setdefault("htlc_address", self._htlc_utxo["address"])
+        self._datas.setdefault("amount", _amount)
         # Build transaction
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
@@ -933,7 +947,8 @@ class ClaimTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -945,7 +960,8 @@ class ClaimTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
 
 
@@ -969,9 +985,9 @@ class RefundTransaction(Transaction):
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[int] = None,
+    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[int] = None, unit: str = config["unit"], **kwargs) -> "RefundTransaction":
+                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "RefundTransaction":
         """
         Build Vapor refund transaction.
 
@@ -980,13 +996,13 @@ class RefundTransaction(Transaction):
         :param transaction_id: Vapor fund transaction id to redeem.
         :type transaction_id: str
         :param amount: Vapor amount to withdraw, default to None.
-        :type amount: int
+        :type amount: int, float
         :param max_amount: Vapor maximum amount to withdraw, default to True.
         :type max_amount: bool
         :param asset: Vapor asset id, defaults to BTM asset.
         :type asset: str, vapor.assets.AssetNamespace
         :param fee: Vapor custom fee, defaults to None.
-        :type fee: int
+        :type fee: int, float
         :param unit: Vapor unit, default to NEU.
         :type unit: str
 
@@ -1057,10 +1073,10 @@ class RefundTransaction(Transaction):
             raise BalanceError("Insufficient spend UTXO's",
                                f"maximum you can refund {self._htlc_utxo['amount']} NEU amount.")
 
+        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
         outputs: list = [control_address(
-            asset=self._asset, amount=(
-                (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-            ), address=self._address, vapor=True
+            asset=self._asset, amount=_amount,
+            address=self._address, vapor=True
         )]
         if self._interest:
             outputs.append(control_address(
@@ -1068,6 +1084,9 @@ class RefundTransaction(Transaction):
                 address=kwargs["options"]["address"], vapor=True
             ))
 
+        self._datas.setdefault("address", self._address)
+        self._datas.setdefault("htlc_address", self._htlc_utxo["address"])
+        self._datas.setdefault("amount", _amount)
         # Build transaction
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
@@ -1167,7 +1186,8 @@ class RefundTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type
+                type=self._type,
+                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -1179,5 +1199,6 @@ class RefundTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type
+            type=self._type,
+            datas=self._datas
         ))).encode()).decode())
