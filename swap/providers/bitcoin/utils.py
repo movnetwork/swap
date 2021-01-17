@@ -303,7 +303,7 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
             type=loaded_transaction_raw["type"],
             transaction_id=response_json["txid"],
             network=loaded_transaction_raw["network"],
-            date=str(datetime.datetime.utcnow())
+            date=str(datetime.datetime.now())
         )
     else:
         raise APIError("Unknown Bitcoin submit payment error.")
