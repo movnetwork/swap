@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import datetime
+
 from swap import __version__
 
 # Bitcoin config
@@ -114,4 +116,56 @@ vapor: dict = {
         "content-type": "application/json; charset=utf-8",
         "accept": "application/json"
     }
+}
+
+# Ethereum config
+ethereum: dict = {
+    "mainnet": {
+        "infura": {
+            "http": "https://mainnet.infura.io/v3",
+            "websocket": "wss://mainnet.infura.io/ws/v3",
+            "token": "4414fea5f7454211956b1627621450b4"
+        }
+    },
+    "ropsten": {
+        "infura": {
+            "http": "https://ropsten.infura.io/v3",
+            "websocket": "wss://ropsten.infura.io/ws/v3",
+            "token": "4414fea5f7454211956b1627621450b4"
+        }
+    },
+    "kovan": {
+        "infura": {
+            "http": "https://kovan.infura.io/v3",
+            "websocket": "wss://kovan.infura.io/ws/v3",
+            "token": "4414fea5f7454211956b1627621450b4"
+        }
+    },
+    "rinkeby": {
+        "infura": {
+            "http": "https://rinkeby.infura.io/v3",
+            "websocket": "wss://rinkeby.infura.io/ws/v3",
+            "token": "4414fea5f7454211956b1627621450b4"
+        }
+    },
+    "testnet": {
+        "ganache-cli": {
+            "http": "http://localhost:8545",
+            "websocket": "wss://localhost:8545",
+            "token": None
+        }
+    },
+    "path": "m/44'/60'/0'/0/0",
+    "BIP44": "m/44'/60'/{account}'/{change}/{address}",
+    "units": {
+        "ETH": 1,
+        "Gwei": 1_000_000_000,
+        "Wei": 1_000_000_000_000_000_000
+    },
+    "provider": "http",
+    "network": "mainnet",
+    "unit": "Wei",
+    "gas": 3000000,
+    "timeout": 60,
+    # "time": int(datetime.timestamp(datetime.now())) + (3600 * 1)  # 1 hour
 }
