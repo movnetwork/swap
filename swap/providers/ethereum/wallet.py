@@ -583,8 +583,8 @@ class Wallet(HDWallet):
         67966
         """
 
-        if unit not in ["ETH", "Gwei", "Wei"]:
-            raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'ETH', 'Gwei' or 'Wei' units.")
+        if unit not in ["Ether", "Gwei", "Wei"]:
+            raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'Ether', 'Gwei' or 'Wei' units.")
         balance: int = get_balance(address=self.address(), network=self._network)
         return balance if unit == "Wei" else \
             amount_unit_converter(amount=balance, unit=f"Wei2{unit}")
