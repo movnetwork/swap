@@ -51,4 +51,5 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Topic :: Software Development"
     ],
+    include_package_data=True
 )

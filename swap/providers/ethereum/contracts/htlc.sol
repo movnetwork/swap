@@ -111,7 +111,6 @@ contract HTLC {
     function get_locked_contract (bytes32 _locked_contract_id) public view returns (
         bytes32 id, bytes32 secret_hash, address recipient, address sender, uint locked_time, uint amount, bool withdrawn, bool refunded, string memory preimage
     ) {
-
         if (have_locked_contract(_locked_contract_id) == false)
             return (0, 0, address(0), address(0), 0, 0, false, false, "");
 
@@ -131,7 +130,6 @@ contract HTLC {
     }
 
     function have_locked_contract (bytes32 _locked_contract_id) internal view returns (bool exists) {
-
         exists = (locked_contracts[_locked_contract_id].sender != address(0));
     }
 }
