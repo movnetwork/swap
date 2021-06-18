@@ -1,91 +1,125 @@
 #!/usr/bin/env python3
 
-from eth_wallet import Wallet
+from typing import Optional
+
+from ..config import ethereum as config
+from .wallet import Wallet
 
 
-# Fund HTLC Solver
 class FundSolver:
     """
-    Ethereum FundSolver class.
+    Ethereum Fund solver.
 
-    :param private_key: ethereum sender private key.
-    :type private_key: str
-    :returns:  FundSolver -- ethereum fund solver instance.
+    :param xprivate_key: Ethereum sender xprivate key.
+    :type xprivate_key: str
+    :param account: Ethereum derivation account, defaults to 0.
+    :type account: int
+    :param change: Ethereum derivation change, defaults to False.
+    :type change: bool
+    :param address: Ethereum derivation address, defaults to 0.
+    :type address: int
+    :param path: Ethereum derivation path, defaults to None.
+    :type path: str
 
-    >>> from shuttle.providers.ethereum.solver import FundSolver
-    >>> fund_solver = FundSolver(sender_private_key)
-    <shuttle.providers.ethereum.solver.FundSolver object at 0x03FCCA60>
+    :returns: FundSolver -- Ethereum fund solver instance.
+
+    >>> from swap.providers.ethereum.solver import FundSolver
+    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> fund_solver = FundSolver(xprivate_key=sender_root_xprivate_key)
+    <swap.providers.ethereum.solver.FundSolver object at 0x03FCCA60>
     """
 
-    # Initialization funding on hash time lock contract (HTLC)
-    def __init__(self, private_key):
+    def __init__(self, xprivate_key: str, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None):
+        if path is None:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Initialization ethereum wallet
-        self.wallet = Wallet()
-        # Private key of sender to sign signature
-        self.private_key = private_key
+        self._xprivate_key: str = xprivate_key
+        self._path: Optional[str] = path
 
-    # Signature solve
-    def solve(self):
-        return self.wallet\
-            .from_private_key(private_key=self.private_key)
+    def solve(self, network: str = config["network"]) -> Wallet:
+        return Wallet(network=network).from_root_xprivate_key(
+            xprivate_key=self._xprivate_key
+        ).from_path(path=self._path)
 
 
-# Claim HTLC Solver
-class ClaimSolver:
+class WithdrawSolver:
     """
-    Ethereum ClaimSolver class.
+    Ethereum Withdraw solver.
 
-    :param secret: secret key.
-    :type secret: str
-    :param private_key: ethereum sender private key.
-    :type private_key: str
-    :returns:  ClaimSolver -- ethereum claim solver instance.
+    :param xprivate_key: Ethereum sender xprivate key.
+    :type xprivate_key: str
+    :param secret_key: Secret password/passphrase.
+    :type secret_key: str
+    :param account: Ethereum derivation account, defaults to 0.
+    :type account: int
+    :param change: Ethereum derivation change, defaults to False.
+    :type change: bool
+    :param address: Ethereum derivation address, defaults to 0.
+    :type address: int
+    :param path: Ethereum derivation path, defaults to None.
+    :type path: str
 
-    >>> from shuttle.providers.ethereum.solver import ClaimSolver
-    >>> claim_solver = ClaimSolver("Hello Meheret!", recipient_private_key)
-    <shuttle.providers.ethereum.solver.ClaimSolver object at 0x03FCCA60>
+    :returns: WithdrawSolver -- Ethereum withdraw solver instance.
+
+    >>> from swap.providers.ethereum.solver import WithdrawSolver
+    >>> recipient_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> withdraw_solver = WithdrawSolver(xprivate_key=recipient_root_xprivate_key, secret_key="Hello Meheret!")
+    <swap.providers.ethereum.solver.WithdrawSolver object at 0x03FCCA60>
     """
 
-    # Initialization claiming on hash time lock contract (HTLC)
-    def __init__(self, secret, private_key):
+    def __init__(self, xprivate_key: str, secret_key: str, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None):
+        if path is None:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Initialization ethereum wallet
-        self.wallet = Wallet()
-        # Secret key to unlock HTLC
-        self.secret = secret.encode()
-        # Private key of recipient to sign signature
-        self.private_key = private_key
+        self._xprivate_key: str = xprivate_key
+        self._path: Optional[str] = path
 
-    # Signature solve
-    def solve(self):
-        return self.wallet\
-            .from_private_key(private_key=self.private_key)
+    def solve(self, network: str = config["network"]) -> Wallet:
+        return Wallet(network=network).from_root_xprivate_key(
+            xprivate_key=self._xprivate_key
+        ).from_path(path=self._path)
 
 
-# Refund HTLC Solver
 class RefundSolver:
     """
-    Ethereum RefundSolver class.
+    Ethereum Refund solver.
 
-    :param private_key: ethereum sender private key.
-    :type private_key: str
-    :returns:  RefundSolver -- ethereum refund solver instance.
+    :param xprivate_key: Ethereum sender xprivate key.
+    :type xprivate_key: str
+    :param account: Ethereum derivation account, defaults to 0.
+    :type account: int
+    :param change: Ethereum derivation change, defaults to False.
+    :type change: bool
+    :param address: Ethereum derivation address, defaults to 0.
+    :type address: int
+    :param path: Ethereum derivation path, defaults to None.
+    :type path: str
 
-    >>> from shuttle.providers.ethereum.solver import RefundSolver
-    >>> refund_solver = RefundSolver(sender_private_key)
-    <shuttle.providers.ethereum.solver.RefundSolver object at 0x03FCCA60>
+    :returns: RefundSolver -- Ethereum refund solver instance.
+
+    >>> from swap.providers.ethereum.solver import RefundSolver
+    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> refund_solver = RefundSolver(xprivate_key=sender_root_xprivate_key)
+    <swap.providers.ethereum.solver.RefundSolver object at 0x03FCCA60>
     """
 
-    # Initialization claiming on hash time lock contract (HTLC)
-    def __init__(self, private_key):
+    def __init__(self, xprivate_key: str, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None):
+        if path is None:
+            path = config["BIP44"].format(
+                account=account, change=(1 if change else 0), address=address
+            )
 
-        # Initialization ethereum wallet
-        self.wallet = Wallet()
-        # Private key of recipient to sign signature
-        self.private_key = private_key
+        self._xprivate_key: str = xprivate_key
+        self._path: Optional[str] = path
 
-    # Signature solve
-    def solve(self):
-        return self.wallet\
-            .from_private_key(private_key=self.private_key)
+    def solve(self, network: str = config["network"]) -> Wallet:
+        return Wallet(network=network).from_root_xprivate_key(
+            xprivate_key=self._xprivate_key
+        ).from_path(path=self._path)
