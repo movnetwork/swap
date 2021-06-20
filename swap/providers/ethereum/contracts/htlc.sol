@@ -1,6 +1,17 @@
 pragma solidity ^0.8.3;
 
-
+/**
+ * @title Hash Time Lock Contract (HTLC).
+ *
+ * @author Meheret Tesfaye Batu <meherett@zoho.com>
+ *
+ * A Hash Time Lock Contract is essentially a type of payment in which two
+ * people agree to a financial arrangement where one party will pay the other
+ * party a certain amount of cryptocurrency, such as Bitcoin or Ethereum assets.
+ * However, because these contracts are Time Locked, the receiving party only
+ * has a certain amount of time to accept the payment, otherwise the money
+ * can be returned to the sender.
+ */
 contract HTLC {
 
     struct LockedContract {
@@ -60,6 +71,17 @@ contract HTLC {
         _;
     }
 
+
+    /**
+     * @dev Sender sets up a new hash time lock contract depositing the ETH.
+     *
+     * @param _secret_hash: A sha-2 sha256 hash.
+     * @param _recipient: Receiver of the ETH.
+     * @param _sender: Sender of the ETH.
+     * @param _endtime: UNIX epoch seconds time that the lock expires at.
+     *
+     * @return contractId Id of the new HTLC. This is needed for subsequent calls.
+     */
     function fund (bytes32 _secret_hash, address payable _recipient, address payable _sender, uint _endtime) external payable fund_sent future_endtime (_endtime) returns (bytes32 locked_contract_id) {
 
         require(msg.sender == _sender, "msg.sender must be same with sender address");
@@ -80,6 +102,14 @@ contract HTLC {
         );
     }
 
+    /**
+     * @dev Called by the recipient once they know the preimage of the secret_hash.
+     *
+     * @param _locked_contract_id:  Id of the HTLC.
+     * @param _preimage: sha256(_preimage) should equal the contract secret_hash.
+     *
+     * @return bool true on success
+     */
     function withdraw (bytes32 _locked_contract_id, string memory _preimage) external is_locked_contract_exist (_locked_contract_id) check_secret_hash_matches (_locked_contract_id, _preimage) withdrawable(_locked_contract_id) returns (bool) {
 
         LockedContract storage locked_contract = locked_contracts[_locked_contract_id];
@@ -94,6 +124,13 @@ contract HTLC {
         return true;
     }
 
+    /**
+     * @dev Called by the sender if there was no withdraw AND the time lock has expired.
+     *
+     * @param _locked_contract_id: Id of HTLC to refund from.
+     *
+     * @return bool true on success
+     */
     function refund (bytes32 _locked_contract_id) external is_locked_contract_exist (_locked_contract_id) refundable (_locked_contract_id) returns (bool) {
 
         LockedContract storage locked_contract = locked_contracts[_locked_contract_id];
@@ -107,6 +144,13 @@ contract HTLC {
         return true;
     }
 
+    /**
+     * @dev Get contract details.
+     *
+     * @param _locked_contract_id: HTLC contract id
+     *
+     * @return All parameters in struct LockContract for _locked_contract_id HTLC
+     */
     function get_locked_contract (bytes32 _locked_contract_id) public view returns (
         bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string memory preimage
     ) {
@@ -128,6 +172,11 @@ contract HTLC {
         );
     }
 
+    /**
+     * @dev Is there a contract with id _locked_contract_id.
+     *
+     * @param _locked_contract_id Id into contracts mapping.
+     */
     function have_locked_contract (bytes32 _locked_contract_id) internal view returns (bool exists) {
         exists = (locked_contracts[_locked_contract_id].sender != address(0));
     }

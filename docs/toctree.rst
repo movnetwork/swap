@@ -22,4 +22,5 @@ Swap
 
     Bitcoin Protocol <providers/bitcoin/bitcoin.rst>
     Bytom Protocol <providers/bytom/bytom.rst>
+    Ethereum Protocol <providers/ethereum/ethereum.rst>
     Vapor Protocol <providers/vapor/vapor.rst>

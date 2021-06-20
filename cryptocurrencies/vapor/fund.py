@@ -57,7 +57,7 @@ print("Unsigned Fund Transaction Unsigned Datas:", json.dumps(unsigned_fund_tran
 print("Unsigned Fund Transaction Signatures:", json.dumps(unsigned_fund_transaction.signatures(), indent=4))
 print("Unsigned Fund Transaction Type:", unsigned_fund_transaction.type())
 
-unsigned_fund_transaction_raw = unsigned_fund_transaction.transaction_raw()
+unsigned_fund_transaction_raw: str = unsigned_fund_transaction.transaction_raw()
 print("Unsigned Fund Transaction Raw:", unsigned_fund_transaction_raw)
 
 print("=" * 10, "Signed Fund Transaction")
@@ -68,7 +68,7 @@ fund_solver: FundSolver = FundSolver(
 )
 
 # Sing unsigned fund transaction
-signed_fund_transaction: FundTransaction = unsigned_fund_transaction.sign(fund_solver)
+signed_fund_transaction: FundTransaction = unsigned_fund_transaction.sign(solver=fund_solver)
 
 print("Signed Fund Transaction Fee:", signed_fund_transaction.fee(unit="NEU"), "NEU")
 print("Signed Fund Transaction Hash:", signed_fund_transaction.hash())

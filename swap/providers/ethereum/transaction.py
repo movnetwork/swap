@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from binascii import unhexlify, hexlify
 from eth_account.datastructures import SignedTransaction
 from web3.datastructures import AttributeDict
 from web3.contract import Contract
@@ -14,7 +13,7 @@ from base64 import b64encode
 import json
 
 from ...exceptions import (
-    AddressError, NetworkError, TransactionError, UnitError
+    AddressError, NetworkError, UnitError
 )
 from ...utils import clean_transaction_raw
 from ..config import ethereum as config
@@ -260,7 +259,7 @@ class FundTransaction(Transaction):
         Build Ethereum fund transaction.
 
         :param htlc: Ethereum HTLC instance.
-        :type htlc: HTLC
+        :type htlc: ethereum.htlc.HTLC
         :param address: Ethereum sender address.
         :type address: str
         :param amount: Ethereum amount.

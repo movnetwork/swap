@@ -19,8 +19,9 @@ from .rpc import (
     get_balance
 )
 
-# Default path and indexes derivation
+# Default derivation path
 DEFAULT_PATH: str = config["path"]
+# Default BIP44 derivation path
 DEFAULT_BIP44_PATH: str = config["BIP44"]
 
 
@@ -69,8 +70,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -92,8 +93,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_mnemonic(mnemonic="unfair divorce remind addict add roof park clown build renew illness fault")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -114,8 +115,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_seed("baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_seed(seed="1cfd5df8a523d53a36cee369a93fac4e9efab5e4e138d479da2fb6df730697574409d572fe8325ec22e8ed25dea7495f498c3f5235fe6ae6d47b989267b6777c")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -134,8 +135,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_root_xprivate_key("tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_root_xprivate_key(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -152,8 +153,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_xprivate_key("tprv8kPCFydoWU9ybQunXq7g17Me57ac5gcj8RartGqetP4wAnoDHQAVnLY4RtbYE3WH6xBLHbBJ1VZcRutM712SRQkLFM2PCeoKfsPpndYUajZ")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_xprivate_key(xprivate_key="xprvA3xrxQQVw6Kvc786WAccK4H7dLHhnb9XRsMUMqU3bJoZf5bWxtd5VePTNnn854tEbvV57ggjqkGHXc2u4Jx2veJzXRS1mBuokqz1aXL6tDW")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -170,8 +171,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_wif("cTQpBvBAavuh6VzpeXiutLLTA5Uckr4eAJKuFsBMU1aQXBye1Z9n")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_wif(wif="L4AfqFc8aoBWYNTKU6PkiFbP9kbXRfVHXZWde6SpAdTewwJMc5VZ")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -188,8 +189,8 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_private_key("adf0218f7e7276ed0f40b6919f2473497dd2bf7dcd4cabff4d4ef0e11948cde7")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_private_key(private_key="cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
@@ -206,38 +207,38 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
         self._hdwallet.from_path(path=path)
         return self
 
-    def from_index(self, index: int, harden: bool = False) -> "Wallet":
+    def from_index(self, index: int, hardened: bool = False) -> "Wallet":
         """
         Drive Ethereum wallet from index.
 
         :param index: Ethereum wallet index.
         :type index: int
-        :param harden: Use harden, default to False.
-        :type harden: bool
+        :param hardened: Use hardened index, default to False.
+        :type hardened: bool
 
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.from_index(44, harden=True)
-        >>> wallet.from_index(0, harden=True)
+        >>> wallet.from_index(60, harden=True)
         >>> wallet.from_index(0, harden=True)
         >>> wallet.from_index(0)
         >>> wallet.from_index(0)
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_index(index=index, harden=harden)
+        self._hdwallet.from_index(index=index, hardened=hardened)
         return self
 
     def clean_derivation(self) -> "Wallet":
@@ -247,11 +248,11 @@ class Wallet(HDWallet):
         :returns: Wallet -- Ethereum wallet instance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path("m/44'/60'/0'/0/0")
         >>> wallet.path()
-        "m/44'/0'/0'/0/0"
+        "m/44'/60'/0'/0/0"
         >>> wallet.clean_derivation()
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         >>> wallet.path()
@@ -268,8 +269,8 @@ class Wallet(HDWallet):
         :return: int -- Ethereum wallet strength.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.strength()
         128
         """
@@ -283,10 +284,10 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet entropy.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.entropy()
-        "72fee73846f2d1a5807dc8c953bf79f1"
+        "ed0802d701a033776811601dd6c5c4a9"
         """
 
         return self._hdwallet.entropy()
@@ -298,10 +299,10 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet mnemonic.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.mnemonic()
-        "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
+        "unfair divorce remind addict add roof park clown build renew illness fault"
         """
 
         return self._hdwallet.mnemonic()
@@ -313,8 +314,8 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet passphrase.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1", passphrase="meherett")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9", passphrase="meherett")
         >>> wallet.passphrase()
         "meherett"
         """
@@ -328,8 +329,8 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet language.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.language()
         "english"
         """
@@ -343,10 +344,10 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet seed.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.seed()
-        "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
+        "1cfd5df8a523d53a36cee369a93fac4e9efab5e4e138d479da2fb6df730697574409d572fe8325ec22e8ed25dea7495f498c3f5235fe6ae6d47b989267b6777c"
         """
 
         return self._hdwallet.seed()
@@ -361,10 +362,10 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet root xprivate key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.root_xprivate_key()
-        "tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR"
+        "xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj"
         """
 
         return self._hdwallet.root_xprivate_key(encoded=encoded)
@@ -379,10 +380,10 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet root xpublic key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.root_xpublic_key()
-        "tpubD6NzVbkrYhZ4Xoz25chThXrwuf83FafuDtKKNAj9vL72eqK1myxkDpi2aq9PKCbaQEbJZEaQBwiDQvYuMFZSWPNbypVJkNLfDHwvswpn4m4"
+        "xpub661MyMwAqRbcG28HjdHc6zbHxBFzBJBC4ecFvVKBXXqiucEBe5wirgQ9hzY2WQMjnurVjJbTjMWRskHi7jnSRkJdj4oRu4Vdh7Ln1F83mLJ"
         """
 
         return self._hdwallet.root_xpublic_key(encoded=encoded)
@@ -397,11 +398,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet xprivate key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.xprivate_key()
-        "tprv8kPCFydoWU9ybQunXq7g17Me57ac5gcj8RartGqetP4wAnoDHQAVnLY4RtbYE3WH6xBLHbBJ1VZcRutM712SRQkLFM2PCeoKfsPpndYUajZ"
+        "xprvA3xrxQQVw6Kvc786WAccK4H7dLHhnb9XRsMUMqU3bJoZf5bWxtd5VePTNnn854tEbvV57ggjqkGHXc2u4Jx2veJzXRS1mBuokqz1aXL6tDW"
         """
 
         return self._hdwallet.xprivate_key(encoded=encoded)
@@ -416,11 +417,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet xpublic key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.xpublic_key()
-        "tpubDH5EQPg3eqqeUswaRUnGQX1ke96YF1odhjBeAnsxJesL1H3yunz5xq9vbzGdsRqx3hnsMwZxn9icChmwC8W2gJEJR29iUaRBtCUbPrE7WXm"
+        "xpub6GxDMuwPmTtDpbCZcC9cgCDrBN8CC3sNo6H5ADsf9eLYXsvfWRwL3ShwE5u4gxbPPcZj1yjSDrvvLxsHEPdjtFHHk81N2bskE2U7k9pmj9q"
         """
 
         return self._hdwallet.xpublic_key(encoded=encoded)
@@ -432,11 +433,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet uncompressed public key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.uncompressed()
-        "065e8cb5fa76699079860a450bddd0e37e0ad3dbf2ddfd01d7b600231e6cde8ebc4241db8d66eb8085d5805bd2c4dd588ab3b6f9ec50c2ac3da4c557e15eca2e"
+        "e270f9d51cad2977c0a28182b9320bb5edc3c70e6d84ff5837f8d407ed9d676d447e195e1aff5494d1a0c8dc310c74692e053c2f27ab50c1ee7767a6b8a7be75"
         """
 
         return self._hdwallet.uncompressed()
@@ -448,11 +449,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet compressed public key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.compressed()
-        "02065e8cb5fa76699079860a450bddd0e37e0ad3dbf2ddfd01d7b600231e6cde8e"
+        "03e270f9d51cad2977c0a28182b9320bb5edc3c70e6d84ff5837f8d407ed9d676d"
         """
 
         return self._hdwallet.compressed()
@@ -464,11 +465,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet chain code.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.chain_code()
-        "33a1c82cd13444724d0d217da8be96a8dcf663c8289ba870231c5f60e31accc5"
+        "9e5c492fa0a5c5cc649922c34ac3468a08473f3b61f59bba61b52cce364d6b0c"
         """
 
         return self._hdwallet.chain_code()
@@ -480,11 +481,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet private key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.private_key()
-        "adf0218f7e7276ed0f40b6919f2473497dd2bf7dcd4cabff4d4ef0e11948cde7"
+        "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"
         """
 
         return self._hdwallet.private_key()
@@ -496,11 +497,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet public key.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path("m/44'/60'/0'/0/0")
         >>> wallet.public_key()
-        "02065e8cb5fa76699079860a450bddd0e37e0ad3dbf2ddfd01d7b600231e6cde8e"
+        "03e270f9d51cad2977c0a28182b9320bb5edc3c70e6d84ff5837f8d407ed9d676d"
         """
 
         return self._hdwallet.public_key()
@@ -512,11 +513,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet path.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.path()
-        "m/44'/0'/0'/0/0"
+        "m/44'/60'/0'/0/0"
         """
 
         return self._hdwallet.path()
@@ -528,11 +529,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet address.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.address()
-        "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC"
+        "0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C"
         """
 
         return self._hdwallet.p2pkh_address()
@@ -544,11 +545,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet important format.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.wif()
-        "cTQpBvBAavuh6VzpeXiutLLTA5Uckr4eAJKuFsBMU1aQXBye1Z9n"
+        "L4AfqFc8aoBWYNTKU6PkiFbP9kbXRfVHXZWde6SpAdTewwJMc5VZ"
         """
 
         return self._hdwallet.wif()
@@ -560,11 +561,11 @@ class Wallet(HDWallet):
         :return: str -- Ethereum wallet public key/address hash.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
         >>> wallet.hash()
-        "33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8"
+        "184847379abdde6617e8438fd4ff0d8fdf512cc2"
         """
 
         return self._hdwallet.hash(private_key=private_key)
@@ -579,11 +580,11 @@ class Wallet(HDWallet):
         :return: Wei, int, float -- Ethereum wallet balance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/60'/0'/0/0")
-        >>> wallet.balance(unit="Wei")
-        67966
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.balance(unit="Ether")
+        96.96263982
         """
 
         if unit not in ["Ether", "Gwei", "Wei"]:
