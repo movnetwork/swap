@@ -24,8 +24,8 @@ class FundSolver:
     :returns: FundSolver -- Ethereum fund solver instance.
 
     >>> from swap.providers.ethereum.solver import FundSolver
-    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
-    >>> fund_solver = FundSolver(xprivate_key=sender_root_xprivate_key)
+    >>> sender_root_xprivate_key: str = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> fund_solver: FundSolver = FundSolver(xprivate_key=sender_root_xprivate_key)
     <swap.providers.ethereum.solver.FundSolver object at 0x03FCCA60>
     """
 
@@ -51,8 +51,6 @@ class WithdrawSolver:
 
     :param xprivate_key: Ethereum sender xprivate key.
     :type xprivate_key: str
-    :param secret_key: Secret password/passphrase.
-    :type secret_key: str
     :param account: Ethereum derivation account, defaults to 0.
     :type account: int
     :param change: Ethereum derivation change, defaults to False.
@@ -65,12 +63,12 @@ class WithdrawSolver:
     :returns: WithdrawSolver -- Ethereum withdraw solver instance.
 
     >>> from swap.providers.ethereum.solver import WithdrawSolver
-    >>> recipient_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
-    >>> withdraw_solver = WithdrawSolver(xprivate_key=recipient_root_xprivate_key, secret_key="Hello Meheret!")
+    >>> recipient_root_xprivate_key: str = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key=recipient_root_xprivate_key)
     <swap.providers.ethereum.solver.WithdrawSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key: str, secret_key: str, account: int = 0,
+    def __init__(self, xprivate_key: str, account: int = 0,
                  change: bool = False, address: int = 0, path: Optional[str] = None):
         if path is None:
             path = config["BIP44"].format(
@@ -104,8 +102,8 @@ class RefundSolver:
     :returns: RefundSolver -- Ethereum refund solver instance.
 
     >>> from swap.providers.ethereum.solver import RefundSolver
-    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
-    >>> refund_solver = RefundSolver(xprivate_key=sender_root_xprivate_key)
+    >>> sender_root_xprivate_key: str = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
+    >>> refund_solver: RefundSolver = RefundSolver(xprivate_key=sender_root_xprivate_key)
     <swap.providers.ethereum.solver.RefundSolver object at 0x03FCCA60>
     """
 

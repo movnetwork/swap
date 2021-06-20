@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 
-from btcpy.structs.crypto import PublicKey
-from btcpy.structs.address import Address
-from btcpy.structs.script import P2pkhScript
 from hdwallet import HDWallet
-from hdwallet.cryptocurrencies import (
-    EthereumMainnet, EthereumMainnet as EthereumTestnet
-)
+from hdwallet.cryptocurrencies import EthereumMainnet
+from web3.types import Wei
 from typing import (
-    Optional, Any, Union
+    Optional, Union
 )
 
 from ...utils import is_mnemonic
@@ -16,43 +12,48 @@ from ...exceptions import (
     NetworkError, UnitError
 )
 from ..config import ethereum as config
-from .utils import amount_unit_converter
+from .utils import (
+    is_network, amount_unit_converter
+)
 from .rpc import (
     get_balance
 )
 
 # Default path and indexes derivation
 DEFAULT_PATH: str = config["path"]
-DEFAULT_BIP44: str = config["BIP44"]
+DEFAULT_BIP44_PATH: str = config["BIP44"]
 
 
 class Wallet(HDWallet):
     """
     Ethereum Wallet class.
 
-    :param network: Ethereum network, defaults to mainnet.
+    :param network: Ethereum network, defaults to ``ropsten``.
     :type network: str
+    :param provider: Ethereum network provider, defaults to ``http``.
+    :type provider: str
+    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
+    :type token: str
 
     :returns: Wallet -- Ethereum wallet instance.
 
     .. note::
-        Ethereum has only two networks, ``mainnet`` and ``mainnet``.
+        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"]):
+    def __init__(self, network: str = config["network"],
+                 provider: str = config["provider"], token: Optional[str] = None):
+        super().__init__(cryptocurrency=EthereumMainnet)
 
-        if network == "mainnet":
-            self._network: str = "mainnet"
-            self._cryptocurrency: Any = EthereumMainnet
-            self._hdwallet: HDWallet = HDWallet(cryptocurrency=EthereumMainnet)
-        elif network == "testnet":
-            self._network: str = "testnet"
-            self._cryptocurrency: Any = EthereumTestnet
-            self._hdwallet: HDWallet = HDWallet(cryptocurrency=EthereumTestnet)
-        else:
+        # Check parameter instances
+        if not is_network(network=network):
             raise NetworkError(f"Invalid Ethereum '{network}' network",
-                               "choose only 'mainnet' or 'testnet' networks.")
-        super().__init__(cryptocurrency=self._cryptocurrency)
+                               "choose only 'mainnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
+
+        self._network, self._provider, self._token = network, provider, token
+        self._hdwallet: HDWallet = HDWallet(
+            cryptocurrency=EthereumMainnet, use_default_path=False
+        )
 
     def from_entropy(self, entropy: str, language: str = "english", passphrase: Optional[str] = None) -> "Wallet":
         """
@@ -121,12 +122,14 @@ class Wallet(HDWallet):
         self._hdwallet.from_seed(seed=seed)
         return self
 
-    def from_root_xprivate_key(self, root_xprivate_key: str) -> "Wallet":
+    def from_root_xprivate_key(self, xprivate_key: str, strict: bool = True) -> "Wallet":
         """
         Initialize wallet from root xprivate key.
 
-        :param root_xprivate_key: Ethereum wallet root xprivate key.
-        :type root_xprivate_key: str
+        :param xprivate_key: Ethereum wallet root xprivate key.
+        :type xprivate_key: str
+        :param strict: Strict for must be root xprivate key, default to ``True``.
+        :type strict: bool
 
         :returns: Wallet -- Ethereum wallet instance.
 
@@ -136,7 +139,7 @@ class Wallet(HDWallet):
         <swap.providers.ethereum.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_root_xprivate_key(root_xprivate_key=root_xprivate_key)
+        self._hdwallet.from_root_xprivate_key(xprivate_key=xprivate_key, strict=strict)
         return self
 
     def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
@@ -486,7 +489,7 @@ class Wallet(HDWallet):
 
         return self._hdwallet.private_key()
 
-    def public_key(self, private_key: str = None) -> str:
+    def public_key(self) -> str:
         """
         Get Ethereum wallet public key.
 
@@ -500,7 +503,7 @@ class Wallet(HDWallet):
         "02065e8cb5fa76699079860a450bddd0e37e0ad3dbf2ddfd01d7b600231e6cde8e"
         """
 
-        return self._hdwallet.public_key(private_key=private_key)
+        return self._hdwallet.public_key()
 
     def path(self) -> Optional[str]:
         """
@@ -550,7 +553,7 @@ class Wallet(HDWallet):
 
         return self._hdwallet.wif()
 
-    def hash(self) -> str:
+    def hash(self, private_key: Optional[str] = None) -> str:
         """
         Get Ethereum wallet public key/address hash.
 
@@ -564,16 +567,16 @@ class Wallet(HDWallet):
         "33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8"
         """
 
-        return self._hdwallet.hash()
+        return self._hdwallet.hash(private_key=private_key)
 
-    def balance(self, unit: str = config["unit"]) -> Union[int, float]:
+    def balance(self, unit: str = config["unit"]) -> Union[Wei, int, float]:
         """
         Get Ethereum wallet balance.
 
-        :param unit: Ethereum unit, default to SATOSHI.
+        :param unit: Ethereum unit, default to ``Wei``.
         :type unit: str
 
-        :return: int, float -- Ethereum wallet balance.
+        :return: Wei, int, float -- Ethereum wallet balance.
 
         >>> from swap.providers.ethereum.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
@@ -585,6 +588,8 @@ class Wallet(HDWallet):
 
         if unit not in ["Ether", "Gwei", "Wei"]:
             raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'Ether', 'Gwei' or 'Wei' units.")
-        balance: int = get_balance(address=self.address(), network=self._network)
+        balance: int = get_balance(
+            address=self.address(), network=self._network, provider=self._provider, token=self._token
+        )
         return balance if unit == "Wei" else \
             amount_unit_converter(amount=balance, unit=f"Wei2{unit}")

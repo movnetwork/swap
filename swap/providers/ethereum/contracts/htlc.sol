@@ -7,7 +7,7 @@ contract HTLC {
         bytes32 secret_hash;
         address payable recipient;
         address payable sender;
-        uint locked_time;
+        uint endtime;
         uint amount;
         bool withdrawn;
         bool refunded;
@@ -21,7 +21,7 @@ contract HTLC {
         bytes32 secret_hash,
         address indexed recipient,
         address indexed sender,
-        uint locked_time,
+        uint endtime,
         uint amount
     );
     event log_withdraw (
@@ -35,8 +35,8 @@ contract HTLC {
         require(msg.value > 0, "msg.value must be > 0");
         _;
     }
-    modifier future_locked_time (uint _locked_time) {
-        require(_locked_time > block.timestamp, "locked_time time must be in the future");
+    modifier future_endtime (uint _endtime) {
+        require(_endtime > block.timestamp, "endtime time must be in the future");
         _;
     }
     modifier is_locked_contract_exist (bytes32 _locked_contract_id) {
@@ -50,34 +50,33 @@ contract HTLC {
     modifier withdrawable (bytes32 _locked_contract_id) {
         require(locked_contracts[_locked_contract_id].recipient == msg.sender, "withdrawable: not recipient");
         require(locked_contracts[_locked_contract_id].withdrawn == false, "withdrawable: already withdrawn");
-        require(locked_contracts[_locked_contract_id].locked_time > block.timestamp, "withdrawable: locked_time time must be in the future");
         _;
     }
     modifier refundable (bytes32 _locked_contract_id) {
         require(locked_contracts[_locked_contract_id].sender == msg.sender, "refundable: not sender");
         require(locked_contracts[_locked_contract_id].refunded == false, "refundable: already refunded");
         require(locked_contracts[_locked_contract_id].withdrawn == false, "refundable: already withdrawn");
-        require(locked_contracts[_locked_contract_id].locked_time <= block.timestamp, "refundable: locked_time not yet passed");
+        require(locked_contracts[_locked_contract_id].endtime <= block.timestamp, "refundable: endtime not yet passed");
         _;
     }
 
-    function fund (bytes32 _secret_hash, address payable _recipient, address payable _sender, uint _locked_time) external payable fund_sent future_locked_time (_locked_time) returns (bytes32 locked_contract_id) {
+    function fund (bytes32 _secret_hash, address payable _recipient, address payable _sender, uint _endtime) external payable fund_sent future_endtime (_endtime) returns (bytes32 locked_contract_id) {
 
         require(msg.sender == _sender, "msg.sender must be same with sender address");
 
         locked_contract_id = sha256(abi.encodePacked(
-            _secret_hash, _recipient, msg.sender, _locked_time, msg.value
+            _secret_hash, _recipient, msg.sender, _endtime, msg.value
         ));
 
         if (have_locked_contract(locked_contract_id))
             revert("this locked contract already exists");
 
         locked_contracts[locked_contract_id] = LockedContract(
-            _secret_hash, _recipient, _sender, _locked_time, msg.value, false, false, ""
+            _secret_hash, _recipient, _sender, _endtime, msg.value, false, false, ""
         );
 
         emit log_fund (
-            locked_contract_id, _secret_hash, _recipient, msg.sender, _locked_time, msg.value
+            locked_contract_id, _secret_hash, _recipient, msg.sender, _endtime, msg.value
         );
     }
 
@@ -109,7 +108,7 @@ contract HTLC {
     }
 
     function get_locked_contract (bytes32 _locked_contract_id) public view returns (
-        bytes32 id, bytes32 secret_hash, address recipient, address sender, uint locked_time, uint amount, bool withdrawn, bool refunded, string memory preimage
+        bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string memory preimage
     ) {
         if (have_locked_contract(_locked_contract_id) == false)
             return (0, 0, address(0), address(0), 0, 0, false, false, "");
@@ -121,7 +120,7 @@ contract HTLC {
             locked_contract.secret_hash,
             locked_contract.recipient,
             locked_contract.sender,
-            locked_contract.locked_time,
+            locked_contract.endtime,
             locked_contract.amount,
             locked_contract.withdrawn,
             locked_contract.refunded,
