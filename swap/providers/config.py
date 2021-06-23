@@ -43,20 +43,17 @@ bytom: dict = {
     "mainnet": {
         "bytom-core": "http://localhost:9888",
         "blockmeta": "https://blockmeta.com/api/v3",
-        "blockcenter": "https://bcapi.bystack.com/bytom/v3",
-        "mov": "https://ex.movapi.com/bytom/v3"
+        "blockcenter": "https://ex.movapi.com/bytom/v3"
     },
     "solonet": {
         "bytom-core": "http://localhost:9888",
         "blockmeta": None,
-        "blockcenter": None,
-        "mov": None
+        "blockcenter": None
     },
     "testnet": {
         "bytom-core": "http://localhost:9888",
         "blockmeta": None,
-        "blockcenter": None,
-        "mov": None
+        "blockcenter": None
     },
     "path": "m/44/153/1/0/1",
     "BIP44": "m/44/153/{account}/{change}/{address}",
@@ -83,20 +80,17 @@ vapor: dict = {
     "mainnet": {
         "vapor-core": "http://localhost:9889",
         "blockmeta": "https://vapor.blockmeta.com/api/v1",
-        "blockcenter": "https://bcapi.bystack.com/vapor/v3",
-        "mov": "https://ex.movapi.com/vapor/v3"
+        "blockcenter": "https://ex.movapi.com/vapor/v3"
     },
     "solonet": {
         "vapor-core": "http://localhost:9889",
         "blockmeta": None,
-        "blockcenter": None,
-        "mov": None
+        "blockcenter": None
     },
     "testnet": {
         "vapor-core": "http://localhost:9889",
         "blockmeta": None,
-        "blockcenter": None,
-        "mov": None
+        "blockcenter": None
     },
     "path": "m/44/153/1/0/1",
     "BIP44": "m/44/153/{account}/{change}/{address}",
@@ -170,7 +164,32 @@ ethereum: dict = {
     "provider": "http",
     "network": "mainnet",
     "unit": "Wei",
-    "gas": 3000000,
+    "timeout": 60,
+    "endtime": 3600  # 1 hour
+}
+
+# XinFin config
+xinfin: dict = {
+    "mainnet": {
+        "http": "https://rpc.xinfin.network",
+        "websocket": "wss://ws.xinfin.network",
+        "htlc_transaction_hash": None
+    },
+    "testnet": {
+        "http": "http://localhost:8545",
+        "websocket": "wss://localhost:8545",
+        "htlc_transaction_hash": None
+    },
+    "path": "m/44'/60'/0'/0/0",
+    "BIP44": "m/44'/60'/{account}'/{change}/{address}",
+    "units": {
+        "XDC": 1,
+        "Gwei": 1_000_000_000,
+        "Wei": 1_000_000_000_000_000_000
+    },
+    "provider": "http",
+    "network": "mainnet",
+    "unit": "Wei",
     "timeout": 60,
     "endtime": 3600  # 1 hour
 }
