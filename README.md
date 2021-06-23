@@ -16,11 +16,13 @@ It’s a brand new decentralized payment environment based on Hash Time Lock Con
 
 You can swap the following available cryptocurrencies:
 
-| Cryptocurrencies                                                                                                  | Mainnet | Testnet | Solonet | 
-| ----------------------------------------------------------------------------------------------------------------- | :-----: | :-----: | :-----: |
-| [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                               | Yes     | Yes     | -       |
-| [Bytom](https://github.com/bytom/bytom) `BTM`, `BTC`, `ETH` ... [More Assets](https://blockmeta.com/assets)       | Yes     | No      | No      |
-| [Vapor](https://github.com/bytom/vapor) `BTM`, `BTC`, `ETH` ... [More Assets](https://vapor.blockmeta.com/assets) | Yes     | No      | No      |
+| Cryptocurrencies                                                                                                  | Networks                                            |
+| ----------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------: |
+| [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                               | `mainnet`, `testnet`                                |
+| [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`                                                         | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet` |
+| [Bytom](https://github.com/bytom/bytom) `BTM`, `BTC`, `ETH` ... [More Assets](https://blockmeta.com/assets)       | `mainnet`, `solonet`, `testnet`                     |
+| [Vapor](https://github.com/bytom/vapor) `BTM`, `BTC`, `ETH` ... [More Assets](https://vapor.blockmeta.com/assets) | `mainnet`, `solonet`, `testnet`                     |
+| [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`                                                           | `mainnet`, `testnet`                                |
 
 
 ## What is a HTLC?
