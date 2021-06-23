@@ -9,5 +9,5 @@ click>=7.1.2,<8
 pybytom>=1.5.4,<2
 six>=1.15.0,<2
 web3>=5.19.0,<6
-hexbytes~>=0.2.1,<1
+hexbytes>=0.2.1,<1
 pyxdc>=0.1.1,<2
