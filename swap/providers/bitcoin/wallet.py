@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-from btcpy.structs.crypto import PublicKey
-from btcpy.structs.address import Address
-from btcpy.structs.script import P2pkhScript
 from hdwallet import HDWallet
 from hdwallet.cryptocurrencies import (
     BitcoinMainnet, BitcoinTestnet
@@ -121,22 +118,22 @@ class Wallet(HDWallet):
         self._hdwallet.from_seed(seed=seed)
         return self
 
-    def from_root_xprivate_key(self, root_xprivate_key: str) -> "Wallet":
+    def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
         """
         Initialize wallet from root xprivate key.
 
-        :param root_xprivate_key: Bitcoin wallet root xprivate key.
-        :type root_xprivate_key: str
+        :param xprivate_key: Bitcoin wallet root xprivate key.
+        :type xprivate_key: str
 
         :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_root_xprivate_key("tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR")
+        >>> wallet.from_xprivate_key("tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR")
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_root_xprivate_key(root_xprivate_key=root_xprivate_key)
+        self._hdwallet.from_xprivate_key(xprivate_key=xprivate_key)
         return self
 
     def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
@@ -348,7 +345,7 @@ class Wallet(HDWallet):
 
         return self._hdwallet.seed()
 
-    def root_xprivate_key(self, encoded: bool = True) -> Optional[str]:
+    def xprivate_key(self, encoded: bool = True) -> Optional[str]:
         """
         Get Bitcoin wallet root xprivate key.
 
@@ -360,11 +357,11 @@ class Wallet(HDWallet):
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet = Wallet(network="testnet")
         >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.root_xprivate_key()
+        >>> wallet.xprivate_key()
         "tprv8ZgxMBicQKsPeLxEBy2sJ8CqLdc76FUzeaiY5egrW4JdpM4F9b9A3L6AQhsY1TRsqJAfTdH7DdRAt5hRdcdhn5LnMZPiaGRR7Snrmd8CLqR"
         """
 
-        return self._hdwallet.root_xprivate_key(encoded=encoded)
+        return self._hdwallet.xprivate_key(encoded=encoded)
 
     def root_xpublic_key(self, encoded: bool = True) -> Optional[str]:
         """
@@ -532,7 +529,7 @@ class Wallet(HDWallet):
         "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC"
         """
 
-        return self._hdwallet.address()
+        return self._hdwallet.p2pkh_address()
 
     def wif(self) -> str:
         """
@@ -550,7 +547,7 @@ class Wallet(HDWallet):
 
         return self._hdwallet.wif()
 
-    def hash(self) -> str:
+    def hash(self, private_key: Optional[str] = None) -> str:
         """
         Get Bitcoin wallet public key/address hash.
 
@@ -564,24 +561,7 @@ class Wallet(HDWallet):
         "33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8"
         """
 
-        return PublicKey.unhexlify(self.public_key()).to_address(
-            mainnet=True if self._network == "mainnet" else False).hash.hex()
-
-    def p2pkh(self) -> str:
-        """
-        Get Bitcoin wallet public key/address p2pkh.
-
-        :return: str -- Bitcoin wallet public key/address p2pkh.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet = Wallet(network="testnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44'/0'/0'/0/0")
-        >>> wallet.p2pkh()
-        "76a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac"
-        """
-
-        return P2pkhScript(Address.from_string(self.address())).hexlify()
+        return self._hdwallet.hash(private_key=private_key)
 
     def balance(self, unit: str = config["unit"]) -> Union[int, float]:
         """
