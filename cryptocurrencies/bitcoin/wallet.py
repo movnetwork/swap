@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
-from swap.utils import generate_entropy, generate_passphrase
-from typing import Optional
+from swap.providers.bitcoin.wallet import Wallet
+from swap.utils import (
+    generate_entropy, generate_passphrase
+)
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"  # Default to mainnet
@@ -15,7 +16,7 @@ LENGTH: int = 32  # Default is 32
 # Generate new entropy
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
-PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
+PASSPHRASE: str = generate_passphrase(length=LENGTH)
 
 # Initialize Bitcoin wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -23,8 +24,12 @@ wallet: Wallet = Wallet(network=NETWORK)
 wallet.from_entropy(
     entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE
 )
-# Drive Bitcoin wallet from path
-wallet.from_path(path=DEFAULT_PATH)
+# Drive Bitcoin wallet from indexes
+wallet.from_index(44, hardened=True)
+wallet.from_index(1, hardened=True)
+wallet.from_index(0, hardened=True)
+wallet.from_index(0)
+wallet.from_index(0)
 
 # Print all Bitcoin wallet info's
 print("Strength:", wallet.strength())
@@ -43,7 +48,6 @@ print("Chain Code:", wallet.chain_code())
 print("Private Key:", wallet.private_key())
 print("Public Key:", wallet.public_key())
 print("Wallet Important Format:", wallet.wif())
-print("Pay to Public Key Hash (P2PKH):", wallet.p2pkh())
 print("Hash:", wallet.hash())
 print("Finger Print:", wallet.finger_print())
 print("Path:", wallet.path())
