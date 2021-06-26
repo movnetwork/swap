@@ -1,7 +1,9 @@
 pragma solidity ^0.8.3;
 
 /**
- * @title Hash Time Lock Contract (HTLC).
+ * Ethereum smart contract -> Solidity language
+ *
+ * @title Hash Time Lock Contract (HTLC)
  *
  * @author Meheret Tesfaye Batu <meherett@zoho.com>
  *
