@@ -16,7 +16,7 @@ from ...exceptions import (
 from ..config import vapor as config
 from .transaction import Transaction
 from .solver import (
-    FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from .rpc import decode_raw
 from .utils import (
@@ -88,13 +88,13 @@ class Signature(Transaction):
         :returns: str -- Vapor signature transaction hash or transaction id.
 
         >>> from swap.providers.vapor.signature import Signature
-        >>> from swap.providers.vapor.solver import ClaimSolver
-        >>> unsigned_claim_transaction_raw = "eyJmZWUiOiA0NDkwMDAsICJhZGRyZXNzIjogInZwMXEzcGx3dm12eTRxaGptcDV6ZmZ6bWs1MGFhZ3B1anQ2ZmxuZjYzaCIsICJyYXciOiAiMDcwMTAwMDIwMTY5MDE2NzMyNDc5ZDgyMTY1ZmZlOTI0NjI4OTg5YmQ0MzgwYzE5MjYxZDI3YTQxYmM1NjBlMWFmZWMxMDNhNmE3Yzk0ZjFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAwMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDEwMDAxNWUwMTVjZmFiZTY1ZTNlZDFkMGE4NGE4ZTQzZTZkM2RlMWI0NmZkNGM5ZmE0N2YyZjA0NGU5NGU4NGUwZWM5YWU0MGE1ZGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZkOGQwMjEwMTAxMTYwMDE0ODg3ZWU2NmQ4NGE4MmYyZDg2ODI0YTQ1YmI1MWZkZWEwM2M5MmY0OTIyMDEyMDNlMGEzNzdhZTRhZmEwMzFkNDU1MTU5OWQ5YmI3ZDViMjdmNDczNmQ3N2Y3OGNhYzRkNDc2ZjBmZmJhNWFlM2UwMjAxM2MwMDNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2QwMDNiZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYwOWMwNjAxMTYwMDE0ODg3ZWU2NmQ4NGE4MmYyZDg2ODI0YTQ1YmI1MWZkZWEwM2M5MmY0OTAwIiwgImhhc2giOiAiNTAwYzEyMWU5N2ZmMWM0Y2ZjMmUzYWFiMDBkZDYzODQ0YTIzNjYzNWY2YmE2Yjk0MWM5MmQ5MGE1ZjhiZGJiNCIsICJ1bnNpZ25lZF9kYXRhcyI6IFt7ImRhdGFzIjogWyI2NzQ0YzA0NmU2MzgzOWE3MGVjMWQ4ZmE4Zjg5NjM4ZTAyNTE5M2QyYTIxZjI5MTkzNzg5MjQ3NDE1NDVlN2UzIl0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6IG51bGx9LCB7ImRhdGFzIjogWyI3ODAwMzk5ODc2MGExZDVjYzJmZGZlYzQ3NTc5MjcwMTY1MGFlN2Y1MGMzOGQ5MTg2N2NkYzg0ZDUzODBlM2Q5Il0sICJwdWJsaWNfa2V5IjogIjNlMGEzNzdhZTRhZmEwMzFkNDU1MTU5OWQ5YmI3ZDViMjdmNDczNmQ3N2Y3OGNhYzRkNDc2ZjBmZmJhNWFlM2UiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJ2YXBvcl9jbGFpbV91bnNpZ25lZCJ9"
+        >>> from swap.providers.vapor.solver import WithdrawSolver
+        >>> unsigned_withdraw_transaction_raw = "eyJmZWUiOiA0NDkwMDAsICJhZGRyZXNzIjogInZwMXEzcGx3dm12eTRxaGptcDV6ZmZ6bWs1MGFhZ3B1anQ2ZmxuZjYzaCIsICJyYXciOiAiMDcwMTAwMDIwMTY5MDE2NzMyNDc5ZDgyMTY1ZmZlOTI0NjI4OTg5YmQ0MzgwYzE5MjYxZDI3YTQxYmM1NjBlMWFmZWMxMDNhNmE3Yzk0ZjFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOTA0ZTAwMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDEwMDAxNWUwMTVjZmFiZTY1ZTNlZDFkMGE4NGE4ZTQzZTZkM2RlMWI0NmZkNGM5ZmE0N2YyZjA0NGU5NGU4NGUwZWM5YWU0MGE1ZGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZkOGQwMjEwMTAxMTYwMDE0ODg3ZWU2NmQ4NGE4MmYyZDg2ODI0YTQ1YmI1MWZkZWEwM2M5MmY0OTIyMDEyMDNlMGEzNzdhZTRhZmEwMzFkNDU1MTU5OWQ5YmI3ZDViMjdmNDczNmQ3N2Y3OGNhYzRkNDc2ZjBmZmJhNWFlM2UwMjAxM2MwMDNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2QwMDNiZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYwOWMwNjAxMTYwMDE0ODg3ZWU2NmQ4NGE4MmYyZDg2ODI0YTQ1YmI1MWZkZWEwM2M5MmY0OTAwIiwgImhhc2giOiAiNTAwYzEyMWU5N2ZmMWM0Y2ZjMmUzYWFiMDBkZDYzODQ0YTIzNjYzNWY2YmE2Yjk0MWM5MmQ5MGE1ZjhiZGJiNCIsICJ1bnNpZ25lZF9kYXRhcyI6IFt7ImRhdGFzIjogWyI2NzQ0YzA0NmU2MzgzOWE3MGVjMWQ4ZmE4Zjg5NjM4ZTAyNTE5M2QyYTIxZjI5MTkzNzg5MjQ3NDE1NDVlN2UzIl0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6IG51bGx9LCB7ImRhdGFzIjogWyI3ODAwMzk5ODc2MGExZDVjYzJmZGZlYzQ3NTc5MjcwMTY1MGFlN2Y1MGMzOGQ5MTg2N2NkYzg0ZDUzODBlM2Q5Il0sICJwdWJsaWNfa2V5IjogIjNlMGEzNzdhZTRhZmEwMzFkNDU1MTU5OWQ5YmI3ZDViMjdmNDczNmQ3N2Y3OGNhYzRkNDc2ZjBmZmJhNWFlM2UiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJ2YXBvcl9jbGFpbV91bnNpZ25lZCJ9"
         >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> claim_solver = ClaimSolver(recipient_xprivate_key, "Hello Meheret!", bytecode)
+        >>> withdraw_solver = WithdrawSolver(recipient_xprivate_key, "Hello Meheret!", bytecode)
         >>> signature = Signature("mainnet")
-        >>> signature.sign(unsigned_claim_transaction_raw, claim_solver)
+        >>> signature.sign(unsigned_withdraw_transaction_raw, withdraw_solver)
         >>> signature.hash()
         "d544ad2d08f9dda33b78953c74eede9c9eb5d80835695310b242d5796cfb91d6"
         """
@@ -166,17 +166,17 @@ class Signature(Transaction):
             raise ValueError("Type is none, sign unsigned transaction raw first.")
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, ClaimSolver, RefundSolver]) \
-            -> Union["FundSignature", "ClaimSignature", "RefundSignature"]:
+    def sign(self, transaction_raw: str, solver: Union[FundSolver, WithdrawSolver, RefundSolver]) \
+            -> Union["FundSignature", "WithdrawSignature", "RefundSignature"]:
         """
         Sign unsigned transaction raw.
 
         :param transaction_raw: Vapor unsigned transaction raw.
         :type transaction_raw: str
         :param solver: Vapor solver
-        :type solver: vapor.solver.NormalSolver, vapor.solver.FundSolver, vapor.solver.ClaimSolver, vapor.solver.RefundSolver
+        :type solver: vapor.solver.NormalSolver, vapor.solver.FundSolver, vapor.solver.WithdrawSolver, vapor.solver.RefundSolver
 
-        :returns: FundSignature, ClaimSignature, RefundSignature -- Vapor signature instance.
+        :returns: FundSignature, WithdrawSignature, RefundSignature -- Vapor signature instance.
 
         >>> from swap.providers.vapor.signature import Signature
         >>> from swap.providers.vapor.solver import FundSolver
@@ -200,8 +200,8 @@ class Signature(Transaction):
             return FundSignature(network=self._network).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
-        elif loaded_transaction_raw["type"] == "vapor_claim_unsigned":
-            return ClaimSignature(network=self._network).sign(
+        elif loaded_transaction_raw["type"] == "vapor_withdraw_unsigned":
+            return WithdrawSignature(network=self._network).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
         elif loaded_transaction_raw["type"] == "vapor_refund_unsigned":
@@ -216,13 +216,13 @@ class Signature(Transaction):
         :returns: list -- Vapor transaction unsigned datas.
 
         >>> from swap.providers.vapor.signature import Signature
-        >>> from swap.providers.vapor.solver import ClaimSolver
-        >>> unsigned_claim_transaction_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTNwbHd2bXZ5NHFoam1wNXpmZnptazUwYWFncHVqdDZmNWplODVwIiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkMzA1YTI4ZDhkMzRiNDBjNjU5MzY4MTBmOWU5YzFmOGJjOWM3OTNlYzJlNzJjNzBmOTIwM2ZiYmViMGE1NmRiOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAxMDExNjAwMTQwZTQzYTkyYTllOGFjYTc4OGViMTU1MWMzMTY0NDhjMmUzZjc4MjE1MDEwMDAxNWQwMTViMTM4ODFmMzI3ZTJiZTBkNWMwMGYzODU2MGYxYzI5NDg2Y2RhZjI1NWMwOWMwMWVlZTFhMWViYWEzNzgzZGRkOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDAwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkyMjAxMjAzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjBkZWUxMDQwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJoYXNoIjogImQ1NDRhZDJkMDhmOWRkYTMzYjc4OTUzYzc0ZWVkZTljOWViNWQ4MDgzNTY5NTMxMGIyNDJkNTc5NmNmYjkxZDYiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiNTE3MjI5MGE5ODU4YTRhMDdjNjAzYzc0MWY2ZmQ4ZTg2NzE1YThhNDQ3MGViMjM3ZDBhMmQ4MzI1YzE3MDZiNyJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfSwgeyJkYXRhcyI6IFsiZTQxYWI5NjQ3MDFmMjBhMjM0NzMzNDBiMTFkNWNiY2ZiYTlhMzczY2VkZjI4NGY4MDljMGM2MWNlN2Q3MTVkYSJdLCAicHVibGljX2tleSI6ICIzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fY2xhaW1fdW5zaWduZWQifQ"
+        >>> from swap.providers.vapor.solver import WithdrawSolver
+        >>> unsigned_withdraw_transaction_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTNwbHd2bXZ5NHFoam1wNXpmZnptazUwYWFncHVqdDZmNWplODVwIiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkMzA1YTI4ZDhkMzRiNDBjNjU5MzY4MTBmOWU5YzFmOGJjOWM3OTNlYzJlNzJjNzBmOTIwM2ZiYmViMGE1NmRiOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAxMDExNjAwMTQwZTQzYTkyYTllOGFjYTc4OGViMTU1MWMzMTY0NDhjMmUzZjc4MjE1MDEwMDAxNWQwMTViMTM4ODFmMzI3ZTJiZTBkNWMwMGYzODU2MGYxYzI5NDg2Y2RhZjI1NWMwOWMwMWVlZTFhMWViYWEzNzgzZGRkOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDAwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkyMjAxMjAzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjBkZWUxMDQwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJoYXNoIjogImQ1NDRhZDJkMDhmOWRkYTMzYjc4OTUzYzc0ZWVkZTljOWViNWQ4MDgzNTY5NTMxMGIyNDJkNTc5NmNmYjkxZDYiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiNTE3MjI5MGE5ODU4YTRhMDdjNjAzYzc0MWY2ZmQ4ZTg2NzE1YThhNDQ3MGViMjM3ZDBhMmQ4MzI1YzE3MDZiNyJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfSwgeyJkYXRhcyI6IFsiZTQxYWI5NjQ3MDFmMjBhMjM0NzMzNDBiMTFkNWNiY2ZiYTlhMzczY2VkZjI4NGY4MDljMGM2MWNlN2Q3MTVkYSJdLCAicHVibGljX2tleSI6ICIzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fY2xhaW1fdW5zaWduZWQifQ"
         >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> claim_solver = ClaimSolver(recipient_xprivate_key, "Hello Meheret!", bytecode)
+        >>> withdraw_solver = WithdrawSolver(recipient_xprivate_key, "Hello Meheret!", bytecode)
         >>> signature = Signature("mainnet")
-        >>> signature.sign(unsigned_claim_transaction_raw, claim_solver)
+        >>> signature.sign(unsigned_withdraw_transaction_raw, withdraw_solver)
         >>> signature.unsigned_datas()
         [{"datas": ["5172290a9858a4a07c603c741f6fd8e86715a8a4470eb237d0a2d8325c1706b7"], "network": "mainnet", "path": null}, {"datas": ["e41ab964701f20a23473340b11d5cbcfba9a373cedf284f809c0c61ce7d715da"], "public_key": "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", "network": "mainnet", "path": "m/44/153/1/0/1"}]
         """
@@ -369,39 +369,39 @@ class FundSignature(Signature):
         return self
 
 
-class ClaimSignature(Signature):
+class WithdrawSignature(Signature):
     """
-    Vapor Claim signature.
+    Vapor Withdraw signature.
 
     :param network: Vapor network, defaults to mainnet.
     :type network: str
 
-    :returns: ClaimSignature -- Vapor claim signature instance.
+    :returns: WithdrawSignature -- Vapor withdraw signature instance.
     """
 
     def __init__(self, network: str = config["network"]):
         super().__init__(network=network)
 
-    def sign(self, transaction_raw: str, solver: ClaimSolver) -> "ClaimSignature":
+    def sign(self, transaction_raw: str, solver: WithdrawSolver) -> "WithdrawSignature":
         """
-        Sign unsigned claim transaction raw.
+        Sign unsigned withdraw transaction raw.
 
-        :param transaction_raw: Vapor unsigned claim transaction raw.
+        :param transaction_raw: Vapor unsigned withdraw transaction raw.
         :type transaction_raw: str
-        :param solver: Vapor claim solver.
-        :type solver: vapor.solver.ClaimSolver
+        :param solver: Vapor withdraw solver.
+        :type solver: vapor.solver.WithdrawSolver
 
-        :returns: ClaimSignature -- Vapor claim signature instance.
+        :returns: WithdrawSignature -- Vapor withdraw signature instance.
 
-        >>> from swap.providers.vapor.signature import ClaimSignature
-        >>> from swap.providers.vapor.solver import ClaimSolver
-        >>> unsigned_claim_transaction_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTNwbHd2bXZ5NHFoam1wNXpmZnptazUwYWFncHVqdDZmNWplODVwIiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkMzA1YTI4ZDhkMzRiNDBjNjU5MzY4MTBmOWU5YzFmOGJjOWM3OTNlYzJlNzJjNzBmOTIwM2ZiYmViMGE1NmRiOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAxMDExNjAwMTQwZTQzYTkyYTllOGFjYTc4OGViMTU1MWMzMTY0NDhjMmUzZjc4MjE1MDEwMDAxNWQwMTViMTM4ODFmMzI3ZTJiZTBkNWMwMGYzODU2MGYxYzI5NDg2Y2RhZjI1NWMwOWMwMWVlZTFhMWViYWEzNzgzZGRkOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDAwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkyMjAxMjAzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjBkZWUxMDQwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJoYXNoIjogImQ1NDRhZDJkMDhmOWRkYTMzYjc4OTUzYzc0ZWVkZTljOWViNWQ4MDgzNTY5NTMxMGIyNDJkNTc5NmNmYjkxZDYiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiNTE3MjI5MGE5ODU4YTRhMDdjNjAzYzc0MWY2ZmQ4ZTg2NzE1YThhNDQ3MGViMjM3ZDBhMmQ4MzI1YzE3MDZiNyJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfSwgeyJkYXRhcyI6IFsiZTQxYWI5NjQ3MDFmMjBhMjM0NzMzNDBiMTFkNWNiY2ZiYTlhMzczY2VkZjI4NGY4MDljMGM2MWNlN2Q3MTVkYSJdLCAicHVibGljX2tleSI6ICIzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fY2xhaW1fdW5zaWduZWQifQ"
+        >>> from swap.providers.vapor.signature import WithdrawSignature
+        >>> from swap.providers.vapor.solver import WithdrawSolver
+        >>> unsigned_withdraw_transaction_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTNwbHd2bXZ5NHFoam1wNXpmZnptazUwYWFncHVqdDZmNWplODVwIiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkMzA1YTI4ZDhkMzRiNDBjNjU5MzY4MTBmOWU5YzFmOGJjOWM3OTNlYzJlNzJjNzBmOTIwM2ZiYmViMGE1NmRiOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAxMDExNjAwMTQwZTQzYTkyYTllOGFjYTc4OGViMTU1MWMzMTY0NDhjMmUzZjc4MjE1MDEwMDAxNWQwMTViMTM4ODFmMzI3ZTJiZTBkNWMwMGYzODU2MGYxYzI5NDg2Y2RhZjI1NWMwOWMwMWVlZTFhMWViYWEzNzgzZGRkOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDAwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkyMjAxMjAzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlMDIwMTNhZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjkwNGUwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjBkZWUxMDQwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJoYXNoIjogImQ1NDRhZDJkMDhmOWRkYTMzYjc4OTUzYzc0ZWVkZTljOWViNWQ4MDgzNTY5NTMxMGIyNDJkNTc5NmNmYjkxZDYiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiNTE3MjI5MGE5ODU4YTRhMDdjNjAzYzc0MWY2ZmQ4ZTg2NzE1YThhNDQ3MGViMjM3ZDBhMmQ4MzI1YzE3MDZiNyJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfSwgeyJkYXRhcyI6IFsiZTQxYWI5NjQ3MDFmMjBhMjM0NzMzNDBiMTFkNWNiY2ZiYTlhMzczY2VkZjI4NGY4MDljMGM2MWNlN2Q3MTVkYSJdLCAicHVibGljX2tleSI6ICIzZTBhMzc3YWU0YWZhMDMxZDQ1NTE1OTlkOWJiN2Q1YjI3ZjQ3MzZkNzdmNzhjYWM0ZDQ3NmYwZmZiYTVhZTNlIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fY2xhaW1fdW5zaWduZWQifQ"
         >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> claim_solver = ClaimSolver(recipient_xprivate_key, "Hello Meheret!", bytecode)
-        >>> claim_signature = ClaimSignature("mainnet")
-        >>> claim_signature.sign(transaction_raw=unsigned_claim_transaction_raw, solver=claim_solver)
-        <swap.providers.vapor.signature.ClaimSignature object at 0x0409DAF0>
+        >>> withdraw_solver = WithdrawSolver(recipient_xprivate_key, "Hello Meheret!", bytecode)
+        >>> withdraw_signature = WithdrawSignature("mainnet")
+        >>> withdraw_signature.sign(transaction_raw=unsigned_withdraw_transaction_raw, solver=withdraw_solver)
+        <swap.providers.vapor.signature.WithdrawSignature object at 0x0409DAF0>
         """
 
         if not is_transaction_raw(transaction_raw=transaction_raw):
@@ -411,13 +411,13 @@ class ClaimSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "vapor_claim_unsigned":
-            raise TypeError(f"Invalid Vapor claim unsigned transaction raw type, "
-                            f"you can't sign {loaded_transaction_raw['type']} type by using claim signature.")
+        if not loaded_transaction_raw["type"] == "vapor_withdraw_unsigned":
+            raise TypeError(f"Invalid Vapor withdraw unsigned transaction raw type, "
+                            f"you can't sign {loaded_transaction_raw['type']} type by using withdraw signature.")
 
         # Check parameter instances
-        if not isinstance(solver, ClaimSolver):
-            raise TypeError(f"Solver must be Vapor ClaimSolver, not {type(solver).__name__} type.")
+        if not isinstance(solver, WithdrawSolver):
+            raise TypeError(f"Solver must be Vapor WithdrawSolver, not {type(solver).__name__} type.")
 
         # Set transaction, fee, type and network
         self._fee, self._type, self._datas, self._network, self._transaction = (
@@ -429,7 +429,7 @@ class ClaimSignature(Signature):
         wallet, secret, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Sign claim transaction
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas()):
             signed_data = list()
             unsigned_datas = unsigned["datas"]
@@ -448,8 +448,8 @@ class ClaimSignature(Signature):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "vapor_claim_signed"
-        # Encode claim transaction raw
+        self._type = "vapor_withdraw_signed"
+        # Encode withdraw transaction raw
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
             address=self._transaction["address"],
@@ -471,7 +471,7 @@ class RefundSignature(Signature):
     :param network: Vapor network, defaults to mainnet.
     :type network: str
 
-    :returns: RefundSignature -- Vapor claim signature instance.
+    :returns: RefundSignature -- Vapor withdraw signature instance.
     """
 
     def __init__(self, network: str = config["network"]):

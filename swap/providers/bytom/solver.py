@@ -53,9 +53,9 @@ class FundSolver:
         )
 
 
-class ClaimSolver:
+class WithdrawSolver:
     """
-    Bytom Claim solver.
+    Bytom Withdraw solver.
 
     :param xprivate_key: Bytom sender xprivate key.
     :type xprivate_key: str
@@ -74,13 +74,13 @@ class ClaimSolver:
     :param indexes: Bytom derivation indexes, defaults to None.
     :type indexes: list
 
-    :returns: ClaimSolver -- Bytom claim solver instance.
+    :returns: WithdrawSolver -- Bytom withdraw solver instance.
 
-    >>> from swap.providers.bytom.solver import ClaimSolver
+    >>> from swap.providers.bytom.solver import WithdrawSolver
     >>> recipient_xprivate_key = "58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f"
     >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-    >>> claim_solver = ClaimSolver(xprivate_key=recipient_xprivate_key, secret_key="Hello Meheret!", bytecode=bytecode)
-    <swap.providers.bytom.solver.ClaimSolver object at 0x03FCCA60>
+    >>> withdraw_solver = WithdrawSolver(xprivate_key=recipient_xprivate_key, secret_key="Hello Meheret!", bytecode=bytecode)
+    <swap.providers.bytom.solver.WithdrawSolver object at 0x03FCCA60>
     """
 
     def __init__(self, xprivate_key: str, secret_key: str, bytecode: str,

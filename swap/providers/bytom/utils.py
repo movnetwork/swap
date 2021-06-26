@@ -157,7 +157,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         return loaded_transaction_raw["type"] in [
             "bytom_normal_unsigned", "bytom_normal_signed",
             "bytom_fund_unsigned", "bytom_fund_signed",
-            "bytom_claim_unsigned", "bytom_claim_signed",
+            "bytom_withdraw_unsigned", "bytom_withdraw_signed",
             "bytom_refund_unsigned", "bytom_refund_signed"
         ]
     except:

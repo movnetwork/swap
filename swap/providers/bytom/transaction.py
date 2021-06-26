@@ -24,7 +24,7 @@ from .rpc import (
     estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction, get_balance
 )
 from .solver import (
-    FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from .utils import (
     amount_unit_converter, is_network, is_address, get_address_type
@@ -71,10 +71,10 @@ class Transaction(BytomTransaction):
 
         :returns: int, float -- Bytom transaction fee.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.fee(unit="NEU")
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction = WithdrawTransaction("mainnet")
+        >>> withdraw_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.fee(unit="NEU")
         10000000
         """
 
@@ -125,10 +125,10 @@ class Transaction(BytomTransaction):
 
         :returns: str -- Bytom transaction raw.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.raw()
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction = WithdrawTransaction("mainnet")
+        >>> withdraw_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.raw()
         "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
         """
 
@@ -143,11 +143,11 @@ class Transaction(BytomTransaction):
 
         :returns: str -- Bitcoin signature transaction type.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.type()
-        "bitcoin_claim_unsigned"
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction = WithdrawTransaction("mainnet")
+        >>> withdraw_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.type()
+        "bitcoin_withdraw_unsigned"
         """
 
         # Check transaction
@@ -508,17 +508,17 @@ class FundTransaction(Transaction):
         ))).encode()).decode())
 
 
-class ClaimTransaction(Transaction):
+class WithdrawTransaction(Transaction):
     """
-    Bytom Claim transaction.
+    Bytom Withdraw transaction.
 
     :param network: Bytom network, defaults to mainnet.
     :type network: str
 
-    :returns: ClaimTransaction -- Bytom claim transaction instance.
+    :returns: WithdrawTransaction -- Bytom withdraw transaction instance.
 
     .. warning::
-        Do not forget to build transaction after initialize claim transaction.
+        Do not forget to build transaction after initialize withdraw transaction.
     """
 
     def __init__(self, network: str = config["network"]):
@@ -530,9 +530,9 @@ class ClaimTransaction(Transaction):
 
     def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
                           max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "ClaimTransaction":
+                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "WithdrawTransaction":
         """
-        Build Bytom claim transaction.
+        Build Bytom withdraw transaction.
 
         :param address: Bytom recipient wallet address.
         :type address: str
@@ -549,12 +549,12 @@ class ClaimTransaction(Transaction):
         :param unit: Bytom unit, default to NEU.
         :type unit: str
 
-        :returns: ClaimTransaction -- Bytom claim transaction instance.
+        :returns: WithdrawTransaction -- Bytom withdraw transaction instance.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction = WithdrawTransaction("mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        <swap.providers.bytom.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
@@ -647,39 +647,39 @@ class ClaimTransaction(Transaction):
         )
 
         # Set transaction type
-        self._type = "bytom_claim_unsigned"
+        self._type = "bytom_withdraw_unsigned"
         return self
 
-    def sign(self, solver: ClaimSolver) -> "ClaimTransaction":
+    def sign(self, solver: WithdrawSolver) -> "WithdrawTransaction":
         """
-        Sign Bytom claim transaction.
+        Sign Bytom withdraw transaction.
 
-        :param solver: Bytom claim solver.
-        :type solver: bytom.solver.ClaimSolver
+        :param solver: Bytom withdraw solver.
+        :type solver: bytom.solver.WithdrawSolver
 
-        :returns: ClaimTransaction -- Bytom claim transaction instance.
+        :returns: WithdrawTransaction -- Bytom withdraw transaction instance.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.solver import ClaimSolver
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> from swap.providers.bytom.solver import WithdrawSolver
         >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
         >>> recipient_wallet = Wallet("mainnet").from_entropy("6bc9e3bae5945876931963c2b3a3b040").from_path(DEFAULT_PATH)
         >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.sign(solver=claim_solver)
-        <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> withdraw_solver = WithdrawSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
+        >>> withdraw_transaction = WithdrawTransaction("mainnet")
+        >>> withdraw_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.sign(solver=withdraw_solver)
+        <swap.providers.bytom.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
-        if not isinstance(solver, ClaimSolver):
-            raise TypeError(f"Solver must be Bytom ClaimSolver, not {type(solver).__name__} type.")
+        if not isinstance(solver, WithdrawSolver):
+            raise TypeError(f"Solver must be Bytom WithdrawSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, secret, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Sign claim transaction
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = []
             unsigned_datas = unsigned["datas"]
@@ -698,19 +698,19 @@ class ClaimTransaction(Transaction):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "bytom_claim_signed"
+        self._type = "bytom_withdraw_signed"
         return self
 
     def transaction_raw(self) -> str:
         """
-        Get Bytom claim transaction raw.
+        Get Bytom withdraw transaction raw.
 
-        :returns: str -- Bytom claim transaction raw.
+        :returns: str -- Bytom withdraw transaction raw.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.transaction_raw()
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction = WithdrawTransaction("mainnet")
+        >>> withdraw_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.transaction_raw()
         "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
         """
 
@@ -718,8 +718,8 @@ class ClaimTransaction(Transaction):
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
 
-        # Encode claim transaction raw
-        if self._type == "bytom_claim_signed":
+        # Encode withdraw transaction raw
+        if self._type == "bytom_withdraw_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
                 address=self._htlc_utxo["address"],
@@ -919,7 +919,7 @@ class RefundTransaction(Transaction):
         wallet, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Sign claim transaction
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = []
             unsigned_datas = unsigned["datas"]

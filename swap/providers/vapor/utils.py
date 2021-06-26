@@ -157,7 +157,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         return loaded_transaction_raw["type"] in [
             "vapor_normal_unsigned", "vapor_normal_signed",
             "vapor_fund_unsigned", "vapor_fund_signed",
-            "vapor_claim_unsigned", "vapor_claim_signed",
+            "vapor_withdraw_unsigned", "vapor_withdraw_signed",
             "vapor_refund_unsigned", "vapor_refund_signed"
         ]
     except:
