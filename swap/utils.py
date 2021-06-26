@@ -100,9 +100,12 @@ def generate_mnemonic(language: str = "english", strength: int = 128) -> str:
     return Mnemonic(language=language).generate(strength=strength)
 
 
-def get_current_timestamp() -> int:
+def get_current_timestamp(plus: int = 0) -> int:
     """
     Get current timestamp.
+
+    :param plus: Add seconds on current time, default to ``0``.
+    :type plus: int
 
     :returns: int -- Current timestamp.
 
@@ -111,7 +114,8 @@ def get_current_timestamp() -> int:
     1623869258
     """
 
-    return int(datetime.timestamp(datetime.now()))
+    return int(datetime.timestamp(datetime.now())) \
+        if plus == 0 else int(datetime.timestamp(datetime.now())) + plus
 
 
 def is_entropy(entropy: str) -> bool:
