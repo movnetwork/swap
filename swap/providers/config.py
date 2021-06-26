@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import datetime
-
 from swap import __version__
+from swap.utils import get_current_timestamp
 
 # Bitcoin config
 bitcoin: dict = {
@@ -12,7 +11,9 @@ bitcoin: dict = {
         "blockcypher": {
             "url": "https://api.blockcypher.com/v1/btc/main",
             "token": "c6ef693d3c024088810e6fac2a1494ee"
-        }
+        },
+        "bip44_path": "m/44'/0'/{account}'/{change}/{address}",
+        "path": "m/44'/0'/0'/0/0"
     },
     "testnet": {
         "blockchain": "https://testnet.blockchain.info",
@@ -20,17 +21,21 @@ bitcoin: dict = {
         "blockcypher": {
             "url": "https://api.blockcypher.com/v1/btc/test3",
             "token": "c6ef693d3c024088810e6fac2a1494ee"
-        }
+        },
+        "bip44_path": "m/44'/1'/{account}'/{change}/{address}",
+        "path": "m/44'/1'/0'/0/0"
     },
-    "path": "m/44'/0'/0'/0/0",
-    "BIP44": "m/44'/0'/{account}'/{change}/{address}",
-    "unit": "SATOSHI",
-    "timeout": 60,
     "locktime": 0,
-    "max_amount": True,
     "version": 2,
     "network": "mainnet",
-    "sequence": 1000,
+    "units": {
+        "BTC": 1,
+        "mBTC": 1_000,
+        "Satoshi": 100_000_000
+    },
+    "endtime": get_current_timestamp(plus=3600),  # 1 hour
+    "unit": "Satoshi",
+    "timeout": 60,
     "headers": {
         "user-agent": f"Swap User-Agent {__version__}",
         "content-type": "application/json; charset=utf-8",
@@ -165,7 +170,7 @@ ethereum: dict = {
     "network": "mainnet",
     "unit": "Wei",
     "timeout": 60,
-    "endtime": 3600  # 1 hour
+    "endtime": get_current_timestamp(plus=3600)  # 1 hour
 }
 
 # XinFin config
@@ -191,5 +196,5 @@ xinfin: dict = {
     "network": "mainnet",
     "unit": "Wei",
     "timeout": 60,
-    "endtime": 3600  # 1 hour
+    "endtime": get_current_timestamp(plus=3600)  # 1 hour
 }
