@@ -13,20 +13,17 @@
  * can be returned to the sender.
  */
 
-contract HTLC (
-  secret_hash: Hash,
-  recipient: PublicKey,
-  sender: PublicKey,
-  sequence: Integer
-) locks valueAmount of valueAsset {
-  clause claim(preimage: String, sig: Signature) {
+contract HTLC (secret_hash: Hash, recipient_public_key: PublicKey, sender_public_key: PublicKey, sequence: Integer) locks valueAmount of valueAsset {
+
+  clause withdraw (preimage: String, signature: Signature) {
     verify sha256(preimage) == secret_hash
-    verify checkTxSig(recipient, sig)
+    verify checkTxSig(recipient_public_key, signature)
     unlock valueAmount of valueAsset
   }
-  clause refund(sig: Signature) {
+
+  clause refund (signature: Signature) {
     verify above(sequence)
-    verify checkTxSig(sender, sig)
+    verify checkTxSig(sender_public_key, signature)
     unlock valueAmount of valueAsset
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Vapor smart contract -> Equity language
+ * Bytom smart contract -> Equity language
  *
  * @title Hash Time Lock Contract (HTLC)
  *
@@ -7,26 +7,23 @@
  *
  * A Hash Time Lock Contract is essentially a type of payment in which two
  * people agree to a financial arrangement where one party will pay the other
- * party a certain amount of cryptocurrency, such as Bitcoin or Vapor assets.
+ * party a certain amount of cryptocurrency, such as Bitcoin or Bytom assets.
  * However, because these contracts are Time Locked, the receiving party only
  * has a certain amount of time to accept the payment, otherwise the money
  * can be returned to the sender.
  */
 
-contract HTLC (
-  secret_hash: Hash,
-  recipient: PublicKey,
-  sender: PublicKey,
-  sequence: Integer
-) locks valueAmount of valueAsset {
-  clause claim(preimage: String, sig: Signature) {
+contract HTLC (secret_hash: Hash, recipient_public_key: PublicKey, sender_public_key: PublicKey, sequence: Integer) locks valueAmount of valueAsset {
+
+  clause withdraw (preimage: String, signature: Signature) {
     verify sha256(preimage) == secret_hash
-    verify checkTxSig(recipient, sig)
+    verify checkTxSig(recipient_public_key, signature)
     unlock valueAmount of valueAsset
   }
-  clause refund(sig: Signature) {
+
+  clause refund (signature: Signature) {
     verify above(sequence)
-    verify checkTxSig(sender, sig)
+    verify checkTxSig(sender_public_key, signature)
     unlock valueAmount of valueAsset
   }
 }
