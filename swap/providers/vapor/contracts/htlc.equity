@@ -1,5 +1,5 @@
 /**
- * Bytom smart contract -> Equity language
+ * Vapor smart contract -> Equity language
  *
  * @title Hash Time Lock Contract (HTLC)
  *
@@ -13,7 +13,7 @@
  * can be returned to the sender.
  */
 
-contract HTLC (secret_hash: Hash, recipient_public_key: PublicKey, sender_public_key: PublicKey, sequence: Integer) locks valueAmount of valueAsset {
+contract HTLC (secret_hash: Hash, recipient_public_key: PublicKey, sender_public_key: PublicKey, endblock: Integer) locks valueAmount of valueAsset {
 
   clause withdraw (preimage: String, signature: Signature) {
     verify sha256(preimage) == secret_hash
@@ -22,7 +22,7 @@ contract HTLC (secret_hash: Hash, recipient_public_key: PublicKey, sender_public
   }
 
   clause refund (signature: Signature) {
-    verify above(sequence)
+    verify above(endblock)
     verify checkTxSig(sender_public_key, signature)
     unlock valueAmount of valueAsset
   }
