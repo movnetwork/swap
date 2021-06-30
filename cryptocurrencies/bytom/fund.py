@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
+from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.htlc import HTLC
+from swap.providers.bytom.rpc import get_current_block_height
 from swap.providers.bytom.transaction import FundTransaction
 from swap.providers.bytom.assets import BTM as ASSET
 from swap.providers.bytom.solver import FundSolver
@@ -8,17 +10,24 @@ from swap.providers.bytom.signature import FundSignature
 from swap.providers.bytom.utils import (
     submit_transaction_raw, amount_unit_converter
 )
+from swap.utils import sha256
 
 import json
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Bytom sender wallet mnemonic
-SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
-# Bytom Hash Time Lock Contract (HTLC) address
-HTLC_ADDRESS: str = "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8"
+SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
+# Bitcoin sender derivation path
+SENDER_PATH: str = "m/44/153/1/0/1"
 # Bytom fund amount
 AMOUNT: int = amount_unit_converter(0.1, "BTM2NEU")
+# Secret key hash
+SECRET_HASH: str = sha256("Hello Meheret!")
+# Recipient Bytom public key
+RECIPIENT_PUBLIC_KEY: str = "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e"
+# Expiration contract by block height
+ENDBLOCK: int = get_current_block_height(plus=50)
 
 print("=" * 10, "Sender Bytom Account")
 
@@ -27,15 +36,37 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bytom sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Bytom sender wallet from path
-sender_wallet.from_path(path=DEFAULT_PATH)
+sender_wallet.from_path(path=SENDER_PATH)
 
 # Print some Bytom sender wallet info's
 print("XPrivate Key:", sender_wallet.xprivate_key())
 print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
+print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance(asset=ASSET, unit="BTM"), "BTM")
+
+print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
+
+# Initialize Bytom HTLC
+htlc: HTLC = HTLC(network=NETWORK)
+# Build HTLC contract
+htlc.build_htlc(
+    secret_hash=SECRET_HASH,
+    recipient_public_key=RECIPIENT_PUBLIC_KEY,
+    sender_public_key=sender_wallet.public_key(),
+    endblock=ENDBLOCK
+)
+
+# Print all Bytom HTLC info's
+print("HTLC Agreements:", json.dumps(htlc.agreements, indent=4))
+print("HTLC Bytecode:", htlc.bytecode())
+print("HTLC OP_Code:", htlc.opcode())
+print("HTLC Hash:", htlc.hash())
+print("HTLC Contract Address:", htlc.contract_address())
+print("HTLC Balance:", htlc.balance(asset=ASSET, unit="BTM"), "BTM")
+print("HTLC UTXO's:", htlc.utxos())
 
 print("=" * 10, "Unsigned Fund Transaction")
 
@@ -43,10 +74,7 @@ print("=" * 10, "Unsigned Fund Transaction")
 unsigned_fund_transaction: FundTransaction = FundTransaction(network=NETWORK)
 # Build fund transaction
 unsigned_fund_transaction.build_transaction(
-    address=sender_wallet.address(),
-    htlc_address=HTLC_ADDRESS,
-    amount=AMOUNT,
-    asset=ASSET
+    address=sender_wallet.address(), htlc=htlc, amount=AMOUNT, asset=ASSET
 )
 
 print("Unsigned Fund Transaction Fee:", unsigned_fund_transaction.fee(unit="NEU"), "NEU")
@@ -64,7 +92,8 @@ print("=" * 10, "Signed Fund Transaction")
 
 # Initialize fund solver
 fund_solver: FundSolver = FundSolver(
-    xprivate_key=sender_wallet.xprivate_key()
+    xprivate_key=sender_wallet.xprivate_key(),
+    path=sender_wallet.path()
 )
 
 # Sing unsigned fund transaction
