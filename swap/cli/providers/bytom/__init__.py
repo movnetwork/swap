@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-# IMPORT ALL PACKAGES
 from ....cli import click
 
 from .htlc import htlc
 from .fund import fund
-from .claim import claim
+from .withdraw import withdraw
 from .refund import refund
 from .decode import decode
 from .signature import sign
@@ -22,7 +21,7 @@ def bytom():
 # Adding bytom commands
 bytom.add_command(htlc)
 bytom.add_command(fund)
-bytom.add_command(claim)
+bytom.add_command(withdraw)
 bytom.add_command(refund)
 bytom.add_command(decode)
 bytom.add_command(sign)

@@ -63,7 +63,7 @@ def get_address_type(address: str) -> Optional[str]:
     :returns: str -- Bytom address type (P2WPKH, P2WSH).
 
     >>> from swap.providers.bytom.utils import get_address_type
-    >>> get_address_type(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7")
+    >>> get_address_type(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx")
     "p2wpkh"
     """
 
@@ -111,7 +111,7 @@ def is_address(address: str, network: Optional[str] = None, address_type: Option
     :returns: bool -- Bytom valid/invalid address.
 
     >>> from swap.providers.bytom.utils import is_address
-    >>> is_address(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", network="mainnet")
+    >>> is_address(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", network="mainnet")
     True
     """
 
