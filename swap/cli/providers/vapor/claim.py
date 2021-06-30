@@ -4,7 +4,7 @@
 import sys
 
 from ....cli import click
-from ....providers.vapor.transaction import ClaimTransaction
+from ....providers.vapor.transaction import WithdrawTransaction
 from ....providers.bytom.utils import amount_unit_converter
 from ....providers.config import vapor as config
 

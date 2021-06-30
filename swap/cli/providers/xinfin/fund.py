@@ -16,8 +16,7 @@ from ....utils import get_current_timestamp
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-ra", "--recipient-address", type=str, required=True, help="Set XinFin recipient address.")
 @click.option("-sa", "--sender-address", type=str, required=True, help="Set XinFin sender address.")
-@click.option("-e", "--endtime", type=int, default=config["endtime"],
-              help="Set Expiration block time (Seconds).", show_default=True)
+@click.option("-e", "--endtime", type=int, required=True, help="Set Expiration block time (Seconds).")
 @click.option("-am", "--amount", type=float, required=True, help="Set XinFin fund amount.")
 @click.option("-u", "--unit", type=str, default=config["unit"],
               help="Set XinFin fund amount unit.", show_default=True)

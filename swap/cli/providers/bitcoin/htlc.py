@@ -14,8 +14,7 @@ from ....providers.config import bitcoin as config
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-ra", "--recipient-address", type=str, required=True, help="Set Bitcoin recipient address.")
 @click.option("-sa", "--sender-address", type=str, required=True, help="Set Bitcoin sender address.")
-@click.option("-e", "--endtime", type=int, default=config["endtime"],
-              help="Set Expiration block time (Seconds).", show_default=True)
+@click.option("-e", "--endtime", type=int, required=True, help="Set Expiration block time (Seconds).")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set Bitcoin network.", show_default=True)
 @click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from swap import __version__
-from swap.utils import get_current_timestamp
 
 # Bitcoin config
 bitcoin: dict = {
@@ -33,7 +32,6 @@ bitcoin: dict = {
         "mBTC": 1_000,
         "Satoshi": 100_000_000
     },
-    "endtime": get_current_timestamp(plus=3600),  # 1 hour
     "unit": "Satoshi",
     "timeout": 60,
     "headers": {
@@ -65,6 +63,7 @@ bytom: dict = {
     "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
     "unit": "NEU",
     "timeout": 60,
+    "htlc_script_binary": "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac",
     "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "fee": 10_000_000,
     "estimate_fee": True,
@@ -72,7 +71,6 @@ bytom: dict = {
     "max_amount": True,
     "network": "mainnet",
     "forbid_chain_tx": False,
-    "sequence": 1000,
     "headers": {
         "user-agent": f"Swap User-Agent {__version__}",
         "content-type": "application/json; charset=utf-8",
@@ -102,6 +100,7 @@ vapor: dict = {
     "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
     "unit": "NEU",
     "timeout": 60,
+    "htlc_script_binary": "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac",
     "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "fee": 10_000_000,
     "estimate_fee": True,
@@ -109,7 +108,6 @@ vapor: dict = {
     "max_amount": True,
     "network": "mainnet",
     "forbid_chain_tx": False,
-    "sequence": 1000,
     "headers": {
         "user-agent": f"Swap User-Agent {__version__}",
         "content-type": "application/json; charset=utf-8",
@@ -169,8 +167,7 @@ ethereum: dict = {
     "provider": "http",
     "network": "mainnet",
     "unit": "Wei",
-    "timeout": 60,
-    "endtime": get_current_timestamp(plus=3600)  # 1 hour
+    "timeout": 60
 }
 
 # XinFin config
@@ -195,6 +192,5 @@ xinfin: dict = {
     "provider": "http",
     "network": "mainnet",
     "unit": "Wei",
-    "timeout": 60,
-    "endtime": get_current_timestamp(plus=3600)  # 1 hour
+    "timeout": 60
 }

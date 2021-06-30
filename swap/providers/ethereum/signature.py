@@ -38,7 +38,7 @@ class Signature(Transaction):
     :returns: Signature -- Ethereum signature instance.
 
     .. note::
-        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],
@@ -256,7 +256,7 @@ class FundSignature(Signature):
     :returns: FundSignature -- Ethereum fund signature instance.
 
     .. note::
-        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],
@@ -345,7 +345,7 @@ class WithdrawSignature(Signature):
     :returns: WithdrawSignature -- Ethereum withdraw signature instance.
 
     .. note::
-        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],
@@ -434,7 +434,7 @@ class RefundSignature(Signature):
     :returns: RefundSignature -- Ethereum refund signature instance.
 
     .. note::
-        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],

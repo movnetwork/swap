@@ -4,6 +4,8 @@ from swap.providers.vapor.htlc import HTLC
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.utils import sha256
 
+import json
+
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
 # Secret key hash
@@ -28,9 +30,10 @@ htlc.build_htlc(
 )
 
 # Print all Vapor HTLC info's
+print("HTLC Agreements:", json.dumps(htlc.agreements, indent=4))
 print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC OP_Code:", htlc.opcode())
 print("HTLC Hash:", htlc.hash())
-print("HTLC Address:", htlc.address())
+print("HTLC Contract Address:", htlc.contract_address())
 print("HTLC Balance:", htlc.balance(asset=ASSET, unit="BTM"), "BTM")
-print("HTLC UTXO's:", htlc.utxos(asset=ASSET))
+print("HTLC UTXO's:", htlc.utxos())

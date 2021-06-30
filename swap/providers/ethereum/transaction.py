@@ -42,7 +42,7 @@ class Transaction:
     :returns: Transaction -- Ethereum transaction instance.
 
     .. note::
-        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],

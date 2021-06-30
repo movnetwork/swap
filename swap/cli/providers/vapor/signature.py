@@ -8,10 +8,10 @@ import sys
 
 from ....cli import click
 from ....providers.vapor.solver import (
-    FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from ....providers.vapor.signature import (
-    FundSignature, ClaimSignature, RefundSignature
+    FundSignature, WithdrawSignature, RefundSignature
 )
 from ....providers.vapor.utils import is_transaction_raw
 from ....exceptions import TransactionRawError

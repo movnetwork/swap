@@ -13,7 +13,7 @@ STRENGTH: int = 160  # Default is 128
 LANGUAGE: str = "english"  # Default is english
 # Set passphrase length
 LENGTH: int = 32  # Default is 32
-# Generate new entropy
+# Generate new entropy hex string
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
 PASSPHRASE: str = generate_passphrase(length=LENGTH)

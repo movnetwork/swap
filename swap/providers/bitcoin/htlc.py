@@ -53,8 +53,7 @@ class HTLC:
     def script(self) -> Union[ScriptBuilder]:
         return self._script
 
-    def build_htlc(self, secret_hash: str, recipient_address: str,
-                   sender_address: str, endtime: int = config["endtime"]) -> "HTLC":
+    def build_htlc(self, secret_hash: str, recipient_address: str, sender_address: str, endtime: int) -> "HTLC":
         """
         Build Bitcoin Hash Time Lock Contract (HTLC).
 
@@ -64,7 +63,7 @@ class HTLC:
         :type recipient_address: str
         :param sender_address: Bitcoin sender address.
         :type sender_address: str
-        :param endtime: Expiration block time (Seconds), defaults to ``current time plus 1hr``.
+        :param endtime: Expiration block time (Seconds).
         :type endtime: int
 
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.

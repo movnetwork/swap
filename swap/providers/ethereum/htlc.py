@@ -45,7 +45,7 @@ class HTLC:
     :returns: HTLC -- Ethereum HTLC instance.
 
     .. note::
-        Ethereum has only three networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
     def __init__(self, transaction_hash: Optional[str] = None, network: str = config["network"],
@@ -276,7 +276,7 @@ class HTLC:
         :type recipient_address: str
         :param sender_address: Ethereum sender address.
         :type sender_address: str
-        :param endtime: Expiration block time (Seconds)
+        :param endtime: Expiration block time (Seconds).
         :type endtime: int
 
         :returns: HTLC -- Ethereum HTLC instance.

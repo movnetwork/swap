@@ -274,7 +274,7 @@ class HTLC:
         :type recipient_address: str
         :param sender_address: XinFin sender address.
         :type sender_address: str
-        :param endtime: Expiration block time (Seconds)
+        :param endtime: Expiration block time (Seconds).
         :type endtime: int
 
         :returns: HTLC -- XinFin HTLC instance.

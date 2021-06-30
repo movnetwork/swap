@@ -149,7 +149,7 @@ class RefundSolver:
     :type xprivate_key: str
     :param bytecode: Bitcoin witness HTLC bytecode..
     :type bytecode: str
-    :param endtime: Bitcoin witness endtime number(expiration block), defaults to ``current time plus 1hr``.
+    :param endtime: Bitcoin witness expiration block timestamp.
     :type endtime: int
     :param account: Bitcoin derivation account, defaults to ``0``.
     :type account: int
@@ -171,7 +171,7 @@ class RefundSolver:
     <swap.providers.bitcoin.solver.RefundSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, xprivate_key: str, bytecode: str, endtime: int = config["endtime"], account: int = 0,
+    def __init__(self, xprivate_key: str, bytecode: str, endtime: int, account: int = 0,
                  change: bool = False, address: int = 0, path: Optional[str] = None, strict: bool = True):
 
         self._xprivate_key: str = xprivate_key

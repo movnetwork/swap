@@ -58,6 +58,7 @@ class Transaction:
 
         self._transaction: Optional[dict] = None
         self._signature: Optional[dict] = None
+        self._amount: Optional[Wei] = None
         self._type: Optional[str] = None
         self._fee: Optional[Wei] = None
 
@@ -249,7 +250,8 @@ class FundTransaction(Transaction):
             network=network, provider=provider
         )
 
-    def build_transaction(self, address: str, htlc: HTLC, amount: Union[Wei, int]) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc: HTLC, amount: Union[Wei, int, float],
+                          unit: str = config["unit"]) -> "FundTransaction":
         """
         Build XinFin fund transaction.
 
@@ -258,7 +260,9 @@ class FundTransaction(Transaction):
         :param address: XinFin sender address.
         :type address: str
         :param amount: XinFin amount.
-        :type amount: Wei, int
+        :type amount: Wei, int, float
+        :param unit: XinFin unit, default to ``Wei``.
+        :type unit: str
 
         :returns: FundTransaction -- XinFin fund transaction instance.
 
@@ -273,13 +277,22 @@ class FundTransaction(Transaction):
         """
 
         # Check parameter instances
-        if not isinstance(htlc, HTLC):
-            raise TypeError("Invalid HTLC instance, only takes xinfin HTLC class")
         if not is_address(address=address):
             raise AddressError(f"Invalid XinFin sender '{address}' address.")
+        if not isinstance(htlc, HTLC):
+            raise TypeError("Invalid XinFin HTLC instance, only takes xinfin HTLC class")
         if to_checksum_address(address=address, prefix="0x") != htlc.agreements["sender_address"]:
             raise AddressError(f"Wrong XinFin sender '{address}' address",
                                "address must be equal with HTLC agreements sender address.")
+        if unit not in ["XDC", "Gwei", "Wei"]:
+            raise UnitError("Invalid XinFin unit, choose only 'XDC', 'Gwei' or 'Wei' units.")
+
+        self._amount = Wei(
+            amount if unit == "Wei" else
+            amount_unit_converter(
+                amount=amount, unit=f"{unit}2Wei"
+            )
+        )
 
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
@@ -294,7 +307,7 @@ class FundTransaction(Transaction):
 
         self._fee = htlc_fund_function.estimateGas({
             "from": to_checksum_address(address=address, prefix="0x"),
-            "value": Wei(amount),
+            "value": self._amount,
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),
@@ -303,7 +316,7 @@ class FundTransaction(Transaction):
 
         self._transaction = htlc_fund_function.buildTransaction({
             "from": to_checksum_address(address=address, prefix="0x"),
-            "value": Wei(amount),
+            "value": self._amount,
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),

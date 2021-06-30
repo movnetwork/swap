@@ -27,8 +27,8 @@ from ....utils import clean_transaction_raw
               help="Set Bitcoin witness HTLC bytecode.  [default: None]", show_default=True)
 @click.option("-sk", "--secret-key", type=str, default=None,
               help="Set secret key.  [default: None]", show_default=True)
-@click.option("-e", "--endtime", type=int, default=config["endtime"],
-              help="Set Expiration block time (Seconds).", show_default=True)
+@click.option("-e", "--endtime", type=int, default=None,
+              help="Set Expiration block timestamp.  [default: None]", show_default=True)
 @click.option("-ac", "--account", type=int, default=1,
               help="Set Bitcoin derivation from account.", show_default=True)
 @click.option("-ch", "--change", type=bool, default=False,
@@ -94,6 +94,11 @@ def sign(xprivate_key: str, transaction_raw: str, bytecode: str,
             click.echo(withdraw_signature.transaction_raw())
 
         elif loaded_transaction_raw["type"] == "bitcoin_refund_unsigned":
+            if endtime is None:
+                click.echo(click.style("Error: {}").format(
+                    "Witness endtime is required for refund, use -e or --endtime \"1624687630\""
+                ), err=True)
+                sys.exit()
             if bytecode is None:
                 click.echo(click.style("Error: {}").format(
                     "Witness bytecode is required for refund, use -b or --bytecode \"016...\""
