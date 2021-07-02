@@ -15,7 +15,7 @@ def submit(transaction_raw: str):
         click.echo(
             submit_transaction_raw(
                 transaction_raw=transaction_raw
-            )["transaction_id"]
+            )["transaction_hash"]
         )
     except Exception as exception:
         click.echo(click.style("Error: {}")

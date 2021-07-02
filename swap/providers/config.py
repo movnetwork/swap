@@ -65,47 +65,13 @@ bytom: dict = {
     "timeout": 60,
     "htlc_script_binary": "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac",
     "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-    "fee": 10_000_000,
-    "estimate_fee": True,
+    "to_create_new_block_seconds": 150,  # 2.5 minutes -> 150 seconds
+    "units": {
+        "BTM": 1,
+        "mBTM": 1_000,
+        "NEU": 100_000_000
+    },
     "confirmations": 1,
-    "max_amount": True,
-    "network": "mainnet",
-    "forbid_chain_tx": False,
-    "headers": {
-        "user-agent": f"Swap User-Agent {__version__}",
-        "content-type": "application/json; charset=utf-8",
-        "accept": "application/json"
-    }
-}
-
-# Vapor config
-vapor: dict = {
-    "mainnet": {
-        "vapor-core": "http://localhost:9889",
-        "blockmeta": "https://vapor.blockmeta.com/api/v1",
-        "blockcenter": "https://ex.movapi.com/vapor/v3"
-    },
-    "solonet": {
-        "vapor-core": "http://localhost:9889",
-        "blockmeta": None,
-        "blockcenter": None
-    },
-    "testnet": {
-        "vapor-core": "http://localhost:9889",
-        "blockmeta": None,
-        "blockcenter": None
-    },
-    "path": "m/44/153/1/0/1",
-    "BIP44": "m/44/153/{account}/{change}/{address}",
-    "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
-    "unit": "NEU",
-    "timeout": 60,
-    "htlc_script_binary": "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac",
-    "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-    "fee": 10_000_000,
-    "estimate_fee": True,
-    "confirmations": 1,
-    "max_amount": True,
     "network": "mainnet",
     "forbid_chain_tx": False,
     "headers": {
@@ -168,6 +134,46 @@ ethereum: dict = {
     "network": "mainnet",
     "unit": "Wei",
     "timeout": 60
+}
+
+# Vapor config
+vapor: dict = {
+    "mainnet": {
+        "vapor-core": "http://localhost:9889",
+        "blockmeta": "https://vapor.blockmeta.com/api/v1",
+        "blockcenter": "https://ex.movapi.com/vapor/v3"
+    },
+    "solonet": {
+        "vapor-core": "http://localhost:9889",
+        "blockmeta": None,
+        "blockcenter": None
+    },
+    "testnet": {
+        "vapor-core": "http://localhost:9889",
+        "blockmeta": None,
+        "blockcenter": None
+    },
+    "path": "m/44/153/1/0/1",
+    "BIP44": "m/44/153/{account}/{change}/{address}",
+    "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
+    "unit": "NEU",
+    "timeout": 60,
+    "htlc_script_binary": "547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac",
+    "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "to_create_new_block_seconds": 0.5,  # 0.5 second
+    "units": {
+        "BTM": 1,
+        "mBTM": 1_000,
+        "NEU": 100_000_000
+    },
+    "confirmations": 1,
+    "network": "mainnet",
+    "forbid_chain_tx": False,
+    "headers": {
+        "user-agent": f"Swap User-Agent {__version__}",
+        "content-type": "application/json; charset=utf-8",
+        "accept": "application/json"
+    }
 }
 
 # XinFin config

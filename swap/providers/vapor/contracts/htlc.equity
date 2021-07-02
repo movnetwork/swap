@@ -7,7 +7,7 @@
  *
  * A Hash Time Lock Contract is essentially a type of payment in which two
  * people agree to a financial arrangement where one party will pay the other
- * party a certain amount of cryptocurrency, such as Bitcoin or Bytom assets.
+ * party a certain amount of cryptocurrency, such as Bitcoin or Vapor assets.
  * However, because these contracts are Time Locked, the receiving party only
  * has a certain amount of time to accept the payment, otherwise the money
  * can be returned to the sender.
