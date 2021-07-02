@@ -68,7 +68,7 @@ Options:
 **Secret Hash** _(str)_ -> 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb **[required]**<br/>
 **Recipient Address** _(str)_ -> mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V **[required]**<br/>
 **Sender Address** _(str)_ -> n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a **[required]**<br/>
-**Endtime** _(int)_ -> 1624687630 **[default: `Current time plus 1hr`]**<br/>
+**Endtime** _(int)_ -> 1624687630 **[required]**<br/>
 **Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
 
 > **Returns** _(str)_ -> Bitcoin Hash Time Lock Contract (HTLC) bytecode.

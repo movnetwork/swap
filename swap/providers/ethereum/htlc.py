@@ -271,7 +271,7 @@ class HTLC:
         :type recipient_address: str
         :param sender_address: Ethereum sender address.
         :type sender_address: str
-        :param endtime: Expiration block time (Seconds).
+        :param endtime: Expiration block timestamp.
         :type endtime: int
 
         :returns: HTLC -- Ethereum HTLC instance.

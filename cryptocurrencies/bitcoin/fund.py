@@ -24,7 +24,7 @@ SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build r
 SENDER_PATH: str = "m/44'/1'/0'/0/0"
 # Bitcoin recipient address
 RECIPIENT_ADDRESS: str = "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V"
-# Expiration contract timestamp
+# Expiration block timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # Bitcoin fund amount
 AMOUNT: int = amount_unit_converter(0.001, "BTC2Satoshi")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from swap.providers.ethereum.wallet import Wallet, DEFAULT_BIP44_PATH
+from swap.providers.ethereum.wallet import Wallet
 from swap.providers.ethereum.transaction import RefundTransaction
 from swap.providers.ethereum.signature import RefundSignature
 from swap.providers.ethereum.solver import RefundSolver
@@ -10,36 +10,32 @@ import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
-# HTLC Ethereum contract address
-CONTRACT_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
+# Ethereum HTLC contract address
+CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
+# Ethereum funded transaction hash/id
+TRANSACTION_HASH: str = "0x4c664e09f140bb6d0ead0998429df614f5e25a2e0db953c2180be97d24cdd478"
 # Ethereum sender wallet mnemonic
-RECIPIENT_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Derivation for sender wallet mnemonic
-ACCOUNT, CHANGE, ADDRESS = 0, False, 0
-# Funded transaction hash/id
-TRANSACTION_HASH: str = "0x20f7807242dd6e4edc5855324a5e1eb679be153f786930cd3cc9b97411ff1fac"
+SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
+# Ethereum sender derivation path
+SENDER_PATH: str = "m/44'/60'/0'/0/0"
 
 print("=" * 10, "Sender Ethereum Account")
 
 # Initialize Ethereum sender wallet
-wallet: Wallet = Wallet(network=NETWORK)
+sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Ethereum sender wallet from mnemonic
-wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
+sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Ethereum sender wallet from path
-wallet.from_path(
-    path=DEFAULT_BIP44_PATH.format(
-        account=ACCOUNT, change=(1 if CHANGE else 0), address=ADDRESS
-    )
-)
+sender_wallet.from_path(path=SENDER_PATH)
 
 # Print some Ethereum sender wallet info's
-print("Root XPrivate Key:", wallet.root_xprivate_key())
-print("Root XPublic Key:", wallet.root_xpublic_key())
-print("Private Key:", wallet.private_key())
-print("Public Key:", wallet.public_key())
-print("Path:", wallet.path())
-print("Address:", wallet.address())
-print("Balance:", wallet.balance(unit="Ether"), "Ether")
+print("Root XPrivate Key:", sender_wallet.root_xprivate_key())
+print("Root XPublic Key:", sender_wallet.root_xpublic_key())
+print("Private Key:", sender_wallet.private_key())
+print("Public Key:", sender_wallet.public_key())
+print("Path:", sender_wallet.path())
+print("Address:", sender_wallet.address())
+print("Balance:", sender_wallet.balance(unit="Ether"), "Ether")
 
 print("=" * 10, "Unsigned Refund Transaction")
 
@@ -48,15 +44,15 @@ unsigned_refund_transaction: RefundTransaction = RefundTransaction(network=NETWO
 # Build refund transaction
 unsigned_refund_transaction.build_transaction(
     transaction_hash=TRANSACTION_HASH,
-    address=wallet.address(),
+    address=sender_wallet.address(),
     contract_address=CONTRACT_ADDRESS
 )
 
 print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee())
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
-print("Unsigned Refund Transaction Raw:", unsigned_refund_transaction.raw())
-print("Unsigned Refund Transaction Json:", unsigned_refund_transaction.json())
-print("Unsigned Refund Transaction Signature:", unsigned_refund_transaction.signature())
+print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw())
+# print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
+print("Unsigned Refund Transaction Signature:", json.dumps(unsigned_refund_transaction.signature(), indent=4))
 print("Unsigned Refund Transaction Type:", unsigned_refund_transaction.type())
 
 unsigned_refund_transaction_raw: str = unsigned_refund_transaction.transaction_raw()
@@ -66,9 +62,8 @@ print("=" * 10, "Signed Refund Transaction")
 
 # Initialize refund solver
 refund_solver: RefundSolver = RefundSolver(
-    xprivate_key=wallet.root_xprivate_key(), path=DEFAULT_BIP44_PATH.format(
-        account=ACCOUNT, change=(1 if CHANGE else 0), address=ADDRESS
-    )
+    xprivate_key=sender_wallet.root_xprivate_key(),
+    path=sender_wallet.path()
 )
 
 # Sing unsigned refund transaction
@@ -76,9 +71,9 @@ signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(
 
 print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
-print("Signed Refund Transaction Json:", signed_refund_transaction.json())
 print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
-print("Signed Refund Transaction Signature:", signed_refund_transaction.signature())
+# print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
+print("Signed Refund Transaction Signature:", json.dumps(signed_refund_transaction.signature(), indent=4))
 print("Signed Refund Transaction Type:", signed_refund_transaction.type())
 
 signed_refund_transaction_raw: str = signed_refund_transaction.transaction_raw()
@@ -96,9 +91,9 @@ refund_signature.sign(
 
 print("Refund Signature Fee:", refund_signature.fee())
 print("Refund Signature Hash:", refund_signature.hash())
-print("Refund Signature Json:", refund_signature.json())
-print("Refund Signature Raw:", refund_signature.raw())
-print("Refund Signature Transaction Signature:", refund_signature.signature())
+print("Refund Signature Main Raw:", refund_signature.raw())
+# print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
+print("Refund Signature Signature:", json.dumps(refund_signature.signature(), indent=4))
 print("Refund Signature Type:", refund_signature.type())
 
 signed_refund_signature_transaction_raw: str = refund_signature.transaction_raw()

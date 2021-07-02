@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from swap.providers.ethereum.wallet import Wallet, DEFAULT_BIP44_PATH
+from swap.providers.ethereum.wallet import Wallet
 from swap.providers.ethereum.transaction import WithdrawTransaction
 from swap.providers.ethereum.signature import WithdrawSignature
 from swap.providers.ethereum.solver import WithdrawSolver
@@ -10,38 +10,34 @@ import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
-# Ethereum HTLC transaction hash
-HTLC_TRANSACTION_HASH: str = "0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160"
+# Ethereum HTLC contract address
+CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
+# Ethereum funded transaction hash/id
+TRANSACTION_HASH: str = "0x4c664e09f140bb6d0ead0998429df614f5e25a2e0db953c2180be97d24cdd478"
 # Ethereum recipient wallet mnemonic
-RECIPIENT_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Derivation for recipient wallet mnemonic
-ACCOUNT, CHANGE, ADDRESS = 0, False, 1
-# Funded transaction hash/id
-TRANSACTION_HASH: str = "0xe87b1aefec9fecbb7699e16d101e757e4825db157eb94d2e71ecfaf17fd3d75d"
+RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
+# Ethereum recipient derivation path
+RECIPIENT_PATH: str = "m/44'/60'/0'/0/0"
 # Secret key to unlock the contract
 SECRET_KEY: str = "Hello Meheret!"
 
 print("=" * 10, "Recipient Ethereum Account")
 
 # Initialize Ethereum recipient wallet
-wallet: Wallet = Wallet(network=NETWORK)
+recipient_wallet: Wallet = Wallet(network=NETWORK)
 # Get Ethereum recipient wallet from mnemonic
-wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
+recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
 # Drive Ethereum recipient wallet from path
-wallet.from_path(
-    path=DEFAULT_BIP44_PATH.format(
-        account=ACCOUNT, change=(1 if CHANGE else 0), address=ADDRESS
-    )
-)
+recipient_wallet.from_path(path=RECIPIENT_PATH)
 
 # Print some Ethereum recipient wallet info's
-print("Root XPrivate Key:", wallet.root_xprivate_key())
-print("Root XPublic Key:", wallet.root_xpublic_key())
-print("Private Key:", wallet.private_key())
-print("Public Key:", wallet.public_key())
-print("Path:", wallet.path())
-print("Address:", wallet.address())
-print("Balance:", wallet.balance(unit="Ether"), "Ether")
+print("Root XPrivate Key:", recipient_wallet.root_xprivate_key())
+print("Root XPublic Key:", recipient_wallet.root_xpublic_key())
+print("Private Key:", recipient_wallet.private_key())
+print("Public Key:", recipient_wallet.public_key())
+print("Path:", recipient_wallet.path())
+print("Address:", recipient_wallet.address())
+print("Balance:", recipient_wallet.balance(unit="Ether"), "Ether")
 
 print("=" * 10, "Unsigned Withdraw Transaction")
 
@@ -50,16 +46,16 @@ unsigned_withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network
 # Build withdraw transaction
 unsigned_withdraw_transaction.build_transaction(
     transaction_hash=TRANSACTION_HASH,
-    address=wallet.address(),
+    address=recipient_wallet.address(),
     secret_key=SECRET_KEY,
-    htlc_transaction_hash=HTLC_TRANSACTION_HASH
+    contract_address=CONTRACT_ADDRESS
 )
 
 print("Unsigned Withdraw Transaction Fee:", unsigned_withdraw_transaction.fee())
 print("Unsigned Withdraw Transaction Hash:", unsigned_withdraw_transaction.hash())
-print("Unsigned Withdraw Transaction Raw:", unsigned_withdraw_transaction.raw())
-print("Unsigned Withdraw Transaction Json:", unsigned_withdraw_transaction.json())
-print("Unsigned Withdraw Transaction Signature:", unsigned_withdraw_transaction.signature())
+print("Unsigned Withdraw Transaction Main Raw:", unsigned_withdraw_transaction.raw())
+# print("Unsigned Withdraw Transaction Json:", json.dumps(unsigned_withdraw_transaction.json(), indent=4))
+print("Unsigned Withdraw Transaction Signature:", json.dumps(unsigned_withdraw_transaction.signature(), indent=4))
 print("Unsigned Withdraw Transaction Type:", unsigned_withdraw_transaction.type())
 
 unsigned_withdraw_transaction_raw: str = unsigned_withdraw_transaction.transaction_raw()
@@ -69,9 +65,8 @@ print("=" * 10, "Signed Withdraw Transaction")
 
 # Initialize withdraw solver
 withdraw_solver: WithdrawSolver = WithdrawSolver(
-    xprivate_key=wallet.root_xprivate_key(), path=DEFAULT_BIP44_PATH.format(
-        account=ACCOUNT, change=(1 if CHANGE else 0), address=ADDRESS
-    )
+    xprivate_key=recipient_wallet.root_xprivate_key(), 
+    path=recipient_wallet.path()
 )
 
 # Sing unsigned withdraw transaction
@@ -79,9 +74,9 @@ signed_withdraw_transaction: WithdrawTransaction = unsigned_withdraw_transaction
 
 print("Signed Withdraw Transaction Fee:", signed_withdraw_transaction.fee())
 print("Signed Withdraw Transaction Hash:", signed_withdraw_transaction.hash())
-print("Signed Withdraw Transaction Json:", signed_withdraw_transaction.json())
 print("Signed Withdraw Transaction Main Raw:", signed_withdraw_transaction.raw())
-print("Signed Withdraw Transaction Signature:", signed_withdraw_transaction.signature())
+# print("Signed Withdraw Transaction Json:", json.dumps(signed_withdraw_transaction.json(), indent=4))
+print("Signed Withdraw Transaction Signature:", json.dumps(signed_withdraw_transaction.signature(), indent=4))
 print("Signed Withdraw Transaction Type:", signed_withdraw_transaction.type())
 
 signed_withdraw_transaction_raw: str = signed_withdraw_transaction.transaction_raw()
@@ -99,9 +94,9 @@ withdraw_signature.sign(
 
 print("Withdraw Signature Fee:", withdraw_signature.fee())
 print("Withdraw Signature Hash:", withdraw_signature.hash())
-print("Withdraw Signature Json:", withdraw_signature.json())
-print("Withdraw Signature Raw:", withdraw_signature.raw())
-print("Withdraw Signature Transaction Signature:", withdraw_signature.signature())
+print("Withdraw Signature Main Raw:", withdraw_signature.raw())
+# print("Withdraw Signature Json:", json.dumps(withdraw_signature.json(), indent=4))
+print("Withdraw Signature Transaction Signature:", json.dumps(withdraw_signature.signature(), indent=4))
 print("Withdraw Signature Type:", withdraw_signature.type())
 
 signed_withdraw_signature_transaction_raw: str = withdraw_signature.transaction_raw()

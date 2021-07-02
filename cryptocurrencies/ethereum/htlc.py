@@ -5,24 +5,26 @@ from swap.utils import (
     sha256, get_current_timestamp
 )
 
+import json
+
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "testnet"
-# Ethereum HTLC transaction hash
-HTLC_TRANSACTION_HASH: str = "0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160"
+# Ethereum HTLC contract address
+CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
-# Recipient Ethereum address
-RECIPIENT_ADDRESS: str = "0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f"
-# Sender Ethereum address
+# Ethereum recipient address
+RECIPIENT_ADDRESS: str = "0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94"
+# Ethereum sender address
 SENDER_ADDRESS: str = "0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C"
-# Expiration block time (Seconds)
-ENDTIME: int = get_current_timestamp() + 300  # 300 sec equal to 5 min
+# Expiration block timestamp
+ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
 # Initialize Ethereum HTLC
 htlc: HTLC = HTLC(
-    transaction_hash=HTLC_TRANSACTION_HASH, network=NETWORK
+    contract_address=CONTRACT_ADDRESS, network=NETWORK
 )
 # Build HTLC contract
 htlc.build_htlc(
@@ -33,6 +35,7 @@ htlc.build_htlc(
 )
 
 # Print all Ethereum HTLC info's
+print("HTLC Agreements:", json.dumps(htlc.agreements, indent=4))
 print("HTLC ABI:", htlc.abi())
 print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC Bytecode Runtime:", htlc.bytecode_runtime())
