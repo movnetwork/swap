@@ -17,7 +17,7 @@ TRANSACTION_HASH: str = "37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Vapor recipient derivation path
 RECIPIENT_PATH: str = "m/44/153/1/0/1"
-# Secret key or the preimage of HTLC
+# The preimage of HTLC contract
 SECRET_KEY: str = "Hello Meheret!"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "042ccf300720fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0" \

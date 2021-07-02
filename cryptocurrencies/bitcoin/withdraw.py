@@ -10,13 +10,13 @@ import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
+# Bitcoin funded transaction hash/id
+TRANSACTION_HASH: str = "a211d21110756b266925fee2fbf2dc81529beef5e410311b38578dc3a076fb31"
 # Bitcoin recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Bitcoin recipient derivation path
 RECIPIENT_PATH: str = "m/44'/1'/0'/0/0"
-# Bitcoin funded transaction hash/id
-TRANSACTION_HASH: str = "a211d21110756b266925fee2fbf2dc81529beef5e410311b38578dc3a076fb31"
-# Secret key of HTLC
+# The preimage of HTLC contract
 SECRET_KEY: str = "Hello Meheret!"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140a0a6590e6" \
@@ -94,7 +94,7 @@ withdraw_signature.sign(
 print("Withdraw Signature Fee:", withdraw_signature.fee(unit="Satoshi"), "Satoshi")
 print("Withdraw Signature Hash:", withdraw_signature.hash())
 print("Withdraw Signature Main Raw:", withdraw_signature.raw())
-print("Withdraw Signature Json:", json.dumps(withdraw_signature.json(), indent=4))
+# print("Withdraw Signature Json:", json.dumps(withdraw_signature.json(), indent=4))
 print("Withdraw Signature Type:", withdraw_signature.type())
 
 signed_withdraw_signature_transaction_raw: str = withdraw_signature.transaction_raw()
