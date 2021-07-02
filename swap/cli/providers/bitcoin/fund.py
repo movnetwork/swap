@@ -29,7 +29,7 @@ def fund(address: str, contract_address: str, amount: int, unit: str, network: s
         )
         _amount: int = (
             int(amount) if unit == "Satoshi" else amount_unit_converter(
-                amount=amount, unit=f"{unit}2Satoshi"
+                amount=amount, unit_from=f"{unit}2Satoshi"
             )
         )
         click.echo(

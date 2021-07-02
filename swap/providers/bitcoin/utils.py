@@ -28,48 +28,6 @@ from ...exceptions import (
 from ..config import bitcoin as config
 
 
-def amount_unit_converter(amount: Union[int, float], unit: str = "Satoshi2BTC") -> Union[int, float]:
-    """
-    Bitcoin amount unit converter
-
-    :param amount: Bitcoin any amount.
-    :type amount: Union[int, float]
-    :param unit: Bitcoin unit convert from symbol, default to ``Satoshi2BTC``.
-    :type unit: str
-
-    :returns: int, float -- BTC asset amount.
-
-    >>> from swap.providers.bitcoin.utils import amount_unit_converter
-    >>> amount_unit_converter(amount=10_000_000, unit_from="Satoshi2BTC")
-    0.1
-    """
-
-    if unit not in ["BTC2mBTC", "BTC2Satoshi", "mBTC2BTC", "mBTC2Satoshi", "Satoshi2BTC", "Satoshi2mBTC"]:
-        raise UnitError(f"Invalid Bitcoin '{unit}' unit from",
-                        "choose only 'BTC2mBTC', 'BTC2Satoshi', 'mBTC2BTC', 'mBTC2Satoshi', "
-                        "'Satoshi2BTC' or 'Satoshi2mBTC' units.")
-
-    # Constant unit values
-    BTC, mBTC, Satoshi = (
-        config["units"]["BTC"],
-        config["units"]["mBTC"],
-        config["units"]["Satoshi"]
-    )
-
-    if unit == "BTC2mBTC":
-        return float((amount * mBTC) / BTC)
-    elif unit == "BTC2Satoshi":
-        return int((amount * Satoshi) / BTC)
-    elif unit == "mBTC2BTC":
-        return float((amount * BTC) / mBTC)
-    elif unit == "mBTC2Satoshi":
-        return int((amount * Satoshi) / mBTC)
-    elif unit == "Satoshi2BTC":
-        return float((amount * BTC) / Satoshi)
-    elif unit == "Satoshi2mBTC":
-        return int((amount * mBTC) / Satoshi)
-
-
 def fee_calculator(transaction_input: int = 1, transaction_output: int = 1) -> int:
     """
     Bitcoin fee calculator.
@@ -211,6 +169,48 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         ]
     except:
         return False
+
+
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "Satoshi2BTC") -> Union[int, float]:
+    """
+    Bitcoin amount unit converter
+
+    :param amount: Bitcoin any amount.
+    :type amount: Union[int, float]
+    :param unit_from: Bitcoin unit convert from symbol, default to ``Satoshi2BTC``.
+    :type unit_from: str
+
+    :returns: int, float -- BTC asset amount.
+
+    >>> from swap.providers.bitcoin.utils import amount_unit_converter
+    >>> amount_unit_converter(amount=10_000_000, unit_from="Satoshi2BTC")
+    0.1
+    """
+
+    if unit_from not in ["BTC2mBTC", "BTC2Satoshi", "mBTC2BTC", "mBTC2Satoshi", "Satoshi2BTC", "Satoshi2mBTC"]:
+        raise UnitError(f"Invalid Bitcoin '{unit_from}' unit from",
+                        "choose only 'BTC2mBTC', 'BTC2Satoshi', 'mBTC2BTC', 'mBTC2Satoshi', "
+                        "'Satoshi2BTC' or 'Satoshi2mBTC' units.")
+
+    # Constant unit values
+    BTC, mBTC, Satoshi = (
+        config["units"]["BTC"],
+        config["units"]["mBTC"],
+        config["units"]["Satoshi"]
+    )
+
+    if unit_from == "BTC2mBTC":
+        return float((amount * mBTC) / BTC)
+    elif unit_from == "BTC2Satoshi":
+        return int((amount * Satoshi) / BTC)
+    elif unit_from == "mBTC2BTC":
+        return float((amount * BTC) / mBTC)
+    elif unit_from == "mBTC2Satoshi":
+        return int((amount * Satoshi) / mBTC)
+    elif unit_from == "Satoshi2BTC":
+        return float((amount * BTC) / Satoshi)
+    elif unit_from == "Satoshi2mBTC":
+        return int((amount * mBTC) / Satoshi)
 
 
 def decode_transaction_raw(transaction_raw: str, offline: bool = True,

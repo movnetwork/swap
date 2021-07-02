@@ -637,7 +637,7 @@ class Wallet(HDWallet):
             raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or Satoshi units.")
         _balance: int = get_balance(address=self.address(), network=self._network)
         return _balance if unit == "Satoshi" else \
-            amount_unit_converter(amount=_balance, unit=f"Satoshi2{unit}")
+            amount_unit_converter(amount=_balance, unit_from=f"Satoshi2{unit}")
 
     def utxos(self, limit: int = 15) -> list:
         """

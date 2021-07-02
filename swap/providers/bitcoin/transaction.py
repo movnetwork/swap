@@ -85,7 +85,7 @@ class Transaction:
         if unit not in ["BTC", "mBTC", "Satoshi"]:
             raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'Satoshi' units.")
         return self._fee if unit == "Satoshi" else \
-            amount_unit_converter(amount=self._fee, unit=f"Satoshi2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Satoshi2{unit}")
 
     def hash(self) -> str:
         """
@@ -232,7 +232,7 @@ class FundTransaction(Transaction):
             address, htlc, (
                 amount if unit == "Satoshi" else
                 amount_unit_converter(
-                    amount=amount, unit=f"{unit}2Satoshi"
+                    amount=amount, unit_from=f"{unit}2Satoshi"
                 )
             )
         )

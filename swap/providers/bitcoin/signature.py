@@ -83,7 +83,7 @@ class Signature:
         if unit not in ["BTC", "mBTC", "Satoshi"]:
             raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or Satoshi units.")
         return self._fee if unit == "Satoshi" else \
-            amount_unit_converter(amount=self._fee, unit=f"Satoshi2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Satoshi2{unit}")
 
     def hash(self) -> str:
         """
