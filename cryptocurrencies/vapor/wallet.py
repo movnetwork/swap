@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+from swap.providers.vapor.wallet import Wallet
 from swap.providers.vapor.assets import BTM as ASSET
-from swap.utils import generate_entropy, generate_passphrase
-from typing import Optional
+from swap.utils import (
+    generate_entropy, generate_passphrase
+)
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"  # Default to mainnet
@@ -13,10 +14,10 @@ STRENGTH: int = 160  # Default is 128
 LANGUAGE: str = "english"  # Default is english
 # Set passphrase length
 LENGTH: int = 32  # Default is 32
-# Generate new entropy
+# Generate new entropy hex string
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
-PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
+PASSPHRASE: str = generate_passphrase(length=LENGTH)
 
 # Initialize Vapor wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -24,8 +25,12 @@ wallet: Wallet = Wallet(network=NETWORK)
 wallet.from_entropy(
     entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE
 )
-# Drive Vapor wallet from path
-wallet.from_path(path=DEFAULT_PATH)
+# Drive Bitcoin wallet from indexes
+wallet.from_index(44)
+wallet.from_index(153)
+wallet.from_index(1)
+wallet.from_index(0)
+wallet.from_index(1)
 
 # Print all Vapor wallet info's
 print("Strength:", wallet.strength())
