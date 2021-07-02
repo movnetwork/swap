@@ -11,12 +11,12 @@ import json
 NETWORK: str = "testnet"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
-# Recipient Bitcoin address
+# Bitcoin recipient address
 RECIPIENT_ADDRESS: str = "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V"
-# Sender Bitcoin address
+# Bitcoin sender address
 SENDER_ADDRESS: str = "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a"
 # Expiration contract timestamp
-ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hr
+ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 

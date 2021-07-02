@@ -16,18 +16,18 @@ import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
+# Secret key hash
+SECRET_HASH: str = sha256("Hello Meheret!")
 # Bitcoin sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 # Bitcoin sender derivation path
 SENDER_PATH: str = "m/44'/1'/0'/0/0"
-# Bitcoin fund amount
-AMOUNT: int = amount_unit_converter(0.001, "BTC2Satoshi")
-# Secret key hash
-SECRET_HASH: str = sha256("Hello Meheret!")
-# Recipient Bitcoin address
+# Bitcoin recipient address
 RECIPIENT_ADDRESS: str = "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V"
 # Expiration contract timestamp
-ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hr
+ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
+# Bitcoin fund amount
+AMOUNT: int = amount_unit_converter(0.001, "BTC2Satoshi")
 
 print("=" * 10, "Sender Bitcoin Account")
 
@@ -120,7 +120,7 @@ fund_signature.sign(
 print("Fund Signature Fee:", fund_signature.fee(unit="Satoshi"), "Satoshi")
 print("Fund Signature Hash:", fund_signature.hash())
 print("Fund Signature Main Raw:", fund_signature.raw())
-print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
+# print("Fund Signature Json:", json.dumps(fund_signature.json(), indent=4))
 print("Fund Signature Type:", fund_signature.type())
 
 signed_fund_signature_transaction_raw: str = fund_signature.transaction_raw()

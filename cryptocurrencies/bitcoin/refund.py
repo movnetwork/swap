@@ -10,14 +10,14 @@ import json
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
+# Bitcoin funded transaction hash/id
+TRANSACTION_HASH: str = "a211d21110756b266925fee2fbf2dc81529beef5e410311b38578dc3a076fb31"
 # Bitcoin sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 # Bitcoin sender derivation path
 SENDER_PATH: str = "m/44'/1'/0'/0/0"
-# Bitcoin funded transaction hash/id
-TRANSACTION_HASH: str = "a211d21110756b266925fee2fbf2dc81529beef5e410311b38578dc3a076fb31"
-# Expiration contract timestamp
-ENDTIME: int = 1624637769  # Previous locked timestamp
+# Previous expiration locked timestamp
+ENDTIME: int = 1624637769
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140a0a6590e6" \
                 "ba4b48118d21b86812615219ece76b88ac67040ec4d660b17576a914e00ff2a640b7ce2d336860739169487a" \
@@ -94,7 +94,7 @@ refund_signature.sign(
 print("Refund Signature Fee:", refund_signature.fee(unit="Satoshi"), "Satoshi")
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Main Raw:", refund_signature.raw())
-print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
+# print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
 print("Refund Signature Type:", refund_signature.type())
 
 signed_refund_signature_transaction_raw: str = refund_signature.transaction_raw()
