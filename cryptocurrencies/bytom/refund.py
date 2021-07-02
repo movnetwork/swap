@@ -11,12 +11,12 @@ import json
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
+# Bytom funded transaction hash/id
+TRANSACTION_HASH: str = "59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f"
 # Bytom sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Bitcoin sender derivation path
+# Bytom sender derivation path
 SENDER_PATH: str = "m/44/153/1/0/1"
-# Bitcoin funded transaction hash/id
-TRANSACTION_HASH: str = "59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "03285d0a20fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4af" \
                 "a031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5d" \
@@ -37,6 +37,7 @@ print("XPrivate Key:", sender_wallet.xprivate_key())
 print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
+print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance(asset=ASSET, unit="BTM"), "BTM")
 

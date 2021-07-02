@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 from swap.providers.bytom.htlc import HTLC
-from swap.providers.bytom.rpc import get_current_block_height
+from swap.providers.bytom.utils import estimate_endblock
 from swap.providers.bytom.assets import BTM as ASSET
-from swap.utils import sha256
+from swap.utils import (
+    sha256, get_current_timestamp
+)
 
 import json
 
@@ -11,12 +13,12 @@ import json
 NETWORK: str = "mainnet"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
-# Recipient Bytom public key
+# Bytom recipient public key
 RECIPIENT_PUBLIC_KEY: str = "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e"
-# Sender Bytom public key
+# Bytom sender public key
 SENDER_PUBLIC_KEY: str = "fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212"
-# Expiration block (Sequence)
-ENDBLOCK: int = get_current_block_height(plus=100)
+# Expiration block height
+ENDBLOCK: int = estimate_endblock(endtime=get_current_timestamp(plus=3600))  # 1 hour
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 

@@ -77,17 +77,23 @@ Options:
 swap bytom htlc --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb --recipient-public-key 3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e --sender-public-key fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212 --endblock 679208 --network mainnet
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```shell script
 {
     "secret_hash": "3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb",
-    "recipient_public_key": "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e",
-    "sender_public_key": "fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212",
+    "recipient": {
+        "public_key": "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e",
+        "address": "bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p"
+    },
+    "sender": {
+        "public_key": "fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212",
+        "address": "bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx"
+    },
     "endblock": 679208,
     "bytecode": "03285d0a20fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0",
-    "address": "bm1qul62nq2l8gmvv9k9ve4e07mlmtxnwgxpzlg833pff9x3kctlul2q727jyy"
+    "contract_address": "bm1qul62nq2l8gmvv9k9ve4e07mlmtxnwgxpzlg833pff9x3kctlul2q727jyy"
 }
 ```
 </details>
@@ -106,6 +112,7 @@ swap bytom fund --help
 ```shell script
 Usage: swap bytom fund [OPTIONS]
 
+Options:
   -a, --address TEXT            Set Bytom sender address.  [required]
   -ca, --contract-address TEXT  Set Bytom Hash Time Lock Contract (HTLC)
                                 address.  [required]
@@ -134,7 +141,7 @@ Usage: swap bytom fund [OPTIONS]
 swap bytom fund --address bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx --contract-address bm1qul62nq2l8gmvv9k9ve4e07mlmtxnwgxpzlg833pff9x3kctlul2q727jyy --amount 0.1 --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --unit BTM --network mainnet
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```shell script
@@ -181,7 +188,7 @@ Options:
 swap bytom withdraw --address bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p --transaction-hash 59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```shell script
@@ -228,7 +235,7 @@ Options:
 swap bytom refund --address bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx --transaction-hash 59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f --asset ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff --network mainnet
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```shell script
@@ -267,7 +274,7 @@ Options:
 swap bytom decode --transaction-raw eyJmZWUiOiA1MDkwMDAsICJhZGRyZXNzIjogImJtMXF1bDYybnEybDhnbXZ2OWs5dmU0ZTA3bWxtdHhud2d4cHpsZzgzM3BmZjl4M2tjdGx1bDJxNzI3anl5IiwgInJhdyI6ICIwNzAxMDAwMTAxNmIwMTY5ZjdkZjRkMDZhM2ZlM2M4YWM2NDM4ZjI1ZjljOTc3NDRhMTA0NTUzNTc4NTc3NzU1MjZjM2U2Yzc1MmZiNjllYWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAwMDEyMjAwMjBlN2Y0YTk4MTVmM2EzNmM2MTZjNTY2NmI5N2ZiN2ZkYWNkMzcyMGMxMTdkMDc4YzQyOTQ5NGQxYjYxN2ZlN2Q0MDEwMDAxMDEzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiOGE0YzMwNDAxMTYwMDE0YjE1OTJhY2JiOTE3ZjEzOTM3MTY2YzJhOWI2Y2U5NzMyOTZlYmI2MDAwIiwgImhhc2giOiAiMTcyMmFhOTMwZjZmOTNiNGM4Nzc4OGVhNTVmNDkwNTVmMjZmODY4MjFiY2QxMWE2NGQ0MmJjYjllM2I4YTk2ZCIsICJ1bnNpZ25lZF9kYXRhcyI6IFt7ImRhdGFzIjogWyJjYzc4YzFmYjY0OGY4ODI2ZTRkZDRmODVmODg1YWM3NTg2NmMwMjMzYjBhZjY1ODE3NTNkODU4MzA0YjhlMDRiIl0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6IG51bGx9XSwgInNpZ25hdHVyZXMiOiBbWyI5NjcwOWJjYTA2MDllYTQ3ZGZiN2NhNmM3ODc0ZGNlZWY3MDZkMzVmOGMyYWExZDU4YjFmOGQzYWM2MjgwZjE4NTIxNjQzMzgyMDgyNmEyMTM3ZmZlMDRhNjE0ZDQwMGZlYThhNWRmMjljOTQ2ZTNhYThlOWQ1MmNhYzZmNmQwYyIsICIwMSIsICIwMzI4NWQwYTIwZmU2YjNmZDQ0NTgyOTFiMTk2MDVkOTI4MzdhZTEwNjBjYzAyMzdlNjgwMjJiMmViOWZhZjAxYTExODIyNjIxMjIwM2UwYTM3N2FlNGFmYTAzMWQ0NTUxNTk5ZDliYjdkNWIyN2Y0NzM2ZDc3Zjc4Y2FjNGQ0NzZmMGZmYmE1YWUzZTIwM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjc0MWY1NDdhNjQxNjAwMDAwMDU1N2FhODg4NTM3YTdjYWU3Y2FjNjMxZjAwMDAwMDUzN2FjZDlmNjk3MmFlN2NhYzAwYzAiXV0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9yZWZ1bmRfc2lnbmVkIn0
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```json5
@@ -382,7 +389,7 @@ Options:
 swap bytom sign --xprivate-key 58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd --transaction-raw eyJmZWUiOiA0NDkwMDAsICJhZGRyZXNzIjogImJtMXFrOXZqNGphZXpsY25qZGNrZHM0ZmttOGZ3djVrYXdtcTlxcnVmeCIsICJyYXciOiAiMDcwMTAwMDEwMTVmMDE1ZGY3ZGY0ZDA2YTNmZTNjOGFjNjQzOGYyNWY5Yzk3NzQ0YTEwNDU1MzU3ODU3Nzc1NTI2YzNlNmM3NTJmYjY5ZWFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOThhM2IxNWEwMTAxMTYwMDE0YjE1OTJhY2JiOTE3ZjEzOTM3MTY2YzJhOWI2Y2U5NzMyOTZlYmI2MDIyMDEyMGZlNmIzZmQ0NDU4MjkxYjE5NjA1ZDkyODM3YWUxMDYwY2MwMjM3ZTY4MDIyYjJlYjlmYWYwMWExMTgyMjYyMTIwMjAxNDhmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMTIyMDAyMGU3ZjRhOTgxNWYzYTM2YzYxNmM1NjY2Yjk3ZmI3ZmRhY2QzNzIwYzExN2QwNzhjNDI5NDk0ZDFiNjE3ZmU3ZDQwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBjMmIzNTUwMTE2MDAxNGIxNTkyYWNiYjkxN2YxMzkzNzE2NmMyYTliNmNlOTczMjk2ZWJiNjAwMCIsICJoYXNoIjogImEzMDc4YWYwODEwYzY4YTdiYjZmMmY0MmNkNjdkY2U5ZGVhM2Q3NzAyOGNhMGM1MjcyMjRlNDUyNDAzOGFiYzQiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiZjQyYTJiNmUxNTU4NWI4OGRhOGIzNDIzN2M3YTZmZDgzYWYxMmVlNjk3MTgxM2Q2NmNmNzk0YTYzZWJjYzE2ZiJdLCAicHVibGljX2tleSI6ICJmZTZiM2ZkNDQ1ODI5MWIxOTYwNWQ5MjgzN2FlMTA2MGNjMDIzN2U2ODAyMmIyZWI5ZmFmMDFhMTE4MjI2MjEyIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fZnVuZF91bnNpZ25lZCJ9
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```shell script
@@ -420,7 +427,7 @@ Options:
 swap bytom submit --transaction-raw eyJmZWUiOiA0NDkwMDAsICJhZGRyZXNzIjogImJtMXFrOXZqNGphZXpsY25qZGNrZHM0ZmttOGZ3djVrYXdtcTlxcnVmeCIsICJyYXciOiAiMDcwMTAwMDEwMTVmMDE1ZGY3ZGY0ZDA2YTNmZTNjOGFjNjQzOGYyNWY5Yzk3NzQ0YTEwNDU1MzU3ODU3Nzc1NTI2YzNlNmM3NTJmYjY5ZWFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOThhM2IxNWEwMTAxMTYwMDE0YjE1OTJhY2JiOTE3ZjEzOTM3MTY2YzJhOWI2Y2U5NzMyOTZlYmI2MDIyMDEyMGZlNmIzZmQ0NDU4MjkxYjE5NjA1ZDkyODM3YWUxMDYwY2MwMjM3ZTY4MDIyYjJlYjlmYWYwMWExMTgyMjYyMTIwMjAxNDhmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMTIyMDAyMGU3ZjRhOTgxNWYzYTM2YzYxNmM1NjY2Yjk3ZmI3ZmRhY2QzNzIwYzExN2QwNzhjNDI5NDk0ZDFiNjE3ZmU3ZDQwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBjMmIzNTUwMTE2MDAxNGIxNTkyYWNiYjkxN2YxMzkzNzE2NmMyYTliNmNlOTczMjk2ZWJiNjAwMCIsICJoYXNoIjogImEzMDc4YWYwODEwYzY4YTdiYjZmMmY0MmNkNjdkY2U5ZGVhM2Q3NzAyOGNhMGM1MjcyMjRlNDUyNDAzOGFiYzQiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiZjQyYTJiNmUxNTU4NWI4OGRhOGIzNDIzN2M3YTZmZDgzYWYxMmVlNjk3MTgxM2Q2NmNmNzk0YTYzZWJjYzE2ZiJdLCAicHVibGljX2tleSI6ICJmZTZiM2ZkNDQ1ODI5MWIxOTYwNWQ5MjgzN2FlMTA2MGNjMDIzN2U2ODAyMmIyZWI5ZmFmMDFhMTE4MjI2MjEyIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtbImI4MmU5N2FiYzRiNzBmN2ZmZTdmNzgzMjU0YzYzZTYxNDM2ZDZhN2FkMTVkYTg5YjFmYjc5MWY5MWQxZDZhYTBiYWI3ZmY4NjMyOGVhYmQyOTU5ZjU0NzVkZGU0NDNlNjEzY2U3ZGZlNzA0MTFiZTViNDY5YjAyMDY5MTY0YTA2Il1dLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fZnVuZF9zaWduZWQifQ
 ```
 
-<details>
+<details open>
   <summary>Output</summary><br/>
 
 ```shell script

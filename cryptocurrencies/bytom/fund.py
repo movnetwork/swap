@@ -2,32 +2,33 @@
 
 from swap.providers.bytom.wallet import Wallet
 from swap.providers.bytom.htlc import HTLC
-from swap.providers.bytom.rpc import get_current_block_height
 from swap.providers.bytom.transaction import FundTransaction
 from swap.providers.bytom.assets import BTM as ASSET
 from swap.providers.bytom.solver import FundSolver
 from swap.providers.bytom.signature import FundSignature
 from swap.providers.bytom.utils import (
-    submit_transaction_raw, amount_unit_converter
+    submit_transaction_raw, amount_unit_converter, estimate_endblock
 )
-from swap.utils import sha256
+from swap.utils import (
+    sha256, get_current_timestamp
+)
 
 import json
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
-# Bytom sender wallet mnemonic
-SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Bitcoin sender derivation path
-SENDER_PATH: str = "m/44/153/1/0/1"
-# Bytom fund amount
-AMOUNT: int = amount_unit_converter(0.1, "BTM2NEU")
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
-# Recipient Bytom public key
+# Bytom sender wallet mnemonic
+SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
+# Bytom sender derivation path
+SENDER_PATH: str = "m/44/153/1/0/1"
+# Bytom recipient public key
 RECIPIENT_PUBLIC_KEY: str = "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e"
-# Expiration contract by block height
-ENDBLOCK: int = get_current_block_height(plus=50)
+# Expiration block height
+ENDBLOCK: int = estimate_endblock(endtime=get_current_timestamp(plus=3600))  # 1 hour
+# Bytom fund amount
+AMOUNT: int = amount_unit_converter(0.1, unit_from="BTM2NEU")
 
 print("=" * 10, "Sender Bytom Account")
 
