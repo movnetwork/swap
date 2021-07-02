@@ -20,17 +20,17 @@ from ....utils import get_current_timestamp
 @click.option("-am", "--amount", type=float, required=True, help="Set Ethereum fund amount.")
 @click.option("-u", "--unit", type=str, default=config["unit"],
               help="Set Ethereum fund amount unit.", show_default=True)
-@click.option("-hth", "--htlc-transaction-hash", type=str, default=None,
-              help="Set Ethereum HTLC transaction hash.  [default: None]")
+@click.option("-ca", "--contract-address", type=str, default=None,
+              help="Set Ethereum HTLC contact address.  [default: None]")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set Ethereum network.", show_default=True)
 def fund(
     secret_hash: str, recipient_address: str, sender_address: str, endtime: int,
-    amount: int, unit: str, htlc_transaction_hash: str, network: str
+    amount: int, unit: str, contract_address: str, network: str
 ):
     try:
         _htlc: HTLC = HTLC(
-            transaction_hash=htlc_transaction_hash, network=network
+            contract_address=contract_address, network=network
         ).build_htlc(
             secret_hash=secret_hash,
             recipient_address=recipient_address,

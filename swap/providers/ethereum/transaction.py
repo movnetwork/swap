@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from binascii import unhexlify
 from eth_account.datastructures import SignedTransaction
 from web3.datastructures import AttributeDict
 from web3.contract import Contract
@@ -76,7 +77,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
         >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=get_current_timestamp(plus=3600))
         >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
         >>> fund_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
         >>> fund_transaction.fee(unit="Wei")
@@ -101,7 +102,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import WithdrawTransaction
         >>> from swap.providers.ethereum.solver import WithdrawSolver
         >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=1)
         >>> withdraw_transaction.sign(solver=withdraw_solver)
         >>> withdraw_transaction.hash()
@@ -124,7 +125,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
         >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=get_current_timestamp(plus=3600))
         >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
         >>> fund_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
         >>> fund_transaction.json()
@@ -146,7 +147,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import RefundTransaction
         >>> from swap.providers.ethereum.solver import RefundSolver
         >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
         >>> refund_transaction.sign(solver=refund_solver)
         >>> refund_transaction.hash()
@@ -168,7 +169,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import WithdrawTransaction
         >>> from swap.providers.ethereum.solver import WithdrawSolver
         >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         >>> withdraw_transaction.type()
         "ethereum_withdraw_unsigned"
         """
@@ -188,7 +189,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import RefundTransaction
         >>> from swap.providers.ethereum.solver import RefundSolver
         >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
         >>> refund_transaction.sign(solver=refund_solver)
         >>> refund_transaction.signature()
@@ -211,7 +212,7 @@ class Transaction:
         >>> from swap.providers.ethereum.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
         >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=get_current_timestamp(plus=3600))
         >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
         >>> fund_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
         >>> fund_transaction.transaction_raw()
@@ -271,7 +272,7 @@ class FundTransaction(Transaction):
         >>> from swap.providers.ethereum.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
         >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=get_current_timestamp(plus=3600))
         >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
         >>> fund_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
         <swap.providers.ethereum.transaction.FundTransaction object at 0x0409DAF0>
@@ -291,10 +292,10 @@ class FundTransaction(Transaction):
         )
 
         htlc_fund_function = htlc_contract.functions.fund(
-            htlc.agreements["secret_hash"],  # Secret Hash
+            unhexlify(htlc.agreements["secret_hash"]),  # Secret Hash
             htlc.agreements["recipient_address"],  # Recipient Address
             htlc.agreements["sender_address"],  # Sender Address
-            htlc.agreements["endtime"]  # Locktime Seconds
+            htlc.agreements["endtime"]["timestamp"]  # Locktime Seconds
         )
 
         self._fee = htlc_fund_function.estimateGas({
@@ -332,7 +333,7 @@ class FundTransaction(Transaction):
         >>> from swap.providers.ethereum.solver import FundSolver
         >>> from swap.utils import sha256, get_current_timestamp
         >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=get_current_timestamp(plus=3600))
         >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
         >>> fund_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
         >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
@@ -385,7 +386,7 @@ class WithdrawTransaction(Transaction):
         )
 
     def build_transaction(self, transaction_hash: str, address: str, secret_key: str,
-                          htlc_transaction_hash: Optional[str] = None) -> "WithdrawTransaction":
+                          contract_address: Optional[str] = None) -> "WithdrawTransaction":
         """
         Build Ethereum withdraw transaction.
 
@@ -395,14 +396,14 @@ class WithdrawTransaction(Transaction):
         :type address: str
         :param secret_key: Secret password/passphrase.
         :type secret_key: str
-        :param htlc_transaction_hash: Ethereum HTLC transaction hash, defaults to ``None``.
-        :type htlc_transaction_hash: str
+        :param contract_address: Ethereum HTLC contract address, defaults to ``None``.
+        :type contract_address: str
 
         :returns: WithdrawTransaction -- Ethereum withdraw transaction instance.
 
         >>> from swap.providers.ethereum.transaction import WithdrawTransaction
         >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         <swap.providers.ethereum.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
@@ -411,7 +412,7 @@ class WithdrawTransaction(Transaction):
             raise AddressError(f"Invalid Ethereum recipient '{address}' address.")
 
         htlc: HTLC = HTLC(
-            transaction_hash=htlc_transaction_hash, network=self._network
+            contract_address=contract_address, network=self._network
         )
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
@@ -461,7 +462,7 @@ class WithdrawTransaction(Transaction):
         >>> from swap.providers.ethereum.transaction import WithdrawTransaction
         >>> from swap.providers.ethereum.solver import WithdrawSolver
         >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=1)
         >>> withdraw_transaction.sign(solver=withdraw_solver)
         <swap.providers.ethereum.transaction.WithdrawTransaction object at 0x0409DAF0>
@@ -512,7 +513,7 @@ class RefundTransaction(Transaction):
         )
 
     def build_transaction(self, transaction_hash: str, address: str,
-                          htlc_transaction_hash: Optional[str] = None) -> "RefundTransaction":
+                          contract_address: Optional[str] = None) -> "RefundTransaction":
         """
         Build Ethereum refund transaction.
 
@@ -520,14 +521,14 @@ class RefundTransaction(Transaction):
         :type transaction_hash: str
         :param address: Ethereum sender address.
         :type address: str
-        :param htlc_transaction_hash: Ethereum HTLC transaction hash, defaults to ``None``.
-        :type htlc_transaction_hash: str
+        :param contract_address: Ethereum HTLC contract address, defaults to ``None``.
+        :type contract_address: str
 
         :returns: RefundTransaction -- Ethereum refund transaction instance.
 
         >>> from swap.providers.ethereum.transaction import RefundTransaction
         >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         <swap.providers.ethereum.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
@@ -536,7 +537,7 @@ class RefundTransaction(Transaction):
             raise AddressError(f"Invalid Ethereum recipient '{address}' address.")
 
         htlc: HTLC = HTLC(
-            transaction_hash=htlc_transaction_hash, network=self._network
+            contract_address=contract_address, network=self._network
         )
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
@@ -585,7 +586,7 @@ class RefundTransaction(Transaction):
         >>> from swap.providers.ethereum.transaction import RefundTransaction
         >>> from swap.providers.ethereum.solver import RefundSolver
         >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", contract_address="0x67324d402ffc103d061dAfA9096ff639f0676378")
         >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.ethereum.transaction.RefundTransaction object at 0x0409DAF0>

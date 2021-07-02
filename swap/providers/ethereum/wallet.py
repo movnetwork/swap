@@ -19,17 +19,12 @@ from .rpc import (
     get_balance
 )
 
-# Default derivation path
-DEFAULT_PATH: str = config["path"]
-# Default BIP44 derivation path
-DEFAULT_BIP44_PATH: str = config["BIP44"]
-
 
 class Wallet(HDWallet):
     """
     Ethereum Wallet class.
 
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -62,9 +57,9 @@ class Wallet(HDWallet):
 
         :param entropy: Ethereum wallet entropy.
         :type entropy: str
-        :param language: Ethereum wallet language, default to english.
+        :param language: Ethereum wallet language, default to ``english``.
         :type language: str
-        :param passphrase: Ethereum wallet passphrase, default to None.
+        :param passphrase: Ethereum wallet passphrase, default to ``None``.
         :type passphrase: str
 
         :returns: Wallet -- Ethereum wallet instance.
@@ -85,9 +80,9 @@ class Wallet(HDWallet):
 
         :param mnemonic: Ethereum wallet mnemonic.
         :type mnemonic: str
-        :param language: Ethereum wallet language, default to english.
+        :param language: Ethereum wallet language, default to ``english``.
         :type language: str
-        :param passphrase: Ethereum wallet passphrase, default to None.
+        :param passphrase: Ethereum wallet passphrase, default to ``None``.
         :type passphrase: str
 
         :returns: Wallet -- Ethereum wallet instance.
@@ -222,7 +217,7 @@ class Wallet(HDWallet):
 
         :param index: Ethereum wallet index.
         :type index: int
-        :param hardened: Use hardened index, default to False.
+        :param hardened: Use hardened index, default to ``False``.
         :type hardened: bool
 
         :returns: Wallet -- Ethereum wallet instance.
@@ -356,7 +351,7 @@ class Wallet(HDWallet):
         """
         Get Ethereum wallet root xprivate key.
 
-        :param encoded: Encoded root xprivate key, default to True.
+        :param encoded: Encoded root xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- Ethereum wallet root xprivate key.
@@ -374,7 +369,7 @@ class Wallet(HDWallet):
         """
         Get Ethereum wallet root xpublic key.
 
-        :param encoded: Encoded root xprivate key, default to True.
+        :param encoded: Encoded root xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- Ethereum wallet root xpublic key.
@@ -392,7 +387,7 @@ class Wallet(HDWallet):
         """
         Get Ethereum wallet xprivate key.
 
-        :param encoded: Encoded xprivate key, default to True.
+        :param encoded: Encoded xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- Ethereum wallet xprivate key.
@@ -411,7 +406,7 @@ class Wallet(HDWallet):
         """
         Get Ethereum wallet xpublic key.
 
-        :param encoded: Encoded xprivate key, default to True.
+        :param encoded: Encoded xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- Ethereum wallet xpublic key.

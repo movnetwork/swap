@@ -89,7 +89,7 @@ ethereum: dict = {
             "websocket": "wss://mainnet.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "ropsten": {
         "infura": {
@@ -97,7 +97,7 @@ ethereum: dict = {
             "websocket": "wss://ropsten.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "kovan": {
         "infura": {
@@ -105,7 +105,7 @@ ethereum: dict = {
             "websocket": "wss://kovan.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "rinkeby": {
         "infura": {
@@ -113,7 +113,7 @@ ethereum: dict = {
             "websocket": "wss://rinkeby.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "testnet": {
         "ganache-cli": {
@@ -121,7 +121,7 @@ ethereum: dict = {
             "websocket": "wss://localhost:8545",
             "token": None
         },
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "path": "m/44'/60'/0'/0/0",
     "BIP44": "m/44'/60'/{account}'/{change}/{address}",
@@ -181,12 +181,12 @@ xinfin: dict = {
     "mainnet": {
         "http": "https://rpc.xinfin.network",
         "websocket": "wss://ws.xinfin.network",
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "testnet": {
         "http": "http://localhost:8545",
         "websocket": "wss://localhost:8545",
-        "htlc_transaction_hash": None
+        "contract_address": None
     },
     "path": "m/44'/60'/0'/0/0",
     "BIP44": "m/44'/60'/{account}'/{change}/{address}",

@@ -28,7 +28,7 @@ def get_web3(network: str = config["network"], provider: str = config["provider"
     """
     Get Ethereum Web3 instance.
 
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -83,7 +83,7 @@ def get_balance(address: str, network: str = config["network"], provider: str = 
 
     :param address: Ethereum address.
     :type address: str
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -115,7 +115,7 @@ def get_transaction(transaction_hash: str, network: str = config["network"], pro
 
     :param transaction_hash: Ethereum transaction hash/id.
     :type transaction_hash: str
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -147,7 +147,7 @@ def wait_for_transaction_receipt(transaction_hash: str, timeout: int = config["t
     :type transaction_hash: str
     :param timeout: Request timeout, default to 60.
     :type timeout: int
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -178,7 +178,7 @@ def get_transaction_receipt(transaction_hash: str, network: str = config["networ
 
     :param transaction_hash: Ethereum transaction hash/id.
     :type transaction_hash: str
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -227,7 +227,7 @@ def submit_raw(transaction_raw: str, network: str = config["network"], provider:
 
     :param transaction_raw: Ethereum transaction raw.
     :type transaction_raw: str
-    :param network: Ethereum network, defaults to ``ropsten``.
+    :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
