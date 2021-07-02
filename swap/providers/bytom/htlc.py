@@ -4,6 +4,9 @@ from pybytom.script import (
     get_script_hash, get_p2wsh_program, get_p2wsh_address
 )
 from pybytom.script.builder import Builder
+from pybytom.wallet.tools import (
+    get_address, get_program
+)
 from pybytom.script.opcode import (
     OP_FALSE, OP_DEPTH, OP_CHECKPREDICATE
 )
@@ -125,8 +128,18 @@ class HTLC:
 
         self.agreements = {
             "secret_hash": secret_hash,
-            "recipient_public_key": recipient_public_key,
-            "sender_public_key": sender_public_key,
+            "recipient": {
+                "public_key": recipient_public_key,
+                "address": get_address(
+                    program=get_program(public_key=recipient_public_key), network=self._network, vapor=False
+                )
+            },
+            "sender": {
+                "public_key": sender_public_key,
+                "address": get_address(
+                    program=get_program(public_key=sender_public_key), network=self._network, vapor=False
+                )
+            },
             "endblock": endblock
         }
         return self

@@ -58,7 +58,6 @@ class Transaction(BytomTransaction):
         self._transaction: Optional[dict] = None
         self._type: Optional[str] = None
         self._confirmations: int = config["confirmations"]
-        self._interest: int = 0
         self._amount: int = 0
         self._fee: int = 0
 
@@ -237,9 +236,6 @@ class Transaction(BytomTransaction):
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
         return self._signatures
-
-    def datas(self) -> dict:
-        return self._datas
 
 
 class FundTransaction(Transaction):
@@ -539,7 +535,7 @@ class WithdrawTransaction(Transaction):
         >>> from swap.providers.bytom.transaction import WithdrawTransaction
         >>> from swap.providers.bytom.solver import WithdrawSolver
         >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")     >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> bytecode: str = "03285d0a20fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
         >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f", secret_key="Hello Meheret!", bytecode=bytecode)
         >>> withdraw_transaction.sign(solver=withdraw_solver)

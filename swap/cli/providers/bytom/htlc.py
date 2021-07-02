@@ -29,7 +29,7 @@ def htlc(secret_hash: str, recipient_public_key: str, sender_public_key: str, en
             endblock=endblock
         )
         click.echo(json.dumps(dict(
-            **_htlc.agreements, bytecode=_htlc.bytecode(), address=_htlc.contract_address()
+            **_htlc.agreements, bytecode=_htlc.bytecode(), contract_address=_htlc.contract_address()
         ), indent=indent))
     except Exception as exception:
         click.echo(click.style("Error: {}")

@@ -7,7 +7,6 @@ from typing import (
 import requests
 import json
 
-from ...utils import get_current_timestamp
 from ...exceptions import (
     BalanceError, APIError, NetworkError, AddressError
 )
