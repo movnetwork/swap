@@ -2,8 +2,9 @@
 
 from swap.providers.xinfin.wallet import Wallet
 from swap.providers.xinfin.htlc import HTLC
+from swap.providers.xinfin.utils import to_checksum_address
 from swap.providers.xinfin.rpc import (
-    submit_raw, wait_for_transaction_receipt, to_checksum_address
+    submit_raw, wait_for_transaction_receipt
 )
 
 # Choose network mainnet or testnet

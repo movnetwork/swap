@@ -10,7 +10,7 @@ import json
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "testnet"
 # Ethereum HTLC contract address
-CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
+CONTRACT_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Ethereum recipient address

@@ -27,7 +27,7 @@ SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build r
 # XinFin recipient address
 RECIPIENT_ADDRESS: str = "xdcf8D43806260CFc6cC79fB408BA1897054667F81C"
 # Expiration block timestamp
-ENDTIME: int = get_current_timestamp(plus=300)  # 1 hour
+ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # XinFin fund amount
 AMOUNT: int = amount_unit_converter(1, "XDC2Wei")
 
@@ -136,6 +136,6 @@ print("Fund Signature Transaction Raw:", signed_fund_signature_transaction_raw)
 assert signed_fund_transaction_raw == signed_fund_signature_transaction_raw
 
 # Submit fund transaction raw
-# print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
-#     transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
-# ), indent=4))
+print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
+    transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
+), indent=4))

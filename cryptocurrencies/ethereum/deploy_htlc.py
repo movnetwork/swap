@@ -2,6 +2,7 @@
 
 from swap.providers.ethereum.wallet import Wallet
 from swap.providers.ethereum.htlc import HTLC
+from swap.providers.ethereum.utils import to_checksum_address
 from swap.providers.ethereum.rpc import (
     submit_raw, wait_for_transaction_receipt
 )
@@ -42,11 +43,11 @@ print("HTLC Transaction Hash:", htlc.hash())
 print("HTLC Transaction Json:", htlc.json())
 print("HTLC Transaction Raw:", htlc.raw())
 
-print("=" * 10, "Wait to be mined | Get Contract Address")
+print("=" * 10, "Wait to be mined and Get Contract Address")
 
 # Wait 60 seconds for HTLC transaction to be mined
 transaction_receipt = wait_for_transaction_receipt(
     transaction_hash=htlc.hash(), network=NETWORK, timeout=60
 )
 
-print("HTLC Contract Address:", transaction_receipt["contractAddress"])
+print("HTLC Contract Address:", to_checksum_address(transaction_receipt["contractAddress"]))

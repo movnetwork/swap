@@ -13,7 +13,7 @@ import json
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Ethereum HTLC contract address
-CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
+CONTRACT_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
 # Ethereum funded transaction hash/id
 TRANSACTION_HASH: str = "0x4c664e09f140bb6d0ead0998429df614f5e25a2e0db953c2180be97d24cdd478"
 # Ethereum recipient wallet mnemonic

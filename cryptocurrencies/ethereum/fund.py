@@ -19,7 +19,7 @@ import json
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Ethereum HTLC contract address
-CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
+CONTRACT_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Ethereum sender wallet mnemonic
@@ -29,7 +29,7 @@ RECIPIENT_ADDRESS: str = "0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94"
 # Expiration block timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # Ethereum fund amount
-AMOUNT: int = amount_unit_converter(3, "Ether2Wei")
+AMOUNT: int = amount_unit_converter(1, "Ether2Wei")
 
 print("=" * 10, "Sender Ethereum Account")
 
