@@ -133,7 +133,12 @@ ethereum: dict = {
     "provider": "http",
     "network": "mainnet",
     "unit": "Wei",
-    "timeout": 60
+    "timeout": 60,
+    "headers": {
+        "user-agent": f"Swap User-Agent {__version__}",
+        "content-type": "application/json; charset=utf-8",
+        "accept": "application/json"
+    }
 }
 
 # Vapor config
@@ -188,8 +193,8 @@ xinfin: dict = {
         "websocket": "wss://localhost:8545",
         "contract_address": None
     },
-    "path": "m/44'/60'/0'/0/0",
-    "BIP44": "m/44'/60'/{account}'/{change}/{address}",
+    "path": "m/44'/550'/0'/0/0",
+    "bip44_path": "m/44'/550'/{account}'/{change}/{address}",
     "units": {
         "XDC": 1,
         "Gwei": 1_000_000_000,
@@ -198,5 +203,10 @@ xinfin: dict = {
     "provider": "http",
     "network": "mainnet",
     "unit": "Wei",
-    "timeout": 60
+    "timeout": 60,
+    "headers": {
+        "user-agent": f"Swap User-Agent {__version__}",
+        "content-type": "application/json; charset=utf-8",
+        "accept": "application/json"
+    }
 }

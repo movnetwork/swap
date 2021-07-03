@@ -63,7 +63,7 @@ Options:
 > **Example** -> swap ethereum `htlc` command
 
 **Contract Address** _(str)_ -> 0x67324d402ffc103d061dAfA9096ff639f0676378 **[required]**<br/>
-**Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Network** _(str)_ -> testnet **[default: `mainnet`]**<br/>
 
 > **Returns** _(dict)_ -> Ethereum Hash Time Lock Contract (HTLC) bytecode and contract address.
 
@@ -125,7 +125,7 @@ Options:
 **Amount** _(int, float)_ -> 0.1 **[required]**<br/>
 **Unit** _(str)_ -> Ether **[default: `Wei`]**<br/>
 **Contract Address** _(str)_ -> 0x67324d402ffc103d061dAfA9096ff639f0676378 **[required]**<br/>
-**Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Network** _(str)_ -> testnet **[default: `mainnet`]**<br/>
 
 > **Returns** _(str)_ -> Ethereum unsigned fund transaction raw.
 
@@ -175,7 +175,7 @@ Options:
 **Recipient Address** _(str)_ -> 0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94 **[required]**<br/>
 **Secret Key** _(str)_ -> Hello Meheret! **[required]**<br/>
 **Contract Address** _(str)_ -> 0x67324d402ffc103d061dAfA9096ff639f0676378 **[required]**<br/>
-**Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Network** _(str)_ -> testnet **[default: `mainnet`]**<br/>
 
 > **Returns** _(str)_ -> Ethereum unsigned withdraw transaction raw.
 
@@ -223,7 +223,7 @@ Options:
 **Transaction Hash** _(str)_ -> 0x4c664e09f140bb6d0ead0998429df614f5e25a2e0db953c2180be97d24cdd478 **[required]**<br/>
 **Sender Address** _(str)_ -> 0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C **[required]**<br/>
 **Contract Address** _(str)_ -> 0x67324d402ffc103d061dAfA9096ff639f0676378 **[required]**<br/>
-**Network** _(str)_ -> testnet **[default: `testnet`]**<br/>
+**Network** _(str)_ -> testnet **[default: `mainnet`]**<br/>
 
 > **Returns** _(str)_ -> Ethereum unsigned refund transaction raw.
 

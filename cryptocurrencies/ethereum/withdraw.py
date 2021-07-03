@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.ethereum.wallet import Wallet
+from swap.providers.ethereum.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.ethereum.transaction import WithdrawTransaction
 from swap.providers.ethereum.signature import WithdrawSignature
 from swap.providers.ethereum.solver import WithdrawSolver
@@ -16,9 +18,7 @@ CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
 TRANSACTION_HASH: str = "0x4c664e09f140bb6d0ead0998429df614f5e25a2e0db953c2180be97d24cdd478"
 # Ethereum recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
-# Ethereum recipient derivation path
-RECIPIENT_PATH: str = "m/44'/60'/0'/0/0"
-# Secret key to unlock the contract
+# The preimage of HTLC contract
 SECRET_KEY: str = "Hello Meheret!"
 
 print("=" * 10, "Recipient Ethereum Account")
@@ -28,7 +28,7 @@ recipient_wallet: Wallet = Wallet(network=NETWORK)
 # Get Ethereum recipient wallet from mnemonic
 recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
 # Drive Ethereum recipient wallet from path
-recipient_wallet.from_path(path=RECIPIENT_PATH)
+recipient_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Ethereum recipient wallet info's
 print("Root XPrivate Key:", recipient_wallet.root_xprivate_key())

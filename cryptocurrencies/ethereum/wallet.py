@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 
-from swap.providers.ethereum.wallet import Wallet, DEFAULT_PATH
-from swap.utils import generate_entropy, generate_passphrase
-from typing import Optional
+from swap.providers.ethereum.wallet import (
+    Wallet, DEFAULT_PATH
+)
+from swap.utils import (
+    generate_entropy, generate_passphrase
+)
 
-# Choose network mainnet or testnet
-NETWORK: str = "testnet"  # Default to mainnet
+# Choose network mainnet, ropsten, kovan, rinkeby or testnet
+NETWORK: str = "mainnet"  # Default to mainnet
 # Choose strength 128, 160, 192, 224 or 256
-STRENGTH: int = 128  # Default is 128
+STRENGTH: int = 160  # Default is 128
 # Choose language english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean
 LANGUAGE: str = "english"  # Default is english
 # Set passphrase length
 LENGTH: int = 32  # Default is 32
-# Generate new entropy
-ENTROPY: str = "ed0802d701a033776811601dd6c5c4a9"  # generate_entropy(strength=STRENGTH)
+# Generate new entropy hex string
+ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
-PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
+PASSPHRASE: str = generate_passphrase(length=LENGTH)
 
 # Initialize Bitcoin wallet
 wallet: Wallet = Wallet(network=NETWORK)

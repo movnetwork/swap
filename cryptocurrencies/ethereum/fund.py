@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.ethereum.wallet import Wallet
+from swap.providers.ethereum.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.ethereum.htlc import HTLC
 from swap.providers.ethereum.transaction import FundTransaction
 from swap.providers.ethereum.signature import FundSignature
@@ -22,8 +24,6 @@ CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Ethereum sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Ethereum sender derivation path
-SENDER_PATH: str = "m/44'/60'/0'/0/0"
 # Ethereum recipient address
 RECIPIENT_ADDRESS: str = "0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94"
 # Expiration block timestamp
@@ -38,7 +38,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Ethereum sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Ethereum sender wallet from path
-sender_wallet.from_path(path=SENDER_PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Ethereum sender wallet info's
 print("Root XPrivate Key:", sender_wallet.root_xprivate_key())

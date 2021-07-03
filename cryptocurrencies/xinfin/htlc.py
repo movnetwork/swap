@@ -5,24 +5,26 @@ from swap.utils import (
     sha256, get_current_timestamp
 )
 
+import json
+
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "testnet"
-# XinFIn HTLC transaction hash
-HTLC_TRANSACTION_HASH: str = "0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160"
+# XinFin HTLC contract address
+CONTRACT_ADDRESS: str = "xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
-# Recipient XinFIn address
-RECIPIENT_ADDRESS: str = "xdcd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f"
-# Sender XinFIn address
-SENDER_ADDRESS: str = "xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C"
-# Expiration block time (Seconds)
-ENDTIME: int = get_current_timestamp() + 300  # 300 sec equal to 5 min
+# XinFin recipient address
+RECIPIENT_ADDRESS: str = "xdcf8D43806260CFc6cC79fB408BA1897054667F81C"
+# XinFin sender address
+SENDER_ADDRESS: str = "xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232"
+# Expiration block timestamp
+ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 
 print("=" * 10, "Hash Time Lock Contract (HTLC) between Sender and Recipient")
 
-# Initialize XinFIn HTLC
+# Initialize XinFin HTLC
 htlc: HTLC = HTLC(
-    transaction_hash=HTLC_TRANSACTION_HASH, network=NETWORK
+    contract_address=CONTRACT_ADDRESS, network=NETWORK
 )
 # Build HTLC contract
 htlc.build_htlc(
@@ -32,7 +34,8 @@ htlc.build_htlc(
     endtime=ENDTIME
 )
 
-# Print all XinFIn HTLC info's
+# Print all XinFin HTLC info's
+print("HTLC Agreements:", json.dumps(htlc.agreements, indent=4))
 print("HTLC ABI:", htlc.abi())
 print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC Bytecode Runtime:", htlc.bytecode_runtime())

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.ethereum.wallet import Wallet
+from swap.providers.ethereum.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.ethereum.transaction import RefundTransaction
 from swap.providers.ethereum.signature import RefundSignature
 from swap.providers.ethereum.solver import RefundSolver
@@ -16,8 +18,6 @@ CONTRACT_ADDRESS: str = "0x67324d402ffc103d061dAfA9096ff639f0676378"
 TRANSACTION_HASH: str = "0x4c664e09f140bb6d0ead0998429df614f5e25a2e0db953c2180be97d24cdd478"
 # Ethereum sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Ethereum sender derivation path
-SENDER_PATH: str = "m/44'/60'/0'/0/0"
 
 print("=" * 10, "Sender Ethereum Account")
 
@@ -26,7 +26,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Ethereum sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Ethereum sender wallet from path
-sender_wallet.from_path(path=SENDER_PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Ethereum sender wallet info's
 print("Root XPrivate Key:", sender_wallet.root_xprivate_key())

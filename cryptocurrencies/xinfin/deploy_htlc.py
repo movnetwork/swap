@@ -3,13 +3,13 @@
 from swap.providers.xinfin.wallet import Wallet
 from swap.providers.xinfin.htlc import HTLC
 from swap.providers.xinfin.rpc import (
-    submit_raw, wait_for_transaction_receipt
+    submit_raw, wait_for_transaction_receipt, to_checksum_address
 )
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # XinFin private key
-PRIVATE_KEY: str = "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"
+PRIVATE_KEY: str = "8a4bc8131e99a5d1064cdbca6949aa2ec16152967b19f2cee3096daefd5ca857"
 
 # Initialize XinFin wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -26,7 +26,7 @@ print("HTLC Bytecode:", htlc.bytecode())
 print("HTLC Bytecode Runtime:", htlc.bytecode_runtime())
 print("HTLC OP_Code:", htlc.opcode())
 
-print("=" * 10, "Build, Sign and Submit HTLC Transaction | Wait to be mined")
+print("=" * 10, "Build, Sign and Submit HTLC Transaction")
 
 # Build HTLC transaction
 htlc.build_transaction(address=wallet.address())
@@ -37,12 +37,16 @@ htlc.sign_transaction(private_key=wallet.private_key())
 # Submit HTLC transaction raw
 submit_raw(transaction_raw=htlc.raw(), network=NETWORK)
 
-# Wait 60 seconds for HTLC transaction to be mined
-wait_for_transaction_receipt(
-    transaction_hash=htlc.hash(), network=NETWORK, timeout=60
-)
-
-print("HTLC Fee:", htlc.fee(), "Wei")
+print("HTLC Transaction Fee:", htlc.fee(unit="Wei"), "Wei")
 print("HTLC Transaction Hash:", htlc.hash())
 print("HTLC Transaction Json:", htlc.json())
 print("HTLC Transaction Raw:", htlc.raw())
+
+print("=" * 10, "Wait to be mined and Get Contract Address")
+
+# Wait 60 seconds for HTLC transaction to be mined
+transaction_receipt = wait_for_transaction_receipt(
+    transaction_hash=htlc.hash(), network=NETWORK, timeout=60
+)
+
+print("HTLC Contract Address:", to_checksum_address(transaction_receipt["contractAddress"]))
