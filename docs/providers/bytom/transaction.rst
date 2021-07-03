@@ -9,19 +9,14 @@ Bytom transaction in blockchain network.
 .. autoclass:: Transaction
    :members:
 
-NormalTransaction
------------------
-.. autoclass:: NormalTransaction
-   :members:
-
 FundTransaction
 ---------------
 .. autoclass:: FundTransaction
    :members:
 
-ClaimTransaction
-----------------
-.. autoclass:: ClaimTransaction
+WithdrawTransaction
+-------------------
+.. autoclass:: WithdrawTransaction
    :members:
 
 RefundTransaction

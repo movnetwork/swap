@@ -4,9 +4,11 @@
 Ethereum
 ========
 
-Ethereum is a Cryptocurrency. It is a decentralized digital currency without a central
-bank or single administrator that can be sent from user to user on the peer-to-peer
-bitcoin network without the need for intermediaries.
+Ethereum is a decentralized, open-source blockchain with smart contract functionality.
+Ether is the native cryptocurrency of the platform. After Bitcoin, it is the second-largest
+cryptocurrency by market capitalization. Ethereum is the most actively used blockchain.
+
+For more https://ethereum.org
 
 
 .. toctree::

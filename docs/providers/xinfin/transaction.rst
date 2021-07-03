@@ -2,9 +2,9 @@
 
 Transaction
 ===========
-Bitcoin transaction in blockchain network.
+XinFin transaction in blockchain network.
 
-.. automodule:: swap.providers.bitcoin.transaction
+.. automodule:: swap.providers.xinfin.transaction
 
 .. autoclass:: Transaction
    :members:

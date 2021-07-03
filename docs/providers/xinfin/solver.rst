@@ -2,9 +2,9 @@
 
 Solver
 ======
-Bytom solver.
+XinFin solver.
 
-.. automodule:: swap.providers.bytom.solver
+.. automodule:: swap.providers.xinfin.solver
 
 FundSolver
 ----------

@@ -2,9 +2,9 @@
 
 Signature
 =========
-Vapor signature.
+XinFin signature.
 
-.. automodule:: swap.providers.vapor.signature
+.. automodule:: swap.providers.xinfin.signature
 
 .. autoclass:: Signature
    :members:
