@@ -73,7 +73,6 @@ contract HTLC {
         _;
     }
 
-
     /**
      * @dev Sender sets up a new hash time lock contract depositing the ETH.
      *
@@ -82,7 +81,7 @@ contract HTLC {
      * @param _sender: Sender of the ETH.
      * @param _endtime: UNIX epoch seconds time that the lock expires at.
      *
-     * return locked_contract_id of the new HTLC. This is needed for subsequent calls.
+     * @return locked_contract_id of the new HTLC.
      */
     function fund (bytes32 _secret_hash, address payable _recipient, address payable _sender, uint _endtime) external payable fund_sent future_endtime (_endtime) returns (bytes32 locked_contract_id) {
 
@@ -102,6 +101,7 @@ contract HTLC {
         emit log_fund (
             locked_contract_id, _secret_hash, _recipient, msg.sender, _endtime, msg.value
         );
+        return locked_contract_id;
     }
 
     /**
@@ -122,7 +122,9 @@ contract HTLC {
             locked_contract.amount
         );
 
-        emit log_withdraw (_locked_contract_id);
+        emit log_withdraw (
+            _locked_contract_id
+        );
         return true;
     }
 
@@ -142,7 +144,9 @@ contract HTLC {
             locked_contract.amount
         );
 
-        emit log_refund (_locked_contract_id);
+        emit log_refund (
+            _locked_contract_id
+        );
         return true;
     }
 
@@ -151,7 +155,7 @@ contract HTLC {
      *
      * @param _locked_contract_id: HTLC contract id
      *
-     * return tuple parameters in struct LockContract for _locked_contract_id HTLC
+     * @return id secret_hash recipient sender withdrawn refunded preimage locked contract datas
      */
     function get_locked_contract (bytes32 _locked_contract_id) public view returns (
         bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string memory preimage
