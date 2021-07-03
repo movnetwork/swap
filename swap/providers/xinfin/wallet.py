@@ -21,15 +21,13 @@ from .rpc import (
 
 # Default derivation path
 DEFAULT_PATH: str = config["path"]
-# Default BIP44 derivation path
-DEFAULT_BIP44_PATH: str = config["BIP44"]
 
 
 class Wallet(HDWallet):
     """
     XinFin Wallet class.
 
-    :param network: XinFin network, defaults to ``ropsten``.
+    :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
@@ -62,9 +60,9 @@ class Wallet(HDWallet):
 
         :param entropy: XinFin wallet entropy.
         :type entropy: str
-        :param language: XinFin wallet language, default to english.
+        :param language: XinFin wallet language, default to ``english``.
         :type language: str
-        :param passphrase: XinFin wallet passphrase, default to None.
+        :param passphrase: XinFin wallet passphrase, default to ``None``.
         :type passphrase: str
 
         :returns: Wallet -- XinFin wallet instance.
@@ -85,9 +83,9 @@ class Wallet(HDWallet):
 
         :param mnemonic: XinFin wallet mnemonic.
         :type mnemonic: str
-        :param language: XinFin wallet language, default to english.
+        :param language: XinFin wallet language, default to ``english``.
         :type language: str
-        :param passphrase: XinFin wallet passphrase, default to None.
+        :param passphrase: XinFin wallet passphrase, default to ``None``.
         :type passphrase: str
 
         :returns: Wallet -- XinFin wallet instance.
@@ -154,7 +152,7 @@ class Wallet(HDWallet):
 
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_xprivate_key(xprivate_key="xprvA3xrxQQVw6Kvc786WAccK4H7dLHhnb9XRsMUMqU3bJoZf5bWxtd5VePTNnn854tEbvV57ggjqkGHXc2u4Jx2veJzXRS1mBuokqz1aXL6tDW")
+        >>> wallet.from_xprivate_key(xprivate_key="xprvA3QFrUVTkKpfRhqjgPq897uDFAYtt9VhMdDuZVbPboVf9uPMcMmr7W8sTsrd8nFCsVGSBCpGC3jreRpu8Zs1xsG5U98GZL24AqXYNPuo1rg")
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         """
 
@@ -172,7 +170,7 @@ class Wallet(HDWallet):
 
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_wif(wif="L4AfqFc8aoBWYNTKU6PkiFbP9kbXRfVHXZWde6SpAdTewwJMc5VZ")
+        >>> wallet.from_wif(wif="L1rYHjuxQtgTeU4qMUP6qnGqW9nstFt5drQktRuFGFSuGcCpZoJq")
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         """
 
@@ -190,7 +188,7 @@ class Wallet(HDWallet):
 
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_private_key(private_key="cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee")
+        >>> wallet.from_private_key(private_key="8a4bc8131e99a5d1064cdbca6949aa2ec16152967b19f2cee3096daefd5ca857")
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         """
 
@@ -209,7 +207,7 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         """
 
@@ -222,7 +220,7 @@ class Wallet(HDWallet):
 
         :param index: XinFin wallet index.
         :type index: int
-        :param hardened: Use hardened index, default to False.
+        :param hardened: Use hardened index, default to ``False``.
         :type hardened: bool
 
         :returns: Wallet -- XinFin wallet instance.
@@ -231,7 +229,7 @@ class Wallet(HDWallet):
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.from_index(44, harden=True)
-        >>> wallet.from_index(60, harden=True)
+        >>> wallet.from_index(550, harden=True)
         >>> wallet.from_index(0, harden=True)
         >>> wallet.from_index(0)
         >>> wallet.from_index(0)
@@ -250,9 +248,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path("m/44'/60'/0'/0/0")
+        >>> wallet.from_path("m/44'/550'/0'/0/0")
         >>> wallet.path()
-        "m/44'/60'/0'/0/0"
+        "m/44'/550'/0'/0/0"
         >>> wallet.clean_derivation()
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         >>> wallet.path()
@@ -356,7 +354,7 @@ class Wallet(HDWallet):
         """
         Get XinFin wallet root xprivate key.
 
-        :param encoded: Encoded root xprivate key, default to True.
+        :param encoded: Encoded root xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- XinFin wallet root xprivate key.
@@ -374,7 +372,7 @@ class Wallet(HDWallet):
         """
         Get XinFin wallet root xpublic key.
 
-        :param encoded: Encoded root xprivate key, default to True.
+        :param encoded: Encoded root xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- XinFin wallet root xpublic key.
@@ -400,9 +398,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.xprivate_key()
-        "xprvA3xrxQQVw6Kvc786WAccK4H7dLHhnb9XRsMUMqU3bJoZf5bWxtd5VePTNnn854tEbvV57ggjqkGHXc2u4Jx2veJzXRS1mBuokqz1aXL6tDW"
+        "xprvA3QFrUVTkKpfRhqjgPq897uDFAYtt9VhMdDuZVbPboVf9uPMcMmr7W8sTsrd8nFCsVGSBCpGC3jreRpu8Zs1xsG5U98GZL24AqXYNPuo1rg"
         """
 
         return self._hdwallet.xprivate_key(encoded=encoded)
@@ -411,7 +409,7 @@ class Wallet(HDWallet):
         """
         Get XinFin wallet xpublic key.
 
-        :param encoded: Encoded xprivate key, default to True.
+        :param encoded: Encoded xprivate key, default to ``True``.
         :type encoded: bool
 
         :return: str -- XinFin wallet xpublic key.
@@ -419,9 +417,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.xpublic_key()
-        "xpub6GxDMuwPmTtDpbCZcC9cgCDrBN8CC3sNo6H5ADsf9eLYXsvfWRwL3ShwE5u4gxbPPcZj1yjSDrvvLxsHEPdjtFHHk81N2bskE2U7k9pmj9q"
+        "xpub6GPcFz2MahNxeBvCnRN8WFqwoCPPHcDYir9WMt11A92e2hiW9u66fJTMKAB81ns7kpAT3vsKi4QHWVSNt7V6crGXc8ie3yjn1GvD1inKxEw"
         """
 
         return self._hdwallet.xpublic_key(encoded=encoded)
@@ -435,9 +433,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.uncompressed()
-        "e270f9d51cad2977c0a28182b9320bb5edc3c70e6d84ff5837f8d407ed9d676d447e195e1aff5494d1a0c8dc310c74692e053c2f27ab50c1ee7767a6b8a7be75"
+        "33fbc2f498d145a1827ee894a2ed5f14928523712047ad9fffc59cdda7d314e6707f731cc5b9a5018878fdfd503a8502c6d714a2cef1161603a002845b83310f"
         """
 
         return self._hdwallet.uncompressed()
@@ -451,9 +449,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.compressed()
-        "03e270f9d51cad2977c0a28182b9320bb5edc3c70e6d84ff5837f8d407ed9d676d"
+        "0333fbc2f498d145a1827ee894a2ed5f14928523712047ad9fffc59cdda7d314e6"
         """
 
         return self._hdwallet.compressed()
@@ -467,9 +465,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.chain_code()
-        "9e5c492fa0a5c5cc649922c34ac3468a08473f3b61f59bba61b52cce364d6b0c"
+        "ba8572f00241c17616903b07fed8ddcc1442677fa54ccd38e85049eee2310246"
         """
 
         return self._hdwallet.chain_code()
@@ -483,9 +481,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.private_key()
-        "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"
+        "8a4bc8131e99a5d1064cdbca6949aa2ec16152967b19f2cee3096daefd5ca857"
         """
 
         return self._hdwallet.private_key()
@@ -499,9 +497,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path("m/44'/60'/0'/0/0")
+        >>> wallet.from_path("m/44'/550'/0'/0/0")
         >>> wallet.public_key()
-        "03e270f9d51cad2977c0a28182b9320bb5edc3c70e6d84ff5837f8d407ed9d676d"
+        "0333fbc2f498d145a1827ee894a2ed5f14928523712047ad9fffc59cdda7d314e6"
         """
 
         return self._hdwallet.public_key()
@@ -515,9 +513,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.path()
-        "m/44'/60'/0'/0/0"
+        "m/44'/550'/0'/0/0"
         """
 
         return self._hdwallet.path()
@@ -531,9 +529,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.address()
-        "xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C"
+        "xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232"
         """
 
         return self._hdwallet.p2pkh_address()
@@ -547,9 +545,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.wif()
-        "L4AfqFc8aoBWYNTKU6PkiFbP9kbXRfVHXZWde6SpAdTewwJMc5VZ"
+        "L1rYHjuxQtgTeU4qMUP6qnGqW9nstFt5drQktRuFGFSuGcCpZoJq"
         """
 
         return self._hdwallet.wif()
@@ -563,9 +561,9 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.hash()
-        "184847379abdde6617e8438fd4ff0d8fdf512cc2"
+        "dc8f505fccd7cb6f6ba93fd3795174f97efb43ae"
         """
 
         return self._hdwallet.hash(private_key=private_key)
@@ -582,7 +580,7 @@ class Wallet(HDWallet):
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
         >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
-        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.from_path(path="m/44'/550'/0'/0/0")
         >>> wallet.balance(unit="XDC")
         96.96263982
         """
@@ -593,4 +591,4 @@ class Wallet(HDWallet):
             address=self.address(), network=self._network, provider=self._provider
         )
         return balance if unit == "Wei" else \
-            amount_unit_converter(amount=balance, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=balance, unit_from=f"Wei2{unit}")

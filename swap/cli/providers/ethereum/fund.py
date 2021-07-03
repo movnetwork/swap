@@ -16,7 +16,7 @@ from ....utils import get_current_timestamp
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-ra", "--recipient-address", type=str, required=True, help="Set Ethereum recipient address.")
 @click.option("-sa", "--sender-address", type=str, required=True, help="Set Ethereum sender address.")
-@click.option("-e", "--endtime", type=int, required=True, help="Set Expiration block time (Seconds).")
+@click.option("-e", "--endtime", type=int, required=True, help="Set Expiration block timestamp.")
 @click.option("-am", "--amount", type=float, required=True, help="Set Ethereum fund amount.")
 @click.option("-u", "--unit", type=str, default=config["unit"],
               help="Set Ethereum fund amount unit.", show_default=True)

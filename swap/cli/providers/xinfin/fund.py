@@ -16,21 +16,21 @@ from ....utils import get_current_timestamp
 @click.option("-sh", "--secret-hash", type=str, required=True, help="Set secret 256 hash.")
 @click.option("-ra", "--recipient-address", type=str, required=True, help="Set XinFin recipient address.")
 @click.option("-sa", "--sender-address", type=str, required=True, help="Set XinFin sender address.")
-@click.option("-e", "--endtime", type=int, required=True, help="Set Expiration block time (Seconds).")
+@click.option("-e", "--endtime", type=int, required=True, help="Set Expiration block timestamp.")
 @click.option("-am", "--amount", type=float, required=True, help="Set XinFin fund amount.")
 @click.option("-u", "--unit", type=str, default=config["unit"],
               help="Set XinFin fund amount unit.", show_default=True)
-@click.option("-hth", "--htlc-transaction-hash", type=str, default=None,
-              help="Set XinFin HTLC transaction hash.  [default: None]")
+@click.option("-ca", "--contract-address", type=str, default=None,
+              help="Set XinFin HTLC contact address.  [default: None]")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set XinFin network.", show_default=True)
 def fund(
     secret_hash: str, recipient_address: str, sender_address: str, endtime: int,
-    amount: int, unit: str, htlc_transaction_hash: str, network: str
+    amount: int, unit: str, contract_address: str, network: str
 ):
     try:
         _htlc: HTLC = HTLC(
-            transaction_hash=htlc_transaction_hash, network=network
+            contract_address=contract_address, network=network
         ).build_htlc(
             secret_hash=secret_hash,
             recipient_address=recipient_address,
@@ -38,7 +38,7 @@ def fund(
             endtime=(get_current_timestamp() + endtime)
         )
         _amount: int = (
-            int(amount) if unit == "Wei" else amount_unit_converter(amount=amount, unit=f"{unit}2Wei")
+            int(amount) if unit == "Wei" else amount_unit_converter(amount=amount, unit_from=f"{unit}2Wei")
         )
         click.echo(
             FundTransaction(network=network).build_transaction(

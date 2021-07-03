@@ -59,12 +59,12 @@ class Signature(Transaction):
         :returns: Wei, int, float -- XinFin signature fee.
 
         >>> from swap.providers.xinfin.signature import Signature
-        >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> from swap.providers.xinfin.solver import WithdrawSolver
+        >>> signature: Signature = Signature(network="testnet")
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiA4MjY4OSwgInR5cGUiOiAieGluZmluX3dpdGhkcmF3X3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHhmOEQ0MzgwNjI2MENGYzZjQzc5ZkI0MDhCQTE4OTcwNTQ2NjdGODFDIiwgInZhbHVlIjogMCwgIm5vbmNlIjogMCwgImdhcyI6IDgyNjg5LCAiZ2FzUHJpY2UiOiAyMDAwMDAwMDAwMCwgInRvIjogIjB4ZEUwNmIxMGM2Nzc2NWM4QzBiOUY2NEUwZUY0MjNiNDVFYjg2YjhlNyIsICJkYXRhIjogIjB4MDZhNTM2NjUxOTA5NTc1YzQzNmEwZWFiZTZjYWE3MmQ0ZmViMmM0YWVjZWVmNTg2ZmU5NGNhODJmMzZjZTljMjBlZmRhNGI0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGU0ODY1NmM2YzZmMjA0ZDY1Njg2NTcyNjU3NDIxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0sICJzaWduYXR1cmUiOiBudWxsLCAibmV0d29yayI6ICJ0ZXN0bmV0In0", solver=withdraw_solver)
         >>> signature.fee(unit="Wei")
-        1532774
+        82689
         """
 
         # Check transaction
@@ -74,7 +74,7 @@ class Signature(Transaction):
         if unit not in ["XDC", "Gwei", "Wei"]:
             raise UnitError(f"Invalid XinFin '{unit}' unit", "choose only 'XDC', 'Gwei' or 'Wei' units.")
         return self._fee if unit == "Wei" else \
-            amount_unit_converter(amount=self._fee, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Wei2{unit}")
 
     def hash(self) -> Optional[str]:
         """
@@ -83,12 +83,12 @@ class Signature(Transaction):
         :returns: str -- XinFin signature hash.
 
         >>> from swap.providers.xinfin.signature import Signature
-        >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> from swap.providers.xinfin.solver import RefundSolver
+        >>> signature: Signature = Signature(network="testnet")
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiA1OTIzMiwgInR5cGUiOiAieGluZmluX3JlZnVuZF91bnNpZ25lZCIsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4MjIyNGNhQTIyMzVERjhEYTNEMjAxNmQyQUIxMTM3RDJkNTQ4QTIzMiIsICJ2YWx1ZSI6IDAsICJub25jZSI6IDIsICJnYXMiOiA1OTIzMiwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweDcyNDlmYmI2MTkwOTU3NWM0MzZhMGVhYmU2Y2FhNzJkNGZlYjJjNGFlY2VlZjU4NmZlOTRjYTgyZjM2Y2U5YzIwZWZkYTRiNCJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9", solver=refund_solver)
         >>> signature.hash()
-        "0xe87b1aefec9fecbb7699e16d101e757e4825db157eb94d2e71ecfaf17fd3d75d"
+        "0x90449ab8e3736feae4980554bb129b408f88d0003e569022cf8e00817cc2a7d9"
         """
 
         # Check transaction
@@ -105,11 +105,11 @@ class Signature(Transaction):
 
         >>> from swap.providers.xinfin.signature import Signature
         >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
+        >>> signature: Signature = Signature(network="testnet")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
         >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
         >>> signature.json()
-        {'chainId': 1337, 'from': 'xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C', 'value': 3000000000000000000, 'nonce': 1, 'gas': 138448, 'gasPrice': 20000000000, 'to': '0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40', 'data': '0xf4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000d77e0d2eef905cfb39c3c4b952ed278d58f96e1f00000000000000000000000069e04fe16c9a6a83076b3c2dc4b4bc21b5d9a20c0000000000000000000000000000000000000000000000000000000060ce4b72'}
+        {'chainId': 1337, 'from': '0x2224caA2235DF8Da3D2016d2AB1137D2d548A232', 'value': 1000000000000000000, 'nonce': 2, 'gas': 138448, 'gasPrice': 20000000000, 'to': '0xdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7', 'data': '0xf4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000f8d43806260cfc6cc79fb408ba1897054667f81c0000000000000000000000002224caa2235df8da3d2016d2ab1137d2d548a2320000000000000000000000000000000000000000000000000000000060e006c3'}
         """
 
         # Check transaction
@@ -125,12 +125,12 @@ class Signature(Transaction):
         :returns: str -- XinFin signature raw.
 
         >>> from swap.providers.xinfin.signature import Signature
-        >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> from swap.providers.xinfin.solver import WithdrawSolver
+        >>> signature: Signature = Signature(network="testnet")
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiA4MjY4OSwgInR5cGUiOiAieGluZmluX3dpdGhkcmF3X3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHhmOEQ0MzgwNjI2MENGYzZjQzc5ZkI0MDhCQTE4OTcwNTQ2NjdGODFDIiwgInZhbHVlIjogMCwgIm5vbmNlIjogMCwgImdhcyI6IDgyNjg5LCAiZ2FzUHJpY2UiOiAyMDAwMDAwMDAwMCwgInRvIjogIjB4ZEUwNmIxMGM2Nzc2NWM4QzBiOUY2NEUwZUY0MjNiNDVFYjg2YjhlNyIsICJkYXRhIjogIjB4MDZhNTM2NjUxOTA5NTc1YzQzNmEwZWFiZTZjYWE3MmQ0ZmViMmM0YWVjZWVmNTg2ZmU5NGNhODJmMzZjZTljMjBlZmRhNGI0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGU0ODY1NmM2YzZmMjA0ZDY1Njg2NTcyNjU3NDIxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0sICJzaWduYXR1cmUiOiBudWxsLCAibmV0d29yayI6ICJ0ZXN0bmV0In0", solver=withdraw_solver)
         >>> signature.raw()
-        "0xf8f4018504a817c80083021cd094eaeac81da5e386e8ca4de1e64d40a10e468a5b408829a2241af62c0000b884f4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000d77e0d2eef905cfb39c3c4b952ed278d58f96e1f00000000000000000000000069e04fe16c9a6a83076b3c2dc4b4bc21b5d9a20c0000000000000000000000000000000000000000000000000000000060ce4b72820a95a06dcfc6e385cbcad6b093d0a2351f516c61d94368fd80d94f48bf5663070ee57da0570c837b594577469516b29b9902cc7df978641deaa87e5f6576afcf30589ef2"
+        "0xf8ec808504a817c8008301430194de06b10c67765c8c0b9f64e0ef423b45eb86b8e780b88406a536651909575c436a0eabe6caa72d4feb2c4aeceef586fe94ca82f36ce9c20efda4b40000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000e48656c6c6f204d65686572657421000000000000000000000000000000000000820a95a0ffc24cf0a8abaf98bec5096ba0822833d4509d31ebcb4a3a0e6ba0530ec90156a0184a9b41949b199ec5c7a7c269c1c47d24fb05ca60adf7c5ec617a06e1047384"
         """
 
         # Check transaction
@@ -147,9 +147,9 @@ class Signature(Transaction):
 
         >>> from swap.providers.xinfin.signature import Signature
         >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> signature: Signature = Signature(network="testnet")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMTAwMDAwMDAwMDAwMDAwMDAwMCwgIm5vbmNlIjogMiwgImdhcyI6IDEzODQ0OCwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweGY0ZmQzMDYyM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4ZDQzODA2MjYwY2ZjNmNjNzlmYjQwOGJhMTg5NzA1NDY2N2Y4MWMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMjI0Y2FhMjIzNWRmOGRhM2QyMDE2ZDJhYjExMzdkMmQ1NDhhMjMyMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA2MGUwMDZjMyJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9", solver=fund_solver)
         >>> signature.type()
         "xinfin_fund_signed"
         """
@@ -174,9 +174,9 @@ class Signature(Transaction):
 
         >>> from swap.providers.xinfin.signature import Signature
         >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> signature: Signature = Signature(network="testnet")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMTAwMDAwMDAwMDAwMDAwMDAwMCwgIm5vbmNlIjogMiwgImdhcyI6IDEzODQ0OCwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweGY0ZmQzMDYyM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4ZDQzODA2MjYwY2ZjNmNjNzlmYjQwOGJhMTg5NzA1NDY2N2Y4MWMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMjI0Y2FhMjIzNWRmOGRhM2QyMDE2ZDJhYjExMzdkMmQ1NDhhMjMyMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA2MGUwMDZjMyJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9", solver=fund_solver)
         <swap.providers.xinfin.signature.FundSignature object at 0x0409DAF0>
         """
 
@@ -208,12 +208,12 @@ class Signature(Transaction):
         :returns: dict -- XinFin signature.
 
         >>> from swap.providers.xinfin.signature import Signature
-        >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> from swap.providers.xinfin.solver import WithdrawSolver
+        >>> signature: Signature = Signature(network="testnet")
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiA4MjY4OSwgInR5cGUiOiAieGluZmluX3dpdGhkcmF3X3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHhmOEQ0MzgwNjI2MENGYzZjQzc5ZkI0MDhCQTE4OTcwNTQ2NjdGODFDIiwgInZhbHVlIjogMCwgIm5vbmNlIjogMCwgImdhcyI6IDgyNjg5LCAiZ2FzUHJpY2UiOiAyMDAwMDAwMDAwMCwgInRvIjogIjB4ZEUwNmIxMGM2Nzc2NWM4QzBiOUY2NEUwZUY0MjNiNDVFYjg2YjhlNyIsICJkYXRhIjogIjB4MDZhNTM2NjUxOTA5NTc1YzQzNmEwZWFiZTZjYWE3MmQ0ZmViMmM0YWVjZWVmNTg2ZmU5NGNhODJmMzZjZTljMjBlZmRhNGI0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGU0ODY1NmM2YzZmMjA0ZDY1Njg2NTcyNjU3NDIxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0sICJzaWduYXR1cmUiOiBudWxsLCAibmV0d29yayI6ICJ0ZXN0bmV0In0", solver=withdraw_solver)
         >>> signature.signature()
-        {'hash': '0xe87b1aefec9fecbb7699e16d101e757e4825db157eb94d2e71ecfaf17fd3d75d', 'rawTransaction': '0xf8f4018504a817c80083021cd094eaeac81da5e386e8ca4de1e64d40a10e468a5b408829a2241af62c0000b884f4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000d77e0d2eef905cfb39c3c4b952ed278d58f96e1f00000000000000000000000069e04fe16c9a6a83076b3c2dc4b4bc21b5d9a20c0000000000000000000000000000000000000000000000000000000060ce4b72820a95a06dcfc6e385cbcad6b093d0a2351f516c61d94368fd80d94f48bf5663070ee57da0570c837b594577469516b29b9902cc7df978641deaa87e5f6576afcf30589ef2', 'r': 49669210517760089961057755545670916457545361634072315135726343721882166945149, 's': 39373327445767756604614462296774202164268870502915897592346222361951457550066, 'v': 2709}
+        {'hash': '0xe8e8738c791385738661573ad4de63dd81b77d240b6138ca476ea8cdcbb29a21', 'rawTransaction': '0xf8ec808504a817c8008301430194de06b10c67765c8c0b9f64e0ef423b45eb86b8e780b88406a536651909575c436a0eabe6caa72d4feb2c4aeceef586fe94ca82f36ce9c20efda4b40000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000e48656c6c6f204d65686572657421000000000000000000000000000000000000820a95a0ffc24cf0a8abaf98bec5096ba0822833d4509d31ebcb4a3a0e6ba0530ec90156a0184a9b41949b199ec5c7a7c269c1c47d24fb05ca60adf7c5ec617a06e1047384', 'r': 115683075740172584287236173170973052486872064110718784013746063807450268107094, 's': 10987326587522303302152973055763806493281157878637620947188858604750528344964, 'v': 2709}
         """
 
         # Check transaction
@@ -230,11 +230,11 @@ class Signature(Transaction):
 
         >>> from swap.providers.xinfin.signature import Signature
         >>> from swap.providers.xinfin.solver import FundSolver
-        >>> signature: Signature = Signature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> signature: Signature = Signature(network="testnet")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
+        >>> signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMTAwMDAwMDAwMDAwMDAwMDAwMCwgIm5vbmNlIjogMiwgImdhcyI6IDEzODQ0OCwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweGY0ZmQzMDYyM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4ZDQzODA2MjYwY2ZjNmNjNzlmYjQwOGJhMTg5NzA1NDY2N2Y4MWMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMjI0Y2FhMjIzNWRmOGRhM2QyMDE2ZDJhYjExMzdkMmQ1NDhhMjMyMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA2MGUwMDZjMyJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9", solver=fund_solver)
         >>> signature.transaction_raw()
-        "eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IHsiaGFzaCI6ICIweGU4N2IxYWVmZWM5ZmVjYmI3Njk5ZTE2ZDEwMWU3NTdlNDgyNWRiMTU3ZWI5NGQyZTcxZWNmYWYxN2ZkM2Q3NWQiLCAicmF3VHJhbnNhY3Rpb24iOiAiMHhmOGY0MDE4NTA0YTgxN2M4MDA4MzAyMWNkMDk0ZWFlYWM4MWRhNWUzODZlOGNhNGRlMWU2NGQ0MGExMGU0NjhhNWI0MDg4MjlhMjI0MWFmNjJjMDAwMGI4ODRmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzI4MjBhOTVhMDZkY2ZjNmUzODVjYmNhZDZiMDkzZDBhMjM1MWY1MTZjNjFkOTQzNjhmZDgwZDk0ZjQ4YmY1NjYzMDcwZWU1N2RhMDU3MGM4MzdiNTk0NTc3NDY5NTE2YjI5Yjk5MDJjYzdkZjk3ODY0MWRlYWE4N2U1ZjY1NzZhZmNmMzA1ODllZjIiLCAiciI6IDQ5NjY5MjEwNTE3NzYwMDg5OTYxMDU3NzU1NTQ1NjcwOTE2NDU3NTQ1MzYxNjM0MDcyMzE1MTM1NzI2MzQzNzIxODgyMTY2OTQ1MTQ5LCAicyI6IDM5MzczMzI3NDQ1NzY3NzU2NjA0NjE0NDYyMjk2Nzc0MjAyMTY0MjY4ODcwNTAyOTE1ODk3NTkyMzQ2MjIyMzYxOTUxNDU3NTUwMDY2LCAidiI6IDI3MDl9LCAibmV0d29yayI6ICJ0ZXN0bmV0IiwgInR5cGUiOiAiZXRoZXJldW1fZnVuZF9zaWduZWQifQ"
+        "eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3NpZ25lZCIsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4MjIyNGNhQTIyMzVERjhEYTNEMjAxNmQyQUIxMTM3RDJkNTQ4QTIzMiIsICJ2YWx1ZSI6IDEwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDIsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhkRTA2YjEwYzY3NzY1YzhDMGI5RjY0RTBlRjQyM2I0NUViODZiOGU3IiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBmOGQ0MzgwNjI2MGNmYzZjYzc5ZmI0MDhiYTE4OTcwNTQ2NjdmODFjMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMjIyNGNhYTIyMzVkZjhkYTNkMjAxNmQyYWIxMTM3ZDJkNTQ4YTIzMjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBlMDA2YzMifSwgInNpZ25hdHVyZSI6IHsiaGFzaCI6ICIweDcwZTNhYjZjZDhiMDZiMDliYjc4M2Y0ZjkyNzlmMGM0OGM3MGIyZjk0MjQ0NmU4OWIyN2EyZGQyZWJjNTMwNDgiLCAicmF3VHJhbnNhY3Rpb24iOiAiMHhmOGY0MDI4NTA0YTgxN2M4MDA4MzAyMWNkMDk0ZGUwNmIxMGM2Nzc2NWM4YzBiOWY2NGUwZWY0MjNiNDVlYjg2YjhlNzg4MGRlMGI2YjNhNzY0MDAwMGI4ODRmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBmOGQ0MzgwNjI2MGNmYzZjYzc5ZmI0MDhiYTE4OTcwNTQ2NjdmODFjMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMjIyNGNhYTIyMzVkZjhkYTNkMjAxNmQyYWIxMTM3ZDJkNTQ4YTIzMjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBlMDA2YzM4MjBhOTVhMDk4Yjg0YWRjNWVmMWNiMTZlYzFjZjE2MTAzMDlmNGM4OTAwYjU3ZGYzOTMwZDRjOTI3OWI0ZjJlZmE2NDc2OTVhMDQ2MWQ4YzA4MWVmMGUzNjJkZjA5MjNjZjcwMzAzMTFjMDg5YzVkYjA1ZmQ5N2Y2MzgwNDI1ZDAwODYzMWZlYWUiLCAiciI6IDY5MDc3MTY5NTE0OTkyNDY2NDQyOTgxMzAwMzk0OTkzNDQ5NDgzMDExOTkwMzg1ODU5NzE3ODAyOTk1MzUyNzIzMjkyNzg1MjQzNzk3LCAicyI6IDMxNzE0MTA0NDI5MTMzODA4NzY2ODgyNzkwNDAyOTIyODA1Mzg0NzA5Mzk4MDEyOTMyOTcxOTc5MDIyODg3NDMyMjk1MTUxNjk3NTgyLCAidiI6IDI3MDl9LCAibmV0d29yayI6ICJ0ZXN0bmV0In0"
         """
 
         if self._signed_raw is None:
@@ -278,9 +278,9 @@ class FundSignature(Signature):
 
         >>> from swap.providers.xinfin.signature import FundSignature
         >>> from swap.providers.xinfin.solver import FundSolver
-        >>> fund_signature: FundSignature = FundSignature(network="mainnet")
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> fund_signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=fund_solver)
+        >>> fund_signature: FundSignature = FundSignature(network="testnet")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
+        >>> fund_signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMTAwMDAwMDAwMDAwMDAwMDAwMCwgIm5vbmNlIjogMiwgImdhcyI6IDEzODQ0OCwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweGY0ZmQzMDYyM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4ZDQzODA2MjYwY2ZjNmNjNzlmYjQwOGJhMTg5NzA1NDY2N2Y4MWMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMjI0Y2FhMjIzNWRmOGRhM2QyMDE2ZDJhYjExMzdkMmQ1NDhhMjMyMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA2MGUwMDZjMyJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9", solver=fund_solver)
         <swap.providers.xinfin.signature.FundSignature object at 0x0409DAF0>
         """
 
@@ -323,10 +323,10 @@ class FundSignature(Signature):
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode()
         return self
 
@@ -367,9 +367,9 @@ class WithdrawSignature(Signature):
 
         >>> from swap.providers.xinfin.signature import WithdrawSignature
         >>> from swap.providers.xinfin.solver import WithdrawSolver
-        >>> withdraw_signature: WithdrawSignature = WithdrawSignature(network="mainnet")
-        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> withdraw_signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=withdraw_solver)
+        >>> withdraw_signature: WithdrawSignature = WithdrawSignature(network="testnet")
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR", account=0, change=False, address=0)
+        >>> withdraw_signature.sign(transaction_raw="eyJmZWUiOiA4MjY4OSwgInR5cGUiOiAieGluZmluX3dpdGhkcmF3X3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHhmOEQ0MzgwNjI2MENGYzZjQzc5ZkI0MDhCQTE4OTcwNTQ2NjdGODFDIiwgInZhbHVlIjogMCwgIm5vbmNlIjogMCwgImdhcyI6IDgyNjg5LCAiZ2FzUHJpY2UiOiAyMDAwMDAwMDAwMCwgInRvIjogIjB4ZEUwNmIxMGM2Nzc2NWM4QzBiOUY2NEUwZUY0MjNiNDVFYjg2YjhlNyIsICJkYXRhIjogIjB4MDZhNTM2NjUxOTA5NTc1YzQzNmEwZWFiZTZjYWE3MmQ0ZmViMmM0YWVjZWVmNTg2ZmU5NGNhODJmMzZjZTljMjBlZmRhNGI0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGU0ODY1NmM2YzZmMjA0ZDY1Njg2NTcyNjU3NDIxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0sICJzaWduYXR1cmUiOiBudWxsLCAibmV0d29yayI6ICJ0ZXN0bmV0In0", solver=withdraw_solver)
         <swap.providers.xinfin.signature.WithdrawSignature object at 0x0409DAF0>
         """
 
@@ -412,10 +412,10 @@ class WithdrawSignature(Signature):
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode()
         return self
 
@@ -456,9 +456,9 @@ class RefundSignature(Signature):
 
         >>> from swap.providers.xinfin.signature import RefundSignature
         >>> from swap.providers.xinfin.solver import RefundSolver
-        >>> refund_signature: RefundSignature = RefundSignature(network="mainnet")
-        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
-        >>> refund_signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=refund_solver)
+        >>> refund_signature: RefundSignature = RefundSignature(network="testnet")
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", account=0, change=False, address=0)
+        >>> refund_signature.sign(transaction_raw="eyJmZWUiOiA1OTIzMiwgInR5cGUiOiAieGluZmluX3JlZnVuZF91bnNpZ25lZCIsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4MjIyNGNhQTIyMzVERjhEYTNEMjAxNmQyQUIxMTM3RDJkNTQ4QTIzMiIsICJ2YWx1ZSI6IDAsICJub25jZSI6IDIsICJnYXMiOiA1OTIzMiwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweDcyNDlmYmI2MTkwOTU3NWM0MzZhMGVhYmU2Y2FhNzJkNGZlYjJjNGFlY2VlZjU4NmZlOTRjYTgyZjM2Y2U5YzIwZWZkYTRiNCJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9", solver=refund_solver)
         <swap.providers.xinfin.signature.RefundSignature object at 0x0409DAF0>
         """
 
@@ -501,9 +501,9 @@ class RefundSignature(Signature):
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode()
         return self

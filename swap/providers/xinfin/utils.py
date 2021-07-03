@@ -7,7 +7,6 @@ from pyxdc.utils import (
     is_checksum_address as _is_checksum_address,
     to_checksum_address as _to_checksum_address
 )
-from web3.types import ChecksumAddress
 from hexbytes.main import HexBytes
 from web3 import Web3
 from typing import (
@@ -54,7 +53,7 @@ def is_address(address: str) -> bool:
     :returns: bool -- XinFin valid/invalid address.
 
     >>> from swap.providers.xinfin.utils import is_address
-    >>> is_address(address="xdc1ee11011ae12103a488a82dc33e03f337bc93ba7")
+    >>> is_address(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232")
     True
     """
 
@@ -75,7 +74,7 @@ def is_checksum_address(address: str) -> bool:
     :returns: bool -- XinFin valid/invalid checksum address.
 
     >>> from swap.providers.xinfin.utils import is_checksum_address
-    >>> is_checksum_address(address="xdc1ee11011ae12103a488a82dc33e03f337bc93ba7")
+    >>> is_checksum_address(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232")
     False
     >>> is_checksum_address(address="xdc1Ee11011ae12103a488A82DC33e03f337Bc93ba7")
     True
@@ -88,19 +87,19 @@ def is_checksum_address(address: str) -> bool:
     return _is_checksum_address(address=address)
 
 
-def to_checksum_address(address: str, prefix: str = "xdc") -> ChecksumAddress:
+def to_checksum_address(address: str, prefix: str = "xdc") -> str:
     """
     Change XinFin address to checksum address.
 
     :param address: XinFin address.
     :type address: str
-    :param prefix: XinFin address prefix, default to xdc.
+    :param prefix: XinFin address prefix, default to ``xdc``.
     :type prefix: str
 
     :returns: str -- XinFin checksum address.
 
     >>> from swap.providers.xinfin.utils import to_checksum_address
-    >>>  is_checksum_address(address="xdc1ee11011ae12103a488a82dc33e03f337bc93ba7")
+    >>>  is_checksum_address(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232")
     "xdc1Ee11011ae12103a488A82DC33e03f337Bc93ba7"
     """
 
@@ -108,7 +107,7 @@ def to_checksum_address(address: str, prefix: str = "xdc") -> ChecksumAddress:
     if not is_address(address):
         raise AddressError(f"Invalid XinFin '{type(address)}' address.")
 
-    return Web3.toChecksumAddress(_to_checksum_address(address=address, prefix=prefix))
+    return _to_checksum_address(address=address, prefix=prefix)
 
 
 def is_transaction_raw(transaction_raw: str) -> bool:
@@ -221,24 +220,24 @@ def submit_transaction_raw(transaction_raw: str, provider: str = config["provide
     )
 
 
-def amount_unit_converter(amount: Union[int, float], unit: str = "Wei2XDC") -> Union[int, float]:
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "Wei2XDC") -> Union[int, float]:
     """
     XinFin amount unit converter.
 
     :param amount: XinFIn amount.
     :type amount: int, float
-    :param unit: XinFIn unit, default to Wei2XDC
-    :type unit: str
+    :param unit_from: XinFIn unit from, default to ``Wei2XDC``
+    :type unit_from: str
 
     :returns: int, float -- XinFin amount.
 
     >>> from swap.providers.xinfin.utils import amount_unit_converter
-    >>> amount_unit_converter(amount=100_000_000, unit="Wei2XDC")
+    >>> amount_unit_converter(amount=100_000_000, unit_from="Wei2XDC")
     0.1
     """
 
-    if unit not in ["XDC2Gwei", "XDC2Wei", "Gwei2XDC", "Gwei2Wei", "Wei2XDC", "Wei2Gwei"]:
-        raise UnitError(f"Invalid XinFin '{unit}' unit",
+    if unit_from not in ["XDC2Gwei", "XDC2Wei", "Gwei2XDC", "Gwei2Wei", "Wei2XDC", "Wei2Gwei"]:
+        raise UnitError(f"Invalid XinFin '{unit_from}' unit from",
                         "choose only 'XDC2Gwei', 'XDC2Wei', 'Gwei2XDC', 'Gwei2Wei', 'Wei2XDC' or 'Wei2Gwei' units.")
 
     # Constant values
@@ -248,15 +247,15 @@ def amount_unit_converter(amount: Union[int, float], unit: str = "Wei2XDC") -> U
         config["units"]["Wei"]
     )
 
-    if unit == "XDC2Gwei":
+    if unit_from == "XDC2Gwei":
         return float((amount * Gwei) / XDC)
-    elif unit == "XDC2Wei":
+    elif unit_from == "XDC2Wei":
         return int((amount * Wei) / XDC)
-    elif unit == "Gwei2XDC":
+    elif unit_from == "Gwei2XDC":
         return float((amount * XDC) / Gwei)
-    elif unit == "Gwei2Wei":
+    elif unit_from == "Gwei2Wei":
         return int((amount * Wei) / Gwei)
-    elif unit == "Wei2XDC":
+    elif unit_from == "Wei2XDC":
         return float((amount * XDC) / Wei)
-    elif unit == "Wei2Gwei":
+    elif unit_from == "Wei2Gwei":
         return int((amount * Gwei) / Wei)

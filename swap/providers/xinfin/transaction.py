@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from binascii import unhexlify
 from eth_account.datastructures import SignedTransaction
 from web3.datastructures import AttributeDict
 from web3.contract import Contract
@@ -49,7 +50,7 @@ class Transaction:
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
-                               "choose only 'mainnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
+                               "choose only 'testnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
 
         self._network: str = network
         self.web3: Web3 = get_web3(
@@ -58,7 +59,6 @@ class Transaction:
 
         self._transaction: Optional[dict] = None
         self._signature: Optional[dict] = None
-        self._amount: Optional[Wei] = None
         self._type: Optional[str] = None
         self._fee: Optional[Wei] = None
 
@@ -74,12 +74,12 @@ class Transaction:
         >>> from swap.providers.xinfin.htlc import HTLC
         >>> from swap.providers.xinfin.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
-        >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
-        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
+        >>> htlc: HTLC = HTLC(contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7", network="testnet")
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", sender_address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", endtime=get_current_timestamp(plus=3600))
+        >>> fund_transaction: FundTransaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", htlc=htlc, amount=3, unit="XDC")
         >>> fund_transaction.fee(unit="Wei")
-        1532774
+        138436
         """
 
         # Check transaction
@@ -89,7 +89,7 @@ class Transaction:
         if unit not in ["XDC", "Gwei", "Wei"]:
             raise UnitError(f"Invalid XinFin '{unit}' unit", "choose only 'XDC', 'Gwei' or 'Wei' units.")
         return self._fee if unit == "Wei" else \
-            amount_unit_converter(amount=self._fee, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Wei2{unit}")
 
     def hash(self) -> Optional[str]:
         """
@@ -99,12 +99,12 @@ class Transaction:
 
         >>> from swap.providers.xinfin.transaction import WithdrawTransaction
         >>> from swap.providers.xinfin.solver import WithdrawSolver
-        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
-        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=1)
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="testnet")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", secret_key="Hello Meheret!", address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR", path="m/44'/550'/0'/0/0")
         >>> withdraw_transaction.sign(solver=withdraw_solver)
         >>> withdraw_transaction.hash()
-        "0x9bbf83e56fea4cd9d23e000e8273551ba28317e4d3c311a49be919b305feb711"
+        "0xe8e8738c791385738661573ad4de63dd81b77d240b6138ca476ea8cdcbb29a21"
         """
 
         # Check transaction
@@ -122,12 +122,12 @@ class Transaction:
         >>> from swap.providers.xinfin.htlc import HTLC
         >>> from swap.providers.xinfin.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
-        >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
-        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
+        >>> htlc: HTLC = HTLC(contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7", network="testnet")
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", sender_address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", endtime=get_current_timestamp(plus=3600))
+        >>> fund_transaction: FundTransaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", htlc=htlc, amount=3, unit="XDC")
         >>> fund_transaction.json()
-        {'chainId': 1337, 'from': 'xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C', 'value': 3000000000000000000, 'nonce': 0, 'gas': 22488, 'gasPrice': 20000000000, 'to': '0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40', 'data': '0xf4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000d77e0d2eef905cfb39c3c4b952ed278d58f96e1f00000000000000000000000069e04fe16c9a6a83076b3c2dc4b4bc21b5d9a20c0000000000000000000000000000000000000000000000000000000060ce0ab6'}
+        {'chainId': 1337, 'from': '0x2224caA2235DF8Da3D2016d2AB1137D2d548A232', 'value': 3000000000000000000, 'nonce': 2, 'gas': 138436, 'gasPrice': 20000000000, 'to': '0xdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7', 'data': '0xf4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000f8d43806260cfc6cc79fb408ba1897054667f81c0000000000000000000000002224caa2235df8da3d2016d2ab1137d2d548a2320000000000000000000000000000000000000000000000000000000060e000d3'}
         """
 
         # Check transaction
@@ -144,12 +144,12 @@ class Transaction:
 
         >>> from swap.providers.xinfin.transaction import RefundTransaction
         >>> from swap.providers.xinfin.solver import RefundSolver
-        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
-        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="testnet")
+        >>> refund_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", path="m/44'/550'/0'/0/0")
         >>> refund_transaction.sign(solver=refund_solver)
         >>> refund_transaction.hash()
-        "0x9bbf83e56fea4cd9d23e000e8273551ba28317e4d3c311a49be919b305feb711"
+        "0xf88a028504a817c80082e76094de06b10c67765c8c0b9f64e0ef423b45eb86b8e780a47249fbb61909575c436a0eabe6caa72d4feb2c4aeceef586fe94ca82f36ce9c20efda4b4820a95a05ed63e467fb541b728dc7253ea4f9c4f2ada130ef78ffaba8de9c5e92536ce42a034ba97172cb8726cdfbaba14b10a817a0c4c4bccc6d8f2a27fc1711752ed2ab2"
         """
 
         # Check transaction
@@ -166,8 +166,8 @@ class Transaction:
 
         >>> from swap.providers.xinfin.transaction import WithdrawTransaction
         >>> from swap.providers.xinfin.solver import WithdrawSolver
-        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="testnet")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", secret_key="Hello Meheret!", address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
         >>> withdraw_transaction.type()
         "xinfin_withdraw_unsigned"
         """
@@ -186,12 +186,12 @@ class Transaction:
 
         >>> from swap.providers.xinfin.transaction import RefundTransaction
         >>> from swap.providers.xinfin.solver import RefundSolver
-        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
-        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="testnet")
+        >>> refund_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", path="m/44'/550'/0'/0/0")
         >>> refund_transaction.sign(solver=refund_solver)
         >>> refund_transaction.signature()
-        {'hash': '0x120241e6e89b54d90dc3a3f73d6353f83818c3d404c991d3b74691f000583396', 'rawTransaction': '0xf8f4018504a817c80083021cd094eaeac81da5e386e8ca4de1e64d40a10e468a5b408829a2241af62c0000b884f4fd30623a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb000000000000000000000000d77e0d2eef905cfb39c3c4b952ed278d58f96e1f00000000000000000000000069e04fe16c9a6a83076b3c2dc4b4bc21b5d9a20c0000000000000000000000000000000000000000000000000000000060ce40e8820a95a05d598fe47b96ef59b2a5b62a2793f499f1abce31938dc494b496b20969656cf4a063d515ee2a84d323a7f232eae4196e2e449a010eef52e6125b639b0b52fd2d2f', 'r': 42223337416619984402386667584480976881779168344975798352755076934920973937908, 's': 45155461792159514883067068644058913853180508583163102385805265017506142956847, 'v': 2709}
+        {'hash': '0x90449ab8e3736feae4980554bb129b408f88d0003e569022cf8e00817cc2a7d9', 'rawTransaction': '0xf88a028504a817c80082e76094de06b10c67765c8c0b9f64e0ef423b45eb86b8e780a47249fbb61909575c436a0eabe6caa72d4feb2c4aeceef586fe94ca82f36ce9c20efda4b4820a95a05ed63e467fb541b728dc7253ea4f9c4f2ada130ef78ffaba8de9c5e92536ce42a034ba97172cb8726cdfbaba14b10a817a0c4c4bccc6d8f2a27fc1711752ed2ab2', 'r': 42895942847608608192932856733711858695420995837709512084644654454168196927042, 's': 23849944468865388317715121201379699989753020274517556595896033163737398323890, 'v': 2709}
         """
 
         # Check transaction
@@ -209,12 +209,12 @@ class Transaction:
         >>> from swap.providers.xinfin.htlc import HTLC
         >>> from swap.providers.xinfin.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
-        >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
-        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
+        >>> htlc: HTLC = HTLC(contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7", network="testnet")
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", sender_address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", endtime=get_current_timestamp(plus=3600))
+        >>> fund_transaction: FundTransaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", htlc=htlc, amount=3, unit="XDC")
         >>> fund_transaction.transaction_raw()
-        "eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTQwZTgifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0"
+        "eyJmZWUiOiAxMzg0MzYsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMzAwMDAwMDAwMDAwMDAwMDAwMCwgIm5vbmNlIjogMiwgImdhcyI6IDEzODQzNiwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweGY0ZmQzMDYyM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4ZDQzODA2MjYwY2ZjNmNjNzlmYjQwOGJhMTg5NzA1NDY2N2Y4MWMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMjI0Y2FhMjIzNWRmOGRhM2QyMDE2ZDJhYjExMzdkMmQ1NDhhMjMyMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA2MGUwMDBkMyJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9"
         """
 
         # Check transaction
@@ -223,10 +223,10 @@ class Transaction:
 
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode())
 
 
@@ -269,10 +269,10 @@ class FundTransaction(Transaction):
         >>> from swap.providers.xinfin.htlc import HTLC
         >>> from swap.providers.xinfin.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
-        >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
-        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
+        >>> htlc: HTLC = HTLC(contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7", network="testnet")
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", sender_address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", endtime=get_current_timestamp(plus=3600))
+        >>> fund_transaction: FundTransaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", htlc=htlc, amount=3, unit="XDC")
         <swap.providers.xinfin.transaction.FundTransaction object at 0x0409DAF0>
         """
 
@@ -280,34 +280,31 @@ class FundTransaction(Transaction):
         if not is_address(address=address):
             raise AddressError(f"Invalid XinFin sender '{address}' address.")
         if not isinstance(htlc, HTLC):
-            raise TypeError("Invalid XinFin HTLC instance, only takes xinfin HTLC class")
-        if to_checksum_address(address=address, prefix="0x") != htlc.agreements["sender_address"]:
+            raise TypeError("Invalid XinFin HTLC instance, only takes XinFin HTLC class")
+        if to_checksum_address(address=address, prefix="xdc") != htlc.agreements["sender_address"]:
             raise AddressError(f"Wrong XinFin sender '{address}' address",
-                               "address must be equal with HTLC agreements sender address.")
+                               "address must be match with HTLC agreements sender address.")
         if unit not in ["XDC", "Gwei", "Wei"]:
             raise UnitError("Invalid XinFin unit, choose only 'XDC', 'Gwei' or 'Wei' units.")
 
-        self._amount = Wei(
-            amount if unit == "Wei" else
-            amount_unit_converter(
-                amount=amount, unit=f"{unit}2Wei"
-            )
+        _amount: Wei = Wei(
+            amount if unit == "Wei" else amount_unit_converter(amount=amount, unit_from=f"{unit}2Wei")
         )
 
         htlc_contract: Contract = self.web3.eth.contract(
-            address=htlc.contract_address(), abi=htlc.abi()
+            address=self.web3.toChecksumAddress(htlc.contract_address(prefix="0x")), abi=htlc.abi()
         )
 
         htlc_fund_function = htlc_contract.functions.fund(
-            htlc.agreements["secret_hash"],  # Secret Hash
-            htlc.agreements["recipient_address"],  # Recipient Address
-            htlc.agreements["sender_address"],  # Sender Address
-            htlc.agreements["endtime"]  # Locktime Seconds
+            unhexlify(htlc.agreements["secret_hash"]),  # Secret Hash
+            to_checksum_address(htlc.agreements["recipient_address"], prefix="0x"),  # Recipient Address
+            to_checksum_address(htlc.agreements["sender_address"], prefix="0x"),  # Sender Address
+            htlc.agreements["endtime"]["timestamp"]  # Locktime Seconds
         )
 
         self._fee = htlc_fund_function.estimateGas({
             "from": to_checksum_address(address=address, prefix="0x"),
-            "value": self._amount,
+            "value": _amount,
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),
@@ -316,7 +313,7 @@ class FundTransaction(Transaction):
 
         self._transaction = htlc_fund_function.buildTransaction({
             "from": to_checksum_address(address=address, prefix="0x"),
-            "value": self._amount,
+            "value": _amount,
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),
@@ -339,11 +336,11 @@ class FundTransaction(Transaction):
         >>> from swap.providers.xinfin.transaction import FundTransaction
         >>> from swap.providers.xinfin.solver import FundSolver
         >>> from swap.utils import sha256, get_current_timestamp
-        >>> htlc: HTLC = HTLC(network="mainnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=(get_current_timestamp() + 300))
-        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
-        >>> fund_transaction.build_transaction(address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
-        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
+        >>> htlc: HTLC = HTLC(contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7", network="testnet")
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", sender_address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", endtime=get_current_timestamp(plus=3600))
+        >>> fund_transaction: FundTransaction = FundTransaction(network="testnet")
+        >>> fund_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", htlc=htlc, amount=3, unit="XDC")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", path="m/44'/550'/0'/0/0")
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.xinfin.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -390,7 +387,7 @@ class WithdrawTransaction(Transaction):
         )
 
     def build_transaction(self, transaction_hash: str, address: str, secret_key: str,
-                          htlc_transaction_hash: Optional[str] = None) -> "WithdrawTransaction":
+                          contract_address: Optional[str] = None) -> "WithdrawTransaction":
         """
         Build XinFin withdraw transaction.
 
@@ -400,26 +397,28 @@ class WithdrawTransaction(Transaction):
         :type address: str
         :param secret_key: Secret password/passphrase.
         :type secret_key: str
-        :param htlc_transaction_hash: XinFin HTLC transaction hash, defaults to ``None``.
-        :type htlc_transaction_hash: str
+        :param contract_address: XinFin HTLC contract address, defaults to ``None``.
+        :type contract_address: str
 
         :returns: WithdrawTransaction -- XinFin withdraw transaction instance.
 
         >>> from swap.providers.xinfin.transaction import WithdrawTransaction
-        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="testnet")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", secret_key="Hello Meheret!", address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
         <swap.providers.xinfin.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address=address):
             raise AddressError(f"Invalid XinFin recipient '{address}' address.")
+        if not is_address(address=contract_address):
+            raise AddressError(f"Invalid XinFin HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
-            transaction_hash=htlc_transaction_hash, network=self._network
+            contract_address=contract_address, network=self._network
         )
         htlc_contract: Contract = self.web3.eth.contract(
-            address=htlc.contract_address(), abi=htlc.abi()
+            address=self.web3.toChecksumAddress(htlc.contract_address(prefix="0x")), abi=htlc.abi()
         )
 
         transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
@@ -465,9 +464,9 @@ class WithdrawTransaction(Transaction):
 
         >>> from swap.providers.xinfin.transaction import WithdrawTransaction
         >>> from swap.providers.xinfin.solver import WithdrawSolver
-        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
-        >>> withdraw_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", secret_key="Hello Meheret!", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
-        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=1)
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="testnet")
+        >>> withdraw_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", secret_key="Hello Meheret!", address="xdcf8D43806260CFc6cC79fB408BA1897054667F81C", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR", path="m/44'/550'/0'/0/0")
         >>> withdraw_transaction.sign(solver=withdraw_solver)
         <swap.providers.xinfin.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
@@ -514,7 +513,7 @@ class RefundTransaction(Transaction):
         )
 
     def build_transaction(self, transaction_hash: str, address: str,
-                          htlc_transaction_hash: Optional[str] = None) -> "RefundTransaction":
+                          contract_address: Optional[str] = None) -> "RefundTransaction":
         """
         Build XinFin refund transaction.
 
@@ -522,26 +521,28 @@ class RefundTransaction(Transaction):
         :type transaction_hash: str
         :param address: XinFin sender address.
         :type address: str
-        :param htlc_transaction_hash: XinFin HTLC transaction hash, defaults to ``None``.
-        :type htlc_transaction_hash: str
+        :param contract_address: XinFin HTLC contract address, defaults to ``None``.
+        :type contract_address: str
 
         :returns: RefundTransaction -- XinFin refund transaction instance.
 
         >>> from swap.providers.xinfin.transaction import RefundTransaction
-        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="testnet")
+        >>> refund_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
         <swap.providers.xinfin.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address=address):
-            raise AddressError(f"Invalid XinFin recipient '{address}' address.")
+            raise AddressError(f"Invalid XinFin sender '{address}' address.")
+        if not is_address(address=contract_address):
+            raise AddressError(f"Invalid XinFin HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
-            transaction_hash=htlc_transaction_hash, network=self._network
+            contract_address=contract_address, network=self._network
         )
         htlc_contract: Contract = self.web3.eth.contract(
-            address=htlc.contract_address(), abi=htlc.abi()
+            address=self.web3.toChecksumAddress(htlc.contract_address(prefix="0x")), abi=htlc.abi()
         )
 
         transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
@@ -551,7 +552,7 @@ class RefundTransaction(Transaction):
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
         htlc_refund_function = htlc_contract.functions.refund(
-            locked_contract_id,  # Locked Contract ID
+            locked_contract_id  # Locked Contract ID
         )
 
         self._fee = htlc_refund_function.estimateGas({
@@ -586,9 +587,9 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.xinfin.transaction import RefundTransaction
         >>> from swap.providers.xinfin.solver import RefundSolver
-        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
-        >>> refund_transaction.build_transaction(transaction_hash="0xe49ff507739f8d916ae2c9fd51dd63764658ffa42a5288a49d93bc70a933edc4", address="xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc_transaction_hash="0x728c83cc83bb4b1a67fbfd480a9bdfdd55cb5fc6fd519f6a98fa35db3a2a9160")
-        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="testnet")
+        >>> refund_transaction.build_transaction(transaction_hash="0x0d4c93546aa3e5e476455931a63f1a97a2624e3b516e3fd8e3a582cb20aaeef9", address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7")
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", path="m/44'/550'/0'/0/0")
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.xinfin.transaction.RefundTransaction object at 0x0409DAF0>
         """
