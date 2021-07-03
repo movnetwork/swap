@@ -1,4 +1,4 @@
-pragma solidity ^0.8.3;
+pragma solidity ^0.8.6;
 
 /**
  * Ethereum smart contract -> Solidity language
@@ -105,12 +105,12 @@ contract HTLC {
     }
 
     /**
-     * @dev Called by the recipient once they know the preimage of the secret_hash.
+     * @dev Called by the recipient once they know the preimage of the secret hash.
      *
      * @param _locked_contract_id:  Id of the HTLC.
-     * @param _preimage: sha256(_preimage) should equal the contract secret_hash.
+     * @param _preimage: sha256(_preimage) should equal the contract secret hash.
      *
-     * @return bool true on success
+     * @return bool true on success.
      */
     function withdraw (bytes32 _locked_contract_id, string memory _preimage) external is_locked_contract_exist (_locked_contract_id) check_secret_hash_matches (_locked_contract_id, _preimage) withdrawable(_locked_contract_id) returns (bool) {
 
@@ -133,7 +133,7 @@ contract HTLC {
      *
      * @param _locked_contract_id: Id of HTLC to refund from.
      *
-     * @return bool true on success
+     * @return bool true on success.
      */
     function refund (bytes32 _locked_contract_id) external is_locked_contract_exist (_locked_contract_id) refundable (_locked_contract_id) returns (bool) {
 
@@ -153,9 +153,9 @@ contract HTLC {
     /**
      * @dev Get contract details.
      *
-     * @param _locked_contract_id: HTLC contract id
+     * @param _locked_contract_id: HTLC contract id.
      *
-     * @return id secret_hash recipient sender withdrawn refunded preimage locked contract datas
+     * @return id secret_hash recipient sender withdrawn refunded preimage locked contract datas.
      */
     function get_locked_contract (bytes32 _locked_contract_id) public view returns (
         bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string memory preimage
@@ -181,7 +181,9 @@ contract HTLC {
     /**
      * @dev Is there a contract with id _locked_contract_id.
      *
-     * @param _locked_contract_id Id into contracts mapping.
+     * @param _locked_contract_id: HTLC contract id.
+     *
+     * @return exists true/false.
      */
     function have_locked_contract (bytes32 _locked_contract_id) internal view returns (bool exists) {
         exists = (locked_contracts[_locked_contract_id].sender != address(0));
