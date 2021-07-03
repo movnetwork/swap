@@ -31,8 +31,6 @@ class Wallet(HDWallet):
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
-    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
-    :type token: str
 
     :returns: Wallet -- XinFin wallet instance.
 
@@ -40,8 +38,7 @@ class Wallet(HDWallet):
         XinFin has only two networks, ``mainnet`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"],
-                 provider: str = config["provider"], token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
         super().__init__(cryptocurrency=XinFinMainnet)
 
         # Check parameter instances
@@ -49,7 +46,7 @@ class Wallet(HDWallet):
             raise NetworkError(f"Invalid XinFin '{network}' network",
                                "choose only 'mainnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
 
-        self._network, self._provider, self._token = network, provider, token
+        self._network, self._provider, = network, provider
         self._hdwallet: HDWallet = HDWallet(
             cryptocurrency=XinFinMainnet, use_default_path=False
         )

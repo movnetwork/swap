@@ -10,11 +10,11 @@ from typing import (
     Optional, Type, Union
 )
 from pathlib import PurePosixPath
-from solcx import compile_files
 from web3.types import (
     Wei, ChecksumAddress
 )
 
+import json
 import os
 
 from ...exceptions import (
@@ -41,6 +41,8 @@ class HTLC:
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
     :type token: str
+    :param use_script: Initialize HTLC by using script, default to ``False``.
+    :type use_script: bool
 
     :returns: HTLC -- Ethereum HTLC instance.
 
@@ -49,7 +51,7 @@ class HTLC:
     """
 
     def __init__(self, contract_address: Optional[str] = None, network: str = config["network"],
-                 provider: str = config["provider"], token: Optional[str] = None):
+                 provider: str = config["provider"], token: Optional[str] = None, use_script: bool = False):
 
         # Check parameter instances
         if not is_network(network=network):
@@ -77,16 +79,27 @@ class HTLC:
         # Get current working directory path (like linux or unix path).
         cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
 
-        compiled_files: dict = compile_files(
-            source_files=[f"{cwd}/contracts/htlc.sol"],
-            output_values=["abi", "bin", "bin-runtime", "opcodes"],
-            solc_version=Version("0.8.3")
-        )
+        if use_script:
+            solcx = __import__("solcx")
+            compiled_files: dict = solcx.compile_files(
+                source_files=[f"{cwd}/contracts/htlc.sol"],
+                output_values=["abi", "bin", "bin-runtime", "opcodes"],
+                solc_version=Version("0.8.6")
+            )
 
-        self._abi: list = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["abi"]
-        self._bytecode: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["bin"]
-        self._bytecode_runtime: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["bin-runtime"]
-        self._opcodes: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["opcodes"]
+            self._abi: list = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["abi"]
+            self._bytecode: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["bin"]
+            self._bytecode_runtime: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["bin-runtime"]
+            self._opcodes: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["opcodes"]
+        else:
+            with open(f"{cwd}/contracts/htlc.json", "r") as htlc_json_file:
+                compiled_file: dict = json.loads(htlc_json_file.read())
+                htlc_json_file.close()
+
+            self._abi: list = compiled_file["abi"]
+            self._bytecode: str = compiled_file["bin"]
+            self._bytecode_runtime: str = compiled_file["bin-runtime"]
+            self._opcodes: str = compiled_file["opcodes"]
 
         self._fee: Optional[Wei] = None
         self._unsigned_transaction: Optional[dict] = None
