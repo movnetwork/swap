@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.bytom.transaction import RefundTransaction
 from swap.providers.bytom.assets import BTM as ASSET
 from swap.providers.bytom.solver import RefundSolver
@@ -15,8 +17,6 @@ NETWORK: str = "mainnet"
 TRANSACTION_HASH: str = "59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f"
 # Bytom sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Bytom sender derivation path
-SENDER_PATH: str = "m/44/153/1/0/1"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "03285d0a20fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4af" \
                 "a031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5d" \
@@ -30,7 +30,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bytom sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Bytom sender wallet from path
-sender_wallet.from_path(path=SENDER_PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bytom sender wallet info's
 print("XPrivate Key:", sender_wallet.xprivate_key())

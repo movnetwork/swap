@@ -10,9 +10,7 @@ bitcoin: dict = {
         "blockcypher": {
             "url": "https://api.blockcypher.com/v1/btc/main",
             "token": "c6ef693d3c024088810e6fac2a1494ee"
-        },
-        "bip44_path": "m/44'/0'/{account}'/{change}/{address}",
-        "path": "m/44'/0'/0'/0/0"
+        }
     },
     "testnet": {
         "blockchain": "https://testnet.blockchain.info",
@@ -20,10 +18,10 @@ bitcoin: dict = {
         "blockcypher": {
             "url": "https://api.blockcypher.com/v1/btc/test3",
             "token": "c6ef693d3c024088810e6fac2a1494ee"
-        },
-        "bip44_path": "m/44'/1'/{account}'/{change}/{address}",
-        "path": "m/44'/1'/0'/0/0"
+        }
     },
+    "path": "m/44'/0'/0'/0/0",
+    "bip44_path": "m/44'/0'/{account}'/{change}/{address}",
     "locktime": 0,
     "version": 2,
     "network": "mainnet",
@@ -59,7 +57,7 @@ bytom: dict = {
         "blockcenter": None
     },
     "path": "m/44/153/1/0/1",
-    "BIP44": "m/44/153/{account}/{change}/{address}",
+    "bip44_path": "m/44/153/{account}/{change}/{address}",
     "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
     "unit": "NEU",
     "timeout": 60,
@@ -159,7 +157,7 @@ vapor: dict = {
         "blockcenter": None
     },
     "path": "m/44/153/1/0/1",
-    "BIP44": "m/44/153/{account}/{change}/{address}",
+    "bip44_path": "m/44/153/{account}/{change}/{address}",
     "indexes": ["2c000000", "99000000", "01000000", "00000000", "01000000"],
     "unit": "NEU",
     "timeout": 60,

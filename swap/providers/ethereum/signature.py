@@ -323,10 +323,10 @@ class FundSignature(Signature):
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode()
         return self
 
@@ -412,10 +412,10 @@ class WithdrawSignature(Signature):
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode()
         return self
 
@@ -501,9 +501,9 @@ class RefundSignature(Signature):
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode()
         return self

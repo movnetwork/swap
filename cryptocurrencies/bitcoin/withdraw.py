@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.bitcoin.transaction import WithdrawTransaction
 from swap.providers.bitcoin.solver import WithdrawSolver
 from swap.providers.bitcoin.signature import WithdrawSignature
@@ -11,17 +13,15 @@ import json
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"
 # Bitcoin funded transaction hash/id
-TRANSACTION_HASH: str = "a211d21110756b266925fee2fbf2dc81529beef5e410311b38578dc3a076fb31"
+TRANSACTION_HASH: str = "853a27875a51ba8290cf5e5b32a0e1bbc9273343ff2b65ffad949bce942b9379"
 # Bitcoin recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
-# Bitcoin recipient derivation path
-RECIPIENT_PATH: str = "m/44'/1'/0'/0/0"
 # The preimage of HTLC contract
 SECRET_KEY: str = "Hello Meheret!"
 # Witness Hash Time Lock Contract (HTLC) bytecode
-BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140a0a6590e6" \
-                "ba4b48118d21b86812615219ece76b88ac67040ec4d660b17576a914e00ff2a640b7ce2d336860739169487a" \
-                "57f84b1588ac68"
+BYTECODE: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2" \
+                "ec9fc99a92b6f66fdfcb3c7914fd6888ac67043e3be060b17576a91493162bcadf4406af6429b59958964f62" \
+                "5d550fcd88ac68"
 
 print("=" * 10, "Recipient Bitcoin Account")
 
@@ -30,7 +30,7 @@ recipient_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bitcoin recipient wallet from mnemonic
 recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
 # Drive Bitcoin recipient wallet from path
-recipient_wallet.from_path(path=RECIPIENT_PATH)
+recipient_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bitcoin recipient wallet info's
 print("Root XPrivate Key:", recipient_wallet.root_xprivate_key())

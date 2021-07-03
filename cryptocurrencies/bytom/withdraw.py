@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.bytom.transaction import WithdrawTransaction
 from swap.providers.bytom.assets import BTM as ASSET
 from swap.providers.bytom.solver import WithdrawSolver
@@ -15,8 +17,6 @@ NETWORK: str = "mainnet"
 TRANSACTION_HASH: str = "59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f"
 # Bytom recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
-# Bytom recipient derivation path
-RECIPIENT_PATH: str = "m/44/153/1/0/1"
 # The preimage of HTLC contract
 SECRET_KEY: str = "Hello Meheret!"
 # Witness Hash Time Lock Contract (HTLC) bytecode
@@ -32,7 +32,7 @@ recipient_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bytom recipient wallet from mnemonic
 recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
 # Drive Bytom recipient wallet from path
-recipient_wallet.from_path(path=RECIPIENT_PATH)
+recipient_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bytom recipient wallet info's
 print("XPrivate Key:", recipient_wallet.xprivate_key())

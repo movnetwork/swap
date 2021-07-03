@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.vapor.wallet import Wallet
+from swap.providers.vapor.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.vapor.transaction import WithdrawTransaction
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.providers.vapor.solver import WithdrawSolver
@@ -15,8 +17,6 @@ NETWORK: str = "mainnet"
 TRANSACTION_HASH: str = "37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe"
 # Vapor recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
-# Vapor recipient derivation path
-RECIPIENT_PATH: str = "m/44/153/1/0/1"
 # The preimage of HTLC contract
 SECRET_KEY: str = "Hello Meheret!"
 # Witness Hash Time Lock Contract (HTLC) bytecode
@@ -32,7 +32,7 @@ recipient_wallet: Wallet = Wallet(network=NETWORK)
 # Get Vapor recipient wallet from mnemonic
 recipient_wallet.from_mnemonic(mnemonic=RECIPIENT_MNEMONIC)
 # Drive Vapor recipient wallet from path
-recipient_wallet.from_path(path=RECIPIENT_PATH)
+recipient_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Vapor recipient wallet info's
 print("XPrivate Key:", recipient_wallet.xprivate_key())

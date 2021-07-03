@@ -16,6 +16,9 @@ from .rpc import (
     get_balance, get_utxos, account_create
 )
 
+# Default derivation path
+DEFAULT_PATH: str = config["path"]
+
 
 class Wallet(HDWallet):
     """

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet
+from swap.providers.bytom.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.bytom.htlc import HTLC
 from swap.providers.bytom.transaction import FundTransaction
 from swap.providers.bytom.assets import BTM as ASSET
@@ -21,8 +23,6 @@ NETWORK: str = "mainnet"
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Bytom sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Bytom sender derivation path
-SENDER_PATH: str = "m/44/153/1/0/1"
 # Bytom recipient public key
 RECIPIENT_PUBLIC_KEY: str = "3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e"
 # Expiration block height
@@ -37,7 +37,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bytom sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Bytom sender wallet from path
-sender_wallet.from_path(path=SENDER_PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bytom sender wallet info's
 print("XPrivate Key:", sender_wallet.xprivate_key())

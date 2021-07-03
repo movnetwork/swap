@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet
+from swap.providers.bitcoin.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.bitcoin.htlc import HTLC
 from swap.providers.bitcoin.transaction import FundTransaction
 from swap.providers.bitcoin.solver import FundSolver
@@ -20,10 +22,8 @@ NETWORK: str = "testnet"
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Bitcoin sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Bitcoin sender derivation path
-SENDER_PATH: str = "m/44'/1'/0'/0/0"
 # Bitcoin recipient address
-RECIPIENT_ADDRESS: str = "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V"
+RECIPIENT_ADDRESS: str = "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF"
 # Expiration block timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # Bitcoin fund amount
@@ -36,7 +36,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Bitcoin sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Bitcoin sender wallet from path
-sender_wallet.from_path(path=SENDER_PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Bitcoin sender wallet info's
 print("Root XPrivate Key:", sender_wallet.root_xprivate_key())

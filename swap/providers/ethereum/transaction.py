@@ -225,10 +225,10 @@ class Transaction:
 
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
+            type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network,
-            type=self._type
+            network=self._network
         ))).encode()).decode())
 
 
@@ -255,7 +255,8 @@ class FundTransaction(Transaction):
             network=network, provider=provider, token=token
         )
 
-    def build_transaction(self, address: str, htlc: HTLC, amount: Union[Wei, int]) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc: HTLC, amount: Union[Wei, int],
+                          unit: str = config["unit"]) -> "FundTransaction":
         """
         Build Ethereum fund transaction.
 
@@ -265,6 +266,8 @@ class FundTransaction(Transaction):
         :type address: str
         :param amount: Ethereum amount.
         :type amount: Wei, int
+        :param unit: Ethereum unit, default to ``Wei``.
+        :type unit: str
 
         :returns: FundTransaction -- Ethereum fund transaction instance.
 
@@ -279,13 +282,19 @@ class FundTransaction(Transaction):
         """
 
         # Check parameter instances
-        if not isinstance(htlc, HTLC):
-            raise TypeError("Invalid HTLC instance, only takes ethereum HTLC class")
         if not is_address(address=address):
             raise AddressError(f"Invalid Ethereum sender '{address}' address.")
+        if not isinstance(htlc, HTLC):
+            raise TypeError("Invalid HTLC instance, only takes Ethereum HTLC class")
         if to_checksum_address(address=address) != htlc.agreements["sender_address"]:
             raise AddressError(f"Wrong Ethereum sender '{address}' address",
-                               "address must be equal with HTLC agreements sender address.")
+                               "address must be match with HTLC agreements sender address.")
+        if unit not in ["Ether", "Gwei", "Wei"]:
+            raise UnitError("Invalid Ethereum unit, choose only 'Ether', 'Gwei' or 'Wei' units.")
+
+        _amount: Wei = Wei(
+            amount if unit == "Wei" else amount_unit_converter(amount=amount, unit=f"{unit}2Wei")
+        )
 
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
@@ -300,7 +309,7 @@ class FundTransaction(Transaction):
 
         self._fee = htlc_fund_function.estimateGas({
             "from": to_checksum_address(address=address),
-            "value": Wei(amount),
+            "value": _amount,
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
@@ -309,7 +318,7 @@ class FundTransaction(Transaction):
 
         self._transaction = htlc_fund_function.buildTransaction({
             "from": to_checksum_address(address=address),
-            "value": Wei(amount),
+            "value": _amount,
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
@@ -410,6 +419,8 @@ class WithdrawTransaction(Transaction):
         # Check parameter instances
         if not is_address(address=address):
             raise AddressError(f"Invalid Ethereum recipient '{address}' address.")
+        if not is_address(address=contract_address):
+            raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
             contract_address=contract_address, network=self._network
@@ -534,7 +545,9 @@ class RefundTransaction(Transaction):
 
         # Check parameter instances
         if not is_address(address=address):
-            raise AddressError(f"Invalid Ethereum recipient '{address}' address.")
+            raise AddressError(f"Invalid Ethereum sender '{address}' address.")
+        if not is_address(address=contract_address):
+            raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
             contract_address=contract_address, network=self._network
@@ -550,7 +563,7 @@ class RefundTransaction(Transaction):
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
         htlc_refund_function = htlc_contract.functions.refund(
-            locked_contract_id,  # Locked Contract ID
+            locked_contract_id  # Locked Contract ID
         )
 
         self._fee = htlc_refund_function.estimateGas({

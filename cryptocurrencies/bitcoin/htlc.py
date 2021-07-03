@@ -12,9 +12,9 @@ NETWORK: str = "testnet"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Bitcoin recipient address
-RECIPIENT_ADDRESS: str = "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V"
+RECIPIENT_ADDRESS: str = "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF"
 # Bitcoin sender address
-SENDER_ADDRESS: str = "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a"
+SENDER_ADDRESS: str = "mtvgBj3LTrdD4KxMzHFN4pwCEg1WC6kzQ2"
 # Expiration contract timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.vapor.wallet import Wallet
+from swap.providers.vapor.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.vapor.transaction import RefundTransaction
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.providers.vapor.solver import RefundSolver
@@ -15,8 +17,6 @@ NETWORK: str = "mainnet"
 TRANSACTION_HASH: str = "37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe"
 # Vapor sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
-# Vapor sender derivation path
-SENDER_PATH: str = "m/44/153/1/0/1"
 # Witness Hash Time Lock Contract (HTLC) bytecode
 BYTECODE: str = "042ccf300720fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0" \
                 "a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a8053" \
@@ -30,7 +30,7 @@ sender_wallet: Wallet = Wallet(network=NETWORK)
 # Get Vapor sender wallet from mnemonic
 sender_wallet.from_mnemonic(mnemonic=SENDER_MNEMONIC)
 # Drive Vapor sender wallet from path
-sender_wallet.from_path(path=SENDER_PATH)
+sender_wallet.from_path(path=DEFAULT_PATH)
 
 # Print some Vapor sender wallet info's
 print("XPrivate Key:", sender_wallet.xprivate_key())

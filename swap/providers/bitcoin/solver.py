@@ -54,7 +54,7 @@ class FundSolver:
     def solve(self, network: str = config["network"]) -> P2pkhSolver:
 
         if self._path is None:
-            self._path = config[network]["bip44_path"].format(
+            self._path = config["bip44_path"].format(
                 account=self._account, change=(1 if self._change else 0), address=self._address
             )
 
@@ -115,7 +115,7 @@ class WithdrawSolver:
     def solve(self, network: str = config["network"]) -> IfElseSolver:
 
         if self._path is None:
-            self._path = config[network]["bip44_path"].format(
+            self._path = config["bip44_path"].format(
                 account=self._account, change=(1 if self._change else 0), address=self._address
             )
 
@@ -187,7 +187,7 @@ class RefundSolver:
     def solve(self, network: str = config["network"]) -> IfElseSolver:
 
         if self._path is None:
-            self._path = config[network]["bip44_path"].format(
+            self._path = config["bip44_path"].format(
                 account=self._account, change=(1 if self._change else 0), address=self._address
             )
 

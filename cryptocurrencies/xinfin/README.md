@@ -118,7 +118,7 @@ Options:
 **Recipient Address** _(str)_ -> xdcf8D43806260CFc6cC79fB408BA1897054667F81C **[required]**<br/>
 **Sender Address** _(str)_ -> xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232 **[required]**<br/>
 **Endtime** _(int)_ -> 1625296657 **[required]**<br/>
-**Amount** _(int, float)_ -> 3 **[required]**<br/>
+**Amount** _(int, float)_ -> 1 **[required]**<br/>
 **Unit** _(str)_ -> XDC **[default: `Wei`]**<br/>
 **Contract Address** _(str)_ -> xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7 **[required]**<br/>
 **Network** _(str)_ -> testnet **[default: `mainnet`]**<br/>
@@ -126,14 +126,14 @@ Options:
 > **Returns** _(str)_ -> XinFin unsigned fund transaction raw.
 
 ```shell script
-swap xinfin fund --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb --recipient-address xdcf8D43806260CFc6cC79fB408BA1897054667F81C --sender-address xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232 --endtime 3600 --amount 0.1 --unit XDC --contract-address xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7 --network testnet
+swap xinfin fund --secret-hash 3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb --recipient-address xdcf8D43806260CFc6cC79fB408BA1897054667F81C --sender-address xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232 --endtime 1625296657 --amount 1 --unit XDC --contract-address xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7 --network testnet
 ```
 
 <details open>
   <summary>Output</summary><br/>
 
 ```shell script
-eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMTAwMDAwMDAwMDAwMDAwMDAwLCAibm9uY2UiOiAyLCAiZ2FzIjogMTM4NDQ4LCAiZ2FzUHJpY2UiOiAyMDAwMDAwMDAwMCwgInRvIjogIjB4ZEUwNmIxMGM2Nzc2NWM4QzBiOUY2NEUwZUY0MjNiNDVFYjg2YjhlNyIsICJkYXRhIjogIjB4ZjRmZDMwNjIzYTI2ZGE4MmVhZDE1YTgwNTMzYTAyNjk2NjU2YjE0YjVkYmZkODRlYjE0NzkwZjJlMWJlNWU5ZTQ1ODIwZWViMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwZjhkNDM4MDYyNjBjZmM2Y2M3OWZiNDA4YmExODk3MDU0NjY3ZjgxYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDIyMjRjYWEyMjM1ZGY4ZGEzZDIwMTZkMmFiMTEzN2QyZDU0OGEyMzIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDYwZTAxZDk0In0sICJzaWduYXR1cmUiOiBudWxsLCAibmV0d29yayI6ICJ0ZXN0bmV0In0=
+eyJmZWUiOiAxMzg0NDgsICJ0eXBlIjogInhpbmZpbl9mdW5kX3Vuc2lnbmVkIiwgInRyYW5zYWN0aW9uIjogeyJjaGFpbklkIjogMTMzNywgImZyb20iOiAiMHgyMjI0Y2FBMjIzNURGOERhM0QyMDE2ZDJBQjExMzdEMmQ1NDhBMjMyIiwgInZhbHVlIjogMTAwMDAwMDAwMDAwMDAwMDAwMCwgIm5vbmNlIjogMiwgImdhcyI6IDEzODQ0OCwgImdhc1ByaWNlIjogMjAwMDAwMDAwMDAsICJ0byI6ICIweGRFMDZiMTBjNjc3NjVjOEMwYjlGNjRFMGVGNDIzYjQ1RWI4NmI4ZTciLCAiZGF0YSI6ICIweGY0ZmQzMDYyM2EyNmRhODJlYWQxNWE4MDUzM2EwMjY5NjY1NmIxNGI1ZGJmZDg0ZWIxNDc5MGYyZTFiZTVlOWU0NTgyMGVlYjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4ZDQzODA2MjYwY2ZjNmNjNzlmYjQwOGJhMTg5NzA1NDY2N2Y4MWMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMjI0Y2FhMjIzNWRmOGRhM2QyMDE2ZDJhYjExMzdkMmQ1NDhhMjMyMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBjMWMwMzk4MSJ9LCAic2lnbmF0dXJlIjogbnVsbCwgIm5ldHdvcmsiOiAidGVzdG5ldCJ9
 ```
 </details>
 

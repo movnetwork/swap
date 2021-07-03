@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.vapor.wallet import Wallet
+from swap.providers.vapor.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.utils import (
     generate_entropy, generate_passphrase
@@ -25,12 +27,8 @@ wallet: Wallet = Wallet(network=NETWORK)
 wallet.from_entropy(
     entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE
 )
-# Drive Bitcoin wallet from indexes
-wallet.from_index(44)
-wallet.from_index(153)
-wallet.from_index(1)
-wallet.from_index(0)
-wallet.from_index(1)
+# Drive Vapor wallet from path
+wallet.from_path(path=DEFAULT_PATH)
 
 # Print all Vapor wallet info's
 print("Strength:", wallet.strength())
@@ -44,7 +42,7 @@ print("XPublic Key:", wallet.xpublic_key())
 print("Expand XPrivate Key:", wallet.expand_xprivate_key())
 print("Child XPrivate Key:", wallet.child_xprivate_key())
 print("Child XPublic Key:", wallet.child_xpublic_key())
-print("GUID:", wallet.guid())
+# print("GUID:", wallet.guid())
 print("Indexes:", wallet.indexes())
 print("Path:", wallet.path())
 print("Private Key:", wallet.private_key())

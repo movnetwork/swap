@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from binascii import unhexlify
 from eth_account.datastructures import SignedTransaction
 from web3.contract import (
     ContractConstructor, Contract
@@ -23,7 +22,7 @@ from ...exceptions import (
 )
 from ..config import ethereum as config
 from .rpc import (
-    get_web3, get_balance, get_transaction_receipt
+    get_web3, get_balance
 )
 from .utils import (
     is_network, is_address, to_checksum_address, amount_unit_converter

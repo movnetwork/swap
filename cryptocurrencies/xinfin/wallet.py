@@ -20,16 +20,16 @@ ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
 PASSPHRASE: str = generate_passphrase(length=LENGTH)
 
-# Initialize Bitcoin wallet
+# Initialize XinFin wallet
 wallet: Wallet = Wallet(network=NETWORK)
-# Get Bitcoin wallet from entropy
+# Get XinFin wallet from entropy
 wallet.from_entropy(
     entropy=ENTROPY, language=LANGUAGE, passphrase=PASSPHRASE
 )
-# Drive Bitcoin wallet from path
+# Drive XinFin wallet from path
 wallet.from_path(path=DEFAULT_PATH)
 
-# Print all Bitcoin wallet info's
+# Print all XinFin wallet info's
 print("Strength:", wallet.strength())
 print("Entropy:", wallet.entropy())
 print("Mnemonic:", wallet.mnemonic())
