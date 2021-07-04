@@ -8,7 +8,7 @@ from swap.utils import (
 )
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "mainnet"  # Default to mainnet
+NETWORK: str = "ropsten"  # Default to mainnet
 # Choose strength 128, 160, 192, 224 or 256
 STRENGTH: int = 160  # Default is 128
 # Choose language english, french, italian, spanish, chinese_simplified, chinese_traditional, japanese or korean

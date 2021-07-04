@@ -11,7 +11,7 @@ from swap.providers.ethereum.utils import submit_transaction_raw
 import json
 
 # Choose network mainnet or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "ropsten"
 # Ethereum HTLC contract address
 CONTRACT_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
 # Ethereum funded transaction hash/id
