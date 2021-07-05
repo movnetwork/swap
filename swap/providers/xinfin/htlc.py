@@ -80,7 +80,7 @@ class HTLC:
             compiled_files: dict = solcx.compile_files(
                 source_files=[f"{cwd}/contracts/htlc.sol"],
                 output_values=["abi", "bin", "bin-runtime", "opcodes"],
-                solc_version=Version("0.8.6")
+                solc_version=Version("0.4.25")
             )
 
             self._abi: list = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["abi"]
