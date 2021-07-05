@@ -24,13 +24,13 @@ def get_balance(address: str, asset: Union[str, AssetNamespace] = config["asset"
 
     :param address: Vapor address.
     :type address: str
-    :param asset: Vapor asset, default to BTM asset.
+    :param asset: Vapor asset, default to ``BTM``.
     :type asset: str, vapor.assets.AssetNamespace
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 15.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: int -- Vapor asset balance (NEU amount).
@@ -67,19 +67,19 @@ def get_utxos(program: str, asset: Union[str, AssetNamespace] = config["asset"],
 
     :param program: Vapor control program.
     :type program: str
-    :param asset: Vapor asset id, defaults to BTM asset.
+    :param asset: Vapor asset id, defaults to ``BTM``.
     :type asset: str, vapor.assets.AssetNamespace
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param limit: Vapor utxo's limit, defaults to 15.
+    :param limit: Vapor utxo's limit, defaults to ``15``.
     :type limit: int
-    :param by: Sort by, defaults to amount.
+    :param by: Sort by, defaults to ``amount``.
     :type by: str
-    :param order: Sort order, defaults to desc.
+    :param order: Sort order, defaults to ``desc``.
     :type order: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: list -- Vapor unspent transaction outputs (UTXO's).
@@ -116,15 +116,15 @@ def estimate_transaction_fee(address: str, amount: int, asset: Union[str, AssetN
     :type address: str
     :param amount: Vapor amount (NEU amount).
     :type amount: int
-    :param asset: Vapor asset id, default to BTM asset.
+    :param asset: Vapor asset id, default to ``BTM``.
     :type asset: str, vapor.assets.AssetNamespace
-    :param confirmations: Vapor confirmations, default to 1.
+    :param confirmations: Vapor confirmations, default to ``1``.
     :type confirmations: int
-    :param network: Vapor network, defaults to solonet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: request timeout, default to 60.
+    :param timeout: request timeout, default to ``60``.
     :type timeout: int
 
     :returns: str -- Estimated transaction fee (NEU amount).
@@ -208,11 +208,11 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
     :type address: str
     :param transaction: Vapor transaction (inputs, outputs, fee, confirmations & forbid_chain_tx).
     :type transaction: dict
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor builted transaction.
@@ -253,11 +253,11 @@ def get_transaction(transaction_hash: str, network: str = config["network"],
 
     :param transaction_hash: Vapor transaction hash/id.
     :type transaction_hash: str
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor transaction detail.
@@ -344,11 +344,11 @@ def decode_raw(raw: str, network: str = config["network"],
 
     :param raw: Vapor transaction raw.
     :type raw: str
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor decoded transaction raw.
@@ -384,11 +384,11 @@ def submit_raw(address: str, raw: str, signatures: list, network: str = config["
     :type raw: str
     :param signatures: Vapor signed massage datas.
     :type signatures: list
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: str -- Vapor submitted transaction id/hash.

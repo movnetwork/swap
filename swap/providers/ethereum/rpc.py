@@ -102,7 +102,7 @@ def get_balance(address: str, network: str = config["network"], provider: str = 
         raise AddressError(f"Invalid Ethereum '{address}' address.")
 
     web3: Web3 = get_web3(network=network, provider=provider, token=token)
-    balance: int = web3.eth.getBalance(
+    balance: int = web3.eth.get_balance(
         to_checksum_address(address=address)
     )
     return Wei(balance)
@@ -137,6 +137,38 @@ def get_transaction(transaction_hash: str, network: str = config["network"], pro
     return transaction_detail_dict
 
 
+def get_transaction_receipt(transaction_hash: str, network: str = config["network"], provider: str = config["provider"],
+                            token: Optional[str] = None) -> Optional[dict]:
+    """
+    Get Ethereum transaction receipt.
+
+    :param transaction_hash: Ethereum transaction hash/id.
+    :type transaction_hash: str
+    :param network: Ethereum network, defaults to ``mainnet``.
+    :type network: str
+    :param provider: Ethereum network provider, defaults to ``http``.
+    :type provider: str
+    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
+    :type token: str
+
+    :returns: dict -- Ethereum transaction receipt.
+
+    >>> from swap.providers.ethereum.rpc import get_transaction_receipt
+    >>> get_transaction_receipt(transaction_hash="d26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d", network="testnet")
+    {'transactionHash': '0xd26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d', 'transactionIndex': 0, 'blockHash': '0xb325934bfb333b5ca77634081cfeaedfa53598771dcfcb482ed3ace789ec5843', 'blockNumber': 1, 'from': '0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C', 'to': None, 'gasUsed': 1582730, 'cumulativeGasUsed': 1582730, 'contractAddress': '0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40', 'logs': [], 'status': 1, 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}
+    """
+
+    web3: Web3 = get_web3(network=network, provider=provider, token=token)
+    try:
+        transaction_dict: dict = web3.eth.get_transaction_receipt(transaction_hash).__dict__
+        for key, value in transaction_dict.items():
+            if isinstance(value, HexBytes):
+                transaction_dict[key] = transaction_dict[key].hex()
+        return transaction_dict
+    except _web3.exceptions.TransactionNotFound:
+        return None
+
+
 def wait_for_transaction_receipt(transaction_hash: str, timeout: int = config["timeout"],
                                  network: str = config["network"], provider: str = config["provider"],
                                  token: Optional[str] = None) -> dict:
@@ -169,38 +201,6 @@ def wait_for_transaction_receipt(transaction_hash: str, timeout: int = config["t
         if isinstance(value, HexBytes):
             transaction_dict[key] = transaction_dict[key].hex()
     return transaction_dict
-
-
-def get_transaction_receipt(transaction_hash: str, network: str = config["network"], provider: str = config["provider"],
-                            token: Optional[str] = None) -> Optional[dict]:
-    """
-    Get Ethereum transaction receipt.
-
-    :param transaction_hash: Ethereum transaction hash/id.
-    :type transaction_hash: str
-    :param network: Ethereum network, defaults to ``mainnet``.
-    :type network: str
-    :param provider: Ethereum network provider, defaults to ``http``.
-    :type provider: str
-    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
-    :type token: str
-
-    :returns: dict -- Ethereum transaction receipt.
-
-    >>> from swap.providers.ethereum.rpc import get_transaction_receipt
-    >>> get_transaction_receipt(transaction_hash="d26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d", network="testnet")
-    {'transactionHash': '0xd26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d', 'transactionIndex': 0, 'blockHash': '0xb325934bfb333b5ca77634081cfeaedfa53598771dcfcb482ed3ace789ec5843', 'blockNumber': 1, 'from': '0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C', 'to': None, 'gasUsed': 1582730, 'cumulativeGasUsed': 1582730, 'contractAddress': '0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40', 'logs': [], 'status': 1, 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}
-    """
-
-    web3: Web3 = get_web3(network=network, provider=provider, token=token)
-    try:
-        transaction_dict: dict = web3.eth.get_transaction_receipt(transaction_hash).__dict__
-        for key, value in transaction_dict.items():
-            if isinstance(value, HexBytes):
-                transaction_dict[key] = transaction_dict[key].hex()
-        return transaction_dict
-    except _web3.exceptions.TransactionNotFound:
-        return None
 
 
 def decode_raw(transaction_raw: str) -> dict:

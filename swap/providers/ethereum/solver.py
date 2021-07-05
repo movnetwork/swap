@@ -32,7 +32,7 @@ class FundSolver:
     def __init__(self, xprivate_key: str, account: int = 0,
                  change: bool = False, address: int = 0, path: Optional[str] = None):
         if path is None:
-            path = config["BIP44"].format(
+            path = config["bip44_path"].format(
                 account=account, change=(1 if change else 0), address=address
             )
 
@@ -71,7 +71,7 @@ class WithdrawSolver:
     def __init__(self, xprivate_key: str, account: int = 0,
                  change: bool = False, address: int = 0, path: Optional[str] = None):
         if path is None:
-            path = config["BIP44"].format(
+            path = config["bip44_path"].format(
                 account=account, change=(1 if change else 0), address=address
             )
 
@@ -110,7 +110,7 @@ class RefundSolver:
     def __init__(self, xprivate_key: str, account: int = 0,
                  change: bool = False, address: int = 0, path: Optional[str] = None):
         if path is None:
-            path = config["BIP44"].format(
+            path = config["bip44_path"].format(
                 account=account, change=(1 if change else 0), address=address
             )
 
