@@ -20,9 +20,11 @@ from ...utils import clean_transaction_raw
 from ..config import xinfin as config
 from .wallet import Wallet
 from .htlc import HTLC
-from .rpc import get_web3
+from .rpc import (
+    get_web3, get_transaction_receipt
+)
 from .utils import (
-    is_network, is_address, to_checksum_address, amount_unit_converter
+    _AttributeDict, is_network, is_address, to_checksum_address, amount_unit_converter
 )
 from .solver import (
     FundSolver, WithdrawSolver, RefundSolver
@@ -50,7 +52,7 @@ class Transaction:
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
-                               "choose only 'testnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
+                               "choose only 'mainnet' or 'testnet' networks.")
 
         self._network: str = network
         self.web3: Web3 = get_web3(
@@ -411,7 +413,7 @@ class WithdrawTransaction(Transaction):
         # Check parameter instances
         if not is_address(address=address):
             raise AddressError(f"Invalid XinFin recipient '{address}' address.")
-        if not is_address(address=contract_address):
+        if contract_address and not is_address(address=contract_address):
             raise AddressError(f"Invalid XinFin HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
@@ -421,7 +423,9 @@ class WithdrawTransaction(Transaction):
             address=self.web3.toChecksumAddress(htlc.contract_address(prefix="0x")), abi=htlc.abi()
         )
 
-        transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
+        transaction_receipt: AttributeDict = _AttributeDict(get_transaction_receipt(
+            transaction_hash=transaction_hash, network=self._network
+        )).__attribute_dict__()
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
             log=transaction_receipt["logs"][0]
         )
@@ -535,7 +539,7 @@ class RefundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address=address):
             raise AddressError(f"Invalid XinFin sender '{address}' address.")
-        if not is_address(address=contract_address):
+        if contract_address and not is_address(address=contract_address):
             raise AddressError(f"Invalid XinFin HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
@@ -545,7 +549,9 @@ class RefundTransaction(Transaction):
             address=self.web3.toChecksumAddress(htlc.contract_address(prefix="0x")), abi=htlc.abi()
         )
 
-        transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
+        transaction_receipt: AttributeDict = _AttributeDict(get_transaction_receipt(
+            transaction_hash=transaction_hash, network=self._network
+        )).__attribute_dict__()
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
             log=transaction_receipt["logs"][0]
         )

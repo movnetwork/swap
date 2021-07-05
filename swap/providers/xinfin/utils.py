@@ -7,11 +7,10 @@ from pyxdc.utils import (
     is_checksum_address as _is_checksum_address,
     to_checksum_address as _to_checksum_address
 )
+from web3.datastructures import AttributeDict
 from hexbytes.main import HexBytes
 from web3 import Web3
-from typing import (
-    Union, Optional
-)
+from typing import Union
 
 import json
 
@@ -99,8 +98,8 @@ def to_checksum_address(address: str, prefix: str = "xdc") -> str:
     :returns: str -- XinFin checksum address.
 
     >>> from swap.providers.xinfin.utils import to_checksum_address
-    >>>  is_checksum_address(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232")
-    "xdc1Ee11011ae12103a488A82DC33e03f337Bc93ba7"
+    >>>  to_checksum_address(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232")
+    "xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232"
     """
 
     # Check parameter instances
@@ -259,3 +258,47 @@ def amount_unit_converter(amount: Union[int, float], unit_from: str = "Wei2XDC")
         return float((amount * XDC) / Wei)
     elif unit_from == "Wei2Gwei":
         return int((amount * Gwei) / Wei)
+
+
+class _AttributeDict:
+
+    def __init__(self, data: dict):
+        self._attribute_dict: AttributeDict = self.dict_attribute(data)
+
+    def __attribute_dict__(self) -> AttributeDict:
+        return self._attribute_dict
+
+    @staticmethod
+    def str_attribute(data: str) -> Union[HexBytes, str]:
+
+        if is_address(data):
+            return to_checksum_address(data, prefix="0x")
+        elif data.startswith("0x"):
+            return HexBytes(data)
+        else:
+            return data
+
+    def dict_attribute(self, data: dict) -> AttributeDict:
+
+        for key, value in data.items():
+            if isinstance(value, str):
+                data[key] = self.str_attribute(data[key])
+            elif isinstance(value, dict):
+                data[key] = self.dict_attribute(data[key])
+            elif isinstance(value, list):
+                data[key] = self.list_attribute(data[key])
+        return AttributeDict(data)
+
+    def list_attribute(self, datas: list) -> list:
+
+        temp_datas: list = []
+        for data in datas:
+            if isinstance(data, str):
+                temp_datas.append(self.str_attribute(data))
+            elif isinstance(data, dict):
+                temp_datas.append(self.dict_attribute(data))
+            elif isinstance(data, list):
+                temp_datas.append(self.list_attribute(data))
+            else:
+                temp_datas.append(data)
+        return temp_datas
