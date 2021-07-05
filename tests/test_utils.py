@@ -33,7 +33,7 @@ def test_swap_utils():
 
     assert not is_mnemonic(mnemonic=12341234, language="english")
 
-    with pytest.raises(ValueError, match="invalid 12 word mnemonic."):
+    with pytest.raises(ValueError, match="Invalid mnemonic words."):
         assert get_mnemonic_language("1234 meheret tesfaye")
 
     with pytest.raises(ValueError, match=r"invalid language, .*"):

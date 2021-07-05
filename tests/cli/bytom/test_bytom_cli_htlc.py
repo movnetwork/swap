@@ -22,13 +22,14 @@ def test_bytom_cli_htlc(cli_tester):
             "--secret-hash", _["bytom"]["htlc"]["secret"]["hash"],
             "--recipient-public-key", _["bytom"]["wallet"]["recipient"]["public_key"],
             "--sender-public-key", _["bytom"]["wallet"]["sender"]["public_key"],
-            "--sequence", _["bytom"]["htlc"]["sequence"],
+            "--endblock", _["bytom"]["htlc"]["endblock"],
             "--network", _["bytom"]["network"]
         ]
     )
 
     assert htlc.exit_code == 0
     assert htlc.output == str(json.dumps(dict(
+        **_["bytom"]["htlc"]["agreements"],
         bytecode=_["bytom"]["htlc"]["bytecode"],
-        address=_["bytom"]["htlc"]["address"]
+        contract_address=_["bytom"]["htlc"]["contract_address"]
     ), indent=4)) + "\n"

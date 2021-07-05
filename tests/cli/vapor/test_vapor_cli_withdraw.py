@@ -14,22 +14,19 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_vapor_cli_claim(cli_tester):
+def test_vapor_cli_withdraw(cli_tester):
 
-    claim = cli_tester.invoke(
+    withdraw = cli_tester.invoke(
         cli_main, [
             "vapor",
-            "claim",
+            "withdraw",
             "--address", _["vapor"]["wallet"]["recipient"]["address"],
-            "--transaction-id", _["vapor"]["transaction_id"],
+            "--transaction-hash", _["vapor"]["transaction_hash"],
             "--asset", _["vapor"]["asset"],
-            "--amount", _["vapor"]["amount"],
-            "--max-amount", _["vapor"]["max_amount"],
-            "--unit", _["vapor"]["unit"],
             "--network", _["vapor"]["network"]
         ]
     )
-    assert claim.exit_code == 0
-    assert claim.output == clean_transaction_raw(
-        transaction_raw=_["vapor"]["claim"]["unsigned"]["transaction_raw"]
+    assert withdraw.exit_code == 0
+    assert withdraw.output == clean_transaction_raw(
+        transaction_raw=_["vapor"]["withdraw"]["unsigned"]["transaction_raw"]
     ) + "\n"

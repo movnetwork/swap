@@ -3,13 +3,13 @@
 import json
 import os
 
+from swap.providers.bytom.htlc import HTLC
 from swap.providers.bytom.transaction import (
-    NormalTransaction, FundTransaction, ClaimTransaction, RefundTransaction
+    FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.bytom.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
-from swap.providers.bytom.utils import amount_unit_converter
 from swap.utils import clean_transaction_raw
 
 # Test Values
@@ -20,66 +20,23 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bytom_normal_transaction():
-
-    unsigned_normal_transaction = NormalTransaction(network=_["bytom"]["network"])
-
-    unsigned_normal_transaction.build_transaction(
-        address=_["bytom"]["wallet"]["sender"]["address"],
-        asset=_["bytom"]["asset"],
-        recipients={
-            _["bytom"]["wallet"]["recipient"]["address"]: (
-                _["bytom"]["amount"] if _["bytom"]["unit"] == "NEU" else amount_unit_converter(
-                    _["bytom"]["amount"], f"{_['bytom']['unit']}2NEU")
-            )
-        }
-    )
-
-    assert unsigned_normal_transaction.type() == _["bytom"]["normal"]["unsigned"]["type"]
-    assert unsigned_normal_transaction.fee() == _["bytom"]["normal"]["unsigned"]["fee"]
-    assert unsigned_normal_transaction.hash() == _["bytom"]["normal"]["unsigned"]["hash"]
-    assert unsigned_normal_transaction.raw() == _["bytom"]["normal"]["unsigned"]["raw"]
-    # assert unsigned_normal_transaction.json() == _["bytom"]["normal"]["unsigned"]["json"]
-    assert unsigned_normal_transaction.unsigned_datas() == _["bytom"]["normal"]["unsigned"]["unsigned_datas"]
-    assert unsigned_normal_transaction.signatures() == _["bytom"]["normal"]["unsigned"]["signatures"]
-    assert unsigned_normal_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["normal"]["unsigned"]["transaction_raw"]
-    )
-
-    signed_normal_transaction = unsigned_normal_transaction.sign(
-        solver=NormalSolver(
-            xprivate_key=_["bytom"]["wallet"]["sender"]["xprivate_key"],
-            path=_["bytom"]["wallet"]["sender"]["derivation"]["path"],
-            account=_["bytom"]["wallet"]["sender"]["derivation"]["account"],
-            change=_["bytom"]["wallet"]["sender"]["derivation"]["change"],
-            address=_["bytom"]["wallet"]["sender"]["derivation"]["address"]
-        )
-    )
-
-    assert signed_normal_transaction.type() == _["bytom"]["normal"]["signed"]["type"]
-    assert signed_normal_transaction.fee() == _["bytom"]["normal"]["signed"]["fee"]
-    assert signed_normal_transaction.hash() == _["bytom"]["normal"]["signed"]["hash"]
-    assert signed_normal_transaction.raw() == _["bytom"]["normal"]["signed"]["raw"]
-    # assert signed_normal_transaction.json() == _["bytom"]["normal"]["signed"]["json"]
-    assert signed_normal_transaction.unsigned_datas() == _["bytom"]["normal"]["signed"]["unsigned_datas"]
-    assert signed_normal_transaction.signatures() == _["bytom"]["normal"]["signed"]["signatures"]
-    assert signed_normal_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["normal"]["signed"]["transaction_raw"]
-    )
-
-
 def test_bytom_fund_transaction():
+
+    htlc = HTLC(network=_["bytom"]["network"]).build_htlc(
+        secret_hash=_["bytom"]["htlc"]["secret"]["hash"],
+        recipient_public_key=_["bytom"]["wallet"]["recipient"]["public_key"],
+        sender_public_key=_["bytom"]["wallet"]["sender"]["public_key"],
+        endblock=_["bytom"]["htlc"]["endblock"]
+    )
 
     unsigned_fund_transaction = FundTransaction(network=_["bytom"]["network"])
 
     unsigned_fund_transaction.build_transaction(
         address=_["bytom"]["wallet"]["sender"]["address"],
-        htlc_address=_["bytom"]["htlc"]["address"],
+        htlc=htlc,
         asset=_["bytom"]["asset"],
-        amount=(
-            _["bytom"]["amount"] if _["bytom"]["unit"] == "NEU" else amount_unit_converter(
-                _["bytom"]["amount"], f"{_['bytom']['unit']}2NEU")
-        )
+        amount=_["bytom"]["amount"],
+        unit=_['bytom']['unit']
     )
 
     assert unsigned_fund_transaction.type() == _["bytom"]["fund"]["unsigned"]["type"]
@@ -115,34 +72,29 @@ def test_bytom_fund_transaction():
     )
 
 
-def test_bytom_claim_transaction():
+def test_bytom_withdraw_transaction():
 
-    unsigned_claim_transaction = ClaimTransaction(network=_["bytom"]["network"])
+    unsigned_withdraw_transaction = WithdrawTransaction(network=_["bytom"]["network"])
 
-    unsigned_claim_transaction.build_transaction(
+    unsigned_withdraw_transaction.build_transaction(
         address=_["bytom"]["wallet"]["recipient"]["address"],
-        transaction_id=_["bytom"]["transaction_id"],
-        amount=(
-            _["bytom"]["amount"] if _["bytom"]["unit"] == "NEU" else amount_unit_converter(
-                _["bytom"]["amount"], f"{_['bytom']['unit']}2NEU")
-        ),
-        max_amount=_["bytom"]["max_amount"],
-        asset=_["bytom"]["asset"],
+        transaction_hash=_["bytom"]["transaction_hash"],
+        asset=_["bytom"]["asset"]
     )
 
-    assert unsigned_claim_transaction.type() == _["bytom"]["claim"]["unsigned"]["type"]
-    assert unsigned_claim_transaction.fee() == _["bytom"]["claim"]["unsigned"]["fee"]
-    assert unsigned_claim_transaction.hash() == _["bytom"]["claim"]["unsigned"]["hash"]
-    assert unsigned_claim_transaction.raw() == _["bytom"]["claim"]["unsigned"]["raw"]
-    # assert unsigned_claim_transaction.json() == _["bytom"]["claim"]["unsigned"]["json"]
-    assert unsigned_claim_transaction.unsigned_datas() == _["bytom"]["claim"]["unsigned"]["unsigned_datas"]
-    assert unsigned_claim_transaction.signatures() == _["bytom"]["claim"]["unsigned"]["signatures"]
-    assert unsigned_claim_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["claim"]["unsigned"]["transaction_raw"]
+    assert unsigned_withdraw_transaction.type() == _["bytom"]["withdraw"]["unsigned"]["type"]
+    assert unsigned_withdraw_transaction.fee() == _["bytom"]["withdraw"]["unsigned"]["fee"]
+    assert unsigned_withdraw_transaction.hash() == _["bytom"]["withdraw"]["unsigned"]["hash"]
+    assert unsigned_withdraw_transaction.raw() == _["bytom"]["withdraw"]["unsigned"]["raw"]
+    # assert unsigned_withdraw_transaction.json() == _["bytom"]["withdraw"]["unsigned"]["json"]
+    assert unsigned_withdraw_transaction.unsigned_datas() == _["bytom"]["withdraw"]["unsigned"]["unsigned_datas"]
+    assert unsigned_withdraw_transaction.signatures() == _["bytom"]["withdraw"]["unsigned"]["signatures"]
+    assert unsigned_withdraw_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bytom"]["withdraw"]["unsigned"]["transaction_raw"]
     )
 
-    signed_claim_transaction = unsigned_claim_transaction.sign(
-        solver=ClaimSolver(
+    signed_withdraw_transaction = unsigned_withdraw_transaction.sign(
+        solver=WithdrawSolver(
             xprivate_key=_["bytom"]["wallet"]["recipient"]["xprivate_key"],
             secret_key=_["bytom"]["htlc"]["secret"]["key"],
             bytecode=_["bytom"]["htlc"]["bytecode"],
@@ -153,15 +105,15 @@ def test_bytom_claim_transaction():
         )
     )
 
-    assert signed_claim_transaction.type() == _["bytom"]["claim"]["signed"]["type"]
-    assert signed_claim_transaction.fee() == _["bytom"]["claim"]["signed"]["fee"]
-    assert signed_claim_transaction.hash() == _["bytom"]["claim"]["signed"]["hash"]
-    assert signed_claim_transaction.raw() == _["bytom"]["claim"]["signed"]["raw"]
-    # assert signed_claim_transaction.json() == _["bytom"]["claim"]["signed"]["json"]
-    assert signed_claim_transaction.unsigned_datas() == _["bytom"]["claim"]["signed"]["unsigned_datas"]
-    assert signed_claim_transaction.signatures() == _["bytom"]["claim"]["signed"]["signatures"]
-    assert signed_claim_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["claim"]["signed"]["transaction_raw"]
+    assert signed_withdraw_transaction.type() == _["bytom"]["withdraw"]["signed"]["type"]
+    assert signed_withdraw_transaction.fee() == _["bytom"]["withdraw"]["signed"]["fee"]
+    assert signed_withdraw_transaction.hash() == _["bytom"]["withdraw"]["signed"]["hash"]
+    assert signed_withdraw_transaction.raw() == _["bytom"]["withdraw"]["signed"]["raw"]
+    # assert signed_withdraw_transaction.json() == _["bytom"]["withdraw"]["signed"]["json"]
+    assert signed_withdraw_transaction.unsigned_datas() == _["bytom"]["withdraw"]["signed"]["unsigned_datas"]
+    assert signed_withdraw_transaction.signatures() == _["bytom"]["withdraw"]["signed"]["signatures"]
+    assert signed_withdraw_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bytom"]["withdraw"]["signed"]["transaction_raw"]
     )
 
 
@@ -171,13 +123,8 @@ def test_bytom_refund_transaction():
 
     unsigned_refund_transaction.build_transaction(
         address=_["bytom"]["wallet"]["sender"]["address"],
-        transaction_id=_["bytom"]["transaction_id"],
-        amount=(
-            _["bytom"]["amount"] if _["bytom"]["unit"] == "NEU" else amount_unit_converter(
-                _["bytom"]["amount"], f"{_['bytom']['unit']}2NEU")
-        ),
-        max_amount=_["bytom"]["max_amount"],
-        asset=_["bytom"]["asset"],
+        transaction_hash=_["bytom"]["transaction_hash"],
+        asset=_["bytom"]["asset"]
     )
 
     assert unsigned_refund_transaction.type() == _["bytom"]["refund"]["unsigned"]["type"]

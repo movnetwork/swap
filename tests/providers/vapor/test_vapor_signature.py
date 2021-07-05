@@ -4,10 +4,10 @@ import json
 import os
 
 from swap.providers.vapor.signature import (
-    Signature, NormalSignature, FundSignature, ClaimSignature, RefundSignature
+    Signature, FundSignature, WithdrawSignature, RefundSignature
 )
 from swap.providers.vapor.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import clean_transaction_raw
 
@@ -17,47 +17,6 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
-
-
-def test_vapor_normal_signature():
-
-    unsigned_normal_transaction_raw = _["vapor"]["normal"]["unsigned"]["transaction_raw"]
-
-    normal_solver = NormalSolver(
-        xprivate_key=_["vapor"]["wallet"]["sender"]["xprivate_key"],
-        path=_["vapor"]["wallet"]["sender"]["derivation"]["path"],
-        account=_["vapor"]["wallet"]["sender"]["derivation"]["account"],
-        change=_["vapor"]["wallet"]["sender"]["derivation"]["change"],
-        address=_["vapor"]["wallet"]["sender"]["derivation"]["address"]
-    )
-
-    signature = Signature(network=_["vapor"]["network"]).sign(
-        transaction_raw=unsigned_normal_transaction_raw,
-        solver=normal_solver
-    )
-
-    assert signature.type() == _["vapor"]["normal"]["signed"]["type"]
-    assert signature.fee() == _["vapor"]["normal"]["signed"]["fee"]
-    assert signature.hash() == _["vapor"]["normal"]["signed"]["hash"]
-    assert signature.raw() == _["vapor"]["normal"]["signed"]["raw"]
-    # assert signature.json() == _["vapor"]["normal"]["signed"]["json"]
-    assert signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["normal"]["signed"]["transaction_raw"]
-    )
-
-    normal_signature = NormalSignature(network=_["vapor"]["network"]).sign(
-        transaction_raw=unsigned_normal_transaction_raw,
-        solver=normal_solver
-    )
-
-    assert normal_signature.type() == _["vapor"]["normal"]["signed"]["type"]
-    assert normal_signature.fee() == _["vapor"]["normal"]["signed"]["fee"]
-    assert normal_signature.hash() == _["vapor"]["normal"]["signed"]["hash"]
-    assert normal_signature.raw() == _["vapor"]["normal"]["signed"]["raw"]
-    # assert normal_signature.json() == _["vapor"]["normal"]["signed"]["json"]
-    assert normal_signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["normal"]["signed"]["transaction_raw"]
-    )
 
 
 def test_vapor_fund_signature():
@@ -101,11 +60,11 @@ def test_vapor_fund_signature():
     )
 
 
-def test_vapor_claim_signature():
+def test_vapor_withdraw_signature():
 
-    unsigned_claim_transaction_raw = _["vapor"]["claim"]["unsigned"]["transaction_raw"]
+    unsigned_withdraw_transaction_raw = _["vapor"]["withdraw"]["unsigned"]["transaction_raw"]
 
-    claim_solver = ClaimSolver(
+    withdraw_solver = WithdrawSolver(
         xprivate_key=_["vapor"]["wallet"]["recipient"]["xprivate_key"],
         secret_key=_["vapor"]["htlc"]["secret"]["key"],
         bytecode=_["vapor"]["htlc"]["bytecode"],
@@ -116,31 +75,31 @@ def test_vapor_claim_signature():
     )
 
     signature = Signature(network=_["vapor"]["network"]).sign(
-        transaction_raw=unsigned_claim_transaction_raw,
-        solver=claim_solver
+        transaction_raw=unsigned_withdraw_transaction_raw,
+        solver=withdraw_solver
     )
 
-    assert signature.type() == _["vapor"]["claim"]["signed"]["type"]
-    assert signature.fee() == _["vapor"]["claim"]["signed"]["fee"]
-    assert signature.hash() == _["vapor"]["claim"]["signed"]["hash"]
-    assert signature.raw() == _["vapor"]["claim"]["signed"]["raw"]
-    # assert signature.json() == _["vapor"]["claim"]["signed"]["json"]
+    assert signature.type() == _["vapor"]["withdraw"]["signed"]["type"]
+    assert signature.fee() == _["vapor"]["withdraw"]["signed"]["fee"]
+    assert signature.hash() == _["vapor"]["withdraw"]["signed"]["hash"]
+    assert signature.raw() == _["vapor"]["withdraw"]["signed"]["raw"]
+    # assert signature.json() == _["vapor"]["withdraw"]["signed"]["json"]
     assert signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["claim"]["signed"]["transaction_raw"]
+        transaction_raw=_["vapor"]["withdraw"]["signed"]["transaction_raw"]
     )
 
-    claim_signature = ClaimSignature(network=_["vapor"]["network"]).sign(
-        transaction_raw=unsigned_claim_transaction_raw,
-        solver=claim_solver
+    withdraw_signature = WithdrawSignature(network=_["vapor"]["network"]).sign(
+        transaction_raw=unsigned_withdraw_transaction_raw,
+        solver=withdraw_solver
     )
 
-    assert claim_signature.type() == _["vapor"]["claim"]["signed"]["type"]
-    assert claim_signature.fee() == _["vapor"]["claim"]["signed"]["fee"]
-    assert claim_signature.hash() == _["vapor"]["claim"]["signed"]["hash"]
-    assert claim_signature.raw() == _["vapor"]["claim"]["signed"]["raw"]
-    # assert claim_signature.json() == _["vapor"]["claim"]["signed"]["json"]
-    assert claim_signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["claim"]["signed"]["transaction_raw"]
+    assert withdraw_signature.type() == _["vapor"]["withdraw"]["signed"]["type"]
+    assert withdraw_signature.fee() == _["vapor"]["withdraw"]["signed"]["fee"]
+    assert withdraw_signature.hash() == _["vapor"]["withdraw"]["signed"]["hash"]
+    assert withdraw_signature.raw() == _["vapor"]["withdraw"]["signed"]["raw"]
+    # assert withdraw_signature.json() == _["vapor"]["withdraw"]["signed"]["json"]
+    assert withdraw_signature.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["vapor"]["withdraw"]["signed"]["transaction_raw"]
     )
 
 

@@ -36,13 +36,13 @@ def test_bitcoin_utils():
 
     assert get_address_type(address=_["bitcoin"]["wallet"]["sender"]["address"]) == "p2pkh"
     assert get_address_type(address=_["bitcoin"]["wallet"]["recipient"]["address"]) == "p2pkh"
-    assert get_address_type(address=_["bitcoin"]["htlc"]["address"]) == "p2sh"
+    assert get_address_type(address=_["bitcoin"]["htlc"]["contract_address"]) == "p2sh"
 
     assert decode_transaction_raw(transaction_raw=_["bitcoin"]["fund"]["unsigned"]["transaction_raw"]) == \
         {
             "fee": _["bitcoin"]["fund"]["unsigned"]["fee"],
             "network": _["bitcoin"]["network"],
-            "tx": _["bitcoin"]["fund"]["unsigned"]["json"],
+            "transaction": _["bitcoin"]["fund"]["unsigned"]["json"],
             "type": "bitcoin_fund_unsigned"
         }
 

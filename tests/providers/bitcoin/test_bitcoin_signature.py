@@ -4,10 +4,10 @@ import json
 import os
 
 from swap.providers.bitcoin.signature import (
-    Signature, NormalSignature, FundSignature, ClaimSignature, RefundSignature
+    Signature, FundSignature, WithdrawSignature, RefundSignature
 )
 from swap.providers.bitcoin.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import clean_transaction_raw
 
@@ -19,53 +19,12 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bitcoin_normal_signature():
-
-    unsigned_normal_transaction_raw = _["bitcoin"]["normal"]["unsigned"]["transaction_raw"]
-
-    normal_solver = NormalSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
-        path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
-        account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
-        change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
-        address=_["bitcoin"]["wallet"]["sender"]["derivation"]["address"]
-    )
-
-    signature = Signature(network=_["bitcoin"]["network"]).sign(
-        transaction_raw=unsigned_normal_transaction_raw,
-        solver=normal_solver
-    )
-
-    assert signature.type() == _["bitcoin"]["normal"]["signed"]["type"]
-    assert signature.fee() == _["bitcoin"]["normal"]["signed"]["fee"]
-    assert signature.hash() == _["bitcoin"]["normal"]["signed"]["hash"]
-    assert signature.raw() == _["bitcoin"]["normal"]["signed"]["raw"]
-    assert signature.json() == _["bitcoin"]["normal"]["signed"]["json"]
-    assert signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["normal"]["signed"]["transaction_raw"]
-    )
-
-    normal_signature = NormalSignature(network=_["bitcoin"]["network"]).sign(
-        transaction_raw=unsigned_normal_transaction_raw,
-        solver=normal_solver
-    )
-
-    assert normal_signature.type() == _["bitcoin"]["normal"]["signed"]["type"]
-    assert normal_signature.fee() == _["bitcoin"]["normal"]["signed"]["fee"]
-    assert normal_signature.hash() == _["bitcoin"]["normal"]["signed"]["hash"]
-    assert normal_signature.raw() == _["bitcoin"]["normal"]["signed"]["raw"]
-    assert normal_signature.json() == _["bitcoin"]["normal"]["signed"]["json"]
-    assert normal_signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["normal"]["signed"]["transaction_raw"]
-    )
-
-
 def test_bitcoin_fund_signature():
 
     unsigned_fund_transaction_raw = _["bitcoin"]["fund"]["unsigned"]["transaction_raw"]
 
     fund_solver = FundSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+        xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
         path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
         change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
@@ -101,12 +60,12 @@ def test_bitcoin_fund_signature():
     )
 
 
-def test_bitcoin_claim_signature():
+def test_bitcoin_withdraw_signature():
 
-    unsigned_claim_transaction_raw = _["bitcoin"]["claim"]["unsigned"]["transaction_raw"]
+    unsigned_withdraw_transaction_raw = _["bitcoin"]["withdraw"]["unsigned"]["transaction_raw"]
 
-    claim_solver = ClaimSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
+    withdraw_solver = WithdrawSolver(
+        xprivate_key=_["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
         secret_key=_["bitcoin"]["htlc"]["secret"]["key"],
         bytecode=_["bitcoin"]["htlc"]["bytecode"],
         path=_["bitcoin"]["wallet"]["recipient"]["derivation"]["path"],
@@ -116,31 +75,31 @@ def test_bitcoin_claim_signature():
     )
 
     signature = Signature(network=_["bitcoin"]["network"]).sign(
-        transaction_raw=unsigned_claim_transaction_raw,
-        solver=claim_solver
+        transaction_raw=unsigned_withdraw_transaction_raw,
+        solver=withdraw_solver
     )
 
-    assert signature.type() == _["bitcoin"]["claim"]["signed"]["type"]
-    assert signature.fee() == _["bitcoin"]["claim"]["signed"]["fee"]
-    assert signature.hash() == _["bitcoin"]["claim"]["signed"]["hash"]
-    assert signature.raw() == _["bitcoin"]["claim"]["signed"]["raw"]
-    assert signature.json() == _["bitcoin"]["claim"]["signed"]["json"]
+    assert signature.type() == _["bitcoin"]["withdraw"]["signed"]["type"]
+    assert signature.fee() == _["bitcoin"]["withdraw"]["signed"]["fee"]
+    assert signature.hash() == _["bitcoin"]["withdraw"]["signed"]["hash"]
+    assert signature.raw() == _["bitcoin"]["withdraw"]["signed"]["raw"]
+    assert signature.json() == _["bitcoin"]["withdraw"]["signed"]["json"]
     assert signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["claim"]["signed"]["transaction_raw"]
+        transaction_raw=_["bitcoin"]["withdraw"]["signed"]["transaction_raw"]
     )
 
-    claim_signature = ClaimSignature(network=_["bitcoin"]["network"]).sign(
-        transaction_raw=unsigned_claim_transaction_raw,
-        solver=claim_solver
+    withdraw_signature = WithdrawSignature(network=_["bitcoin"]["network"]).sign(
+        transaction_raw=unsigned_withdraw_transaction_raw,
+        solver=withdraw_solver
     )
 
-    assert claim_signature.type() == _["bitcoin"]["claim"]["signed"]["type"]
-    assert claim_signature.fee() == _["bitcoin"]["claim"]["signed"]["fee"]
-    assert claim_signature.hash() == _["bitcoin"]["claim"]["signed"]["hash"]
-    assert claim_signature.raw() == _["bitcoin"]["claim"]["signed"]["raw"]
-    assert claim_signature.json() == _["bitcoin"]["claim"]["signed"]["json"]
-    assert claim_signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["claim"]["signed"]["transaction_raw"]
+    assert withdraw_signature.type() == _["bitcoin"]["withdraw"]["signed"]["type"]
+    assert withdraw_signature.fee() == _["bitcoin"]["withdraw"]["signed"]["fee"]
+    assert withdraw_signature.hash() == _["bitcoin"]["withdraw"]["signed"]["hash"]
+    assert withdraw_signature.raw() == _["bitcoin"]["withdraw"]["signed"]["raw"]
+    assert withdraw_signature.json() == _["bitcoin"]["withdraw"]["signed"]["json"]
+    assert withdraw_signature.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["withdraw"]["signed"]["transaction_raw"]
     )
 
 
@@ -149,9 +108,9 @@ def test_bitcoin_refund_signature():
     unsigned_refund_transaction_raw = _["bitcoin"]["refund"]["unsigned"]["transaction_raw"]
 
     refund_solver = RefundSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+        xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
         bytecode=_["bitcoin"]["htlc"]["bytecode"],
-        sequence=_["bitcoin"]["htlc"]["sequence"],
+        endtime=_["bitcoin"]["htlc"]["endtime"],
         path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
         change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],

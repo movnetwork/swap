@@ -21,7 +21,7 @@ def test_vapor_cli_fund(cli_tester):
             "vapor",
             "fund",
             "--address", _["vapor"]["wallet"]["sender"]["address"],
-            "--htlc-address", _["vapor"]["htlc"]["address"],
+            "--contract-address", _["vapor"]["htlc"]["contract_address"],
             "--asset", _["vapor"]["asset"],
             "--amount", _["vapor"]["amount"],
             "--unit", _["vapor"]["unit"],

@@ -4,10 +4,10 @@ import json
 import os
 
 from swap.providers.bytom.signature import (
-    Signature, NormalSignature, FundSignature, ClaimSignature, RefundSignature
+    Signature, FundSignature, WithdrawSignature, RefundSignature
 )
 from swap.providers.bytom.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import clean_transaction_raw
 
@@ -17,47 +17,6 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
-
-
-def test_bytom_normal_signature():
-
-    unsigned_normal_transaction_raw = _["bytom"]["normal"]["unsigned"]["transaction_raw"]
-
-    normal_solver = NormalSolver(
-        xprivate_key=_["bytom"]["wallet"]["sender"]["xprivate_key"],
-        path=_["bytom"]["wallet"]["sender"]["derivation"]["path"],
-        account=_["bytom"]["wallet"]["sender"]["derivation"]["account"],
-        change=_["bytom"]["wallet"]["sender"]["derivation"]["change"],
-        address=_["bytom"]["wallet"]["sender"]["derivation"]["address"]
-    )
-
-    signature = Signature(network=_["bytom"]["network"]).sign(
-        transaction_raw=unsigned_normal_transaction_raw,
-        solver=normal_solver
-    )
-
-    assert signature.type() == _["bytom"]["normal"]["signed"]["type"]
-    assert signature.fee() == _["bytom"]["normal"]["signed"]["fee"]
-    assert signature.hash() == _["bytom"]["normal"]["signed"]["hash"]
-    assert signature.raw() == _["bytom"]["normal"]["signed"]["raw"]
-    # assert signature.json() == _["bytom"]["normal"]["signed"]["json"]
-    assert signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["normal"]["signed"]["transaction_raw"]
-    )
-
-    normal_signature = NormalSignature(network=_["bytom"]["network"]).sign(
-        transaction_raw=unsigned_normal_transaction_raw,
-        solver=normal_solver
-    )
-
-    assert normal_signature.type() == _["bytom"]["normal"]["signed"]["type"]
-    assert normal_signature.fee() == _["bytom"]["normal"]["signed"]["fee"]
-    assert normal_signature.hash() == _["bytom"]["normal"]["signed"]["hash"]
-    assert normal_signature.raw() == _["bytom"]["normal"]["signed"]["raw"]
-    # assert normal_signature.json() == _["bytom"]["normal"]["signed"]["json"]
-    assert normal_signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["normal"]["signed"]["transaction_raw"]
-    )
 
 
 def test_bytom_fund_signature():
@@ -101,11 +60,11 @@ def test_bytom_fund_signature():
     )
 
 
-def test_bytom_claim_signature():
+def test_bytom_withdraw_signature():
 
-    unsigned_claim_transaction_raw = _["bytom"]["claim"]["unsigned"]["transaction_raw"]
+    unsigned_withdraw_transaction_raw = _["bytom"]["withdraw"]["unsigned"]["transaction_raw"]
 
-    claim_solver = ClaimSolver(
+    withdraw_solver = WithdrawSolver(
         xprivate_key=_["bytom"]["wallet"]["recipient"]["xprivate_key"],
         secret_key=_["bytom"]["htlc"]["secret"]["key"],
         bytecode=_["bytom"]["htlc"]["bytecode"],
@@ -116,31 +75,31 @@ def test_bytom_claim_signature():
     )
 
     signature = Signature(network=_["bytom"]["network"]).sign(
-        transaction_raw=unsigned_claim_transaction_raw,
-        solver=claim_solver
+        transaction_raw=unsigned_withdraw_transaction_raw,
+        solver=withdraw_solver
     )
 
-    assert signature.type() == _["bytom"]["claim"]["signed"]["type"]
-    assert signature.fee() == _["bytom"]["claim"]["signed"]["fee"]
-    assert signature.hash() == _["bytom"]["claim"]["signed"]["hash"]
-    assert signature.raw() == _["bytom"]["claim"]["signed"]["raw"]
-    # assert signature.json() == _["bytom"]["claim"]["signed"]["json"]
+    assert signature.type() == _["bytom"]["withdraw"]["signed"]["type"]
+    assert signature.fee() == _["bytom"]["withdraw"]["signed"]["fee"]
+    assert signature.hash() == _["bytom"]["withdraw"]["signed"]["hash"]
+    assert signature.raw() == _["bytom"]["withdraw"]["signed"]["raw"]
+    # assert signature.json() == _["bytom"]["withdraw"]["signed"]["json"]
     assert signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["claim"]["signed"]["transaction_raw"]
+        transaction_raw=_["bytom"]["withdraw"]["signed"]["transaction_raw"]
     )
 
-    claim_signature = ClaimSignature(network=_["bytom"]["network"]).sign(
-        transaction_raw=unsigned_claim_transaction_raw,
-        solver=claim_solver
+    withdraw_signature = WithdrawSignature(network=_["bytom"]["network"]).sign(
+        transaction_raw=unsigned_withdraw_transaction_raw,
+        solver=withdraw_solver
     )
 
-    assert claim_signature.type() == _["bytom"]["claim"]["signed"]["type"]
-    assert claim_signature.fee() == _["bytom"]["claim"]["signed"]["fee"]
-    assert claim_signature.hash() == _["bytom"]["claim"]["signed"]["hash"]
-    assert claim_signature.raw() == _["bytom"]["claim"]["signed"]["raw"]
-    # assert claim_signature.json() == _["bytom"]["claim"]["signed"]["json"]
-    assert claim_signature.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bytom"]["claim"]["signed"]["transaction_raw"]
+    assert withdraw_signature.type() == _["bytom"]["withdraw"]["signed"]["type"]
+    assert withdraw_signature.fee() == _["bytom"]["withdraw"]["signed"]["fee"]
+    assert withdraw_signature.hash() == _["bytom"]["withdraw"]["signed"]["hash"]
+    assert withdraw_signature.raw() == _["bytom"]["withdraw"]["signed"]["raw"]
+    # assert withdraw_signature.json() == _["bytom"]["withdraw"]["signed"]["json"]
+    assert withdraw_signature.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bytom"]["withdraw"]["signed"]["transaction_raw"]
     )
 
 

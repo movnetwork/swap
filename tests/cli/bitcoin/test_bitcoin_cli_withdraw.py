@@ -14,22 +14,19 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bitcoin_cli_claim(cli_tester):
+def test_bitcoin_cli_withdraw(cli_tester):
 
-    claim = cli_tester.invoke(
+    withdraw = cli_tester.invoke(
         cli_main, [
             "bitcoin",
-            "claim",
+            "withdraw",
             "--address", _["bitcoin"]["wallet"]["recipient"]["address"],
-            "--transaction-id", _["bitcoin"]["transaction_id"],
-            "--amount", _["bitcoin"]["amount"],
-            "--max-amount", _["bitcoin"]["max_amount"],
-            "--unit", _["bitcoin"]["unit"],
+            "--transaction-hash", _["bitcoin"]["transaction_hash"],
             "--version", _["bitcoin"]["version"],
             "--network", _["bitcoin"]["network"]
         ]
     )
-    assert claim.exit_code == 0
-    assert claim.output == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["claim"]["unsigned"]["transaction_raw"]
+    assert withdraw.exit_code == 0
+    assert withdraw.output == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["withdraw"]["unsigned"]["transaction_raw"]
     ) + "\n"

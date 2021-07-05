@@ -13,21 +13,21 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bitcoin_cli_decode(cli_tester):
+def test_ethereum_cli_decode(cli_tester):
 
     decode = cli_tester.invoke(
         cli_main, [
-            "bitcoin",
+            "ethereum",
             "decode",
-            "--transaction-raw", _["bitcoin"]["fund"]["unsigned"]["transaction_raw"],
+            "--transaction-raw", _["ethereum"]["fund"]["unsigned"]["transaction_raw"],
             "--indent", 0
         ]
     )
 
     assert decode.exit_code == 0
     assert decode.output != str(json.dumps(dict(
-        fee=_["bitcoin"]["fund"]["unsigned"]["fee"],
-        network=_["bitcoin"]["network"],
-        transaction=_["bitcoin"]["fund"]["unsigned"]["json"],
-        type=_["bitcoin"]["fund"]["unsigned"]["type"],
+        fee=_["ethereum"]["fund"]["unsigned"]["fee"],
+        network=_["ethereum"]["network"],
+        transaction=_["ethereum"]["fund"]["unsigned"]["json"],
+        type=_["ethereum"]["fund"]["unsigned"]["type"],
     ), indent=4)) + "\n"

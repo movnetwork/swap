@@ -4,7 +4,7 @@ import json
 import os
 
 from swap.providers.bytom.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 
 # Test Values
@@ -13,19 +13,6 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
-
-
-def test_bytom_normal_solver():
-
-    normal_solver = NormalSolver(
-        xprivate_key=_["bytom"]["wallet"]["sender"]["xprivate_key"],
-        path=_["bytom"]["wallet"]["sender"]["derivation"]["path"],
-        account=_["bytom"]["wallet"]["sender"]["derivation"]["account"],
-        change=_["bytom"]["wallet"]["sender"]["derivation"]["change"],
-        address=_["bytom"]["wallet"]["sender"]["derivation"]["address"]
-    )
-
-    assert isinstance(normal_solver.solve(network=_["bytom"]["network"]), tuple)
 
 
 def test_bytom_fund_solver():
@@ -41,9 +28,9 @@ def test_bytom_fund_solver():
     assert isinstance(fund_solver.solve(network=_["bytom"]["network"]), tuple)
 
 
-def test_bytom_claim_solver():
+def test_bytom_withdraw_solver():
 
-    claim_solver = ClaimSolver(
+    withdraw_solver = WithdrawSolver(
         xprivate_key=_["bytom"]["wallet"]["recipient"]["xprivate_key"],
         secret_key=_["bytom"]["htlc"]["secret"]["key"],
         bytecode=_["bytom"]["htlc"]["bytecode"],
@@ -53,8 +40,8 @@ def test_bytom_claim_solver():
         address=_["bytom"]["wallet"]["recipient"]["derivation"]["address"]
     )
 
-    assert isinstance(claim_solver.solve(network=_["bytom"]["network"]), tuple)
-    assert isinstance(claim_solver.witness(network=_["bytom"]["network"]), str)
+    assert isinstance(withdraw_solver.solve(network=_["bytom"]["network"]), tuple)
+    assert isinstance(withdraw_solver.witness(network=_["bytom"]["network"]), str)
 
 
 def test_bytom_refund_solver():

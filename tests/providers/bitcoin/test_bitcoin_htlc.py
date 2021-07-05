@@ -19,13 +19,14 @@ def test_bitcoin_htlc():
         secret_hash=_["bitcoin"]["htlc"]["secret"]["hash"],
         recipient_address=_["bitcoin"]["wallet"]["recipient"]["address"],
         sender_address=_["bitcoin"]["wallet"]["sender"]["address"],
-        sequence=_["bitcoin"]["htlc"]["sequence"]
+        endtime=_["bitcoin"]["htlc"]["endtime"]
     )
 
     assert htlc.bytecode() == _["bitcoin"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["bitcoin"]["htlc"]["opcode"]
     assert htlc.hash() == _["bitcoin"]["htlc"]["hash"]
-    assert htlc.address() == _["bitcoin"]["htlc"]["address"]
+    assert htlc.contract_address() == _["bitcoin"]["htlc"]["contract_address"]
+    assert htlc.agreements == _["bitcoin"]["htlc"]["agreements"]
 
     htlc = HTLC(network=_["bitcoin"]["network"]).from_bytecode(
         bytecode=_["bitcoin"]["htlc"]["bytecode"]
@@ -34,7 +35,7 @@ def test_bitcoin_htlc():
     assert htlc.bytecode() == _["bitcoin"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["bitcoin"]["htlc"]["opcode"]
     assert htlc.hash() == _["bitcoin"]["htlc"]["hash"]
-    assert htlc.address() == _["bitcoin"]["htlc"]["address"]
+    assert htlc.contract_address() == _["bitcoin"]["htlc"]["contract_address"]
 
     htlc = HTLC(network=_["bitcoin"]["network"]).from_opcode(
         opcode=_["bitcoin"]["htlc"]["opcode"]
@@ -43,4 +44,4 @@ def test_bitcoin_htlc():
     assert htlc.bytecode() == _["bitcoin"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["bitcoin"]["htlc"]["opcode"]
     assert htlc.hash() == _["bitcoin"]["htlc"]["hash"]
-    assert htlc.address() == _["bitcoin"]["htlc"]["address"]
+    assert htlc.contract_address() == _["bitcoin"]["htlc"]["contract_address"]

@@ -34,11 +34,11 @@ def test_bytom_cli_signature(cli_tester):
         transaction_raw=_["bytom"]["fund"]["signed"]["transaction_raw"]
     ) + "\n"
 
-    signed_claim_transaction_raw = cli_tester.invoke(
+    signed_withdraw_transaction_raw = cli_tester.invoke(
         cli_main, [
             "bytom",
             "sign",
-            "--transaction-raw", _["bytom"]["claim"]["unsigned"]["transaction_raw"],
+            "--transaction-raw", _["bytom"]["withdraw"]["unsigned"]["transaction_raw"],
             "--xprivate-key", _["bytom"]["wallet"]["recipient"]["xprivate_key"],
             "--secret-key", _["bytom"]["htlc"]["secret"]["key"],
             "--bytecode", _["bytom"]["htlc"]["bytecode"],
@@ -49,9 +49,9 @@ def test_bytom_cli_signature(cli_tester):
         ]
     )
 
-    assert signed_claim_transaction_raw.exit_code == 0
-    assert signed_claim_transaction_raw.output == clean_transaction_raw(
-        transaction_raw=_["bytom"]["claim"]["signed"]["transaction_raw"]
+    assert signed_withdraw_transaction_raw.exit_code == 0
+    assert signed_withdraw_transaction_raw.output == clean_transaction_raw(
+        transaction_raw=_["bytom"]["withdraw"]["signed"]["transaction_raw"]
     ) + "\n"
 
     signed_refund_transaction_raw = cli_tester.invoke(
