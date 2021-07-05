@@ -310,7 +310,7 @@ class FundTransaction(Transaction):
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
 
         self._transaction = htlc_fund_function.buildTransaction({
@@ -320,7 +320,7 @@ class FundTransaction(Transaction):
                 to_checksum_address(address=address, prefix="0x")
             ),
             "gas": self._fee,
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
         self._type = "xinfin_fund_unsigned"
         return self
@@ -442,7 +442,7 @@ class WithdrawTransaction(Transaction):
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
 
         self._transaction = htlc_fund_function.buildTransaction({
@@ -452,7 +452,7 @@ class WithdrawTransaction(Transaction):
                 to_checksum_address(address=address, prefix="0x")
             ),
             "gas": self._fee,
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
         self._type = "xinfin_withdraw_unsigned"
         return self
@@ -567,7 +567,7 @@ class RefundTransaction(Transaction):
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address, prefix="0x")
             ),
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
 
         self._transaction = htlc_refund_function.buildTransaction({
@@ -577,7 +577,7 @@ class RefundTransaction(Transaction):
                 to_checksum_address(address=address, prefix="0x")
             ),
             "gas": self._fee,
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
         self._type = "xinfin_refund_unsigned"
         return self

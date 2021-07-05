@@ -313,7 +313,7 @@ class FundTransaction(Transaction):
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
 
         self._transaction = htlc_fund_function.buildTransaction({
@@ -323,7 +323,7 @@ class FundTransaction(Transaction):
                 to_checksum_address(address=address)
             ),
             "gas": self._fee,
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
         self._type = "ethereum_fund_unsigned"
         return self
@@ -419,7 +419,7 @@ class WithdrawTransaction(Transaction):
         # Check parameter instances
         if not is_address(address=address):
             raise AddressError(f"Invalid Ethereum recipient '{address}' address.")
-        if not is_address(address=contract_address):
+        if contract_address and not is_address(address=contract_address):
             raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
@@ -446,7 +446,7 @@ class WithdrawTransaction(Transaction):
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
 
         self._transaction = htlc_fund_function.buildTransaction({
@@ -456,7 +456,7 @@ class WithdrawTransaction(Transaction):
                 to_checksum_address(address=address)
             ),
             "gas": self._fee,
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
         self._type = "ethereum_withdraw_unsigned"
         return self
@@ -546,7 +546,7 @@ class RefundTransaction(Transaction):
         # Check parameter instances
         if not is_address(address=address):
             raise AddressError(f"Invalid Ethereum sender '{address}' address.")
-        if not is_address(address=contract_address):
+        if contract_address and not is_address(address=contract_address):
             raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
@@ -572,7 +572,7 @@ class RefundTransaction(Transaction):
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
 
         self._transaction = htlc_refund_function.buildTransaction({
@@ -582,7 +582,7 @@ class RefundTransaction(Transaction):
                 to_checksum_address(address=address)
             ),
             "gas": self._fee,
-            "gasPrice": self.web3.eth.gasPrice
+            "gasPrice": self.web3.eth.gas_price
         })
         self._type = "ethereum_refund_unsigned"
         return self
