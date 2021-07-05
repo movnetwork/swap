@@ -62,7 +62,7 @@ contract HTLC {
         require(have_locked_contract(locked_contract_id), "locked_contract_id does not exist");
         _;
     }
-    modifier check_secret_hash_matches (bytes32 locked_contract_id, string memory preimage) {
+    modifier check_secret_hash_matches (bytes32 locked_contract_id, string preimage) {
         require(locked_contracts[locked_contract_id].secret_hash == sha256(abi.encodePacked(preimage)), "secret hash does not match");
         _;
     }
@@ -165,7 +165,7 @@ contract HTLC {
      * @return id secret_hash recipient sender withdrawn refunded preimage locked HTLC contract datas.
      */
     function get_locked_contract (bytes32 locked_contract_id) public view returns (
-        bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string memory preimage
+        bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string preimage
     ) {
         if (have_locked_contract(locked_contract_id) == false)
             return (0, 0, address(0), address(0), 0, 0, false, false, "");
