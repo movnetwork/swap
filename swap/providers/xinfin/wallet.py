@@ -44,7 +44,7 @@ class Wallet(HDWallet):
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
-                               "choose only 'mainnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
+                               "choose only 'mainnet' or 'testnet' networks.")
 
         self._network, self._provider, = network, provider
         self._hdwallet: HDWallet = HDWallet(

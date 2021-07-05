@@ -32,8 +32,6 @@ class Signature(Transaction):
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
-    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
-    :type token: str
 
     :returns: Signature -- XinFin signature instance.
 
@@ -41,10 +39,9 @@ class Signature(Transaction):
         XinFin has only two networks, ``mainnet`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, provider=provider
         )
 
         self._signed_raw: Optional[str] = None
@@ -250,8 +247,6 @@ class FundSignature(Signature):
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
-    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
-    :type token: str
 
     :returns: FundSignature -- XinFin fund signature instance.
 
@@ -262,7 +257,7 @@ class FundSignature(Signature):
     def __init__(self, network: str = config["network"], provider: str = config["provider"],
                  token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, provider=provider
         )
 
     def sign(self, transaction_raw: str, solver: FundSolver) -> "FundSignature":
@@ -339,8 +334,6 @@ class WithdrawSignature(Signature):
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
-    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
-    :type token: str
 
     :returns: WithdrawSignature -- XinFin withdraw signature instance.
 
@@ -348,10 +341,9 @@ class WithdrawSignature(Signature):
         XinFin has only two networks, ``mainnet`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, provider=provider
         )
 
     def sign(self, transaction_raw: str, solver: WithdrawSolver) -> "WithdrawSignature":
@@ -428,8 +420,6 @@ class RefundSignature(Signature):
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
-    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
-    :type token: str
 
     :returns: RefundSignature -- XinFin refund signature instance.
 
@@ -437,10 +427,9 @@ class RefundSignature(Signature):
         XinFin has only two networks, ``mainnet`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, provider=provider
         )
 
     def sign(self, transaction_raw: str, solver: RefundSolver) -> "RefundSignature":
