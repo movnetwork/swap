@@ -10,12 +10,19 @@ from swap.providers.ethereum.rpc import (
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "ropsten"
 # Ethereum private key
-PRIVATE_KEY: str = "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"
+PRIVATE_KEY: str = "..."
+
+print("=" * 10, "Deploy HTLC from Ethereum Account")
 
 # Initialize Ethereum wallet
 wallet: Wallet = Wallet(network=NETWORK)
 # Get Ethereum wallet from private key
 wallet.from_private_key(private_key=PRIVATE_KEY)
+
+print("Private Key:", wallet.private_key())
+print("Public Key:", wallet.public_key())
+print("Address:", wallet.address())
+print("Balance:", wallet.balance(unit="Ether"), "Ether")
 
 print("=" * 10, "Compile Hash Time Lock Contract (HTLC) Smart contract")
 
@@ -43,11 +50,11 @@ print("HTLC Transaction Hash:", htlc.hash())
 print("HTLC Transaction Json:", htlc.json())
 print("HTLC Transaction Raw:", htlc.raw())
 
-print("=" * 10, "Wait to be mined and Get Contract Address")
+print("=" * 10, "Wait to be mined for 5 minutes ...")
 
-# Wait 60 seconds for HTLC transaction to be mined
+# Wait 300 seconds for HTLC transaction to be mined
 transaction_receipt = wait_for_transaction_receipt(
-    transaction_hash=htlc.hash(), network=NETWORK, timeout=60
+    transaction_hash=htlc.hash(), network=NETWORK, timeout=300  # 5 minutes
 )
 
 print("HTLC Contract Address:", to_checksum_address(transaction_receipt["contractAddress"]))
