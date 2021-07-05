@@ -94,7 +94,7 @@ class HTLC:
             # Get current working directory path (like linux or unix path).
             cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
 
-            with open(f"{cwd}/contracts/htlc.equity", "r") as htlc_equity_file:
+            with open(f"{cwd}/contracts/htlc.equity", "r", encoding="utf-8") as htlc_equity_file:
                 htlc_script: str = "".join(htlc_equity_file.readlines()[-14:])
                 htlc_equity_file.close()
 

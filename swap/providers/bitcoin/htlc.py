@@ -86,7 +86,7 @@ class HTLC:
         # Get current working directory path (like linux or unix path).
         cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
 
-        with open(f"{cwd}/contracts/htlc.script", "r") as htlc_script:
+        with open(f"{cwd}/contracts/htlc.script", "r", encoding="utf-8") as htlc_script:
             htlc_opcode: str = htlc_script.readlines()[-1]  # HTLC OP_Code script
             htlc_script.close()
 
