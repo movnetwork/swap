@@ -95,7 +95,7 @@ ethereum: dict = {
             "websocket": "wss://ropsten.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": None
+        "contract_address": "0xE5cb615899436A490dBde26d7880A0C2502Fc676"
     },
     "kovan": {
         "infura": {
@@ -122,7 +122,7 @@ ethereum: dict = {
         "contract_address": None
     },
     "path": "m/44'/60'/0'/0/0",
-    "BIP44": "m/44'/60'/{account}'/{change}/{address}",
+    "bip44_path": "m/44'/60'/{account}'/{change}/{address}",
     "units": {
         "Ether": 1,
         "Gwei": 1_000_000_000,
@@ -184,7 +184,7 @@ xinfin: dict = {
     "mainnet": {
         "http": "https://rpc.xinfin.network",
         "websocket": "wss://ws.xinfin.network",
-        "contract_address": None
+        "contract_address": "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
     },
     "testnet": {
         "http": "http://localhost:8545",
