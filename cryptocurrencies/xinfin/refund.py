@@ -11,11 +11,11 @@ from swap.providers.xinfin.utils import submit_transaction_raw
 import json
 
 # Choose network mainnet or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "mainnet"
 # XinFin HTLC contract address
-CONTRACT_ADDRESS: str = "xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7"
+CONTRACT_ADDRESS: str = "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
 # XinFin funded transaction hash/id
-TRANSACTION_HASH: str = "0x075c6f1dbc19495e24ba2f2c75c005083ce39e6f0b1ea58eb71d18bce4223070"
+TRANSACTION_HASH: str = "0x0cfc885274ad38ff880f0c682e5ccae7f5101d5209f5599b41645612bafaa56a"
 # XinFin sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 
@@ -51,7 +51,7 @@ unsigned_refund_transaction.build_transaction(
 print("Unsigned Refund Transaction Fee:", unsigned_refund_transaction.fee())
 print("Unsigned Refund Transaction Hash:", unsigned_refund_transaction.hash())
 print("Unsigned Refund Transaction Main Raw:", unsigned_refund_transaction.raw())
-print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
+# print("Unsigned Refund Transaction Json:", json.dumps(unsigned_refund_transaction.json(), indent=4))
 print("Unsigned Refund Transaction Signature:", json.dumps(unsigned_refund_transaction.signature(), indent=4))
 print("Unsigned Refund Transaction Type:", unsigned_refund_transaction.type())
 
@@ -72,7 +72,7 @@ signed_refund_transaction: RefundTransaction = unsigned_refund_transaction.sign(
 print("Signed Refund Transaction Fee:", signed_refund_transaction.fee())
 print("Signed Refund Transaction Hash:", signed_refund_transaction.hash())
 print("Signed Refund Transaction Main Raw:", signed_refund_transaction.raw())
-print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
+# print("Signed Refund Transaction Json:", json.dumps(signed_refund_transaction.json(), indent=4))
 print("Signed Refund Transaction Signature:", json.dumps(signed_refund_transaction.signature(), indent=4))
 print("Signed Refund Transaction Type:", signed_refund_transaction.type())
 
@@ -92,7 +92,7 @@ refund_signature.sign(
 print("Refund Signature Fee:", refund_signature.fee())
 print("Refund Signature Hash:", refund_signature.hash())
 print("Refund Signature Main Raw:", refund_signature.raw())
-print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
+# print("Refund Signature Json:", json.dumps(refund_signature.json(), indent=4))
 print("Refund Signature Signature:", json.dumps(refund_signature.signature(), indent=4))
 print("Refund Signature Type:", refund_signature.type())
 

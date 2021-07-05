@@ -8,14 +8,21 @@ from swap.providers.xinfin.rpc import (
 )
 
 # Choose network mainnet or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "mainnet"
 # XinFin private key
-PRIVATE_KEY: str = "8a4bc8131e99a5d1064cdbca6949aa2ec16152967b19f2cee3096daefd5ca857"
+PRIVATE_KEY: str = "..."
+
+print("=" * 10, "Deploy HTLC from XinFin Account")
 
 # Initialize XinFin wallet
 wallet: Wallet = Wallet(network=NETWORK)
 # Get XinFin wallet from private key
 wallet.from_private_key(private_key=PRIVATE_KEY)
+
+print("Private Key:", wallet.private_key())
+print("Public Key:", wallet.public_key())
+print("Address:", wallet.address())
+print("Balance:", wallet.balance(unit="XDC"), "XDC")
 
 print("=" * 10, "Compile Hash Time Lock Contract (HTLC) Smart contract")
 
@@ -43,11 +50,11 @@ print("HTLC Transaction Hash:", htlc.hash())
 print("HTLC Transaction Json:", htlc.json())
 print("HTLC Transaction Raw:", htlc.raw())
 
-print("=" * 10, "Wait to be mined and Get Contract Address")
+print("=" * 10, "Wait to be mined for 5 minutes ...")
 
-# Wait 60 seconds for HTLC transaction to be mined
+# Wait 300 seconds for HTLC transaction to be mined
 transaction_receipt = wait_for_transaction_receipt(
-    transaction_hash=htlc.hash(), network=NETWORK, timeout=60
+    transaction_hash=htlc.hash(), network=NETWORK, timeout=300  # 5 minutes
 )
 
 print("HTLC Contract Address:", to_checksum_address(transaction_receipt["contractAddress"]))

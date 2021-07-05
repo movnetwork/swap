@@ -17,9 +17,9 @@ from swap.utils import (
 import json
 
 # Choose network mainnet or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "mainnet"
 # XinFin HTLC contract address
-CONTRACT_ADDRESS: str = "xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7"
+CONTRACT_ADDRESS: str = "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # XinFin sender wallet mnemonic
@@ -136,6 +136,6 @@ print("Fund Signature Transaction Raw:", signed_fund_signature_transaction_raw)
 assert signed_fund_transaction_raw == signed_fund_signature_transaction_raw
 
 # Submit fund transaction raw
-print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
+# ), indent=4))

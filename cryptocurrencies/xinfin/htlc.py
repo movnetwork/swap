@@ -7,10 +7,10 @@ from swap.utils import (
 
 import json
 
-# Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "testnet"
+# Choose network mainnet or testnet
+NETWORK: str = "mainnet"
 # XinFin HTLC contract address
-CONTRACT_ADDRESS: str = "xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7"
+CONTRACT_ADDRESS: str = "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # XinFin recipient address
