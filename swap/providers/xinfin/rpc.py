@@ -5,6 +5,7 @@ from web3.types import Wei
 from web3.providers import (
     HTTPProvider, WebsocketProvider
 )
+from web3._utils.threads import Timeout
 from pyxdc.utils import decode_transaction_raw as dtr
 from hexbytes.main import HexBytes
 from eth_typing import URI
@@ -13,9 +14,11 @@ from typing import (
 )
 
 import web3 as _web3
+import requests
+import json
 
 from ...exceptions import (
-    AddressError, NetworkError
+    AddressError, NetworkError, APIError
 )
 from ..config import xinfin as config
 from .utils import (
@@ -42,7 +45,7 @@ def get_web3(network: str = config["network"], provider: str = config["provider"
     # Check parameter instances
     if not is_network(network=network):
         raise NetworkError(f"Invalid XinFin '{network}' network",
-                           "choose only 'mainnet', 'mainnet', 'kovan', 'rinkeby' or 'testnet' networks.")
+                           "choose only 'mainnet' or 'testnet' networks.")
 
     if provider == "http":
         web3: Web3 = Web3(HTTPProvider(
@@ -87,7 +90,7 @@ def get_balance(address: str, network: str = config["network"], provider: str = 
         raise AddressError(f"Invalid XinFin '{address}' address.")
 
     web3: Web3 = get_web3(network=network, provider=provider)
-    balance: int = web3.eth.getBalance(
+    balance: int = web3.eth.get_balance(
         to_checksum_address(address=address, prefix="0x")
     )
     return Wei(balance)
@@ -120,39 +123,8 @@ def get_transaction(transaction_hash: str, network: str = config["network"],
     return transaction_detail_dict
 
 
-def wait_for_transaction_receipt(transaction_hash: str, timeout: int = config["timeout"],
-                                 network: str = config["network"], provider: str = config["provider"]) -> dict:
-    """
-    Wait for XinFin transaction receipt.
-
-    :param transaction_hash: XinFin transaction hash/id.
-    :type transaction_hash: str
-    :param timeout: Request timeout, default to 60.
-    :type timeout: int
-    :param network: XinFin network, defaults to ``mainnet``.
-    :type network: str
-    :param provider: XinFin network provider, defaults to ``http``.
-    :type provider: str
-
-    :returns: dict -- XinFin transaction receipt.
-
-    >>> from swap.providers.xinfin.rpc import wait_for_transaction_receipt
-    >>> wait_for_transaction_receipt(transaction_hash="d26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d", timeout=120, network="testnet")
-    {'transactionHash': '0xd26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d', 'transactionIndex': 0, 'blockHash': '0xb325934bfb333b5ca77634081cfeaedfa53598771dcfcb482ed3ace789ec5843', 'blockNumber': 1, 'from': 'xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C', 'to': None, 'gasUsed': 1582730, 'cumulativeGasUsed': 1582730, 'contractAddress': '0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40', 'logs': [], 'status': 1, 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}
-    """
-
-    web3: Web3 = get_web3(network=network, provider=provider)
-    transaction_dict: dict = web3.eth.wait_for_transaction_receipt(
-        transaction_hash=HexBytes(transaction_hash), timeout=timeout
-    ).__dict__
-    for key, value in transaction_dict.items():
-        if isinstance(value, HexBytes):
-            transaction_dict[key] = transaction_dict[key].hex()
-    return transaction_dict
-
-
-def get_transaction_receipt(transaction_hash: str, network: str = config["network"],
-                            provider: str = config["provider"]) -> Optional[dict]:
+def get_transaction_receipt(transaction_hash: str, network: str = config["network"], provider: str = config["provider"],
+                            headers: dict = config["headers"], timeout: int = config["timeout"]) -> Optional[dict]:
     """
     Get XinFin transaction receipt.
 
@@ -162,23 +134,75 @@ def get_transaction_receipt(transaction_hash: str, network: str = config["networ
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
+    :param headers: Request headers, default to ``common headers``.
+    :type headers: dict
+    :param timeout: request timeout, default to ``60``.
+    :type timeout: int
 
     :returns: dict -- XinFin transaction receipt.
 
     >>> from swap.providers.xinfin.rpc import get_transaction_receipt
-    >>> get_transaction_receipt(transaction_hash="d26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d", network="testnet")
-    {'transactionHash': '0xd26220f61ff4207837ee3cf5ab2a551b2476389ae76cf1ccd2005d304bdc308d', 'transactionIndex': 0, 'blockHash': '0xb325934bfb333b5ca77634081cfeaedfa53598771dcfcb482ed3ace789ec5843', 'blockNumber': 1, 'from': 'xdc69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C', 'to': None, 'gasUsed': 1582730, 'cumulativeGasUsed': 1582730, 'contractAddress': '0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40', 'logs': [], 'status': 1, 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'}
+    >>> get_transaction_receipt(transaction_hash="0x5f4b11c11553cf040131b273c2bbc8c93d217269dd9b28393d5d0a3d623c1fcc", network="testnet")
+    {'blockHash': '0x08d711ba038b97d0622d2c08b74dd2d9d2d00492116ead11452c12688618dcbc', 'blockNumber': '0x1e93914', 'contractAddress': None, 'cumulativeGasUsed': '0x5208', 'from': 'xdc95e80fc8ef98b92fe71514168c2e4b8f0ce38169', 'gasUsed': '0x5208', 'logs': [], 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', 'status': '0x1', 'to': 'xdc2224caa2235df8da3d2016d2ab1137d2d548a232', 'transactionHash': '0x5f4b11c11553cf040131b273c2bbc8c93d217269dd9b28393d5d0a3d623c1fcc', 'transactionIndex': '0x0'}
     """
 
-    web3: Web3 = get_web3(network=network, provider=provider)
-    try:
-        transaction_dict: dict = web3.eth.get_transaction_receipt(transaction_hash).__dict__
-        for key, value in transaction_dict.items():
-            if isinstance(value, HexBytes):
-                transaction_dict[key] = transaction_dict[key].hex()
-        return transaction_dict
-    except _web3.exceptions.TransactionNotFound:
-        return None
+    if network == "mainnet":
+        url = f"{config[network][provider]}/getTransactionReceipt"
+        data = dict(
+            jsonrpc="2.0", method="eth_getTransactionReceipt", params=[transaction_hash], id=1
+        )
+        response = requests.post(
+            url=url, data=json.dumps(data), headers=headers, timeout=timeout
+        )
+        if response.status_code == 200:
+            return response.json()["result"]
+        raise APIError(response.status_code, response.content)
+    else:
+        web3: Web3 = get_web3(network=network, provider=provider)
+        try:
+            transaction_dict: dict = web3.eth.get_transaction_receipt(transaction_hash).__dict__
+            for key, value in transaction_dict.items():
+                if isinstance(value, HexBytes):
+                    transaction_dict[key] = transaction_dict[key].hex()
+            return transaction_dict
+        except _web3.exceptions.TransactionNotFound:
+            return None
+
+
+def wait_for_transaction_receipt(transaction_hash: str, network: str = config["network"],
+                                 timeout: int = config["timeout"], provider: str = config["provider"],
+                                 headers: dict = config["headers"]) -> dict:
+    """
+    Wait for XinFin transaction receipt.
+
+    :param transaction_hash: XinFin transaction hash/id.
+    :type transaction_hash: str
+    :param network: XinFin network, defaults to ``mainnet``.
+    :type network: str
+    :param timeout: request timeout, default to ``60``.
+    :type timeout: int
+    :param provider: XinFin network provider, defaults to ``http``.
+    :type provider: str
+    :param headers: Request headers, default to ``common headers``.
+    :type headers: dict
+
+    :returns: dict -- XinFin transaction receipt.
+
+    >>> from swap.providers.xinfin.rpc import wait_for_transaction_receipt
+    >>> wait_for_transaction_receipt(transaction_hash="0x5f4b11c11553cf040131b273c2bbc8c93d217269dd9b28393d5d0a3d623c1fcc", timeout=120, network="testnet")
+    {'blockHash': '0x08d711ba038b97d0622d2c08b74dd2d9d2d00492116ead11452c12688618dcbc', 'blockNumber': '0x1e93914', 'contractAddress': None, 'cumulativeGasUsed': '0x5208', 'from': 'xdc95e80fc8ef98b92fe71514168c2e4b8f0ce38169', 'gasUsed': '0x5208', 'logs': [], 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', 'status': '0x1', 'to': 'xdc2224caa2235df8da3d2016d2ab1137d2d548a232', 'transactionHash': '0x5f4b11c11553cf040131b273c2bbc8c93d217269dd9b28393d5d0a3d623c1fcc', 'transactionIndex': '0x0'}
+    """
+
+    poll_latency: float = 0.1
+    with Timeout(timeout) as _timeout:
+        while True:
+            txn_receipt = get_transaction_receipt(
+                transaction_hash=transaction_hash, network=network, provider=provider, headers=headers
+            )
+            if txn_receipt is not None and txn_receipt['blockHash'] is not None:
+                break
+            _timeout.sleep(poll_latency)
+    return txn_receipt
 
 
 def decode_raw(transaction_raw: str) -> dict:
