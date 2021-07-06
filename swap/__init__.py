@@ -2,7 +2,7 @@
 
 
 # Swap Information's
-__version__: str = "0.4.0a1"
+__version__: str = "0.4.0"
 __license__: str = "AGPL-3.0"
 __author__: str = "Meheret Tesfaye Batu"
 __email__: str = "meherett@zoho.com"

@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.com/meherett/swap.svg?branch=master)](https://travis-ci.com/meherett/swap?branch=master)
 [![PyPI Version](https://img.shields.io/pypi/v/swap.svg?color=blue)](https://pypi.org/project/swap)
-[![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=latest)](https://swap.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=master)](https://swap.readthedocs.io)
 [![PyPI Python Version](https://img.shields.io/pypi/pyversions/swap.svg)](https://pypi.org/project/swap)
 [![Coverage Status](https://coveralls.io/repos/github/meherett/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/meherett/swap?branch=master)
 
