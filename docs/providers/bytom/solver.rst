@@ -6,19 +6,14 @@ Bytom solver.
 
 .. automodule:: swap.providers.bytom.solver
 
-NormalSolver
-------------
-.. autoclass:: NormalSolver
-   :members:
-
 FundSolver
 ----------
 .. autoclass:: FundSolver
    :members:
 
-ClaimSolver
------------
-.. autoclass:: ClaimSolver
+WithdrawSolver
+--------------
+.. autoclass:: WithdrawSolver
    :members:
 
 RefundSolver

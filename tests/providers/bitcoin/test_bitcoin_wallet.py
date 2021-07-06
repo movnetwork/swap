@@ -43,7 +43,6 @@ def test_bitcoin_wallet_from_entropy():
     assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
     assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
     assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
-    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() == _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
     assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
@@ -82,7 +81,6 @@ def test_bitcoin_wallet_from_mnemonic():
     assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
     assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
     assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
-    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() == _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
     assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
@@ -119,7 +117,6 @@ def test_bitcoin_wallet_from_seed():
     assert wallet.public_key() == _["bitcoin"]["wallet"]["recipient"]["public_key"]
     assert wallet.wif() == _["bitcoin"]["wallet"]["recipient"]["wif"]
     assert wallet.hash() == _["bitcoin"]["wallet"]["recipient"]["hash"]
-    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["recipient"]["p2pkh"]
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["recipient"]["finger_print"]
     assert wallet.path() == _["bitcoin"]["wallet"]["recipient"]["derivation"]["path"]
     assert wallet.address() == _["bitcoin"]["wallet"]["recipient"]["address"]
@@ -133,7 +130,7 @@ def test_bitcoin_wallet_from_root_xprivate_key():
     wallet = Wallet(network=_["bitcoin"]["network"])
 
     wallet.from_root_xprivate_key(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"]
+        xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"]
     )
 
     wallet.from_path(
@@ -156,7 +153,6 @@ def test_bitcoin_wallet_from_root_xprivate_key():
     assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
     assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
     assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
-    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() == _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
     assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
@@ -189,7 +185,6 @@ def test_bitcoin_wallet_from_xprivate_key():
     assert wallet.public_key() == _["bitcoin"]["wallet"]["recipient"]["public_key"]
     assert wallet.wif() == _["bitcoin"]["wallet"]["recipient"]["wif"]
     assert wallet.hash() == _["bitcoin"]["wallet"]["recipient"]["hash"]
-    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["recipient"]["p2pkh"]
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["recipient"]["finger_print"]
     assert wallet.path() is None
     assert wallet.address() == _["bitcoin"]["wallet"]["recipient"]["address"]
@@ -222,7 +217,6 @@ def test_bitcoin_wallet_from_private_key():
     assert wallet.public_key() == _["bitcoin"]["wallet"]["sender"]["public_key"]
     assert wallet.wif() == _["bitcoin"]["wallet"]["sender"]["wif"]
     assert wallet.hash() == _["bitcoin"]["wallet"]["sender"]["hash"]
-    assert wallet.p2pkh() == _["bitcoin"]["wallet"]["sender"]["p2pkh"]
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() is None
     assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]

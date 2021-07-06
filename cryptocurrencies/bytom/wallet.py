@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
-from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
+from swap.providers.bytom.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.bytom.assets import BTM as ASSET
-from swap.utils import generate_entropy, generate_passphrase
-from typing import Optional
+from swap.utils import (
+    generate_entropy, generate_passphrase
+)
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"  # Default to mainnet
@@ -13,10 +16,10 @@ STRENGTH: int = 160  # Default is 128
 LANGUAGE: str = "english"  # Default is english
 # Set passphrase length
 LENGTH: int = 32  # Default is 32
-# Generate new entropy
+# Generate new entropy hex string
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
-PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
+PASSPHRASE: str = generate_passphrase(length=LENGTH)
 
 # Initialize Bytom wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -39,7 +42,7 @@ print("XPublic Key:", wallet.xpublic_key())
 print("Expand XPrivate Key:", wallet.expand_xprivate_key())
 print("Child XPrivate Key:", wallet.child_xprivate_key())
 print("Child XPublic Key:", wallet.child_xpublic_key())
-print("GUID:", wallet.guid())
+# print("GUID:", wallet.guid())
 print("Indexes:", wallet.indexes())
 print("Path:", wallet.path())
 print("Private Key:", wallet.private_key())

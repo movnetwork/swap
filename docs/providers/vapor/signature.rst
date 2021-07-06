@@ -9,19 +9,14 @@ Vapor signature.
 .. autoclass:: Signature
    :members:
 
-NormalSignature
----------------
-.. autoclass:: NormalSignature
-   :members:
-
 FundSignature
 -------------
 .. autoclass:: FundSignature
    :members:
 
-ClaimSignature
---------------
-.. autoclass:: ClaimSignature
+WithdrawSignature
+-----------------
+.. autoclass:: WithdrawSignature
    :members:
 
 RefundSignature

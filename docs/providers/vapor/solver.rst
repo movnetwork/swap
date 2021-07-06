@@ -6,19 +6,14 @@ Vapor solver.
 
 .. automodule:: swap.providers.vapor.solver
 
-NormalSolver
-------------
-.. autoclass:: NormalSolver
-   :members:
-
 FundSolver
 ----------
 .. autoclass:: FundSolver
    :members:
 
-ClaimSolver
------------
-.. autoclass:: ClaimSolver
+WithdrawSolver
+--------------
+.. autoclass:: WithdrawSolver
    :members:
 
 RefundSolver

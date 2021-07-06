@@ -8,49 +8,13 @@ import requests
 import json
 import datetime
 
-from ...utils import clean_transaction_raw
+from ...utils import (
+    clean_transaction_raw, get_current_timestamp
+)
 from ...exceptions import (
     NetworkError, APIError, TransactionRawError, UnitError, AddressError
 )
 from ..config import vapor as config
-
-
-def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM") -> Union[int, float]:
-    """
-    Vapor amount unit converter
-
-    :param amount: Vapor any amount.
-    :type amount: int, float
-    :param unit_from: Vapor unit convert from symbol, default to NEU2BTM.
-    :type unit_from: str
-
-    :returns: int, float -- BTM asset amount.
-
-    >>> from swap.providers.vapor.utils import amount_unit_converter
-    >>> amount_unit_converter(amount=10_000_000, unit_from="NEU2BTM")
-    0.1
-    """
-
-    if unit_from not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
-        raise UnitError(f"Invalid Vapor '{unit_from}' unit from",
-                        "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', "
-                        "'NEU2BTM' or 'NEU2mBTM' units.")
-
-    # Constant unit values
-    BTM, mBTM, NEU = (1, 1000, 100_000_000)
-
-    if unit_from == "BTM2mBTM":
-        return float((amount * mBTM) / BTM)
-    elif unit_from == "BTM2NEU":
-        return int((amount * NEU) / BTM)
-    elif unit_from == "mBTM2BTM":
-        return float((amount * BTM) / mBTM)
-    elif unit_from == "mBTM2NEU":
-        return int((amount * NEU) / mBTM)
-    elif unit_from == "NEU2BTM":
-        return float((amount * BTM) / NEU)
-    elif unit_from == "NEU2mBTM":
-        return int((amount * mBTM) / NEU)
 
 
 def get_address_type(address: str) -> Optional[str]:
@@ -63,7 +27,7 @@ def get_address_type(address: str) -> Optional[str]:
     :returns: str -- Vapor address type (P2WPKH, P2WSH).
 
     >>> from swap.providers.vapor.utils import get_address_type
-    >>> get_address_type(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag")
+    >>> get_address_type(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs")
     "p2wpkh"
     """
 
@@ -103,15 +67,15 @@ def is_address(address: str, network: Optional[str] = None, address_type: Option
 
     :param address: Vapor address.
     :type address: str
-    :param network: Vapor network, defaults to None.
+    :param network: Vapor network, defaults to ``None``.
     :type network: str
-    :param address_type: Vapor address type, defaults to None.
+    :param address_type: Vapor address type, defaults to ``None``.
     :type address_type: str
 
     :returns: bool -- Vapor valid/invalid address.
 
     >>> from swap.providers.vapor.utils import is_address
-    >>> is_address(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", network="mainnet")
+    >>> is_address(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", network="mainnet")
     True
     """
 
@@ -155,13 +119,93 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
-            "vapor_normal_unsigned", "vapor_normal_signed",
             "vapor_fund_unsigned", "vapor_fund_signed",
-            "vapor_claim_unsigned", "vapor_claim_signed",
+            "vapor_withdraw_unsigned", "vapor_withdraw_signed",
             "vapor_refund_unsigned", "vapor_refund_signed"
         ]
     except:
         return False
+    
+
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM") -> Union[int, float]:
+    """
+    Vapor amount unit converter
+
+    :param amount: Vapor any amount.
+    :type amount: int, float
+    :param unit_from: Vapor unit convert from symbol, default to ``NEU2BTM``.
+    :type unit_from: str
+
+    :returns: int, float -- BTM asset amount.
+
+    >>> from swap.providers.vapor.utils import amount_unit_converter
+    >>> amount_unit_converter(amount=10_000_000, unit_from="NEU2BTM")
+    0.1
+    """
+
+    if unit_from not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
+        raise UnitError(f"Invalid Vapor '{unit_from}' unit from",
+                        "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', "
+                        "'NEU2BTM' or 'NEU2mBTM' units.")
+
+    # Constant unit values
+    BTM, mBTM, NEU = (
+        config["units"]["BTM"],
+        config["units"]["mBTM"],
+        config["units"]["NEU"]
+    )
+
+    if unit_from == "BTM2mBTM":
+        return float((amount * mBTM) / BTM)
+    elif unit_from == "BTM2NEU":
+        return int((amount * NEU) / BTM)
+    elif unit_from == "mBTM2BTM":
+        return float((amount * BTM) / mBTM)
+    elif unit_from == "mBTM2NEU":
+        return int((amount * NEU) / mBTM)
+    elif unit_from == "NEU2BTM":
+        return float((amount * BTM) / NEU)
+    elif unit_from == "NEU2mBTM":
+        return int((amount * mBTM) / NEU)
+    
+    
+def estimate_endblock(endtime: int, network: str = config["network"],
+                      headers: dict = config["headers"], timeout: int = config["timeout"]) -> int:
+    """
+    Estimate Vapor expiration block height.
+
+    :param endtime: Expiration block timestamp.
+    :type endtime: int
+    :param network: Vapor network, defaults to ``mainnet``.
+    :type network: str
+    :param headers: Request headers, default to ``common headers``.
+    :type headers: dict
+    :param timeout: Request timeout, default to ``60``.
+    :type timeout: int
+
+    :returns: str -- Estimated Vapor endblock.
+
+    >>> from swap.providers.vapor.utils import estimate_endblock
+    >>> from swap.utils import get_current_timestamp
+    >>> estimate_endblock(endtime=get_current_timestamp(plus=3600))
+    680854
+    """
+
+    if not is_network(network=network):
+        raise NetworkError(f"Invalid Vapor '{network}' network",
+                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+    if endtime <= get_current_timestamp():
+        raise ValueError("Wrong endtime, must be in the future not current or past timestamp.")
+
+    endblock: float = (endtime - get_current_timestamp()) / config["to_create_new_block_seconds"]
+
+    url = f"{config[network]['blockmeta']}/block"
+    response = requests.get(
+        url=url, headers=headers, timeout=timeout
+    )
+    if response.status_code == 200:
+        return int(response.json()["data"]["block"]["height"] + endblock)
+    raise APIError("Can't get current latest Vapor block height.")
 
 
 def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers"],
@@ -171,9 +215,9 @@ def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers
 
     :param transaction_raw: Vapor transaction raw.
     :type transaction_raw: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Decoded Vapor transaction raw.
@@ -218,9 +262,9 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
 
     :param transaction_raw: Vapor transaction raw.
     :type transaction_raw: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor submitted transaction id, fee, type and date.
@@ -228,7 +272,7 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
     >>> from swap.providers.vapor.utils import submit_transaction_raw
     >>> transaction_raw = "eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcWU5MHFqdDl3NG04cnQzdG51dTBwenAyNGRrZmZlbHlzOHpjd3llIiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkMzA1YTI4ZDhkMzRiNDBjNjU5MzY4MTBmOWU5YzFmOGJjOWM3OTNlYzJlNzJjNzBmOTIwM2ZiYmViMGE1NmRiOWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAxMDExNjAwMTQwZTQzYTkyYTllOGFjYTc4OGViMTU1MWMzMTY0NDhjMmUzZjc4MjE1MDEwMDAxNWYwMTVkMjAyZmQyNTU3YjY3ZjFkZjhiOGFjZWYwNjZmNWQ0NmE4NTAwODE0MzliNDE5MzI1ZDU1ZGJkOTM0MWUxMWFjNGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MDg0YWY1ZjAxMDExNjAwMTRjOTVlMDkyY2FlYWVjZTM1YzU3M2U3MWUxMTA1NTU2ZDkyOWNmYzkwMjIwMTIwNTk5MDdmZGFkMGZmOTVmZWJhNDNhZWYzN2QyZTU1YzU3YjZlMTg2Y2QzYWQxN2M4M2U2YzgwYzY1ODIxOGI2NTAyMDEzYWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDExNjAwMTRjOTVlMDkyY2FlYWVjZTM1YzU3M2U3MWUxMTA1NTU2ZDkyOWNmYzkwMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmUwOTQ5MDY0MDExNjAwMTRjOTVlMDkyY2FlYWVjZTM1YzU3M2U3MWUxMTA1NTU2ZDkyOWNmYzkwMDAiLCAiaGFzaCI6ICI3NzlmYzliOWNhNGRiMTVkNDFhYzgwNDNlZDRlNDFkYjg4NDU2ZjA1YzljZmJhMDQ5MzYyZWNlZmQ2MjY3ZmMzIiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbIjMzZThkYThjZThlZjEzZmI0OTM4YTM3NGFlYTM2NjRlNGNkMmNkMDBmZGQ5ZDI5ODU5M2JkYmQ4NzJkNjZiODgiXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogbnVsbH0sIHsiZGF0YXMiOiBbIjc1ZTg3Yzc5MzNiNGRjNGE4N2UwNmZlZDMyM2U4NDI1ZTU0YTQ5NGZmODBkYzdmOGM0NTUyY2RiMGE2YmM3NGEiXSwgInB1YmxpY19rZXkiOiAiNTk5MDdmZGFkMGZmOTVmZWJhNDNhZWYzN2QyZTU1YzU3YjZlMTg2Y2QzYWQxN2M4M2U2YzgwYzY1ODIxOGI2NSIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9XSwgInNpZ25hdHVyZXMiOiBbXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX2NsYWltX3Vuc2lnbmVkIn0"
     >>> submit_transaction_raw(transaction_raw=transaction_raw)
-    {'fee': ..., 'type': '...', 'transaction_id': '...', 'network': '...', 'date': '...'}
+    {'fee': ..., 'type': '...', 'transaction_hash': '...', 'network': '...', 'date': '...'}
     """
 
     if not is_transaction_raw(transaction_raw=transaction_raw):
@@ -251,7 +295,7 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
     return dict(
         fee=loaded_transaction_raw["fee"],
         type=loaded_transaction_raw["type"],
-        transaction_id=response_json["data"]["tx_hash"],
+        transaction_hash=response_json["data"]["tx_hash"],
         network=loaded_transaction_raw["network"],
         date=str(datetime.datetime.now())
     )

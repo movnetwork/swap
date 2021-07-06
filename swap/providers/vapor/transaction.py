@@ -8,24 +8,27 @@ from pybytom.wallet.tools import (
     indexes_to_path, get_program, get_address
 )
 from base64 import b64encode
-from typing import Optional, Union
+from typing import (
+    Optional, Union, List
+)
 
 import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    AddressError, NetworkError, BalanceError, UnitError
+    AddressError, NetworkError, UnitError
 )
 from ..config import vapor as config
 from .assets import AssetNamespace
+from .htlc import HTLC
 from .rpc import (
-    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction, get_balance
+    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
 )
 from .solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from .utils import (
-    amount_unit_converter, is_network, is_address, get_address_type
+    amount_unit_converter, is_network, is_address
 )
 
 
@@ -35,8 +38,8 @@ class Transaction(VaporTransaction):
 
     :param network: Vapor network, defaults to mainnet.
     :type network: str
-    
-    :returns:  Transaction -- Vapor transaction instance.
+
+    :returns: Transaction -- Vapor transaction instance.
 
     .. note::
         Vapor has only three networks, ``mainnet``. ``solonet`` and ``mainnet``.
@@ -55,8 +58,6 @@ class Transaction(VaporTransaction):
         self._transaction: Optional[dict] = None
         self._type: Optional[str] = None
         self._confirmations: int = config["confirmations"]
-        self._datas: dict = {}
-        self._interest: int = 0
         self._amount: int = 0
         self._fee: int = 0
 
@@ -69,11 +70,11 @@ class Transaction(VaporTransaction):
 
         :returns: int, float -- Vapor transaction fee.
 
-        >>> from swap.providers.vapor.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.fee(unit="NEU")
-        10000000
+        >>> from swap.providers.vapor.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.fee(unit="NEU")
+        509000
         """
 
         if unit not in ["BTM", "mBTM", "NEU"]:
@@ -87,11 +88,14 @@ class Transaction(VaporTransaction):
 
         :returns: str -- Vapor transaction id/hash.
 
+       >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.providers.vapor.transaction import FundTransaction
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=120723497)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         >>> fund_transaction.hash()
-        "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
+        "a09f3093aaff6c8c8f1a372eac68571ceea4928ccc8b9b54954863758447dec1"
         """
 
         # Check transaction
@@ -106,10 +110,10 @@ class Transaction(VaporTransaction):
         :returns: dict -- Vapor transaction json format.
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.json()
-        {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
+        {'tx_id': '6d9642222bafb9d6968ee2eed988c837b1da56fcec6fd96329fff8c0d5518f92', 'version': 1, 'size': 181, 'time_range': 0, 'inputs': [{'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 10000000, 'control_program': '002034a3db50301b941b8ed43dcfdbd3381df1b739fa64ab77e4264f703a45e0be31', 'address': 'vp1qxj3ak5psrw2phrk58h8ah5ecrhcmww06vj4h0epxfacr530qhccs4pczgc', 'spent_output_id': '144dd8355cae0d9aea6ca3fb1ff685fb7b455b1f9cb0c5992c9035844c664ad1', 'input_id': '576edbd5cf8682fb82eb8fb61ba3d6f25a9490777be607d2e75b2dbcbbceb89e', 'witness_arguments': None}], 'outputs': [{'type': 'control', 'id': 'b6a843f8257fc06ad922a69fa2cfa413277703ffb04512a35799d3c8a2c5d7a2', 'position': 0, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'asset_definition': {}, 'amount': 9491000, 'control_program': '0014b1592acbb917f13937166c2a9b6ce973296ebb60', 'address': 'vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs'}], 'fee': 509000}
         """
 
         # Check transaction
@@ -123,29 +127,29 @@ class Transaction(VaporTransaction):
 
         :returns: str -- Vapor transaction raw.
 
-        >>> from swap.providers.vapor.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.raw()
-        "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
+        >>> from swap.providers.vapor.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.raw()
+        "07010001016b0169df82cf7c7927786a6956937744ee82354c481b0f211ac52a5c1d744c4e3e7866ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80ade204000122002034a3db50301b941b8ed43dcfdbd3381df1b739fa64ab77e4264f703a45e0be31010001013e003cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffb8a4c30401160014887ee66d84a82f2d86824a45bb51fdea03c92f4900"
         """
 
         # Check transaction
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
         return self._transaction["raw_transaction"]
-    
+
     def type(self) -> str:
         """
-        Get Bitcoin signature transaction type.
+        Get Vapor signature transaction type.
 
-        :returns: str -- Bitcoin signature transaction type.
+        :returns: str -- Vapor signature transaction type.
 
-        >>> from swap.providers.vapor.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.type()
-        "bitcoin_claim_unsigned"
+        >>> from swap.providers.vapor.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.type()
+        "vapor_withdraw_unsigned"
         """
 
         # Check transaction
@@ -153,7 +157,7 @@ class Transaction(VaporTransaction):
             raise ValueError("transaction script is none, build transaction first.")
         return self._type
 
-    def unsigned_datas(self, detail: bool = False) -> list:
+    def unsigned_datas(self, detail: bool = False) -> List[dict]:
         """
         Get Vapor transaction unsigned datas(messages) with instruction.
 
@@ -162,22 +166,21 @@ class Transaction(VaporTransaction):
 
         :returns: list -- Vapor transaction unsigned datas.
 
+        >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.providers.vapor.transaction import FundTransaction
-        >>> from swap.providers.vapor.solver import FundSolver
-        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> fund_transaction.unsigned_datas(solver=fund_solver)
-        [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=120723497)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
+        >>> fund_transaction.unsigned_datas()
+        [{'datas': ['d7107257ef5fbfb04fc4747d6887f230a30676ecd6703a58015878b54f1f7b4f'], 'public_key': 'fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
         """
 
         # Check transaction
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
 
-        unsigned_datas: list = []
+        unsigned_datas: List[dict] = []
         for signing_instruction in self._transaction["signing_instructions"]:
             unsigned_data = dict(datas=signing_instruction["sign_data"])
             if "pubkey" in signing_instruction and signing_instruction["pubkey"]:
@@ -210,26 +213,23 @@ class Transaction(VaporTransaction):
 
         return unsigned_datas
 
-    def sign(self, *args, **kwargs):
-        # Not implemented
-        pass
-
-    def signatures(self) -> list:
+    def signatures(self) -> List[List[str]]:
         """
         Get Vapor transaction signatures(signed datas).
 
         :returns: list -- Vapor transaction signatures.
 
+        >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> from swap.providers.vapor.solver import FundSolver
-        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=120723497)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", path="m/44/153/1/0/1")
         >>> fund_transaction.sign(solver=fund_solver)
         >>> fund_transaction.signatures()
-        [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
+        [['0d2e4e42fcee863e74195dceab1dfccf368055b171196faa90c53eaa2cea649bb43cc132354edad970b356aae5d628dd0160e787ac174af89ca534d14db71e00']]
         """
 
         # Check transaction
@@ -237,235 +237,14 @@ class Transaction(VaporTransaction):
             raise ValueError("Transaction is none, build transaction first.")
         return self._signatures
 
-    def datas(self) -> dict:
-        return self._datas
-
-
-class NormalTransaction(Transaction):
-    """
-    Vapor Normal transaction.
-
-    :param network: Vapor network, defaults to mainnet.
-    :type network: str
-
-    :returns: NormalTransaction -- Vapor normal transaction instance.
-
-    .. warning::
-        Do not forget to build transaction after initialize normal transaction.
-    """
-
-    def __init__(self, network: str = config["network"]):
-        super().__init__(network)
-
-    def build_transaction(self, address: str, recipients: dict, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "NormalTransaction":
-        """
-        Build Vapor normal transaction.
-
-        :param address: Vapor sender wallet address.
-        :type address: str
-        :param recipients: Recipients Vapor address and amount.
-        :type recipients: dict
-        :param asset: Vapor asset id, defaults to BTM asset.
-        :type asset: str, vapor.assets.AssetNamespace
-        :param fee: Vapor custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Vapor unit, default to NEU.
-        :type unit: str
-
-        :returns: NormalTransaction -- Vapor normal transaction instance.
-
-        >>> from swap.providers.vapor.transaction import NormalTransaction
-        >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", recipients={"vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
-        """
-
-        # Check parameter instances
-        if not is_address(address, self._network):
-            raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
-        if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
-
-        # Set address, fee and confirmations
-        self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
-            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], [], [], (
-                sum(recipients.values()) if unit == "NEU" else
-                amount_unit_converter(
-                    amount=sum(recipients.values()), unit_from=f"{unit}2NEU"
-                )
-            )
-        )
-
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            if "address" in options and "percent" in options:
-                self._interest = int((self._amount * options["percent"]) / 100)
-
-        maximum_amount: int = get_balance(self._address, self._asset)
-        if maximum_amount < self._amount:
-            raise BalanceError(
-                "Insufficient spend UTXO's", f"you don't have enough amount. "
-                f"You can spend maximum {maximum_amount} NEU sum of recipients amounts."
-            )
-
-        if fee is None:
-            # Estimating transaction fee
-            self._fee = estimate_transaction_fee(
-                address=self._address, asset=self._asset,
-                amount=(self._amount if not self._interest else (self._amount + self._interest)),
-                confirmations=self._confirmations, network=self._network
-            )
-        else:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-
-        fi: int = (self._fee if not self._interest else (self._fee + self._interest))
-        if maximum_amount < (self._amount + fi):
-            raise BalanceError(
-                f"You don't have enough amount to pay {fi} NEU fee",
-                f"you can spend maximum {maximum_amount - fi} NEU amount."
-            )
-
-        # Outputs action
-        for _address, _amount in recipients.items():
-            if not is_address(_address, self._network):
-                raise AddressError(f"Invalid Vapor recipients '{_address}' {self._network} address.")
-            outputs.append(control_address(
-                asset=self._asset, address=_address, amount=_amount, vapor=True
-            ))
-
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=self._interest,
-                address=kwargs["options"]["address"], vapor=True
-            ))
-
-        # Build transaction
-        self._transaction = build_transaction(
-            address=self._address,
-            transaction=dict(
-                fee=str(amount_unit_converter(
-                    amount=self._fee, unit_from="NEU2BTM"
-                )),
-                confirmations=self._confirmations,
-                inputs=[spend_wallet(
-                    asset=self._asset, amount=self._amount
-                )],
-                outputs=outputs
-            ),
-            network=self._network
-        )
-
-        # Set transaction type
-        self._type = "vapor_normal_unsigned"
-        return self
-
-    def sign(self, solver: NormalSolver) -> "NormalTransaction":
-        """
-        Sign Vapor normal transaction.
-
-        :param solver: Vapor normal solver.
-        :type solver: vapor.solver.NormalSolver
-
-        :returns: NormalTransaction -- Vapor normal transaction instance.
-
-        >>> from swap.providers.vapor.transaction import NormalTransaction
-        >>> from swap.providers.vapor.solver import NormalSolver
-        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> normal_solver = NormalSolver(sender_wallet.xprivate_key())
-        >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(sender_wallet.address(), {"vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> normal_transaction.sign(solver=normal_solver)
-        <swap.providers.vapor.transaction.NormalTransaction object at 0x0409DAF0>
-        """
-
-        # Check parameter instances
-        if not isinstance(solver, NormalSolver):
-            raise TypeError(f"Solver must be Vapor NormalSolver, not {type(solver).__name__} type.")
-
-        # Setting sender wallet
-        wallet, path, indexes = solver.solve()
-        # Clean derivation indexes/path
-        wallet.clean_derivation()
-        # Signing normal transaction
-        for unsigned in self.unsigned_datas(detail=True):
-            signed_data = []
-            unsigned_datas = unsigned["datas"]
-            if unsigned["path"]:
-                wallet.from_path(unsigned["path"])
-            elif path:
-                wallet.from_path(path)
-            elif indexes:
-                wallet.from_indexes(indexes)
-            for unsigned_data in unsigned_datas:
-                signed_data.append(wallet.sign(unsigned_data))
-            self._signatures.append(signed_data)
-            wallet.clean_derivation()
-
-        # Set transaction type
-        self._type = "vapor_normal_signed"
-        return self
-
-    def transaction_raw(self) -> str:
-        """
-        Get Vapor normal transaction raw.
-
-        :returns: str -- Vapor normal transaction raw.
-
-        >>> from swap.providers.vapor.transaction import NormalTransaction
-        >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", {"vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> normal_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
-        """
-
-        # Check transaction
-        if self._transaction is None:
-            raise ValueError("Transaction is none, build transaction first.")
-
-        # Encode normal transaction raw
-        if self._type == "vapor_normal_signed":
-            return clean_transaction_raw(b64encode(str(json.dumps(dict(
-                fee=self._fee,
-                address=self._address,
-                raw=self.raw(),
-                hash=self.hash(),
-                unsigned_datas=self.unsigned_datas(
-                    detail=False
-                ),
-                signatures=self.signatures(),
-                network=self._network,
-                type=self._type,
-                datas=self._datas
-            ))).encode()).decode())
-        return clean_transaction_raw(b64encode(str(json.dumps(dict(
-            fee=self._fee,
-            address=self._address,
-            raw=self.raw(),
-            hash=self.hash(),
-            unsigned_datas=self.unsigned_datas(
-                detail=False
-            ),
-            signatures=[],
-            network=self._network,
-            type=self._type,
-            datas=self._datas
-        ))).encode()).decode())
-
 
 class FundTransaction(Transaction):
     """
     Vapor Fund transaction.
 
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
+
     :returns: FundTransaction -- Vapor fund transaction instance.
 
     .. warning::
@@ -475,137 +254,61 @@ class FundTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-        self._htlc_address: Optional[str] = None
+        self._contract_address: Optional[str] = None
 
-    def build_transaction(self, address: str, htlc_address: str, amount: Optional[Union[int, float]] = None,
-                          max_amount: bool = False, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc: HTLC, amount: int, asset: Union[str, AssetNamespace] = config["asset"],
+                          unit: str = config["unit"]) -> "FundTransaction":
         """
         Build Vapor fund transaction.
 
         :param address: Vapor sender wallet address.
         :type address: str
-        :param htlc_address: Vapor Hash Time Lock Contract (HTLC) address.
-        :type htlc_address: str
-        :param amount: Vapor amount to fund, default to None.
+        :param htlc: Vapor Hash Time Lock Contract (HTLC) instance.
+        :type htlc: str
+        :param amount: Vapor amount to fund.
         :type amount: int, float
-        :param max_amount: Vapor maximum amount to fund, default to False.
-        :type max_amount: bool
-        :param asset: Vapor asset id, defaults to BTM asset.
+        :param asset: Vapor asset id, defaults to ``BTM``.
         :type asset: str, vapor.assets.AssetNamespace
-        :param fee: Vapor custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Vapor unit, default to NEU.
+        :param unit: Vapor unit, default to ``NEU``.
         :type unit: str
 
         :returns: FundTransaction -- Vapor fund transaction instance.
 
+        >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.providers.vapor.transaction import FundTransaction
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", htlc_address="vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", amount=10000000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=120723497)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         <swap.providers.vapor.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
-        if not is_address(htlc_address, self._network) or get_address_type(htlc_address) != "p2wsh":
-            raise AddressError(f"Invalid Vapor HTLC '{htlc_address}' {self._network} P2WSH address.")
+        if not isinstance(htlc, HTLC):
+            raise TypeError("Invalid Vapor HTLC instance, only takes Vapor HTLC class")
         if unit not in ["BTM", "mBTM", "NEU"]:
             raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
         # Set address, fee and confirmations
-        self._address, self._asset, self._htlc_address, self._confirmations = (
+        self._address, self._asset, self._contract_address, self._confirmations, self._amount = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            htlc_address, config["confirmations"]
-        )
-
-        maximum_amount: int = get_balance(
-            address=self._address, asset=self._asset, network=self._network
-        )
-        if max_amount:
-            self._amount = maximum_amount
-        elif amount is None:
-            raise ValueError("Amount is None, Set amount or maximum amount set true.")
-        else:
-            self._amount = (
-                amount if unit == "NEU" else
-                amount_unit_converter(
+            htlc.contract_address(), config["confirmations"], (
+                amount if unit == "NEU" else amount_unit_converter(
                     amount=amount, unit_from=f"{unit}2NEU"
                 )
             )
-        if maximum_amount < self._amount:
-            raise BalanceError(
-                "Insufficient spend UTXO's", f"you don't have enough amount. "
-                f"You can fund minimum {449001} / maximum {maximum_amount} NEU amount."
-            )
+        )
 
-        temp_amount: int = self._amount
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            if "address" in options and "percent" in options:
-                self._interest += int((self._amount * options["percent"]) / 100)
-                temp_amount += self._interest
-            if "fee" in options and options["fee"]:
-                temp_amount += int(449000 + 60000)
+        self._fee = estimate_transaction_fee(
+            address=self._address,
+            amount=self._amount,
+            asset=self._asset,
+            confirmations=self._confirmations,
+            network=self._network
+        )
 
-        if fee is not None:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-        elif max_amount or maximum_amount < temp_amount:
-            max_amount = True
-            self._fee = estimate_transaction_fee(
-                address=self._address,
-                amount=maximum_amount,
-                asset=self._asset,
-                confirmations=self._confirmations,
-                network=self._network
-            )
-        else:
-            max_amount = False
-            if "options" in kwargs.keys():
-                options: dict = kwargs.get("options")
-                if "fee" in options and options["fee"]:
-                    self._amount += int(449000 + 60000)
-                if self._interest and "interest" in options and options["interest"]:
-                    self._amount += int(self._interest / 2)
-
-            self._fee = estimate_transaction_fee(
-                address=self._address,
-                amount=int(
-                    self._amount if not self._interest else (self._amount + (
-                        self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
-                ),
-                asset=self._asset,
-                confirmations=self._confirmations,
-                network=self._network
-            )
-
-        fi: int = int(self._fee if not self._interest else (self._fee + (
-            self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))
-        outputs: list = [control_address(
-            asset=self._asset, amount=(self._amount - fi),
-            address=self._htlc_address, vapor=True
-        )]
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=int(
-                    self._interest if not kwargs["options"]["interest"] else (self._interest / 2)
-                ), address=kwargs["options"]["address"], vapor=True
-            ))
-        if self._amount < self._fee:
-            raise BalanceError(
-                "Insufficient spend UTXO's", f"you don't have enough amount. "
-                f"You can fund minimum {449001} NEU amount."
-            )
-
-        self._datas.setdefault("address", self._address)
-        self._datas.setdefault("htlc_address", self._htlc_address)
-        self._datas.setdefault("amount", (self._amount - fi))
         # Build transaction
         self._transaction = build_transaction(
             address=self._address,
@@ -614,14 +317,16 @@ class FundTransaction(Transaction):
                     amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[spend_wallet(
-                    asset=self._asset,
-                    amount=(maximum_amount if max_amount else int(
-                        self._amount if not self._interest else (self._amount + (
-                            self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
-                    ))
-                )],
-                outputs=outputs
+                inputs=[
+                    spend_wallet(
+                        asset=self._asset, amount=self._amount
+                    )
+                ],
+                outputs=[
+                    control_address(
+                        asset=self._asset, amount=self._amount, address=self._contract_address, vapor=True
+                    )
+                ]
             ),
             network=self._network
         )
@@ -639,13 +344,14 @@ class FundTransaction(Transaction):
 
         :returns: FundTransaction -- Vapor fund transaction instance.
 
+        >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.providers.vapor.transaction import FundTransaction
         >>> from swap.providers.vapor.solver import FundSolver
-        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=120723497)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", path="m/44/153/1/0/1")
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.vapor.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -683,11 +389,14 @@ class FundTransaction(Transaction):
 
         :returns: str -- Vapor fund transaction raw.
 
+        >>> from swap.providers.vapor.htlc import HTLC
         >>> from swap.providers.vapor.transaction import FundTransaction
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=120723497)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         >>> fund_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        "eyJmZWUiOiA0NDkwMDAsICJhZGRyZXNzIjogInZwMXFrOXZqNGphZXpsY25qZGNrZHM0ZmttOGZ3djVrYXdtcXdwbnB2cyIsICJyYXciOiAiMDcwMTAwMDEwMTVmMDE1ZGRmODJjZjdjNzkyNzc4NmE2OTU2OTM3NzQ0ZWU4MjM1NGM0ODFiMGYyMTFhYzUyYTVjMWQ3NDRjNGUzZTc4NjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYzhmOWEyMmEwMTAxMTYwMDE0YjE1OTJhY2JiOTE3ZjEzOTM3MTY2YzJhOWI2Y2U5NzMyOTZlYmI2MDIyMDEyMGZlNmIzZmQ0NDU4MjkxYjE5NjA1ZDkyODM3YWUxMDYwY2MwMjM3ZTY4MDIyYjJlYjlmYWYwMWExMTgyMjYyMTIwMjAxNGEwMDQ4ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZjgwYWRlMjA0MDEyMjAwMjAzNGEzZGI1MDMwMWI5NDFiOGVkNDNkY2ZkYmQzMzgxZGYxYjczOWZhNjRhYjc3ZTQyNjRmNzAzYTQ1ZTBiZTMxMDAwMTNlMDAzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZlMDk4YTUyNTAxMTYwMDE0YjE1OTJhY2JiOTE3ZjEzOTM3MTY2YzJhOWI2Y2U5NzMyOTZlYmI2MDAwIiwgImhhc2giOiAiYTA5ZjMwOTNhYWZmNmM4YzhmMWEzNzJlYWM2ODU3MWNlZWE0OTI4Y2NjOGI5YjU0OTU0ODYzNzU4NDQ3ZGVjMSIsICJ1bnNpZ25lZF9kYXRhcyI6IFt7ImRhdGFzIjogWyJkNzEwNzI1N2VmNWZiZmIwNGZjNDc0N2Q2ODg3ZjIzMGEzMDY3NmVjZDY3MDNhNTgwMTU4NzhiNTRmMWY3YjRmIl0sICJwdWJsaWNfa2V5IjogImZlNmIzZmQ0NDU4MjkxYjE5NjA1ZDkyODM3YWUxMDYwY2MwMjM3ZTY4MDIyYjJlYjlmYWYwMWExMTgyMjYyMTIiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJ2YXBvcl9mdW5kX3Vuc2lnbmVkIn0"
         """
 
         # Check transaction
@@ -707,7 +416,6 @@ class FundTransaction(Transaction):
                 signatures=self.signatures(),
                 network=self._network,
                 type=self._type,
-                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -720,133 +428,75 @@ class FundTransaction(Transaction):
             signatures=[],
             network=self._network,
             type=self._type,
-            datas=self._datas
         ))).encode()).decode())
 
 
-class ClaimTransaction(Transaction):
+class WithdrawTransaction(Transaction):
     """
-    Vapor Claim transaction.
+    Vapor Withdraw transaction.
 
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
 
-    :returns: ClaimTransaction -- Vapor claim transaction instance.
+    :returns: WithdrawTransaction -- Vapor withdraw transaction instance.
 
     .. warning::
-        Do not forget to build transaction after initialize claim transaction.
+        Do not forget to build transaction after initialize withdraw transaction.
     """
 
-    # Initialize claim transaction
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-        self._transaction_id: Optional[str] = None
+        self._transaction_hash: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
-                          max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "ClaimTransaction":
+    def build_transaction(self, address: str, transaction_hash: str,
+                          asset: Union[str, AssetNamespace] = config["asset"]) -> "WithdrawTransaction":
         """
-        Build Vapor claim transaction.
+        Build Vapor withdraw transaction.
 
         :param address: Vapor recipient wallet address.
         :type address: str
-        :param transaction_id: Vapor fund transaction id to redeem.
-        :type transaction_id: str
-        :param amount: Vapor amount to withdraw, default to None.
-        :type amount: int, float
-        :param max_amount: Vapor maximum amount to withdraw, default to True.
-        :type max_amount: bool
-        :param asset: Vapor asset id, defaults to BTM asset.
+        :param transaction_hash: Vapor funded transaction hash/id.
+        :type transaction_hash: str
+        :param asset: Vapor asset id, defaults to ``BTM``.
         :type asset: str, vapor.assets.AssetNamespace
-        :param fee: Vapor custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Vapor unit, default to NEU.
-        :type unit: str
 
-        :returns: ClaimTransaction -- Vapor claim transaction instance.
+        :returns: WithdrawTransaction -- Vapor withdraw transaction instance.
 
-        >>> from swap.providers.vapor.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.vapor.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> from swap.providers.vapor.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        <swap.providers.vapor.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor recipient '{address}' {self._network} address.")
-        if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
-        # Set address, asset, confirmations and transaction_id
-        self._address, self._asset, self._confirmations, self._transaction_id = (
+        # Set address, asset, confirmations and transaction_hash
+        self._address, self._asset, self._confirmations, self._transaction_hash = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], transaction_id
+            config["confirmations"], transaction_hash
         )
         # Get transaction
         self._transaction_detail = get_transaction(
-            transaction_id=self._transaction_id, network=self._network
+            transaction_hash=self._transaction_hash, network=self._network
         )
         # Find HTLC UTXO
-        self._htlc_utxo = find_p2wsh_utxo(transaction=self._transaction_detail)
+        self._htlc_utxo: dict = find_p2wsh_utxo(transaction=self._transaction_detail)
         if self._htlc_utxo is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH) address.")
 
-        if max_amount:
-            self._amount = self._htlc_utxo["amount"]
-        elif amount is None:
-            raise ValueError("Amount is None, Set amount or maximum amount set true.")
-        else:
-            self._amount = (
-                amount if unit == "NEU" else
-                amount_unit_converter(
-                    amount=amount, unit_from=f"{unit}2NEU"
-                )
-            )
+        self._amount = self._htlc_utxo["amount"]
 
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            for transaction_output in self._transaction_detail["outputs"]:
-                if transaction_output["address"] == options["address"]:
-                    self._interest = transaction_output["amount"]
+        # Estimating transaction fee
+        self._fee = estimate_transaction_fee(
+            address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
+            confirmations=self._confirmations, network=self._network
+        ) + 60000
 
-        if fee is None:
-            # Estimating transaction fee
-            self._fee = estimate_transaction_fee(
-                address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
-                confirmations=self._confirmations, network=self._network
-            )
-        else:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-
-        if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"minimum you can withdraw {self._fee + 1} NEU amount.")
-        if self._htlc_utxo["amount"] < self._amount:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can withdraw {self._htlc_utxo['amount']} NEU amount.")
-
-        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-        outputs: list = [control_address(
-            asset=self._asset, amount=_amount,
-            address=self._address, vapor=True
-        )]
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=self._interest,
-                address=kwargs["options"]["address"], vapor=True
-            ))
-
-        self._datas.setdefault("address", self._address)
-        self._datas.setdefault("htlc_address", self._htlc_utxo["address"])
-        self._datas.setdefault("amount", _amount)
         # Build transaction
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
@@ -855,48 +505,52 @@ class ClaimTransaction(Transaction):
                     amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[spend_utxo(
-                    utxo=self._htlc_utxo["id"]
-                )],
-                outputs=outputs
+                inputs=[
+                    spend_utxo(
+                        utxo=self._htlc_utxo["id"]
+                    )
+                ],
+                outputs=[
+                    control_address(
+                        asset=self._asset, amount=(self._amount - self._fee), address=self._address, vapor=True
+                    )
+                ]
             ),
             network=self._network
         )
 
         # Set transaction type
-        self._type = "vapor_claim_unsigned"
+        self._type = "vapor_withdraw_unsigned"
         return self
 
-    def sign(self, solver: ClaimSolver) -> "ClaimTransaction":
+    def sign(self, solver: WithdrawSolver) -> "WithdrawTransaction":
         """
-        Sign Vapor claim transaction.
+        Sign Vapor withdraw transaction.
 
-        :param solver: Vapor claim solver.
-        :type solver: vapor.solver.ClaimSolver
+        :param solver: Vapor withdraw solver.
+        :type solver: vapor.solver.WithdrawSolver
 
-        :returns: ClaimTransaction -- Vapor claim transaction instance.
+        :returns: WithdrawTransaction -- Vapor withdraw transaction instance.
 
-        >>> from swap.providers.vapor.transaction import ClaimTransaction
-        >>> from swap.providers.vapor.solver import ClaimSolver
-        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
-        >>> recipient_wallet = Wallet("mainnet").from_entropy("6bc9e3bae5945876931963c2b3a3b040").from_path(DEFAULT_PATH)
-        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.sign(solver=claim_solver)
-        <swap.providers.vapor.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> from swap.providers.vapor.transaction import WithdrawTransaction
+        >>> from swap.providers.vapor.solver import WithdrawSolver
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> bytecode: str = "042918320720fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f", secret_key="Hello Meheret!", bytecode=bytecode)
+        >>> withdraw_transaction.sign(solver=withdraw_solver)
+        <swap.providers.vapor.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
-        if not isinstance(solver, ClaimSolver):
-            raise TypeError(f"Solver must be Vapor ClaimSolver, not {type(solver).__name__} type.")
+        if not isinstance(solver, WithdrawSolver):
+            raise TypeError(f"Solver must be Vapor WithdrawSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, secret, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Sign claim transaction
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = []
             unsigned_datas = unsigned["datas"]
@@ -915,28 +569,28 @@ class ClaimTransaction(Transaction):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "vapor_claim_signed"
+        self._type = "vapor_withdraw_signed"
         return self
 
     def transaction_raw(self) -> str:
         """
-        Get Vapor claim transaction raw.
+        Get Vapor withdraw transaction raw.
 
-        :returns: str -- Vapor claim transaction raw.
+        :returns: str -- Vapor withdraw transaction raw.
 
-        >>> from swap.providers.vapor.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        >>> from swap.providers.vapor.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="vp1q3plwvmvy4qhjmp5zffzmk50aagpujt6flnf63h", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.transaction_raw()
+        "eyJmZWUiOiA1MDkwMDAsICJhZGRyZXNzIjogInZwMXF4ajNhazVwc3J3MnBocms1OGg4YWg1ZWNyaGNtd3cwNnZqNGgwZXB4ZmFjcjUzMHFoY2NzNHBjemdjIiwgInJhdyI6ICIwNzAxMDAwMTAxNmIwMTY5ZGY4MmNmN2M3OTI3Nzg2YTY5NTY5Mzc3NDRlZTgyMzU0YzQ4MWIwZjIxMWFjNTJhNWMxZDc0NGM0ZTNlNzg2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAwMDEyMjAwMjAzNGEzZGI1MDMwMWI5NDFiOGVkNDNkY2ZkYmQzMzgxZGYxYjczOWZhNjRhYjc3ZTQyNjRmNzAzYTQ1ZTBiZTMxMDEwMDAxMDEzZTAwM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjhhNGMzMDQwMTE2MDAxNDg4N2VlNjZkODRhODJmMmQ4NjgyNGE0NWJiNTFmZGVhMDNjOTJmNDkwMCIsICJoYXNoIjogIjkwNGFlZGExOTlmMDVjYmI3NjcxZTBkOWVjOTViMzA5MWYzYzEzMWNlZjhkNjM0YWUxNzIxNmI5YzJmZWE0OGMiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiM2ExMjNmZDgwOWQzYWQ4NDVhOTJhZDNlNWExZjBjYzEwM2RlNTExYWRmOTVjZjMwMjQwZDkxNjRkNmZmMTk2NCJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJ2YXBvcl93aXRoZHJhd191bnNpZ25lZCJ9"
         """
 
         # Check transaction
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
 
-        # Encode claim transaction raw
-        if self._type == "vapor_claim_signed":
+        # Encode withdraw transaction raw
+        if self._type == "vapor_withdraw_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
                 address=self._htlc_utxo["address"],
@@ -947,8 +601,7 @@ class ClaimTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type,
-                datas=self._datas
+                type=self._type
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -960,8 +613,7 @@ class ClaimTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type,
-            datas=self._datas
+            type=self._type
         ))).encode()).decode())
 
 
@@ -969,7 +621,7 @@ class RefundTransaction(Transaction):
     """
     Vapor Refund transaction.
 
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
 
     :returns: RefundTransaction -- Vapor refund transaction instance.
@@ -979,114 +631,58 @@ class RefundTransaction(Transaction):
     """
 
     def __init__(self, network: str = config["network"]):
-        super().__init__(network=network)
+        super().__init__(network)
 
-        self._transaction_id: Optional[str] = None
+        self._transaction_hash: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
-                          max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "RefundTransaction":
+    def build_transaction(self, address: str, transaction_hash: str,
+                          asset: Union[str, AssetNamespace] = config["asset"]) -> "RefundTransaction":
         """
         Build Vapor refund transaction.
 
         :param address: Vapor sender wallet address.
         :type address: str
-        :param transaction_id: Vapor fund transaction id to redeem.
-        :type transaction_id: str
-        :param amount: Vapor amount to withdraw, default to None.
-        :type amount: int, float
-        :param max_amount: Vapor maximum amount to withdraw, default to True.
-        :type max_amount: bool
-        :param asset: Vapor asset id, defaults to BTM asset.
+        :param transaction_hash: Vapor funded transaction hash/id
+        :type transaction_hash: str
+        :param asset: Vapor asset id, defaults to ``BTM``.
         :type asset: str, vapor.assets.AssetNamespace
-        :param fee: Vapor custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Vapor unit, default to NEU.
-        :type unit: str
 
         :returns: RefundTransaction -- Vapor refund transaction instance.
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(address="vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.vapor.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Vapor sender '{address}' {self._network} address.")
-        if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Vapor unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
-        # Set address, fee, confirmations and transaction_id
-        self._address, self._asset, self._confirmations, self._transaction_id = (
+        # Set address, fee, confirmations and transaction_hash
+        self._address, self._asset, self._confirmations, self._transaction_hash = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], transaction_id
+            config["confirmations"], transaction_hash
         )
         # Get transaction
         self._transaction_detail = get_transaction(
-            transaction_id=self._transaction_id, network=self._network
+            transaction_hash=self._transaction_hash, network=self._network
         )
         # Find HTLC UTXO
         self._htlc_utxo = find_p2wsh_utxo(transaction=self._transaction_detail)
         if self._htlc_utxo is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH) address.")
 
-        if max_amount:
-            self._amount = self._htlc_utxo["amount"]
-        elif amount is None:
-            raise ValueError("Amount is None, Set amount or maximum amount set true.")
-        else:
-            self._amount = (
-                amount if unit == "NEU" else
-                amount_unit_converter(
-                    amount=amount, unit_from=f"{unit}2NEU"
-                )
-            )
+        self._amount = self._htlc_utxo["amount"]
 
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            for transaction_output in self._transaction_detail["outputs"]:
-                if transaction_output["address"] == options["address"]:
-                    self._interest = transaction_output["amount"]
+        # Estimating transaction fee
+        self._fee = estimate_transaction_fee(
+            address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
+            confirmations=self._confirmations, network=self._network
+        ) + 60000
 
-        if fee is None:
-            # Estimating transaction fee
-            self._fee = estimate_transaction_fee(
-                address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
-                confirmations=self._confirmations, network=self._network
-            )
-        else:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-
-        if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"minimum you can refund {self._fee + 1} NEU amount.")
-        if self._htlc_utxo["amount"] < self._amount:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can refund {self._htlc_utxo['amount']} NEU amount.")
-
-        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-        outputs: list = [control_address(
-            asset=self._asset, amount=_amount,
-            address=self._address, vapor=True
-        )]
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=self._interest,
-                address=kwargs["options"]["address"], vapor=True
-            ))
-
-        self._datas.setdefault("address", self._address)
-        self._datas.setdefault("htlc_address", self._htlc_utxo["address"])
-        self._datas.setdefault("amount", _amount)
         # Build transaction
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
@@ -1095,10 +691,16 @@ class RefundTransaction(Transaction):
                     amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[spend_utxo(
-                    utxo=self._htlc_utxo["id"]
-                )],
-                outputs=outputs
+                inputs=[
+                    spend_utxo(
+                        utxo=self._htlc_utxo["id"]
+                    )
+                ],
+                outputs=[
+                    control_address(
+                        asset=self._asset, amount=(self._amount - self._fee), address=self._address, vapor=True
+                    )
+                ]
             ),
             network=self._network
         )
@@ -1118,12 +720,10 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
         >>> from swap.providers.vapor.solver import RefundSolver
-        >>> from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> refund_solver = RefundSolver(sender_wallet.xprivate_key(), bytecode=bytecode)
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(sender_wallet.address(), "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> bytecode: str = "042918320720fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", bytecode=bytecode)
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.vapor.transaction.RefundTransaction object at 0x0409DAF0>
         """
@@ -1135,8 +735,8 @@ class RefundTransaction(Transaction):
         # Set recipient wallet
         wallet, path, indexes = solver.solve()
         # Clean derivation indexes/path
-        wallet.clean_derivation() 
-        # Sign claim transaction
+        wallet.clean_derivation()
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = []
             unsigned_datas = unsigned["datas"]
@@ -1164,10 +764,10 @@ class RefundTransaction(Transaction):
         :returns: str -- Vapor refund transaction raw.
 
         >>> from swap.providers.vapor.transaction import RefundTransaction
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="vp1qk9vj4jaezlcnjdckds4fkm8fwv5kawmqwpnpvs", transaction_hash="37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        "eyJmZWUiOiA1MDkwMDAsICJhZGRyZXNzIjogInZwMXF4ajNhazVwc3J3MnBocms1OGg4YWg1ZWNyaGNtd3cwNnZqNGgwZXB4ZmFjcjUzMHFoY2NzNHBjemdjIiwgImhhc2giOiAiNmQ5NjQyMjIyYmFmYjlkNjk2OGVlMmVlZDk4OGM4MzdiMWRhNTZmY2VjNmZkOTYzMjlmZmY4YzBkNTUxOGY5MiIsICJyYXciOiAiMDcwMTAwMDEwMTZiMDE2OWRmODJjZjdjNzkyNzc4NmE2OTU2OTM3NzQ0ZWU4MjM1NGM0ODFiMGYyMTFhYzUyYTVjMWQ3NDRjNGUzZTc4NjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMDAxMjIwMDIwMzRhM2RiNTAzMDFiOTQxYjhlZDQzZGNmZGJkMzM4MWRmMWI3MzlmYTY0YWI3N2U0MjY0ZjcwM2E0NWUwYmUzMTAxMDAwMTAxM2UwMDNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmI4YTRjMzA0MDExNjAwMTRiMTU5MmFjYmI5MTdmMTM5MzcxNjZjMmE5YjZjZTk3MzI5NmViYjYwMDAiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiNmIyNGM0NDM4OTY2MWY4YzU3MDE0NmVjNGNjOGQzYWQzZjJkN2YxNjA3MTM2MjBiZTc0MzgwZTQwYmMwNmMwYyJdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiBudWxsfV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJ2YXBvcl9yZWZ1bmRfdW5zaWduZWQifQ"
         """
 
         # Check transaction
@@ -1186,8 +786,7 @@ class RefundTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type,
-                datas=self._datas
+                type=self._type
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -1199,6 +798,5 @@ class RefundTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type,
-            datas=self._datas
+            type=self._type
         ))).encode()).decode())

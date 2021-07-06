@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 
+from binascii import unhexlify
 from btcpy.structs.script import (
-    Script, ScriptBuilder, P2shScript, IfElseScript, Hashlock256Script, RelativeTimelockScript
+    Script, ScriptBuilder, P2shScript, IfElseScript
 )
-from btcpy.structs.transaction import Sequence
+from btcpy.structs.transaction import Locktime
+from pathlib import PurePosixPath
+from datetime import datetime
 from typing import (
     Optional, Union
 )
-from binascii import unhexlify
 
 import hashlib
+import os
 
 from ...exceptions import (
     AddressError, NetworkError, UnitError
@@ -36,20 +39,21 @@ class HTLC:
         Bitcoin has only two networks, ``mainnet`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"]):
+    def __init__(self, network: str = config["network"], contract_address: Optional[str] = None):
 
         if not is_network(network=network):
             raise NetworkError(f"Invalid Bitcoin '{network}' network",
                                "choose only 'mainnet' or 'testnet' networks.")
         self._network: str = network
         self._script: Optional[IfElseScript, ScriptBuilder] = None
+        self._contract_address: Optional[str] = contract_address
+        self.agreements: Optional[dict] = None
 
     @property
-    def script(self) -> Union[IfElseScript, ScriptBuilder]:
+    def script(self) -> Union[ScriptBuilder]:
         return self._script
 
-    def build_htlc(self, secret_hash: str, recipient_address: str,
-                   sender_address: str, sequence: int = config["sequence"]) -> "HTLC":
+    def build_htlc(self, secret_hash: str, recipient_address: str, sender_address: str, endtime: int) -> "HTLC":
         """
         Build Bitcoin Hash Time Lock Contract (HTLC).
 
@@ -59,15 +63,15 @@ class HTLC:
         :type recipient_address: str
         :param sender_address: Bitcoin sender address.
         :type sender_address: str
-        :param sequence: Bitcoin sequence number of expiration block, defaults to 1000.
-        :type sequence: int
+        :param endtime: Expiration block time (Seconds).
+        :type endtime: int
 
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", sender_address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", sequence=1000)
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", sender_address="n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", endtime=1624687630)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
 
@@ -79,20 +83,35 @@ class HTLC:
         if not is_address(address=sender_address, network=self._network):
             raise AddressError(f"Invalid Bitcoin sender '{sender_address}' {self._network} address.")
 
-        self._script = IfElseScript(
-            Hashlock256Script(
-                hashlib.sha256(unhexlify(secret_hash)).digest(),
-                get_address_hash(
-                    address=recipient_address, script=True
-                )
+        # Get current working directory path (like linux or unix path).
+        cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
+
+        with open(f"{cwd}/contracts/htlc.script", "r", encoding="utf-8") as htlc_script:
+            htlc_opcode: str = htlc_script.readlines()[-1]  # HTLC OP_Code script
+            htlc_script.close()
+
+        build_htlc_opcode: str = htlc_opcode.format(
+            secret_hash=hashlib.sha256(unhexlify(secret_hash)).hexdigest(),
+            recipient_address_hash=get_address_hash(
+                address=recipient_address, script=False
             ),
-            RelativeTimelockScript(
-                Sequence(sequence),
-                get_address_hash(
-                    address=sender_address, script=True
-                )
-            )
+            sender_address_hash=get_address_hash(
+                address=sender_address, script=False
+            ),
+            endtime=Locktime(n=endtime).for_script().hexlify()[2:]
         )
+
+        self.agreements = {
+            "secret_hash": secret_hash,
+            "recipient_address": recipient_address,
+            "sender_address": sender_address,
+            "endtime": {
+                "datetime": str(datetime.fromtimestamp(endtime)),
+                "timestamp": endtime
+            }
+        }
+        bytecode: str = Script.compile(build_htlc_opcode)
+        self._script = ScriptBuilder.identify(bytecode)
         return self
 
     def from_opcode(self, opcode: str) -> "HTLC":
@@ -105,8 +124,8 @@ class HTLC:
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> opcode = "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 0e259e08f2ec9fc99a92b6f66fdfcb3c7914fd68 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF" 
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> opcode: str = "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 0a0a6590e6ba4b48118d21b86812615219ece76b OP_EQUALVERIFY OP_CHECKSIG OP_ELSE 0ec4d660 OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 e00ff2a640b7ce2d336860739169487a57f84b15 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
         >>> htlc.from_opcode(opcode=opcode)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
@@ -125,8 +144,8 @@ class HTLC:
         :returns: HTLC -- Bitcoin Hash Time Lock Contract (HTLC) instance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
-        >>> htlc = HTLC(network="testnet")
-        >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> bytecode: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140a0a6590e6ba4b48118d21b86812615219ece76b88ac67040ec4d660b17576a914e00ff2a640b7ce2d336860739169487a57f84b1588ac68"
         >>> htlc.from_bytecode(bytecode=bytecode)
         <swap.providers.bitcoin.htlc.HTLC object at 0x0409DAF0>
         """
@@ -142,10 +161,10 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", 1624687630)
         >>> htlc.bytecode()
-        "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+        "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140a0a6590e6ba4b48118d21b86812615219ece76b88ac67040ec4d660b17576a914e00ff2a640b7ce2d336860739169487a57f84b1588ac68"
         """
 
         if self._script is None:
@@ -160,10 +179,10 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", 1624687630)
         >>> htlc.opcode()
-        "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 0e259e08f2ec9fc99a92b6f66fdfcb3c7914fd68 OP_EQUALVERIFY OP_CHECKSIG OP_ELSE e803 OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 33ecab3d67f0e2bde43e52f41ec1ecbdc73f11f8 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
+        "OP_IF OP_HASH256 821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e0158 OP_EQUALVERIFY OP_DUP OP_HASH160 0a0a6590e6ba4b48118d21b86812615219ece76b OP_EQUALVERIFY OP_CHECKSIG OP_ELSE 0ec4d660 OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 e00ff2a640b7ce2d336860739169487a57f84b15 OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF"
         """
 
         if self._script is None:
@@ -178,17 +197,17 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", 1624687630)
         >>> htlc.hash()
-        "a9149418feed4647e156d6663db3e0cef7c050d0386787"
+        "a914c8c77a9b43ee2bdf1a07c48699833d7668bf264c87"
         """
 
         if self._script is None:
             raise ValueError("HTLC script is None, first build HTLC.")
         return str(P2shScript(self._script.p2sh_hash()).hexlify())
 
-    def address(self) -> str:
+    def contract_address(self) -> str:
         """
         Get Bitcoin Hash Time Lock Contract (HTLC) address.
 
@@ -196,12 +215,14 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
-        >>> htlc.address()
-        "2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae"
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", 1624687630)
+        >>> htlc.contract_address()
+        "2NBYr6gvh4ujsRwKKjDrrRr2vGonazzX6Z6"
         """
 
+        if self._contract_address:
+            return self._contract_address
         if self._script is None:
             raise ValueError("HTLC script is None, first build HTLC.")
         return str(P2shScript(self._script.p2sh_hash()).address(
@@ -212,24 +233,24 @@ class HTLC:
         """
         Get Bitcoin HTLC balance.
 
-        :param unit: Bitcoin unit, default to SATOSHI.
+        :param unit: Bitcoin unit, default to Satoshi.
         :type unit: str
 
         :return: int, float -- Bitcoin wallet balance.
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
-        >>> htlc.balance(unit="unit")
-        1000010
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", 1624687630)
+        >>> htlc.balance(unit="BTC")
+        0.001
         """
 
-        if unit not in ["BTC", "mBTC", "SATOSHI"]:
-            raise UnitError("Invalid Bitcoin unit, choose only BTC, mBTC or SATOSHI units.")
-        _balance: int = get_balance(address=self.address(), network=self._network)
-        return _balance if unit == "SATOSHI" else \
-            amount_unit_converter(amount=_balance, unit_from=f"SATOSHI2{unit}")
+        if unit not in ["BTC", "mBTC", "Satoshi"]:
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'Satoshi' units.")
+        _balance: int = get_balance(address=self.contract_address(), network=self._network)
+        return _balance if unit == "Satoshi" else \
+            amount_unit_converter(amount=_balance, unit_from=f"Satoshi2{unit}")
 
     def utxos(self, limit: int = 15) -> list:
         """
@@ -242,15 +263,15 @@ class HTLC:
 
         >>> from swap.providers.bitcoin.htlc import HTLC
         >>> from swap.utils import sha256
-        >>> htlc = HTLC(network="testnet")
-        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgokpSJoX7npmAK1Zj8ze1926CLxYDt1iF", "mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", 1000)
+        >>> htlc: HTLC = HTLC(network="testnet")
+        >>> htlc.build_htlc(sha256("Hello Meheret!"), "mgS3WMHp9nvdUPeDJxr5iCF2P5HuFZSR3V", "n1wgm6kkzMcNfAtJmes8YhpvtDzdNhDY5a", 1624687630)
         >>> htlc.utxos()
-        [{'index': 0, 'hash': '9825b68e57c8a924285828dde37869c2eca3bb3784b171353962f0d7e7577da1', 'output_index': 0, 'amount': 10000, 'script': 'a9149418feed4647e156d6663db3e0cef7c050d0386787'}]
+        [{'index': 0, 'hash': 'a211d21110756b266925fee2fbf2dc81529beef5e410311b38578dc3a076fb31', 'output_index': 0, 'amount': 100000, 'script': 'a914c8c77a9b43ee2bdf1a07c48699833d7668bf264c87'}]
         """
 
         utxos = list()
         _utxos = get_utxos(
-            address=self.address(), network=self._network, limit=limit
+            address=self.contract_address(), network=self._network, limit=limit
         )
         for index, utxo in enumerate(_utxos):
             utxos.append(dict(

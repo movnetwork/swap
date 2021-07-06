@@ -1,0 +1,22 @@
+// Bitcoin Low-level script (OP_Code) language
+
+/**
+ * @title Hash Time Lock Contract (HTLC)
+ *
+ * @author Meheret Tesfaye Batu <meherett@zoho.com>
+ *
+ * HTLC -> A Hash Time Lock Contract is essentially a type of payment in which two people
+ * agree to a financial arrangement where one party will pay the other party a certain amount
+ * of cryptocurrencies, such as Bitcoin or Ethereum assets.
+ * However, because these contracts are Time-Locked, the receiving party only has a certain
+ * amount of time to accept the payment, otherwise the money can be returned to the sender.
+ *
+ * Hash-Locked -> A Hash locked functions like “two-factor authentication” (2FA). It requires
+ * the intended recipient to provide the correct secret passphrase to withdraw the funds.
+ *
+ * Time-Locked -> A Time locked adds a “timeout” expiration date to a payment. It requires
+ * the intended recipient to claim the funds prior to the expiry. Otherwise, the transaction
+ * defaults to enabling the original sender of funds to withdraw a refund.
+ */
+
+OP_IF OP_HASH256 {secret_hash} OP_EQUALVERIFY OP_DUP OP_HASH160 {recipient_address_hash} OP_EQUALVERIFY OP_CHECKSIG OP_ELSE {endtime} OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 {sender_address_hash} OP_EQUALVERIFY OP_CHECKSIG OP_ENDIF

@@ -16,18 +16,19 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    AddressError, NetworkError, BalanceError, UnitError
+    AddressError, NetworkError, UnitError
 )
 from ..config import bytom as config
 from .assets import AssetNamespace
+from .htlc import HTLC
 from .rpc import (
-    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction, get_balance
+    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
 )
 from .solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from .utils import (
-    amount_unit_converter, is_network, is_address, get_address_type
+    amount_unit_converter, is_network, is_address
 )
 
 
@@ -57,8 +58,6 @@ class Transaction(BytomTransaction):
         self._transaction: Optional[dict] = None
         self._type: Optional[str] = None
         self._confirmations: int = config["confirmations"]
-        self._datas: dict = {}
-        self._interest: int = 0
         self._amount: int = 0
         self._fee: int = 0
 
@@ -71,11 +70,11 @@ class Transaction(BytomTransaction):
 
         :returns: int, float -- Bytom transaction fee.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.fee(unit="NEU")
-        10000000
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.fee(unit="NEU")
+        509000
         """
 
         if unit not in ["BTM", "mBTM", "NEU"]:
@@ -89,11 +88,14 @@ class Transaction(BytomTransaction):
 
         :returns: str -- Bytom transaction id/hash.
 
+       >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=679208)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         >>> fund_transaction.hash()
-        "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492"
+        "a3078af0810c68a7bb6f2f42cd67dce9dea3d77028ca0c527224e4524038abc4"
         """
 
         # Check transaction
@@ -108,10 +110,10 @@ class Transaction(BytomTransaction):
         :returns: dict -- Bytom transaction json format.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.json()
-        {"hash": "2993414225f65390220730d0c1a356c14e91bca76db112d37366df93e364a492", "status_fail": false, "size": 379, "submission_timestamp": 0, "memo": "", "inputs": [{"script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2450000000, "type": "spend"}], "outputs": [{"utxo_id": "5edccebe497893c289121f9e365fdeb34c97008b9eb5a9960fe9541e7923aabc", "script": "01642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0", "address": "smart contract", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 1000, "type": "control"}, {"utxo_id": "f8cfbb692db1963be88b09c314adcc9e19d91c6c019aa556fb7cb76ba8ffa1fa", "script": "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a", "address": "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": 2439999000, "type": "control"}], "fee": 10000000, "balances": [{"asset": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "amount": "-10001000"}], "types": ["ordinary"]}
+        {"tx_id": "1722aa930f6f93b4c87788ea55f49055f26f86821bcd11a64d42bcb9e3b8a96d", "version": 1, "size": 179, "time_range": 0, "inputs": [{"type": "spend", "asset_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "asset_definition": {}, "amount": 10000000, "control_program": "0020e7f4a9815f3a36c616c5666b97fb7fdacd3720c117d078c429494d1b617fe7d4", "address": "bm1qul62nq2l8gmvv9k9ve4e07mlmtxnwgxpzlg833pff9x3kctlul2q727jyy", "spent_output_id": "1aaf7df33c1d41bc6108c93d8b6da6af1d7f68632f54516408a03ff86494a1f0", "input_id": "6ccb3abb96d713fcaf27548ed76dadc695259fb7570b38ab9cde23f7ec261d60", "witness_arguments": null, "sign_data": "cc78c1fb648f8826e4dd4f85f885ac75866c0233b0af6581753d858304b8e04b"}], "outputs": [{"type": "control", "id": "6f831e2f958252a20b8d5aa9242c7bda229cb0e35bd2101978ea7df6cd7cc728", "position": 0, "asset_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "asset_definition": {}, "amount": 9491000, "control_program": "0014b1592acbb917f13937166c2a9b6ce973296ebb60", "address": "bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx"}], "fee": 509000}
         """
 
         # Check transaction
@@ -125,11 +127,11 @@ class Transaction(BytomTransaction):
 
         :returns: str -- Bytom transaction raw.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.raw()
-        "070100010160015e7f2d7ecec3f61d30d0b2968973a3ac8448f0599ea20dce883b48c903c4d6e87fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8091a0900901011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a22012091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e20201ad01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe80701880101642091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e220ac13c0bb1445423a641754182d53f0677cd4351a0e743e6f10b35122c3d7ea01202b9a5949f5546f63a253e41cda6bffdedb527288a7e24ed953f5c2680c70d6ff741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c000013dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff98dcbd8b09011600142cda4f99ea8112e6fa61cdd26157ed6dc408332a00"
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.raw()
+        "07010001016b0169f7df4d06a3fe3c8ac6438f25f9c97744a10455357857775526c3e6c752fb69eaffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80ade2040001220020e7f4a9815f3a36c616c5666b97fb7fdacd3720c117d078c429494d1b617fe7d4010001013cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffb8a4c30401160014887ee66d84a82f2d86824a45bb51fdea03c92f4900"
         """
 
         # Check transaction
@@ -139,15 +141,15 @@ class Transaction(BytomTransaction):
 
     def type(self) -> str:
         """
-        Get Bitcoin signature transaction type.
+        Get Bytom signature transaction type.
 
-        :returns: str -- Bitcoin signature transaction type.
+        :returns: str -- Bytom signature transaction type.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.type()
-        "bitcoin_claim_unsigned"
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.type()
+        "bytom_withdraw_unsigned"
         """
 
         # Check transaction
@@ -164,15 +166,14 @@ class Transaction(BytomTransaction):
 
         :returns: list -- Bytom transaction unsigned datas.
 
+        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> from swap.providers.bytom.solver import FundSolver
-        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> fund_transaction.unsigned_datas(solver=fund_solver)
-        [{'datas': ['38601bf7ce08dab921916f2c723acca0451d8904649bbec16c2076f1455dd1a2'], 'public_key': '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2', 'network': 'mainnet', 'path': 'm/44/153/1/0/1'}]
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=679208)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
+        >>> fund_transaction.unsigned_datas()
+        [{"datas": ["f42a2b6e15585b88da8b34237c7a6fd83af12ee6971813d66cf794a63ebcc16f"], "public_key": "fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", "network": "mainnet", "path": "m/44/153/1/0/1"}]
         """
 
         # Check transaction
@@ -212,26 +213,23 @@ class Transaction(BytomTransaction):
 
         return unsigned_datas
 
-    def sign(self, *args, **kwargs):
-        # Not implemented
-        pass
-
     def signatures(self) -> List[List[str]]:
         """
         Get Bytom transaction signatures(signed datas).
 
         :returns: list -- Bytom transaction signatures.
 
+        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
-        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=679208)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", path="m/44/153/1/0/1")
         >>> fund_transaction.sign(solver=fund_solver)
         >>> fund_transaction.signatures()
-        [['8ca69a01def05118866681bc7008971efcff40895285297e0d6bd791220a36d6ef85a11abc48438de21f0256c4f82752b66eb58100ce6b213e1af14cc130ec0e']]
+        [['b82e97abc4b70f7ffe7f783254c63e61436d6a7ad15da89b1fb791f91d1d6aa0bab7ff86328eabd2959f5475dde443e613ce7dfe70411be5b469b02069164a06']]
         """
 
         # Check transaction
@@ -239,235 +237,12 @@ class Transaction(BytomTransaction):
             raise ValueError("Transaction is none, build transaction first.")
         return self._signatures
 
-    def datas(self) -> dict:
-        return self._datas
-
-
-class NormalTransaction(Transaction):
-    """
-    Bytom Normal transaction.
-
-    :param network: Bytom network, defaults to mainnet.
-    :type network: str
-
-    :returns: NormalTransaction -- Bytom normal transaction instance.
-
-    .. warning::
-        Do not forget to build transaction after initialize normal transaction.
-    """
-
-    def __init__(self, network: str = config["network"]):
-        super().__init__(network)
-
-    def build_transaction(self, address: str, recipients: dict,
-                          asset: Union[str, AssetNamespace] = config["asset"], fee: Optional[Union[int, float]] = None,
-                          unit: str = config["unit"], **kwargs) -> "NormalTransaction":
-        """
-        Build Bytom normal transaction.
-
-        :param address: Bytom sender wallet address.
-        :type address: str
-        :param recipients: Recipients Bytom address and amount.
-        :type recipients: dict
-        :param asset: Bytom asset id, defaults to BTM asset.
-        :type asset: str, bytom.assets.AssetNamespace
-        :param fee: Bytom custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Bytom unit, default to NEU.
-        :type unit: str
-
-        :returns: NormalTransaction -- Bytom normal transaction instance.
-
-        >>> from swap.providers.bytom.transaction import NormalTransaction
-        >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", recipients={"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.bytom.transaction.NormalTransaction object at 0x0409DAF0>
-        """
-
-        # Check parameter instances
-        if not is_address(address, self._network):
-            raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
-        if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Bytom unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
-
-        # Set address, fee and confirmations
-        self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
-            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], [], [], (
-                sum(recipients.values()) if unit == "NEU" else
-                amount_unit_converter(
-                    amount=sum(recipients.values()), unit_from=f"{unit}2NEU"
-                )
-            )
-        )
-
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            if "address" in options and "percent" in options:
-                self._interest = int((self._amount * options["percent"]) / 100)
-
-        maximum_amount: int = get_balance(self._address, self._asset)
-        if maximum_amount < self._amount:
-            raise BalanceError(
-                "Insufficient spend UTXO's", f"you don't have enough amount. "
-                f"You can spend maximum {maximum_amount} NEU sum of recipients amounts."
-            )
-
-        if fee is None:
-            # Estimating transaction fee
-            self._fee = estimate_transaction_fee(
-                address=self._address, asset=self._asset,
-                amount=(self._amount if not self._interest else (self._amount + self._interest)),
-                confirmations=self._confirmations, network=self._network
-            )
-        else:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-
-        fi: int = (self._fee if not self._interest else (self._fee + self._interest))
-        if maximum_amount < (self._amount + fi):
-            raise BalanceError(
-                f"You don't have enough amount to pay {fi} NEU fee",
-                f"you can spend maximum {maximum_amount - fi} NEU amount."
-            )
-
-        # Outputs action
-        for _address, _amount in recipients.items():
-            if not is_address(_address, self._network):
-                raise AddressError(f"Invalid Bytom recipients '{_address}' {self._network} address.")
-            outputs.append(control_address(
-                asset=self._asset, address=_address, amount=_amount, vapor=False
-            ))
-
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=self._interest,
-                address=kwargs["options"]["address"], vapor=False
-            ))
-
-        # Build transaction
-        self._transaction = build_transaction(
-            address=self._address,
-            transaction=dict(
-                fee=str(amount_unit_converter(
-                    amount=self._fee, unit_from="NEU2BTM"
-                )),
-                confirmations=self._confirmations,
-                inputs=[spend_wallet(
-                    asset=self._asset, amount=self._amount
-                )],
-                outputs=outputs
-            ),
-            network=self._network
-        )
-
-        # Set transaction type
-        self._type = "bytom_normal_unsigned"
-        return self
-
-    def sign(self, solver: NormalSolver) -> "NormalTransaction":
-        """
-        Sign Bytom normal transaction.
-
-        :param solver: Bytom normal solver.
-        :type solver: bytom.solver.NormalSolver
-
-        :returns: NormalTransaction -- Bytom normal transaction instance.
-
-        >>> from swap.providers.bytom.transaction import NormalTransaction
-        >>> from swap.providers.bytom.solver import NormalSolver
-        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> normal_solver = NormalSolver(sender_wallet.xprivate_key())
-        >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction(sender_wallet.address(), {"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> normal_transaction.sign(solver=normal_solver)
-        <swap.providers.bytom.transaction.NormalTransaction object at 0x0409DAF0>
-        """
-
-        # Check parameter instances
-        if not isinstance(solver, NormalSolver):
-            raise TypeError(f"Solver must be Bytom NormalSolver, not {type(solver).__name__} type.")
-
-        # Setting sender wallet
-        wallet, path, indexes = solver.solve()
-        # Clean derivation indexes/path
-        wallet.clean_derivation()
-        # Signing normal transaction
-        for unsigned in self.unsigned_datas(detail=True):
-            signed_data = []
-            unsigned_datas = unsigned["datas"]
-            if unsigned["path"]:
-                wallet.from_path(unsigned["path"])
-            elif path:
-                wallet.from_path(path)
-            elif indexes:
-                wallet.from_indexes(indexes)
-            for unsigned_data in unsigned_datas:
-                signed_data.append(wallet.sign(unsigned_data))
-            self._signatures.append(signed_data)
-            wallet.clean_derivation()
-
-        # Set transaction type
-        self._type = "bytom_normal_signed"
-        return self
-
-    def transaction_raw(self) -> str:
-        """
-        Get Bytom normal transaction raw.
-
-        :returns: str -- Bytom normal transaction raw.
-
-        >>> from swap.providers.bytom.transaction import NormalTransaction
-        >>> normal_transaction = NormalTransaction("mainnet")
-        >>> normal_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", {"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> normal_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
-        """
-
-        # Check transaction
-        if self._transaction is None:
-            raise ValueError("Transaction is none, build transaction first.")
-
-        # Encode normal transaction raw
-        if self._type == "bytom_normal_signed":
-            return clean_transaction_raw(b64encode(str(json.dumps(dict(
-                fee=self._fee,
-                address=self._address,
-                raw=self.raw(),
-                hash=self.hash(),
-                unsigned_datas=self.unsigned_datas(
-                    detail=False
-                ),
-                signatures=self.signatures(),
-                network=self._network,
-                type=self._type,
-                datas=self._datas
-            ))).encode()).decode())
-        return clean_transaction_raw(b64encode(str(json.dumps(dict(
-            fee=self._fee,
-            address=self._address,
-            raw=self.raw(),
-            hash=self.hash(),
-            unsigned_datas=self.unsigned_datas(
-                detail=False
-            ),
-            signatures=[],
-            network=self._network,
-            type=self._type,
-            datas=self._datas
-        ))).encode()).decode())
-
 
 class FundTransaction(Transaction):
     """
     Bytom Fund transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Bytom network, defaults to ``mainnet``.
     :type network: str
 
     :returns: FundTransaction -- Bytom fund transaction instance.
@@ -479,137 +254,61 @@ class FundTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-        self._htlc_address: Optional[str] = None
+        self._contract_address: Optional[str] = None
 
-    def build_transaction(self, address: str, htlc_address: str, amount: Optional[Union[int, float]] = None,
-                          max_amount: bool = False, asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "FundTransaction":
+    def build_transaction(self, address: str, htlc: HTLC, amount: int, asset: Union[str, AssetNamespace] = config["asset"],
+                          unit: str = config["unit"]) -> "FundTransaction":
         """
         Build Bytom fund transaction.
 
         :param address: Bytom sender wallet address.
         :type address: str
-        :param htlc_address: Bytom Hash Time Lock Contract (HTLC) address.
-        :type htlc_address: str
-        :param amount: Bytom amount to fund, default to None.
+        :param htlc: Bytom Hash Time Lock Contract (HTLC) instance.
+        :type htlc: str
+        :param amount: Bytom amount to fund.
         :type amount: int, float
-        :param max_amount: Bytom maximum amount to fund, default to False.
-        :type max_amount: bool
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param asset: Bytom asset id, defaults to ``BTM``.
         :type asset: str, bytom.assets.AssetNamespace
-        :param fee: Bytom custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Bytom unit, default to NEU.
+        :param unit: Bytom unit, default to ``NEU``.
         :type unit: str
 
         :returns: FundTransaction -- Bytom fund transaction instance.
 
+        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", htlc_address="bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", amount=10000000, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=679208)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
-        if not is_address(htlc_address, self._network) or get_address_type(htlc_address) != "p2wsh":
-            raise AddressError(f"Invalid Bytom HTLC '{htlc_address}' {self._network} P2WSH address.")
+        if not isinstance(htlc, HTLC):
+            raise TypeError("Invalid Bytom HTLC instance, only takes Bytom HTLC class")
         if unit not in ["BTM", "mBTM", "NEU"]:
             raise UnitError("Invalid Bytom unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
         # Set address, fee and confirmations
-        self._address, self._asset, self._htlc_address, self._confirmations = (
+        self._address, self._asset, self._contract_address, self._confirmations, self._amount = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            htlc_address, config["confirmations"]
-        )
-
-        maximum_amount: int = get_balance(
-            address=self._address, asset=self._asset, network=self._network
-        )
-        if max_amount:
-            self._amount = maximum_amount
-        elif amount is None:
-            raise ValueError("Amount is None, Set amount or maximum amount set true.")
-        else:
-            self._amount = (
-                amount if unit == "NEU" else
-                amount_unit_converter(
+            htlc.contract_address(), config["confirmations"], (
+                amount if unit == "NEU" else amount_unit_converter(
                     amount=amount, unit_from=f"{unit}2NEU"
                 )
             )
-        if maximum_amount < self._amount:
-            raise BalanceError(
-                "Insufficient spend UTXO's", f"you don't have enough amount. "
-                f"You can fund minimum {449001} / maximum {maximum_amount} NEU amount."
-            )
+        )
 
-        temp_amount: int = self._amount
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            if "address" in options and "percent" in options:
-                self._interest += int((self._amount * options["percent"]) / 100)
-                temp_amount += self._interest
-            if "fee" in options and options["fee"]:
-                temp_amount += int(449000 + 60000)
+        self._fee = estimate_transaction_fee(
+            address=self._address,
+            amount=self._amount,
+            asset=self._asset,
+            confirmations=self._confirmations,
+            network=self._network
+        )
 
-        if fee is not None:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-        elif max_amount or maximum_amount < temp_amount:
-            max_amount = True
-            self._fee = estimate_transaction_fee(
-                address=self._address,
-                amount=maximum_amount,
-                asset=self._asset,
-                confirmations=self._confirmations,
-                network=self._network
-            )
-        else:
-            max_amount = False
-            if "options" in kwargs.keys():
-                options: dict = kwargs.get("options")
-                if "fee" in options and options["fee"]:
-                    self._amount += int(449000 + 60000)
-                if self._interest and "interest" in options and options["interest"]:
-                    self._amount += int(self._interest / 2)
-
-            self._fee = estimate_transaction_fee(
-                address=self._address,
-                amount=int(
-                    self._amount if not self._interest else (self._amount + (
-                        self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
-                ),
-                asset=self._asset,
-                confirmations=self._confirmations,
-                network=self._network
-            )
-
-        fi: int = int(self._fee if not self._interest else (self._fee + (
-            self._interest if not kwargs["options"]["interest"] else (self._interest / 2))))
-        outputs: list = [control_address(
-            asset=self._asset, amount=(self._amount - fi),
-            address=self._htlc_address, vapor=False
-        )]
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=int(
-                    self._interest if not kwargs["options"]["interest"] else (self._interest / 2)
-                ), address=kwargs["options"]["address"], vapor=False
-            ))
-        if self._amount < self._fee:
-            raise BalanceError(
-                "Insufficient spend UTXO's", f"you don't have enough amount. "
-                f"You can fund minimum {449001} NEU amount."
-            )
-
-        self._datas.setdefault("address", self._address)
-        self._datas.setdefault("htlc_address", self._htlc_address)
-        self._datas.setdefault("amount", (self._amount - fi))
         # Build transaction
         self._transaction = build_transaction(
             address=self._address,
@@ -618,14 +317,16 @@ class FundTransaction(Transaction):
                     amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[spend_wallet(
-                    asset=self._asset,
-                    amount=(maximum_amount if max_amount else int(
-                        self._amount if not self._interest else (self._amount + (
-                            self._interest if not kwargs["options"]["interest"] else (self._interest / 2)))
-                    ))
-                )],
-                outputs=outputs
+                inputs=[
+                    spend_wallet(
+                        asset=self._asset, amount=self._amount
+                    )
+                ],
+                outputs=[
+                    control_address(
+                        asset=self._asset, amount=self._amount, address=self._contract_address, vapor=False
+                    )
+                ]
             ),
             network=self._network
         )
@@ -643,13 +344,14 @@ class FundTransaction(Transaction):
 
         :returns: FundTransaction -- Bytom fund transaction instance.
 
+        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
         >>> from swap.providers.bytom.solver import FundSolver
-        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> fund_solver = FundSolver(sender_wallet.xprivate_key())
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction(sender_wallet.address(), "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=679208)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
+        >>> fund_solver: FundSolver = FundSolver(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", path="m/44/153/1/0/1")
         >>> fund_transaction.sign(solver=fund_solver)
         <swap.providers.bytom.transaction.FundTransaction object at 0x0409DAF0>
         """
@@ -687,11 +389,14 @@ class FundTransaction(Transaction):
 
         :returns: str -- Bytom fund transaction raw.
 
+        >>> from swap.providers.bytom.htlc import HTLC
         >>> from swap.providers.bytom.transaction import FundTransaction
-        >>> fund_transaction = FundTransaction("mainnet")
-        >>> fund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8", 10000000, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc.build_htlc(secret_hash="3a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb", recipient_public_key="3e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e", sender_public_key="fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212", endblock=679208)
+        >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
+        >>> fund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", htlc=htlc, amount=0.1, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", unit="BTM")
         >>> fund_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        "eyJmZWUiOiA0NDkwMDAsICJhZGRyZXNzIjogImJtMXFrOXZqNGphZXpsY25qZGNrZHM0ZmttOGZ3djVrYXdtcTlxcnVmeCIsICJyYXciOiAiMDcwMTAwMDEwMTVmMDE1ZGY3ZGY0ZDA2YTNmZTNjOGFjNjQzOGYyNWY5Yzk3NzQ0YTEwNDU1MzU3ODU3Nzc1NTI2YzNlNmM3NTJmYjY5ZWFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOThhM2IxNWEwMTAxMTYwMDE0YjE1OTJhY2JiOTE3ZjEzOTM3MTY2YzJhOWI2Y2U5NzMyOTZlYmI2MDIyMDEyMGZlNmIzZmQ0NDU4MjkxYjE5NjA1ZDkyODM3YWUxMDYwY2MwMjM3ZTY4MDIyYjJlYjlmYWYwMWExMTgyMjYyMTIwMjAxNDhmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMTIyMDAyMGU3ZjRhOTgxNWYzYTM2YzYxNmM1NjY2Yjk3ZmI3ZmRhY2QzNzIwYzExN2QwNzhjNDI5NDk0ZDFiNjE3ZmU3ZDQwMDAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjBjMmIzNTUwMTE2MDAxNGIxNTkyYWNiYjkxN2YxMzkzNzE2NmMyYTliNmNlOTczMjk2ZWJiNjAwMCIsICJoYXNoIjogImEzMDc4YWYwODEwYzY4YTdiYjZmMmY0MmNkNjdkY2U5ZGVhM2Q3NzAyOGNhMGM1MjcyMjRlNDUyNDAzOGFiYzQiLCAidW5zaWduZWRfZGF0YXMiOiBbeyJkYXRhcyI6IFsiZjQyYTJiNmUxNTU4NWI4OGRhOGIzNDIzN2M3YTZmZDgzYWYxMmVlNjk3MTgxM2Q2NmNmNzk0YTYzZWJjYzE2ZiJdLCAicHVibGljX2tleSI6ICJmZTZiM2ZkNDQ1ODI5MWIxOTYwNWQ5MjgzN2FlMTA2MGNjMDIzN2U2ODAyMmIyZWI5ZmFmMDFhMTE4MjI2MjEyIiwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJwYXRoIjogIm0vNDQvMTUzLzEvMC8xIn1dLCAic2lnbmF0dXJlcyI6IFtdLCAibmV0d29yayI6ICJtYWlubmV0IiwgInR5cGUiOiAiYnl0b21fZnVuZF91bnNpZ25lZCJ9"
         """
 
         # Check transaction
@@ -711,7 +416,6 @@ class FundTransaction(Transaction):
                 signatures=self.signatures(),
                 network=self._network,
                 type=self._type,
-                datas=self._datas
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -724,132 +428,75 @@ class FundTransaction(Transaction):
             signatures=[],
             network=self._network,
             type=self._type,
-            datas=self._datas
         ))).encode()).decode())
 
 
-class ClaimTransaction(Transaction):
+class WithdrawTransaction(Transaction):
     """
-    Bytom Claim transaction.
+    Bytom Withdraw transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Bytom network, defaults to ``mainnet``.
     :type network: str
 
-    :returns: ClaimTransaction -- Bytom claim transaction instance.
+    :returns: WithdrawTransaction -- Bytom withdraw transaction instance.
 
     .. warning::
-        Do not forget to build transaction after initialize claim transaction.
+        Do not forget to build transaction after initialize withdraw transaction.
     """
 
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-        self._transaction_id: Optional[str] = None
+        self._transaction_hash: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
-                          max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "ClaimTransaction":
+    def build_transaction(self, address: str, transaction_hash: str,
+                          asset: Union[str, AssetNamespace] = config["asset"]) -> "WithdrawTransaction":
         """
-        Build Bytom claim transaction.
+        Build Bytom withdraw transaction.
 
         :param address: Bytom recipient wallet address.
         :type address: str
-        :param transaction_id: Bytom fund transaction id to redeem.
-        :type transaction_id: str
-        :param amount: Bytom amount to withdraw, default to None.
-        :type amount: int, float
-        :param max_amount: Bytom maximum amount to withdraw, default to True.
-        :type max_amount: bool
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param transaction_hash: Bytom funded transaction hash/id.
+        :type transaction_hash: str
+        :param asset: Bytom asset id, defaults to ``BTM``.
         :type asset: str, bytom.assets.AssetNamespace
-        :param fee: Bytom custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Bytom unit, default to NEU.
-        :type unit: str
 
-        :returns: ClaimTransaction -- Bytom claim transaction instance.
+        :returns: WithdrawTransaction -- Bytom withdraw transaction instance.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_id="1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        <swap.providers.bytom.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bytom recipient '{address}' {self._network} address.")
-        if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Bytom unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
-        # Set address, asset, confirmations and transaction_id
-        self._address, self._asset, self._confirmations, self._transaction_id = (
+        # Set address, asset, confirmations and transaction_hash
+        self._address, self._asset, self._confirmations, self._transaction_hash = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], transaction_id
+            config["confirmations"], transaction_hash
         )
         # Get transaction
         self._transaction_detail = get_transaction(
-            transaction_id=self._transaction_id, network=self._network
+            transaction_hash=self._transaction_hash, network=self._network
         )
         # Find HTLC UTXO
-        self._htlc_utxo = find_p2wsh_utxo(transaction=self._transaction_detail)
+        self._htlc_utxo: dict = find_p2wsh_utxo(transaction=self._transaction_detail)
         if self._htlc_utxo is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH) address.")
 
-        if max_amount:
-            self._amount = self._htlc_utxo["amount"]
-        elif amount is None:
-            raise ValueError("Amount is None, Set amount or maximum amount set true.")
-        else:
-            self._amount = (
-                amount if unit == "NEU" else
-                amount_unit_converter(
-                    amount=amount, unit_from=f"{unit}2NEU"
-                )
-            )
+        self._amount = self._htlc_utxo["amount"]
 
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            for transaction_output in self._transaction_detail["outputs"]:
-                if transaction_output["address"] == options["address"]:
-                    self._interest = transaction_output["amount"]
+        # Estimating transaction fee
+        self._fee = estimate_transaction_fee(
+            address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
+            confirmations=self._confirmations, network=self._network
+        ) + 60000
 
-        if fee is None:
-            # Estimating transaction fee
-            self._fee = estimate_transaction_fee(
-                address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
-                confirmations=self._confirmations, network=self._network
-            ) + 60000
-        else:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-
-        if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"minimum you can withdraw {self._fee + 1} NEU amount.")
-        if self._htlc_utxo["amount"] < self._amount:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can withdraw {self._htlc_utxo['amount']} NEU amount.")
-
-        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-        outputs: list = [control_address(
-            asset=self._asset, amount=_amount,
-            address=self._address, vapor=False
-        )]
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=self._interest,
-                address=kwargs["options"]["address"], vapor=False
-            ))
-
-        self._datas.setdefault("address", self._address)
-        self._datas.setdefault("htlc_address", self._htlc_utxo["address"])
-        self._datas.setdefault("amount", _amount)
         # Build transaction
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
@@ -858,48 +505,52 @@ class ClaimTransaction(Transaction):
                     amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[spend_utxo(
-                    utxo=self._htlc_utxo["id"]
-                )],
-                outputs=outputs
+                inputs=[
+                    spend_utxo(
+                        utxo=self._htlc_utxo["id"]
+                    )
+                ],
+                outputs=[
+                    control_address(
+                        asset=self._asset, amount=(self._amount - self._fee), address=self._address, vapor=False
+                    )
+                ]
             ),
             network=self._network
         )
 
         # Set transaction type
-        self._type = "bytom_claim_unsigned"
+        self._type = "bytom_withdraw_unsigned"
         return self
 
-    def sign(self, solver: ClaimSolver) -> "ClaimTransaction":
+    def sign(self, solver: WithdrawSolver) -> "WithdrawTransaction":
         """
-        Sign Bytom claim transaction.
+        Sign Bytom withdraw transaction.
 
-        :param solver: Bytom claim solver.
-        :type solver: bytom.solver.ClaimSolver
+        :param solver: Bytom withdraw solver.
+        :type solver: bytom.solver.WithdrawSolver
 
-        :returns: ClaimTransaction -- Bytom claim transaction instance.
+        :returns: WithdrawTransaction -- Bytom withdraw transaction instance.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> from swap.providers.bytom.solver import ClaimSolver
-        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-        >>> recipient_wallet = Wallet("mainnet").from_entropy("6bc9e3bae5945876931963c2b3a3b040").from_path(DEFAULT_PATH)
-        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> claim_solver = ClaimSolver(recipient_wallet.xprivate_key(), "Hello Meheret!", bytecode=bytecode)
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction(recipient_wallet.address(), "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.sign(solver=claim_solver)
-        <swap.providers.bytom.transaction.ClaimTransaction object at 0x0409DAF0>
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> from swap.providers.bytom.solver import WithdrawSolver
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> bytecode: str = "03285d0a20fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key="58dd4094155bbebf2868189231c47e4e0edbd9f74545f843c9537259e1d7a656983aef283d0ccebecc2d33577a9f650b53ac7adff44f48ec839e3346cc22418f", secret_key="Hello Meheret!", bytecode=bytecode)
+        >>> withdraw_transaction.sign(solver=withdraw_solver)
+        <swap.providers.bytom.transaction.WithdrawTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
-        if not isinstance(solver, ClaimSolver):
-            raise TypeError(f"Solver must be Bytom ClaimSolver, not {type(solver).__name__} type.")
+        if not isinstance(solver, WithdrawSolver):
+            raise TypeError(f"Solver must be Bytom WithdrawSolver, not {type(solver).__name__} type.")
 
         # Set recipient wallet
         wallet, secret, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Sign claim transaction
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = []
             unsigned_datas = unsigned["datas"]
@@ -918,28 +569,28 @@ class ClaimTransaction(Transaction):
             wallet.clean_derivation()
 
         # Set transaction type
-        self._type = "bytom_claim_signed"
+        self._type = "bytom_withdraw_signed"
         return self
 
     def transaction_raw(self) -> str:
         """
-        Get Bytom claim transaction raw.
+        Get Bytom withdraw transaction raw.
 
-        :returns: str -- Bytom claim transaction raw.
+        :returns: str -- Bytom withdraw transaction raw.
 
-        >>> from swap.providers.bytom.transaction import ClaimTransaction
-        >>> claim_transaction = ClaimTransaction("mainnet")
-        >>> claim_transaction.build_transaction("bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", "1006a6f537fcc4888c65f6ff4f91818a1c6e19bdd3130f59391c00212c552fbd", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-        >>> claim_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        >>> from swap.providers.bytom.transaction import WithdrawTransaction
+        >>> withdraw_transaction: WithdrawTransaction = WithdrawTransaction(network="mainnet")
+        >>> withdraw_transaction.build_transaction(address="bm1q3plwvmvy4qhjmp5zffzmk50aagpujt6f5je85p", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> withdraw_transaction.transaction_raw()
+        "eyJmZWUiOiA1MDkwMDAsICJhZGRyZXNzIjogImJtMXF1bDYybnEybDhnbXZ2OWs5dmU0ZTA3bWxtdHhud2d4cHpsZzgzM3BmZjl4M2tjdGx1bDJxNzI3anl5IiwgInJhdyI6ICIwNzAxMDAwMTAxNmIwMTY5ZjdkZjRkMDZhM2ZlM2M4YWM2NDM4ZjI1ZjljOTc3NDRhMTA0NTUzNTc4NTc3NzU1MjZjM2U2Yzc1MmZiNjllYWZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MGFkZTIwNDAwMDEyMjAwMjBlN2Y0YTk4MTVmM2EzNmM2MTZjNTY2NmI5N2ZiN2ZkYWNkMzcyMGMxMTdkMDc4YzQyOTQ5NGQxYjYxN2ZlN2Q0MDEwMDAxMDEzY2ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZiOGE0YzMwNDAxMTYwMDE0ODg3ZWU2NmQ4NGE4MmYyZDg2ODI0YTQ1YmI1MWZkZWEwM2M5MmY0OTAwIiwgImhhc2giOiAiZDFlODRjMzdmNDEwNTZmNGRmMzk4NTIzZjg0ZWNmMDc5Mzc3ZmQ4NWU0NTYxYzEwZWMwMzgxOGNkNGRiN2VjMCIsICJ1bnNpZ25lZF9kYXRhcyI6IFt7ImRhdGFzIjogWyI0NWQxNzQ2YTFlYzA2OTVkM2UwNjA1OWM0MTM4NzIwNDBkMjRmODY0OTlkZGFmYWI0ODE3NzM2OGU1YzcyODgzIl0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6IG51bGx9XSwgInNpZ25hdHVyZXMiOiBbXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX3dpdGhkcmF3X3Vuc2lnbmVkIn0"
         """
 
         # Check transaction
         if self._transaction is None:
             raise ValueError("Transaction is none, build transaction first.")
 
-        # Encode claim transaction raw
-        if self._type == "bytom_claim_signed":
+        # Encode withdraw transaction raw
+        if self._type == "bytom_withdraw_signed":
             return clean_transaction_raw(b64encode(str(json.dumps(dict(
                 fee=self._fee,
                 address=self._htlc_utxo["address"],
@@ -950,8 +601,7 @@ class ClaimTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type,
-                datas=self._datas
+                type=self._type
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -963,8 +613,7 @@ class ClaimTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type,
-            datas=self._datas
+            type=self._type
         ))).encode()).decode())
 
 
@@ -972,7 +621,7 @@ class RefundTransaction(Transaction):
     """
     Bytom Refund transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Bytom network, defaults to ``mainnet``.
     :type network: str
 
     :returns: RefundTransaction -- Bytom refund transaction instance.
@@ -984,112 +633,56 @@ class RefundTransaction(Transaction):
     def __init__(self, network: str = config["network"]):
         super().__init__(network)
 
-        self._transaction_id: Optional[str] = None
+        self._transaction_hash: Optional[str] = None
         self._transaction_detail: Optional[dict] = None
         self._htlc_utxo: Optional[dict] = None
 
-    def build_transaction(self, address: str, transaction_id: str, amount: Optional[Union[int, float]] = None,
-                          max_amount: bool = config["max_amount"], asset: Union[str, AssetNamespace] = config["asset"],
-                          fee: Optional[Union[int, float]] = None, unit: str = config["unit"], **kwargs) -> "RefundTransaction":
+    def build_transaction(self, address: str, transaction_hash: str,
+                          asset: Union[str, AssetNamespace] = config["asset"]) -> "RefundTransaction":
         """
         Build Bytom refund transaction.
 
         :param address: Bytom sender wallet address.
         :type address: str
-        :param transaction_id: Bytom fund transaction id to redeem.
-        :type transaction_id: str
-        :param amount: Bytom amount to withdraw, default to None.
-        :type amount: int, float
-        :param max_amount: Bytom maximum amount to withdraw, default to True.
-        :type max_amount: bool
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param transaction_hash: Bytom funded transaction hash/id
+        :type transaction_hash: str
+        :param asset: Bytom asset id, defaults to ``BTM``.
         :type asset: str, bytom.assets.AssetNamespace
-        :param fee: Bytom custom fee, defaults to None.
-        :type fee: int, float
-        :param unit: Bytom unit, default to NEU.
-        :type unit: str
 
         :returns: RefundTransaction -- Bytom refund transaction instance.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", transaction_id="481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", max_amount=True, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
 
         # Check parameter instances
         if not is_address(address, self._network):
             raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
-        if unit not in ["BTM", "mBTM", "NEU"]:
-            raise UnitError("Invalid Bytom unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
 
-        # Set address, fee, confirmations and transaction_id
-        self._address, self._asset, self._confirmations, self._transaction_id = (
+        # Set address, fee, confirmations and transaction_hash
+        self._address, self._asset, self._confirmations, self._transaction_hash = (
             address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
-            config["confirmations"], transaction_id
+            config["confirmations"], transaction_hash
         )
         # Get transaction
         self._transaction_detail = get_transaction(
-            transaction_id=self._transaction_id, network=self._network
+            transaction_hash=self._transaction_hash, network=self._network
         )
         # Find HTLC UTXO
         self._htlc_utxo = find_p2wsh_utxo(transaction=self._transaction_detail)
         if self._htlc_utxo is None:
             raise ValueError("Invalid transaction id, there is no pay to witness script hash (P2WSH) address.")
 
-        if max_amount:
-            self._amount = self._htlc_utxo["amount"]
-        elif amount is None:
-            raise ValueError("Amount is None, Set amount or maximum amount set true.")
-        else:
-            self._amount = (
-                amount if unit == "NEU" else
-                amount_unit_converter(
-                    amount=amount, unit_from=f"{unit}2NEU"
-                )
-            )
+        self._amount = self._htlc_utxo["amount"]
 
-        if "options" in kwargs.keys():
-            options: dict = kwargs.get("options")
-            for transaction_output in self._transaction_detail["outputs"]:
-                if transaction_output["address"] == options["address"]:
-                    self._interest = transaction_output["amount"]
+        # Estimating transaction fee
+        self._fee = estimate_transaction_fee(
+            address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
+            confirmations=self._confirmations, network=self._network
+        ) + 60000
 
-        if fee is None:
-            # Estimating transaction fee
-            self._fee = estimate_transaction_fee(
-                address=self._htlc_utxo["address"], amount=self._amount, asset=self._asset,
-                confirmations=self._confirmations, network=self._network
-            ) + 60000
-        else:
-            self._fee = (
-                fee if unit == "NEU" else
-                amount_unit_converter(
-                    amount=fee, unit_from=f"{unit}2NEU"
-                )
-            )
-
-        if self._amount < self._fee:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"minimum you can refund {self._fee + 1} NEU amount.")
-        if self._htlc_utxo["amount"] < self._amount:
-            raise BalanceError("Insufficient spend UTXO's",
-                               f"maximum you can refund {self._htlc_utxo['amount']} NEU amount.")
-
-        _amount = (self._amount - self._fee) if not self._interest else (self._amount - (self._fee + self._interest))
-        outputs: list = [control_address(
-            asset=self._asset, amount=_amount,
-            address=self._address, vapor=False
-        )]
-        if self._interest:
-            outputs.append(control_address(
-                asset=self._asset, amount=self._interest,
-                address=kwargs["options"]["address"], vapor=False
-            ))
-
-        self._datas.setdefault("address", self._address)
-        self._datas.setdefault("htlc_address", self._htlc_utxo["address"])
-        self._datas.setdefault("amount", _amount)
         # Build transaction
         self._transaction = build_transaction(
             address=self._htlc_utxo["address"],
@@ -1098,10 +691,16 @@ class RefundTransaction(Transaction):
                     amount=self._fee, unit_from="NEU2BTM"
                 )),
                 confirmations=self._confirmations,
-                inputs=[spend_utxo(
-                    utxo=self._htlc_utxo["id"]
-                )],
-                outputs=outputs
+                inputs=[
+                    spend_utxo(
+                        utxo=self._htlc_utxo["id"]
+                    )
+                ],
+                outputs=[
+                    control_address(
+                        asset=self._asset, amount=(self._amount - self._fee), address=self._address, vapor=False
+                    )
+                ]
             ),
             network=self._network
         )
@@ -1121,12 +720,10 @@ class RefundTransaction(Transaction):
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
         >>> from swap.providers.bytom.solver import RefundSolver
-        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
-        >>> sender_wallet = Wallet("mainnet").from_entropy("72fee73846f2d1a5807dc8c953bf79f1").from_path(DEFAULT_PATH)
-        >>> bytecode = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-        >>> refund_solver = RefundSolver(sender_wallet.xprivate_key(), bytecode=bytecode)
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction(sender_wallet.address(), "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> bytecode: str = "03285d0a20fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0"
+        >>> refund_solver: RefundSolver = RefundSolver(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", bytecode=bytecode)
         >>> refund_transaction.sign(solver=refund_solver)
         <swap.providers.bytom.transaction.RefundTransaction object at 0x0409DAF0>
         """
@@ -1139,7 +736,7 @@ class RefundTransaction(Transaction):
         wallet, path, indexes = solver.solve()
         # Clean derivation indexes/path
         wallet.clean_derivation()
-        # Sign claim transaction
+        # Sign withdraw transaction
         for index, unsigned in enumerate(self.unsigned_datas(detail=True)):
             signed_data = []
             unsigned_datas = unsigned["datas"]
@@ -1167,10 +764,10 @@ class RefundTransaction(Transaction):
         :returns: str -- Bytom refund transaction raw.
 
         >>> from swap.providers.bytom.transaction import RefundTransaction
-        >>> refund_transaction = RefundTransaction("mainnet")
-        >>> refund_transaction.build_transaction("bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", "481c00212c552fbdf537fcc88c1006a69bdd3130f593965f6ff4f91818a1c6e1", 10000000, False, "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> refund_transaction: RefundTransaction = RefundTransaction(network="mainnet")
+        >>> refund_transaction.build_transaction(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", transaction_hash="59b1e43b57cba1afa5834eb9886e4a9fba031c9880ce7ae29d32c36f6b47496f", asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         >>> refund_transaction.transaction_raw()
-        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        "eyJmZWUiOiA1MDkwMDAsICJhZGRyZXNzIjogImJtMXF1bDYybnEybDhnbXZ2OWs5dmU0ZTA3bWxtdHhud2d4cHpsZzgzM3BmZjl4M2tjdGx1bDJxNzI3anl5IiwgImhhc2giOiAiMTcyMmFhOTMwZjZmOTNiNGM4Nzc4OGVhNTVmNDkwNTVmMjZmODY4MjFiY2QxMWE2NGQ0MmJjYjllM2I4YTk2ZCIsICJyYXciOiAiMDcwMTAwMDEwMTZiMDE2OWY3ZGY0ZDA2YTNmZTNjOGFjNjQzOGYyNWY5Yzk3NzQ0YTEwNDU1MzU3ODU3Nzc1NTI2YzNlNmM3NTJmYjY5ZWFmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmODBhZGUyMDQwMDAxMjIwMDIwZTdmNGE5ODE1ZjNhMzZjNjE2YzU2NjZiOTdmYjdmZGFjZDM3MjBjMTE3ZDA3OGM0Mjk0OTRkMWI2MTdmZTdkNDAxMDAwMTAxM2NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmYjhhNGMzMDQwMTE2MDAxNGIxNTkyYWNiYjkxN2YxMzkzNzE2NmMyYTliNmNlOTczMjk2ZWJiNjAwMCIsICJ1bnNpZ25lZF9kYXRhcyI6IFt7ImRhdGFzIjogWyJjYzc4YzFmYjY0OGY4ODI2ZTRkZDRmODVmODg1YWM3NTg2NmMwMjMzYjBhZjY1ODE3NTNkODU4MzA0YjhlMDRiIl0sICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6IG51bGx9XSwgInNpZ25hdHVyZXMiOiBbXSwgIm5ldHdvcmsiOiAibWFpbm5ldCIsICJ0eXBlIjogImJ5dG9tX3JlZnVuZF91bnNpZ25lZCJ9"
         """
 
         # Check transaction
@@ -1189,8 +786,7 @@ class RefundTransaction(Transaction):
                 ),
                 signatures=self.signatures(),
                 network=self._network,
-                type=self._type,
-                datas=self._datas
+                type=self._type
             ))).encode()).decode())
         return clean_transaction_raw(b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -1202,6 +798,5 @@ class RefundTransaction(Transaction):
             ),
             signatures=[],
             network=self._network,
-            type=self._type,
-            datas=self._datas
+            type=self._type
         ))).encode()).decode())

@@ -19,13 +19,13 @@ def test_vapor_htlc():
         secret_hash=_["vapor"]["htlc"]["secret"]["hash"],
         recipient_public_key=_["vapor"]["wallet"]["recipient"]["public_key"],
         sender_public_key=_["vapor"]["wallet"]["sender"]["public_key"],
-        sequence=_["vapor"]["htlc"]["sequence"]
+        endblock=_["vapor"]["htlc"]["endblock"]
     )
 
     assert htlc.bytecode() == _["vapor"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["vapor"]["htlc"]["opcode"]
     assert htlc.hash() == _["vapor"]["htlc"]["hash"]
-    assert htlc.address() == _["vapor"]["htlc"]["address"]
+    assert htlc.contract_address() == _["vapor"]["htlc"]["contract_address"]
 
     htlc = HTLC(network=_["vapor"]["network"]).from_bytecode(
         bytecode=_["vapor"]["htlc"]["bytecode"]
@@ -34,7 +34,7 @@ def test_vapor_htlc():
     assert htlc.bytecode() == _["vapor"]["htlc"]["bytecode"]
     assert htlc.opcode() is None
     assert htlc.hash() == _["vapor"]["htlc"]["hash"]
-    assert htlc.address() == _["vapor"]["htlc"]["address"]
+    assert htlc.contract_address() == _["vapor"]["htlc"]["contract_address"]
 
     assert isinstance(htlc.balance(), int)
     assert isinstance(htlc.utxos(), list)

@@ -6,7 +6,9 @@ from ..cli import click
 
 from ..cli.providers.bitcoin import bitcoin
 from ..cli.providers.bytom import bytom
+from ..cli.providers.ethereum import ethereum
 from ..cli.providers.vapor import vapor
+from ..cli.providers.xinfin import xinfin
 
 CONTEXT_SETTINGS = dict(
     help_option_names=["-h", "--help"],
@@ -47,5 +49,9 @@ def main():
 main.add_command(bitcoin)
 # Add Bytom provider
 main.add_command(bytom)
+# Add Ethereum provider
+main.add_command(ethereum)
 # Add Vapor provider
 main.add_command(vapor)
+# Add XinFin provider
+main.add_command(xinfin)

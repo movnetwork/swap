@@ -38,7 +38,7 @@ def test_bytom_utils():
 
     assert get_address_type(address=_["bytom"]["wallet"]["sender"]["address"]) == "p2wpkh"
     assert get_address_type(address=_["bytom"]["wallet"]["recipient"]["address"]) == "p2wpkh"
-    assert get_address_type(address=_["bytom"]["htlc"]["address"]) == "p2wsh"
+    assert get_address_type(address=_["bytom"]["htlc"]["contract_address"]) == "p2wsh"
 
     # HTTPConnectionPool(host='localhost', port=9888)
     with pytest.raises(ConnectionError):

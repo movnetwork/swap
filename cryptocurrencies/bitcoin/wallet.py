@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
-from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
-from swap.utils import generate_entropy, generate_passphrase
-from typing import Optional
+from swap.providers.bitcoin.wallet import (
+    Wallet, DEFAULT_PATH
+)
+from swap.utils import (
+    generate_entropy, generate_passphrase
+)
 
 # Choose network mainnet or testnet
 NETWORK: str = "testnet"  # Default to mainnet
@@ -12,10 +15,10 @@ STRENGTH: int = 160  # Default is 128
 LANGUAGE: str = "english"  # Default is english
 # Set passphrase length
 LENGTH: int = 32  # Default is 32
-# Generate new entropy
+# Generate new entropy hex string
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
-PASSPHRASE: Optional[str] = None  # generate_passphrase(length=LENGTH)
+PASSPHRASE: str = generate_passphrase(length=LENGTH)
 
 # Initialize Bitcoin wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -43,7 +46,6 @@ print("Chain Code:", wallet.chain_code())
 print("Private Key:", wallet.private_key())
 print("Public Key:", wallet.public_key())
 print("Wallet Important Format:", wallet.wif())
-print("Pay to Public Key Hash (P2PKH):", wallet.p2pkh())
 print("Hash:", wallet.hash())
 print("Finger Print:", wallet.finger_print())
 print("Path:", wallet.path())

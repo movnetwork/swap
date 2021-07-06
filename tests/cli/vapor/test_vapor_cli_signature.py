@@ -34,11 +34,11 @@ def test_vapor_cli_signature(cli_tester):
         transaction_raw=_["vapor"]["fund"]["signed"]["transaction_raw"]
     ) + "\n"
 
-    signed_claim_transaction_raw = cli_tester.invoke(
+    signed_withdraw_transaction_raw = cli_tester.invoke(
         cli_main, [
             "vapor",
             "sign",
-            "--transaction-raw", _["vapor"]["claim"]["unsigned"]["transaction_raw"],
+            "--transaction-raw", _["vapor"]["withdraw"]["unsigned"]["transaction_raw"],
             "--xprivate-key", _["vapor"]["wallet"]["recipient"]["xprivate_key"],
             "--secret-key", _["vapor"]["htlc"]["secret"]["key"],
             "--bytecode", _["vapor"]["htlc"]["bytecode"],
@@ -49,9 +49,9 @@ def test_vapor_cli_signature(cli_tester):
         ]
     )
 
-    assert signed_claim_transaction_raw.exit_code == 0
-    assert signed_claim_transaction_raw.output == clean_transaction_raw(
-        transaction_raw=_["vapor"]["claim"]["signed"]["transaction_raw"]
+    assert signed_withdraw_transaction_raw.exit_code == 0
+    assert signed_withdraw_transaction_raw.output == clean_transaction_raw(
+        transaction_raw=_["vapor"]["withdraw"]["signed"]["transaction_raw"]
     ) + "\n"
 
     signed_refund_transaction_raw = cli_tester.invoke(

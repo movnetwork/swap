@@ -19,13 +19,18 @@ def test_bitcoin_htlc():
         secret_hash=_["bitcoin"]["htlc"]["secret"]["hash"],
         recipient_address=_["bitcoin"]["wallet"]["recipient"]["address"],
         sender_address=_["bitcoin"]["wallet"]["sender"]["address"],
-        sequence=_["bitcoin"]["htlc"]["sequence"]
+        endtime=_["bitcoin"]["htlc"]["endtime"]
     )
 
     assert htlc.bytecode() == _["bitcoin"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["bitcoin"]["htlc"]["opcode"]
     assert htlc.hash() == _["bitcoin"]["htlc"]["hash"]
-    assert htlc.address() == _["bitcoin"]["htlc"]["address"]
+    assert htlc.contract_address() == _["bitcoin"]["htlc"]["contract_address"]
+    assert htlc.agreements["secret_hash"] == _["bitcoin"]["htlc"]["agreements"]["secret_hash"]
+    assert htlc.agreements["recipient_address"] == _["bitcoin"]["htlc"]["agreements"]["recipient_address"]
+    assert htlc.agreements["sender_address"] == _["bitcoin"]["htlc"]["agreements"]["sender_address"]
+    # assert htlc.agreements["endtime"]["datetime"] == _["bitcoin"]["htlc"]["agreements"]["endtime"]["datetime"]
+    assert htlc.agreements["endtime"]["timestamp"] == _["bitcoin"]["htlc"]["agreements"]["endtime"]["timestamp"]
 
     htlc = HTLC(network=_["bitcoin"]["network"]).from_bytecode(
         bytecode=_["bitcoin"]["htlc"]["bytecode"]
@@ -34,7 +39,7 @@ def test_bitcoin_htlc():
     assert htlc.bytecode() == _["bitcoin"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["bitcoin"]["htlc"]["opcode"]
     assert htlc.hash() == _["bitcoin"]["htlc"]["hash"]
-    assert htlc.address() == _["bitcoin"]["htlc"]["address"]
+    assert htlc.contract_address() == _["bitcoin"]["htlc"]["contract_address"]
 
     htlc = HTLC(network=_["bitcoin"]["network"]).from_opcode(
         opcode=_["bitcoin"]["htlc"]["opcode"]
@@ -43,4 +48,4 @@ def test_bitcoin_htlc():
     assert htlc.bytecode() == _["bitcoin"]["htlc"]["bytecode"]
     assert htlc.opcode() == _["bitcoin"]["htlc"]["opcode"]
     assert htlc.hash() == _["bitcoin"]["htlc"]["hash"]
-    assert htlc.address() == _["bitcoin"]["htlc"]["address"]
+    assert htlc.contract_address() == _["bitcoin"]["htlc"]["contract_address"]

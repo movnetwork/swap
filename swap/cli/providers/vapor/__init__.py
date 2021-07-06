@@ -6,7 +6,7 @@ from ....cli import click
 
 from .htlc import htlc
 from .fund import fund
-from .claim import claim
+from .withdraw import withdraw
 from .refund import refund
 from .decode import decode
 from .signature import sign
@@ -22,7 +22,7 @@ def vapor():
 # Adding vapor commands
 vapor.add_command(htlc)
 vapor.add_command(fund)
-vapor.add_command(claim)
+vapor.add_command(withdraw)
 vapor.add_command(refund)
 vapor.add_command(decode)
 vapor.add_command(sign)

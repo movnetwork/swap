@@ -21,10 +21,7 @@ def test_bitcoin_cli_refund(cli_tester):
             "bitcoin",
             "refund",
             "--address", _["bitcoin"]["wallet"]["sender"]["address"],
-            "--transaction-id", _["bitcoin"]["transaction_id"],
-            "--amount", _["bitcoin"]["amount"],
-            "--max-amount", _["bitcoin"]["max_amount"],
-            "--unit", _["bitcoin"]["unit"],
+            "--transaction-hash", _["bitcoin"]["transaction_hash"],
             "--version", _["bitcoin"]["version"],
             "--network", _["bitcoin"]["network"]
         ]

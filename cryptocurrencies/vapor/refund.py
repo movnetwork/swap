@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from swap.providers.vapor.wallet import Wallet, DEFAULT_PATH
+from swap.providers.vapor.wallet import (
+    Wallet, DEFAULT_PATH
+)
 from swap.providers.vapor.transaction import RefundTransaction
 from swap.providers.vapor.assets import BTM as ASSET
 from swap.providers.vapor.solver import RefundSolver
@@ -11,17 +13,15 @@ import json
 
 # Choose network mainnet, solonet or testnet
 NETWORK: str = "mainnet"
-# Vapor funded transaction id/hash
-TRANSACTION_ID: str = "96db48d3f3a4d9f3e490bcb3e1ad1cc8b11f8e51ceee816ecf6085374c824f0e"
+# Vapor funded transaction hash/id
+TRANSACTION_HASH: str = "37b36d7be5dfda0cc5dc3c918705464ff901dc5eadb6f4f049db03a679e02bfe"
 # Vapor sender wallet mnemonic
-SENDER_MNEMONIC: str = "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
+SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 # Witness Hash Time Lock Contract (HTLC) bytecode
-BYTECODE: str = "02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e" \
-                "0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead1" \
-                "5a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa8" \
-                "88537a7cae7cac631f000000537acd9f6972ae7cac00c0"
-# Vapor maximum refund amount
-MAX_AMOUNT: bool = True
+BYTECODE: str = "042ccf300720fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212203e0" \
+                "a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a8053" \
+                "3a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7" \
+                "cac631f000000537acd9f6972ae7cac00c0"
 
 print("=" * 10, "Sender Vapor Account")
 
@@ -37,6 +37,7 @@ print("XPrivate Key:", sender_wallet.xprivate_key())
 print("XPublic Key:", sender_wallet.xpublic_key())
 print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
+print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance(asset=ASSET, unit="BTM"), "BTM")
 
@@ -47,8 +48,7 @@ unsigned_refund_transaction: RefundTransaction = RefundTransaction(network=NETWO
 # Build refund transaction
 unsigned_refund_transaction.build_transaction(
     address=sender_wallet.address(),
-    transaction_id=TRANSACTION_ID,
-    max_amount=MAX_AMOUNT,
+    transaction_hash=TRANSACTION_HASH,
     asset=ASSET
 )
 
@@ -68,6 +68,7 @@ print("=" * 10, "Signed Refund Transaction")
 # Initialize refund solver
 refund_solver: RefundSolver = RefundSolver(
     xprivate_key=sender_wallet.xprivate_key(),
+    path=sender_wallet.path(),
     bytecode=BYTECODE
 )
 

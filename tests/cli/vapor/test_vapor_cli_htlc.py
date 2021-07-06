@@ -22,13 +22,14 @@ def test_vapor_cli_htlc(cli_tester):
             "--secret-hash", _["vapor"]["htlc"]["secret"]["hash"],
             "--recipient-public-key", _["vapor"]["wallet"]["recipient"]["public_key"],
             "--sender-public-key", _["vapor"]["wallet"]["sender"]["public_key"],
-            "--sequence", _["vapor"]["htlc"]["sequence"],
+            "--endblock", _["vapor"]["htlc"]["endblock"],
             "--network", _["vapor"]["network"]
         ]
     )
 
     assert htlc.exit_code == 0
     assert htlc.output == str(json.dumps(dict(
+        **_["vapor"]["htlc"]["agreements"],
         bytecode=_["vapor"]["htlc"]["bytecode"],
-        address=_["vapor"]["htlc"]["address"]
+        contract_address=_["vapor"]["htlc"]["contract_address"]
     ), indent=4)) + "\n"

@@ -38,7 +38,7 @@ def test_vapor_utils():
 
     assert get_address_type(address=_["vapor"]["wallet"]["sender"]["address"]) == "p2wpkh"
     assert get_address_type(address=_["vapor"]["wallet"]["recipient"]["address"]) == "p2wpkh"
-    assert get_address_type(address=_["vapor"]["htlc"]["address"]) == "p2wsh"
+    assert get_address_type(address=_["vapor"]["htlc"]["contract_address"]) == "p2wsh"
 
     # HTTPConnectionPool(host='localhost', port=9888)
     with pytest.raises(ConnectionError):

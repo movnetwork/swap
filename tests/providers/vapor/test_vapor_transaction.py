@@ -3,11 +3,12 @@
 import json
 import os
 
+from swap.providers.vapor.htlc import HTLC
 from swap.providers.vapor.transaction import (
-    NormalTransaction, FundTransaction, ClaimTransaction, RefundTransaction
+    FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.vapor.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.providers.vapor.utils import amount_unit_converter
 from swap.utils import clean_transaction_raw
@@ -20,66 +21,23 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_vapor_normal_transaction():
-
-    unsigned_normal_transaction = NormalTransaction(network=_["vapor"]["network"])
-
-    unsigned_normal_transaction.build_transaction(
-        address=_["vapor"]["wallet"]["sender"]["address"],
-        asset=_["vapor"]["asset"],
-        recipients={
-            _["vapor"]["wallet"]["recipient"]["address"]: (
-                _["vapor"]["amount"] if _["vapor"]["unit"] == "NEU" else amount_unit_converter(
-                    _["vapor"]["amount"], f"{_['vapor']['unit']}2NEU")
-            )
-        }
-    )
-
-    assert unsigned_normal_transaction.type() == _["vapor"]["normal"]["unsigned"]["type"]
-    assert unsigned_normal_transaction.fee() == _["vapor"]["normal"]["unsigned"]["fee"]
-    assert unsigned_normal_transaction.hash() == _["vapor"]["normal"]["unsigned"]["hash"]
-    assert unsigned_normal_transaction.raw() == _["vapor"]["normal"]["unsigned"]["raw"]
-    # assert unsigned_normal_transaction.json() == _["vapor"]["normal"]["unsigned"]["json"]
-    assert unsigned_normal_transaction.unsigned_datas() == _["vapor"]["normal"]["unsigned"]["unsigned_datas"]
-    assert unsigned_normal_transaction.signatures() == _["vapor"]["normal"]["unsigned"]["signatures"]
-    assert unsigned_normal_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["normal"]["unsigned"]["transaction_raw"]
-    )
-
-    signed_normal_transaction = unsigned_normal_transaction.sign(
-        solver=NormalSolver(
-            xprivate_key=_["vapor"]["wallet"]["sender"]["xprivate_key"],
-            path=_["vapor"]["wallet"]["sender"]["derivation"]["path"],
-            account=_["vapor"]["wallet"]["sender"]["derivation"]["account"],
-            change=_["vapor"]["wallet"]["sender"]["derivation"]["change"],
-            address=_["vapor"]["wallet"]["sender"]["derivation"]["address"]
-        )
-    )
-
-    assert signed_normal_transaction.type() == _["vapor"]["normal"]["signed"]["type"]
-    assert signed_normal_transaction.fee() == _["vapor"]["normal"]["signed"]["fee"]
-    assert signed_normal_transaction.hash() == _["vapor"]["normal"]["signed"]["hash"]
-    assert signed_normal_transaction.raw() == _["vapor"]["normal"]["signed"]["raw"]
-    # assert signed_normal_transaction.json() == _["vapor"]["normal"]["signed"]["json"]
-    assert signed_normal_transaction.unsigned_datas() == _["vapor"]["normal"]["signed"]["unsigned_datas"]
-    assert signed_normal_transaction.signatures() == _["vapor"]["normal"]["signed"]["signatures"]
-    assert signed_normal_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["normal"]["signed"]["transaction_raw"]
-    )
-
-
 def test_vapor_fund_transaction():
+
+    htlc = HTLC(network=_["vapor"]["network"]).build_htlc(
+        secret_hash=_["vapor"]["htlc"]["secret"]["hash"],
+        recipient_public_key=_["vapor"]["wallet"]["recipient"]["public_key"],
+        sender_public_key=_["vapor"]["wallet"]["sender"]["public_key"],
+        endblock=_["vapor"]["htlc"]["endblock"]
+    )
 
     unsigned_fund_transaction = FundTransaction(network=_["vapor"]["network"])
 
     unsigned_fund_transaction.build_transaction(
         address=_["vapor"]["wallet"]["sender"]["address"],
-        htlc_address=_["vapor"]["htlc"]["address"],
+        htlc=htlc,
         asset=_["vapor"]["asset"],
-        amount=(
-            _["vapor"]["amount"] if _["vapor"]["unit"] == "NEU" else amount_unit_converter(
-                _["vapor"]["amount"], f"{_['vapor']['unit']}2NEU")
-        )
+        amount=_["vapor"]["amount"],
+        unit=_["vapor"]["unit"]
     )
 
     assert unsigned_fund_transaction.type() == _["vapor"]["fund"]["unsigned"]["type"]
@@ -115,34 +73,29 @@ def test_vapor_fund_transaction():
     )
 
 
-def test_vapor_claim_transaction():
+def test_vapor_withdraw_transaction():
 
-    unsigned_claim_transaction = ClaimTransaction(network=_["vapor"]["network"])
+    unsigned_withdraw_transaction = WithdrawTransaction(network=_["vapor"]["network"])
 
-    unsigned_claim_transaction.build_transaction(
+    unsigned_withdraw_transaction.build_transaction(
         address=_["vapor"]["wallet"]["recipient"]["address"],
-        transaction_id=_["vapor"]["transaction_id"],
-        amount=(
-            _["vapor"]["amount"] if _["vapor"]["unit"] == "NEU" else amount_unit_converter(
-                _["vapor"]["amount"], f"{_['vapor']['unit']}2NEU")
-        ),
-        max_amount=_["vapor"]["max_amount"],
-        asset=_["vapor"]["asset"],
+        transaction_hash=_["vapor"]["transaction_hash"],
+        asset=_["vapor"]["asset"]
     )
 
-    assert unsigned_claim_transaction.type() == _["vapor"]["claim"]["unsigned"]["type"]
-    assert unsigned_claim_transaction.fee() == _["vapor"]["claim"]["unsigned"]["fee"]
-    assert unsigned_claim_transaction.hash() == _["vapor"]["claim"]["unsigned"]["hash"]
-    assert unsigned_claim_transaction.raw() == _["vapor"]["claim"]["unsigned"]["raw"]
-    # assert unsigned_claim_transaction.json() == _["vapor"]["claim"]["unsigned"]["json"]
-    assert unsigned_claim_transaction.unsigned_datas() == _["vapor"]["claim"]["unsigned"]["unsigned_datas"]
-    assert unsigned_claim_transaction.signatures() == _["vapor"]["claim"]["unsigned"]["signatures"]
-    assert unsigned_claim_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["claim"]["unsigned"]["transaction_raw"]
+    assert unsigned_withdraw_transaction.type() == _["vapor"]["withdraw"]["unsigned"]["type"]
+    assert unsigned_withdraw_transaction.fee() == _["vapor"]["withdraw"]["unsigned"]["fee"]
+    assert unsigned_withdraw_transaction.hash() == _["vapor"]["withdraw"]["unsigned"]["hash"]
+    assert unsigned_withdraw_transaction.raw() == _["vapor"]["withdraw"]["unsigned"]["raw"]
+    # assert unsigned_withdraw_transaction.json() == _["vapor"]["withdraw"]["unsigned"]["json"]
+    assert unsigned_withdraw_transaction.unsigned_datas() == _["vapor"]["withdraw"]["unsigned"]["unsigned_datas"]
+    assert unsigned_withdraw_transaction.signatures() == _["vapor"]["withdraw"]["unsigned"]["signatures"]
+    assert unsigned_withdraw_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["vapor"]["withdraw"]["unsigned"]["transaction_raw"]
     )
 
-    signed_claim_transaction = unsigned_claim_transaction.sign(
-        solver=ClaimSolver(
+    signed_withdraw_transaction = unsigned_withdraw_transaction.sign(
+        solver=WithdrawSolver(
             xprivate_key=_["vapor"]["wallet"]["recipient"]["xprivate_key"],
             secret_key=_["vapor"]["htlc"]["secret"]["key"],
             bytecode=_["vapor"]["htlc"]["bytecode"],
@@ -153,15 +106,15 @@ def test_vapor_claim_transaction():
         )
     )
 
-    assert signed_claim_transaction.type() == _["vapor"]["claim"]["signed"]["type"]
-    assert signed_claim_transaction.fee() == _["vapor"]["claim"]["signed"]["fee"]
-    assert signed_claim_transaction.hash() == _["vapor"]["claim"]["signed"]["hash"]
-    assert signed_claim_transaction.raw() == _["vapor"]["claim"]["signed"]["raw"]
-    # assert signed_claim_transaction.json() == _["vapor"]["claim"]["signed"]["json"]
-    assert signed_claim_transaction.unsigned_datas() == _["vapor"]["claim"]["signed"]["unsigned_datas"]
-    assert signed_claim_transaction.signatures() == _["vapor"]["claim"]["signed"]["signatures"]
-    assert signed_claim_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["vapor"]["claim"]["signed"]["transaction_raw"]
+    assert signed_withdraw_transaction.type() == _["vapor"]["withdraw"]["signed"]["type"]
+    assert signed_withdraw_transaction.fee() == _["vapor"]["withdraw"]["signed"]["fee"]
+    assert signed_withdraw_transaction.hash() == _["vapor"]["withdraw"]["signed"]["hash"]
+    assert signed_withdraw_transaction.raw() == _["vapor"]["withdraw"]["signed"]["raw"]
+    # assert signed_withdraw_transaction.json() == _["vapor"]["withdraw"]["signed"]["json"]
+    assert signed_withdraw_transaction.unsigned_datas() == _["vapor"]["withdraw"]["signed"]["unsigned_datas"]
+    assert signed_withdraw_transaction.signatures() == _["vapor"]["withdraw"]["signed"]["signatures"]
+    assert signed_withdraw_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["vapor"]["withdraw"]["signed"]["transaction_raw"]
     )
 
 
@@ -171,13 +124,8 @@ def test_vapor_refund_transaction():
 
     unsigned_refund_transaction.build_transaction(
         address=_["vapor"]["wallet"]["sender"]["address"],
-        transaction_id=_["vapor"]["transaction_id"],
-        amount=(
-            _["vapor"]["amount"] if _["vapor"]["unit"] == "NEU" else amount_unit_converter(
-                _["vapor"]["amount"], f"{_['vapor']['unit']}2NEU")
-        ),
-        max_amount=_["vapor"]["max_amount"],
-        asset=_["vapor"]["asset"],
+        transaction_hash=_["vapor"]["transaction_hash"],
+        asset=_["vapor"]["asset"]
     )
 
     assert unsigned_refund_transaction.type() == _["vapor"]["refund"]["unsigned"]["type"]

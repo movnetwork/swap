@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from pybytom.wallet import Wallet as HDWallet
-from pybytom.rpc import account_create
 from typing import (
     Optional, List, Union
 )
@@ -14,20 +13,18 @@ from ..config import bytom as config
 from .assets import AssetNamespace
 from .utils import amount_unit_converter
 from .rpc import (
-    get_balance, get_utxos
+    get_balance, get_utxos, account_create
 )
 
-# Default path and indexes derivation
+# Default derivation path
 DEFAULT_PATH: str = config["path"]
-DEFAULT_INDEXES: List[str] = config["indexes"]
-DEFAULT_BIP44: str = config["BIP44"]
 
 
 class Wallet(HDWallet):
     """
     Bytom Wallet class.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Bytom network, defaults to ``mainnet``.
     :type network: str
 
     :returns: Wallet -- Bytom wallet instance.
@@ -58,18 +55,18 @@ class Wallet(HDWallet):
         """
         Initiate Bytom wallet from entropy.
 
-        :param entropy: Bytom wallet entropy.
+        :param entropy: Bytom entropy hex string.
         :type entropy: str
-        :param language: Bytom wallet language, default to english.
+        :param language: Bytom wallet language, default to ``english``.
         :type language: str
-        :param passphrase: Bytom wallet passphrase, default to None.
+        :param passphrase: Bytom wallet passphrase, default to ``None``.
         :type passphrase: str
 
         :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
@@ -81,18 +78,18 @@ class Wallet(HDWallet):
         """
         Initialize Bytom wallet from mnemonic.
 
-        :param mnemonic: Bytom wallet mnemonic.
+        :param mnemonic: Bytom mnemonic words.
         :type mnemonic: str
-        :param language: Bytom wallet language, default to english.
+        :param language: Bytom wallet language, default to ``english``.
         :type language: str
-        :param passphrase: Bytom wallet passphrase, default to None.
+        :param passphrase: Bytom wallet passphrase, default to ``None``.
         :type passphrase: str
 
-        :returns: Wallet -- Bytom wallet class instance.
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_mnemonic("indicate warm sock mistake code spot acid ribbon sing over taxi toast")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_mnemonic(mnemonic="unfair divorce remind addict add roof park clown build renew illness fault")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
@@ -107,14 +104,14 @@ class Wallet(HDWallet):
         """
         Initialize Bytom wallet from seed.
 
-        :param seed: Bytom wallet seed.
+        :param seed: Bytom Seed hex string.
         :type seed: str
 
-        :returns: Wallet -- Bytom wallet class instance.
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_seed("baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_seed(seed="1cfd5df8a523d53a36cee369a93fac4e9efab5e4e138d479da2fb6df730697574409d572fe8325ec22e8ed25dea7495f498c3f5235fe6ae6d47b989267b6777c")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
@@ -125,14 +122,14 @@ class Wallet(HDWallet):
         """
         Initiate Bytom wallet from xprivate key.
 
-        :param xprivate_key: Bytom wallet xprivate key.
+        :param xprivate_key: Bytom XPrivate key.
         :type xprivate_key: str
 
         :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_xprivate_key("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_xprivate_key(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
@@ -143,14 +140,14 @@ class Wallet(HDWallet):
         """
         Initialize Bytom wallet from private key.
 
-        :param private_key: Bytom private key.
+        :param private_key: Bytom Private key.
         :type private_key: str
 
         :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_private_key("e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_private_key(private_key="b0f9552e4fedac7f2e750ae984e36a97cf2b24609f7ec43f35606ed65eec6e46db35f71c405fd5948ecffa2c512adafb35cc621f99a60ecb6ec8aef815a8c6e5")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
@@ -161,15 +158,15 @@ class Wallet(HDWallet):
         """
         Drive Bytom wallet from path.
 
-        :param path: Bytom wallet path.
+        :param path: Bytom derivation path.
         :type path: str
 
         :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
@@ -183,41 +180,41 @@ class Wallet(HDWallet):
         :param indexes: Bytom derivation indexes.
         :type indexes: list
 
-        :returns: Wallet -- Bytom wallet class instance.
+        :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_xprivate_key("205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b")
-        >>> wallet.from_indexes(["2c000000", "99000000", "01000000", "00000000", "01000000"])
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_xprivate_key(xprivate_key="58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd")
+        >>> wallet.from_indexes(indexes=["2c000000", "99000000", "01000000", "00000000", "01000000"])
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
         self._hdwallet.from_indexes(indexes=indexes)
         return self
 
-    def from_index(self, index: int, harden: bool = False) -> "Wallet":
+    def from_index(self, index: int, hardened: bool = False) -> "Wallet":
         """
         Drive Bytom wallet from index.
 
         :param index: Bytom wallet index.
         :type index: int
-        :param harden: Use harden, default to False.
-        :type harden: bool
+        :param hardened: Use hardened, default to ``False``.
+        :type hardened: bool
 
         :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_index(44)
-        >>> wallet.from_index(153)
-        >>> wallet.from_index(1)
-        >>> wallet.from_index(0)
-        >>> wallet.from_index(1)
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_index(index=44)
+        >>> wallet.from_index(index=153)
+        >>> wallet.from_index(index=1)
+        >>> wallet.from_index(index=0)
+        >>> wallet.from_index(index=1)
         <swap.providers.bytom.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_index(index=index, harden=harden)
+        self._hdwallet.from_index(index=index, harden=hardened)
         return self
 
     def clean_derivation(self) -> "Wallet":
@@ -227,9 +224,9 @@ class Wallet(HDWallet):
         :returns: Wallet -- Bytom wallet instance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.indexes()
         ["2c000000", "99000000", "01000000", "00000000", "01000000"]
         >>> wallet.path()
@@ -251,8 +248,8 @@ class Wallet(HDWallet):
         :return: int -- Bytom wallet strength.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.strength()
         128
         """
@@ -266,10 +263,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom wallet entropy.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.entropy()
-        "72fee73846f2d1a5807dc8c953bf79f1"
+        "ed0802d701a033776811601dd6c5c4a9"
         """
 
         return self._hdwallet.entropy()
@@ -281,10 +278,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom wallet mnemonic.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.mnemonic()
-        "indicate warm sock mistake code spot acid ribbon sing over taxi toast"
+        "unfair divorce remind addict add roof park clown build renew illness fault"
         """
 
         return self._hdwallet.mnemonic()
@@ -296,8 +293,8 @@ class Wallet(HDWallet):
         :return: str -- Bytom wallet passphrase.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1", passphrase="meherett")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9", passphrase="meherett")
         >>> wallet.passphrase()
         "meherett"
         """
@@ -311,8 +308,8 @@ class Wallet(HDWallet):
         :return: str -- Bytom wallet language.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.language()
         "english"
         """
@@ -326,10 +323,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom wallet seed.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.seed()
-        "baff3e1fe60e1f2a2d840d304acc98d1818140c79354a353b400fb019bfb256bc392d7aa9047adff1f14bce0342e14605c6743a6c08e02150588375eb2eb7d49"
+        "1cfd5df8a523d53a36cee369a93fac4e9efab5e4e138d479da2fb6df730697574409d572fe8325ec22e8ed25dea7495f498c3f5235fe6ae6d47b989267b6777c"
         """
 
         return self._hdwallet.seed()
@@ -342,8 +339,8 @@ class Wallet(HDWallet):
 
         >>> from swap.providers.bytom.wallet import Wallet
         >>> wallet = Wallet(network="mainnet", change=True, address=3)
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.path()
         "m/44/153/1/0/1"
         """
@@ -357,9 +354,9 @@ class Wallet(HDWallet):
         :return: list -- Bytom derivation indexes.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.indexes()
         ['2c000000', '99000000', '01000000', '00000000', '01000000']
         """
@@ -373,10 +370,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom xprivate key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.xprivate_key()
-        "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+        "58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e46daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd"
         """
 
         return self._hdwallet.xprivate_key()
@@ -388,10 +385,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom xpublic key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.xpublic_key()
-        "16476b7fd68ca2acd92cfc38fa353e75d6103f828276f44d587e660a6bd7a5c5ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+        "f80a401807fde1ee5727ae032ee144e4b757e69431e68e6cd732eda3c8cd3936daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd"
         """
 
         return self._hdwallet.xpublic_key()
@@ -403,10 +400,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom expand xprivate key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.expand_xprivate_key()
-        "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee5102416c643cfb46ab1ae5a524c8b4aaa002eb771d0d9cfc7490c0c3a8177e053e"
+        "58775359b7b3588dcdc1bcf373489fa1272cacc03909f78469657b0208e66e465c68d75d8a29eb3ffd7e82138088eec937e0c3d753946d35ae2d40d84a03bcf9"
         """
 
         return self._hdwallet.expand_xprivate_key()
@@ -418,11 +415,11 @@ class Wallet(HDWallet):
         :return: str -- Bytom child xprivate key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.child_xprivate_key()
-        "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
+        "b0f9552e4fedac7f2e750ae984e36a97cf2b24609f7ec43f35606ed65eec6e46db35f71c405fd5948ecffa2c512adafb35cc621f99a60ecb6ec8aef815a8c6e5"
         """
 
         return self._hdwallet.child_xprivate_key()
@@ -434,11 +431,11 @@ class Wallet(HDWallet):
         :return: str -- Bytom child xpublic key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.child_xpublic_key()
-        "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e25803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
+        "fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212db35f71c405fd5948ecffa2c512adafb35cc621f99a60ecb6ec8aef815a8c6e5"
         """
 
         return self._hdwallet.child_xpublic_key()
@@ -450,10 +447,10 @@ class Wallet(HDWallet):
         :return: str -- Bytom Blockcenter GUID.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
         >>> wallet.guid()
-        "f0ed6ddd-9d6b-49fd-8866-a52d1083a13b"
+        "9ed61a9b-e7b6-4cb7-94fb-932b738e4f66"
         """
 
         if self.xpublic_key() is None:
@@ -467,11 +464,11 @@ class Wallet(HDWallet):
         :return: str -- Bytom private key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.private_key()
-        "e07af52746e7cccd0a7d1fba6651a6f474bada481f34b1c5bab5e2d71e36ee515803ee0a6682fb19e279d8f4f7acebee8abd0fc74771c71565f9a9643fd77141"
+        "b0f9552e4fedac7f2e750ae984e36a97cf2b24609f7ec43f35606ed65eec6e46db35f71c405fd5948ecffa2c512adafb35cc621f99a60ecb6ec8aef815a8c6e5"
         """
 
         return self._hdwallet.private_key()
@@ -483,11 +480,11 @@ class Wallet(HDWallet):
         :return: str -- Bytom public key.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.public_key()
-        "91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2"
+        "fe6b3fd4458291b19605d92837ae1060cc0237e68022b2eb9faf01a118226212"
         """
 
         return self._hdwallet.public_key()
@@ -499,11 +496,11 @@ class Wallet(HDWallet):
         :return: str -- Bytom control program.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.program()
-        "00142cda4f99ea8112e6fa61cdd26157ed6dc408332a"
+        "0014b1592acbb917f13937166c2a9b6ce973296ebb60"
         """
 
         return self._hdwallet.program()
@@ -512,17 +509,17 @@ class Wallet(HDWallet):
         """
         Get Bytom wallet address.
 
-        :param network: Bytom network, defaults to mainnet.
+        :param network: Bytom network, defaults to ``mainnet``.
         :type network: str
 
         :return: str -- Bytom wallet address.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_indexes(["2c000000", "99000000", "01000000", "00000000", "01000000"])
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_indexes(indexes=["2c000000", "99000000", "01000000", "00000000", "01000000"])
         >>> wallet.address(network="mainnet")
-        "bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7"
+        "bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx"
         """
 
         if network is None:
@@ -534,19 +531,19 @@ class Wallet(HDWallet):
         """
         Get Bytom wallet balance.
 
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param asset: Bytom asset id, defaults to ``BTM asset``.
         :type asset: str, bytom.assets.AssetNamespace
-        :param unit: Bytom unit, default to NEU.
+        :param unit: Bytom unit, default to ``NEU``.
         :type unit: str
 
         :return: int, float -- Bytom wallet balance.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.balance(unit="BTM")
-        0.71510800
+        2.0
         """
 
         if unit not in ["BTM", "mBTM", "NEU"]:
@@ -563,19 +560,19 @@ class Wallet(HDWallet):
         """
         Get Bytom wallet unspent transaction output (UTXO's).
 
-        :param asset: Bytom asset id, defaults to BTM asset.
+        :param asset: Bytom asset id, defaults to ``BTM asset``.
         :type asset: str, bytom.assets.AssetNamespace
-        :param limit: Limit of UTXO's, default is 15.
+        :param limit: Limit of UTXO's, default is ``15``.
         :type limit: int
 
         :return: list -- Bytom unspent transaction outputs.
 
         >>> from swap.providers.bytom.wallet import Wallet
-        >>> wallet = Wallet(network="mainnet")
-        >>> wallet.from_entropy("72fee73846f2d1a5807dc8c953bf79f1")
-        >>> wallet.from_path("m/44/153/1/0/1")
+        >>> wallet: Wallet = Wallet(network="mainnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44/153/1/0/1")
         >>> wallet.utxos()
-        [{'hash': '7c1e20e6ff719176a3ed6f5332ec3ff665ab28754d2511950e591267e0e675df', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 71510800}, {'hash': '01b07c3523085b75f1e047be3a73b263635d0b86f9b751457a51b26c5a97a110', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 50000}, {'hash': 'e46cfecc1f1a26413172ce81c78affb19408e613915642fa5fb04d3b0a4ffa65', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 100}]
+        [{'hash': '9843c9b9130bd87a9683f2c4e66456326beeefb2522c3352326de870c5c1329e', 'asset': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 200000000}]
         """
 
         return get_utxos(

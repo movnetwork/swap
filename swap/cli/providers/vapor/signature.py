@@ -8,10 +8,10 @@ import sys
 
 from ....cli import click
 from ....providers.vapor.solver import (
-    FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 from ....providers.vapor.signature import (
-    FundSignature, ClaimSignature, RefundSignature
+    FundSignature, WithdrawSignature, RefundSignature
 )
 from ....providers.vapor.utils import is_transaction_raw
 from ....exceptions import TransactionRawError
@@ -20,7 +20,7 @@ from ....utils import clean_transaction_raw
 
 @click.command("sign", options_metavar="[OPTIONS]",
                short_help="Select Vapor Transaction raw signer.")
-@click.option("-xk", "--xprivate-key", type=str, required=True, help="Set Vapor xprivate key.")
+@click.option("-xpk", "--xprivate-key", type=str, required=True, help="Set Vapor xprivate key.")
 @click.option("-tr", "--transaction-raw", type=str, required=True, help="Set Vapor unsigned transaction raw.")
 @click.option("-b", "--bytecode", type=str, default=None,
               help="Set Vapor witness HTLC bytecode.  [default: None]", show_default=True)
@@ -38,7 +38,6 @@ from ....utils import clean_transaction_raw
               help="Set Vapor derivation from indexes.  [default: None]", show_default=True)
 def sign(xprivate_key: str, transaction_raw: str, bytecode: str,
          secret_key: str, account: int, change: bool, address: int, path: str, indexes: list):
-
     try:
         if not is_transaction_raw(transaction_raw=transaction_raw):
             raise TransactionRawError("Invalid Bitcoin unsigned transaction raw.")
@@ -63,37 +62,37 @@ def sign(xprivate_key: str, transaction_raw: str, bytecode: str,
             )
             click.echo(fund_signature.transaction_raw())
 
-        elif loaded_transaction_raw["type"] == "vapor_claim_unsigned":
+        elif loaded_transaction_raw["type"] == "vapor_withdraw_unsigned":
             if secret_key is None:
                 click.echo(click.style("Error: {}").format(
-                    "Secret key is required for claim, use -sk or --secret-key \"Hello Meheret!\""
+                    "Secret key is required for withdraw, use -sk or --secret-key \"Hello Meheret!\""
                 ), err=True)
                 sys.exit()
             if bytecode is None:
                 click.echo(click.style("Error: {}").format(
-                    "Witness bytecode is required for claim, use -b or --bytecode \"016...\""
+                    "Witness bytecode is required for withdraw, use -b or --bytecode \"016...\""
                 ), err=True)
                 sys.exit()
 
-            # Claim HTLC solver
-            claim_solver = ClaimSolver(
+            # Withdraw HTLC solver
+            withdraw_solver = WithdrawSolver(
                 xprivate_key=xprivate_key, secret_key=secret_key, bytecode=bytecode,
                 account=account, change=change, address=address,
                 path=path, indexes=indexes
             )
-            # Claim signature
-            claim_signature = ClaimSignature(
+            # Withdraw signature
+            withdraw_signature = WithdrawSignature(
                 network=loaded_transaction_raw["network"]
             )
-            claim_signature.sign(
-                transaction_raw=transaction_raw, solver=claim_solver
+            withdraw_signature.sign(
+                transaction_raw=transaction_raw, solver=withdraw_solver
             )
-            click.echo(claim_signature.transaction_raw())
-    
+            click.echo(withdraw_signature.transaction_raw())
+
         elif loaded_transaction_raw["type"] == "vapor_refund_unsigned":
             if bytecode is None:
                 click.echo(click.style("Error: {}").format(
-                    "Witness bytecode is required for claim, use -b or --bytecode \"016...\""
+                    "Witness bytecode is required for withdraw, use -b or --bytecode \"016...\""
                 ), err=True)
                 sys.exit()
 

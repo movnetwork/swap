@@ -8,7 +8,7 @@ import json
 import os
 
 from swap.providers.bitcoin.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
 
 # Test Values
@@ -19,23 +19,10 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bitcoin_normal_solver():
-
-    normal_solver = NormalSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
-        path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
-        account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
-        change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
-        address=_["bitcoin"]["wallet"]["sender"]["derivation"]["address"]
-    )
-
-    assert isinstance(normal_solver.solve(network=_["bitcoin"]["network"]), P2pkhSolver)
-
-
 def test_bitcoin_fund_solver():
 
     fund_solver = FundSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+        xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
         path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
         change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
@@ -45,10 +32,10 @@ def test_bitcoin_fund_solver():
     assert isinstance(fund_solver.solve(network=_["bitcoin"]["network"]), P2pkhSolver)
 
 
-def test_bitcoin_claim_solver():
+def test_bitcoin_withdraw_solver():
 
-    claim_solver = ClaimSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
+    withdraw_solver = WithdrawSolver(
+        xprivate_key=_["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
         secret_key=_["bitcoin"]["htlc"]["secret"]["key"],
         bytecode=_["bitcoin"]["htlc"]["bytecode"],
         path=_["bitcoin"]["wallet"]["recipient"]["derivation"]["path"],
@@ -57,15 +44,15 @@ def test_bitcoin_claim_solver():
         address=_["bitcoin"]["wallet"]["recipient"]["derivation"]["address"]
     )
 
-    assert isinstance(claim_solver.solve(network=_["bitcoin"]["network"]), IfElseSolver)
+    assert isinstance(withdraw_solver.solve(network=_["bitcoin"]["network"]), IfElseSolver)
 
 
 def test_bitcoin_refund_solver():
 
     refund_solver = RefundSolver(
-        root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+        xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
         bytecode=_["bitcoin"]["htlc"]["bytecode"],
-        sequence=_["bitcoin"]["htlc"]["sequence"],
+        endtime=_["bitcoin"]["htlc"]["endtime"],
         path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
         change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],

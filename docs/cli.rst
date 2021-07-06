@@ -10,13 +10,15 @@ After you have installed, type ``swap`` to verify that it worked:
     Usage: swap [OPTIONS] COMMAND [ARGS]...
 
     Options:
-      -v, --version  Show Shuttle version and exit.
+      -v, --version  Show Swap version and exit.
       -h, --help     Show this message and exit.
 
     Commands:
-      bitcoin  Select Bitcoin provider.
-      bytom    Select Bytom provider.
-      vapor    Select Vapor provider.
+      bitcoin   Select Bitcoin provider.
+      bytom     Select Bytom provider.
+      ethereum  Select Ethereum provider.
+      vapor     Select Vapor provider.
+      xinfin    Select XinFin provider.
 
 
 .. click:: swap.cli.__main__:main

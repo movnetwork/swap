@@ -2,12 +2,12 @@
 
 from btcpy.structs.crypto import PrivateKey
 from btcpy.structs.sig import (
-    P2pkhSolver, IfElseSolver, HashlockSolver, Branch, RelativeTimelockSolver
+    P2pkhSolver, IfElseSolver, HashlockSolver, Branch, AbsoluteTimelockSolver
 )
 from btcpy.structs.script import (
     ScriptBuilder, IfElseScript
 )
-from btcpy.structs.transaction import Sequence
+from btcpy.structs.transaction import Locktime
 from typing import Optional, Union
 
 from ..config import bitcoin as config
@@ -15,89 +15,53 @@ from .wallet import Wallet
 from .htlc import HTLC
 
 
-class NormalSolver:
-    """
-    Bitcoin Normal solver.
-
-    :param root_xprivate_key: Bitcoin sender root xprivate key.
-    :type root_xprivate_key: str
-    :param account: Bitcoin derivation account, defaults to 0.
-    :type account: int
-    :param change: Bitcoin derivation change, defaults to False.
-    :type change: bool
-    :param address: Bitcoin derivation address, defaults to 0.
-    :type address: int
-    :param path: Bitcoin derivation path, defaults to None.
-    :type path: str
-
-    :returns: NormalSolver -- Bitcoin normal solver instance.
-
-    >>> from swap.providers.bitcoin.solver import NormalSolver
-    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
-    >>> normal_solver = NormalSolver(root_xprivate_key=sender_root_xprivate_key)
-    <swap.providers.bitcoin.solver.NormalSolver object at 0x03FCCA60>
-    """
-
-    def __init__(self, root_xprivate_key: str, account: int = 0,
-                 change: bool = False, address: int = 0, path: Optional[str] = None):
-        if path is None:
-            path = config["BIP44"].format(
-                account=account, change=(1 if change else 0), address=address
-            )
-
-        self._root_xprivate_key: str = root_xprivate_key
-        self._path: Optional[str] = path
-
-    def solve(self, network: str = config["network"]) -> P2pkhSolver:
-        return P2pkhSolver(
-            privk=PrivateKey.unhexlify(
-                hexa=Wallet(network=network).from_root_xprivate_key(
-                    root_xprivate_key=self._root_xprivate_key
-                ).from_path(
-                    path=self._path
-                ).private_key()
-            )
-        )
-
-
 class FundSolver:
     """
     Bitcoin Fund solver.
 
-    :param root_xprivate_key: Bitcoin sender root xprivate key.
-    :type root_xprivate_key: str
-    :param account: Bitcoin derivation account, defaults to 0.
+    :param xprivate_key: Bitcoin sender root xprivate key.
+    :type xprivate_key: str
+    :param account: Bitcoin derivation account, defaults to ``0``.
     :type account: int
-    :param change: Bitcoin derivation change, defaults to False.
+    :param change: Bitcoin derivation change, defaults to ``False``.
     :type change: bool
-    :param address: Bitcoin derivation address, defaults to 0.
+    :param address: Bitcoin derivation address, defaults to ``0``.
     :type address: int
-    :param path: Bitcoin derivation path, defaults to None.
+    :param path: Bitcoin derivation path, defaults to ``None``.
     :type path: str
+    :param strict: Strict for must be root xprivate key, default to ``True``.
+    :type strict: bool
 
     :returns: FundSolver -- Bitcoin fund solver instance.
 
     >>> from swap.providers.bitcoin.solver import FundSolver
-    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
-    >>> fund_solver = FundSolver(root_xprivate_key=sender_root_xprivate_key)
+    >>> sender_xprivate_key: str = "tprv8ZgxMBicQKsPeMHMJAc6uWGYiGqi1MVM2ybmzXL2TAoDpQe85uyDpdT7mv7Nhdu5rTCBEKLZsd9KyP2LQZJzZTvgVQvENArgU8e6DoYBiXf"
+    >>> fund_solver: FundSolver = FundSolver(xprivate_key=sender_xprivate_key, path="m/44'/1'/0'/0/0")
     <swap.providers.bitcoin.solver.FundSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, root_xprivate_key: str, account: int = 0,
-                 change: bool = False, address: int = 0, path: Optional[str] = None):
-        if path is None:
-            path = config["BIP44"].format(
-                account=account, change=(1 if change else 0), address=address
-            )
+    def __init__(self, xprivate_key: str, account: int = 0, change: bool = False, address: int = 0,
+                 path: Optional[str] = None, strict: bool = True):
 
-        self._root_xprivate_key: str = root_xprivate_key
+        self._xprivate_key: str = xprivate_key
+        self._strict: bool = strict
         self._path: Optional[str] = path
 
+        self._account: int = account
+        self._change: bool = change
+        self._address: int = address
+
     def solve(self, network: str = config["network"]) -> P2pkhSolver:
+
+        if self._path is None:
+            self._path = config["bip44_path"].format(
+                account=self._account, change=(1 if self._change else 0), address=self._address
+            )
+
         return P2pkhSolver(
             privk=PrivateKey.unhexlify(
                 hexa=Wallet(network=network).from_root_xprivate_key(
-                    root_xprivate_key=self._root_xprivate_key
+                    xprivate_key=self._xprivate_key, strict=self._strict
                 ).from_path(
                     path=self._path
                 ).private_key()
@@ -105,47 +69,56 @@ class FundSolver:
         )
 
 
-class ClaimSolver:
+class WithdrawSolver:
     """
-    Bitcoin Claim solver.
+    Bitcoin Withdraw solver.
 
-    :param root_xprivate_key: Bitcoin sender root xprivate key.
-    :type root_xprivate_key: str
+    :param xprivate_key: Bitcoin recipient root xprivate key.
+    :type xprivate_key: str
     :param secret_key: Secret password/passphrase.
     :type secret_key: str
-    :param bytecode: Bitcoin witness HTLC bytecode..
+    :param bytecode: Bitcoin witness HTLC bytecode.
     :type bytecode: str
-    :param account: Bitcoin derivation account, defaults to 0.
+    :param account: Bitcoin derivation account, defaults to ``0``.
     :type account: int
-    :param change: Bitcoin derivation change, defaults to False.
+    :param change: Bitcoin derivation change, defaults to ``False``.
     :type change: bool
-    :param address: Bitcoin derivation address, defaults to 0.
+    :param address: Bitcoin derivation address, defaults to ``0``.
     :type address: int
-    :param path: Bitcoin derivation path, defaults to None.
+    :param path: Bitcoin derivation path, defaults to ``None``.
     :type path: str
+    :param strict: Strict for must be root xprivate key, default to ``True``.
+    :type strict: bool
 
-    :returns: ClaimSolver -- Bitcoin claim solver instance.
+    :returns: WithdrawSolver -- Bitcoin withdraw solver instance.
 
-    >>> from swap.providers.bitcoin.solver import ClaimSolver
-    >>> recipient_root_xprivate_key = "xprv9s21ZrQH143K4Kpce43z5guPyxLrFoc2i8aQAq835Zzp4Rt7i6nZaMCnVSDyHT6MnmJJGKHMrCUqaYpGojrug1ZN5qQDdShQffmkyv5xyUR"
-    >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
-    >>> claim_solver = ClaimSolver(wallet=recipient_root_xprivate_key, secret_key="Hello Meheret!", bytecode=bytecode)
-    <swap.providers.bitcoin.solver.ClaimSolver object at 0x03FCCA60>
+    >>> from swap.providers.bitcoin.solver import WithdrawSolver
+    >>> recipient_xprivate_key: str = "tprv8ZgxMBicQKsPf949JcuVFLXPJ5m4VKe33gVX3FYVZYVHr2dChU8K66aEQcPdHpUgACq5GQu81Z4e3QN1vxCrV4pxcUcXHoRTamXBRaPdJhW"
+    >>> bytecode: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+    >>> withdraw_solver: WithdrawSolver = WithdrawSolver(xprivate_key=recipient_xprivate_key, secret_key="Hello Meheret!", bytecode=bytecode, path="m/44'/1'/0'/0/0")
+    <swap.providers.bitcoin.solver.WithdrawSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, root_xprivate_key: str, secret_key: str, bytecode: str,
-                 account: int = 0, change: bool = False, address: int = 0, path: Optional[str] = None):
-        if path is None:
-            path = config["BIP44"].format(
-                account=account, change=(1 if change else 0), address=address
-            )
+    def __init__(self, xprivate_key: str, secret_key: str, bytecode: str, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None, strict: bool = True):
 
-        self._root_xprivate_key: str = root_xprivate_key
+        self._xprivate_key: str = xprivate_key
+        self._strict: bool = strict
         self._secret_key: str = secret_key
         self._path: Optional[str] = path
         self._bytecode: str = bytecode
 
+        self._account: int = account
+        self._change: bool = change
+        self._address: int = address
+
     def solve(self, network: str = config["network"]) -> IfElseSolver:
+
+        if self._path is None:
+            self._path = config["bip44_path"].format(
+                account=self._account, change=(1 if self._change else 0), address=self._address
+            )
+
         return IfElseSolver(
             branch=Branch.IF,
             inner_solver=HashlockSolver(
@@ -153,7 +126,7 @@ class ClaimSolver:
                 inner_solver=P2pkhSolver(
                     privk=PrivateKey.unhexlify(
                         hexa=Wallet(network=network).from_root_xprivate_key(
-                            root_xprivate_key=self._root_xprivate_key
+                            xprivate_key=self._xprivate_key, strict=self._strict
                         ).from_path(
                             path=self._path
                         ).private_key()
@@ -172,53 +145,62 @@ class RefundSolver:
     """
     Bitcoin Refund solver.
 
-    :param root_xprivate_key: Bitcoin sender root xprivate key.
-    :type root_xprivate_key: str
+    :param xprivate_key: Bitcoin sender root xprivate key.
+    :type xprivate_key: str
     :param bytecode: Bitcoin witness HTLC bytecode..
     :type bytecode: str
-    :param sequence: Bitcoin witness sequence number(expiration block), defaults to 1000.
-    :type sequence: int
-    :param account: Bitcoin derivation account, defaults to 0.
+    :param endtime: Bitcoin witness expiration block timestamp.
+    :type endtime: int
+    :param account: Bitcoin derivation account, defaults to ``0``.
     :type account: int
-    :param change: Bitcoin derivation change, defaults to False.
+    :param change: Bitcoin derivation change, defaults to ``False``.
     :type change: bool
-    :param address: Bitcoin derivation address, defaults to 0.
+    :param address: Bitcoin derivation address, defaults to ``0``.
     :type address: int
-    :param path: Bitcoin derivation path, defaults to None.
+    :param path: Bitcoin derivation path, defaults to ``None``.
     :type path: str
+    :param strict: Strict for must be root xprivate key, default to ``True``.
+    :type strict: bool
 
     :returns: RefundSolver -- Bitcoin refund solver instance.
 
     >>> from swap.providers.bitcoin.solver import RefundSolver
-    >>> sender_root_xprivate_key = "xprv9s21ZrQH143K3XihXQBN8Uar2WBtrjSzK2oRDEGQ25pA2kKAADoQXaiiVXht163ZTrdtTXfM4GqNRE9gWQHky25BpvBQuuhNCM3SKwWTPNJ"
-    >>> bytecode = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
-    >>> refund_solver = RefundSolver(root_xprivate_key=sender_root_xprivate_key, bytecode=bytecode sequence=1000)
+    >>> sender_xprivate_key: str = "tprv8ZgxMBicQKsPeMHMJAc6uWGYiGqi1MVM2ybmzXL2TAoDpQe85uyDpdT7mv7Nhdu5rTCBEKLZsd9KyP2LQZJzZTvgVQvENArgU8e6DoYBiXf"
+    >>> bytecode: str = "63aa20821124b554d13f247b1e5d10b84e44fb1296f18f38bbaa1bea34a12c843e01588876a9140e259e08f2ec9fc99a92b6f66fdfcb3c7914fd6888ac6702e803b27576a91433ecab3d67f0e2bde43e52f41ec1ecbdc73f11f888ac68"
+    >>> refund_solver: RefundSolver = RefundSolver(xprivate_key=sender_xprivate_key, bytecode=bytecode, endtime=1000, path="m/44'/1'/0'/0/0")
     <swap.providers.bitcoin.solver.RefundSolver object at 0x03FCCA60>
     """
 
-    def __init__(self, root_xprivate_key: str, bytecode: str, sequence: int = config["sequence"],
-                 account: int = 0, change: bool = False, address: int = 0, path: Optional[str] = None):
-        if path is None:
-            path = config["BIP44"].format(
-                account=account, change=(1 if change else 0), address=address
-            )
+    def __init__(self, xprivate_key: str, bytecode: str, endtime: int, account: int = 0,
+                 change: bool = False, address: int = 0, path: Optional[str] = None, strict: bool = True):
 
-        self._root_xprivate_key: str = root_xprivate_key
+        self._xprivate_key: str = xprivate_key
+        self._strict: bool = strict
+        self._endtime: int = endtime
         self._path: Optional[str] = path
         self._bytecode: str = bytecode
-        self._sequence: int = sequence
+
+        self._account: int = account
+        self._change: bool = change
+        self._address: int = address
 
     def solve(self, network: str = config["network"]) -> IfElseSolver:
+
+        if self._path is None:
+            self._path = config["bip44_path"].format(
+                account=self._account, change=(1 if self._change else 0), address=self._address
+            )
+
         return IfElseSolver(
             branch=Branch.ELSE,
-            inner_solver=RelativeTimelockSolver(
-                sequence=Sequence(
-                    seq=self._sequence
+            inner_solver=AbsoluteTimelockSolver(
+                locktime=Locktime(
+                    n=self._endtime
                 ),
                 inner_solver=P2pkhSolver(
                     privk=PrivateKey.unhexlify(
                         hexa=Wallet(network=network).from_root_xprivate_key(
-                            root_xprivate_key=self._root_xprivate_key
+                            xprivate_key=self._xprivate_key, strict=self._strict
                         ).from_path(
                             path=self._path
                         ).private_key()

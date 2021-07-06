@@ -48,6 +48,7 @@ Dependencies
 
 Swap has the following dependencies:
 
+* `solc v0.8.3 <https://github.com/ethereum/solidity/releases/tag/v0.8.3>`_ - Solidity, the Smart Contract Programming Language
 * `bytom-wallet-desktop <https://bytom.io/en/wallet/>`_ - version `1.1.0 <https://github.com/Bytom/bytom/releases/tag/v1.1.0>`_  or greater.
 * `vapor-wallet-desktop <https://github.com/Bytom/vapor/releases/>`_ - version `1.1.7 <https://github.com/Bytom/vapor/releases/tag/v1.1.7>`_  or greater.
 * `pip <https://pypi.org/project/pip/>`_ - To install packages from the Python Package Index and other indexes

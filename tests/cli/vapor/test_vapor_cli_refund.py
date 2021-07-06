@@ -21,11 +21,8 @@ def test_vapor_cli_refund(cli_tester):
             "vapor",
             "refund",
             "--address", _["vapor"]["wallet"]["sender"]["address"],
-            "--transaction-id", _["vapor"]["transaction_id"],
+            "--transaction-hash", _["vapor"]["transaction_hash"],
             "--asset", _["vapor"]["asset"],
-            "--amount", _["vapor"]["amount"],
-            "--max-amount", _["vapor"]["max_amount"],
-            "--unit", _["vapor"]["unit"],
             "--network", _["vapor"]["network"]
         ]
     )

@@ -3,13 +3,13 @@
 import json
 import os
 
+from swap.providers.bitcoin.htlc import HTLC
 from swap.providers.bitcoin.transaction import (
-    NormalTransaction, FundTransaction, ClaimTransaction, RefundTransaction
+    FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.bitcoin.solver import (
-    NormalSolver, FundSolver, ClaimSolver, RefundSolver
+    FundSolver, WithdrawSolver, RefundSolver
 )
-from swap.providers.bitcoin.utils import amount_unit_converter
 from swap.utils import clean_transaction_raw
 
 # Test Values
@@ -20,61 +20,22 @@ _ = json.loads(values.read())
 values.close()
 
 
-def test_bitcoin_normal_transaction():
-
-    unsigned_normal_transaction = NormalTransaction(network=_["bitcoin"]["network"])
-
-    unsigned_normal_transaction.build_transaction(
-        address=_["bitcoin"]["wallet"]["sender"]["address"],
-        htlc_address=_["bitcoin"]["htlc"]["address"],
-        recipients={
-            _["bitcoin"]["wallet"]["recipient"]["address"]: (
-                _["bitcoin"]["amount"] if _["bitcoin"]["unit"] == "SATOSHI" else amount_unit_converter(
-                    _["bitcoin"]["amount"], f"{_['bitcoin']['unit']}2SATOSHI")
-            )
-        }
-    )
-
-    assert unsigned_normal_transaction.type() == _["bitcoin"]["normal"]["unsigned"]["type"]
-    assert unsigned_normal_transaction.fee() == _["bitcoin"]["normal"]["unsigned"]["fee"]
-    assert unsigned_normal_transaction.hash() == _["bitcoin"]["normal"]["unsigned"]["hash"]
-    assert unsigned_normal_transaction.raw() == _["bitcoin"]["normal"]["unsigned"]["raw"]
-    assert unsigned_normal_transaction.json() == _["bitcoin"]["normal"]["unsigned"]["json"]
-    assert unsigned_normal_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["normal"]["unsigned"]["transaction_raw"]
-    )
-
-    signed_normal_transaction = unsigned_normal_transaction.sign(
-        solver=NormalSolver(
-            root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
-            path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
-            account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
-            change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
-            address=_["bitcoin"]["wallet"]["sender"]["derivation"]["address"]
-        )
-    )
-
-    assert signed_normal_transaction.type() == _["bitcoin"]["normal"]["signed"]["type"]
-    assert signed_normal_transaction.fee() == _["bitcoin"]["normal"]["signed"]["fee"]
-    assert signed_normal_transaction.hash() == _["bitcoin"]["normal"]["signed"]["hash"]
-    assert signed_normal_transaction.raw() == _["bitcoin"]["normal"]["signed"]["raw"]
-    assert signed_normal_transaction.json() == _["bitcoin"]["normal"]["signed"]["json"]
-    assert signed_normal_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["normal"]["signed"]["transaction_raw"]
-    )
-
-
 def test_bitcoin_fund_transaction():
+
+    htlc = HTLC(network=_["bitcoin"]["network"]).build_htlc(
+        secret_hash=_["bitcoin"]["htlc"]["secret"]["hash"],
+        recipient_address=_["bitcoin"]["wallet"]["recipient"]["address"],
+        sender_address=_["bitcoin"]["wallet"]["sender"]["address"],
+        endtime=_["bitcoin"]["htlc"]["endtime"]
+    )
 
     unsigned_fund_transaction = FundTransaction(network=_["bitcoin"]["network"])
 
     unsigned_fund_transaction.build_transaction(
         address=_["bitcoin"]["wallet"]["sender"]["address"],
-        htlc_address=_["bitcoin"]["htlc"]["address"],
-        amount=(
-            _["bitcoin"]["amount"] if _["bitcoin"]["unit"] == "SATOSHI" else amount_unit_converter(
-                _["bitcoin"]["amount"], f"{_['bitcoin']['unit']}2SATOSHI")
-        )
+        htlc=htlc,
+        amount=_["bitcoin"]["amount"],
+        unit=_["bitcoin"]["unit"]
     )
 
     assert unsigned_fund_transaction.type() == _["bitcoin"]["fund"]["unsigned"]["type"]
@@ -88,7 +49,7 @@ def test_bitcoin_fund_transaction():
 
     signed_fund_transaction = unsigned_fund_transaction.sign(
         solver=FundSolver(
-            root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+            xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
             path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
             account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
             change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
@@ -106,32 +67,27 @@ def test_bitcoin_fund_transaction():
     )
 
 
-def test_bitcoin_claim_transaction():
+def test_bitcoin_withdraw_transaction():
 
-    unsigned_claim_transaction = ClaimTransaction(network=_["bitcoin"]["network"])
+    unsigned_withdraw_transaction = WithdrawTransaction(network=_["bitcoin"]["network"])
 
-    unsigned_claim_transaction.build_transaction(
+    unsigned_withdraw_transaction.build_transaction(
         address=_["bitcoin"]["wallet"]["recipient"]["address"],
-        transaction_id=_["bitcoin"]["transaction_id"],
-        amount=(
-            _["bitcoin"]["amount"] if _["bitcoin"]["unit"] == "SATOSHI" else amount_unit_converter(
-                _["bitcoin"]["amount"], f"{_['bitcoin']['unit']}2SATOSHI")
-        ),
-        max_amount=_["bitcoin"]["max_amount"]
+        transaction_hash=_["bitcoin"]["transaction_hash"]
     )
 
-    assert unsigned_claim_transaction.type() == _["bitcoin"]["claim"]["unsigned"]["type"]
-    assert unsigned_claim_transaction.fee() == _["bitcoin"]["claim"]["unsigned"]["fee"]
-    assert unsigned_claim_transaction.hash() == _["bitcoin"]["claim"]["unsigned"]["hash"]
-    assert unsigned_claim_transaction.raw() == _["bitcoin"]["claim"]["unsigned"]["raw"]
-    assert unsigned_claim_transaction.json() == _["bitcoin"]["claim"]["unsigned"]["json"]
-    assert unsigned_claim_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["claim"]["unsigned"]["transaction_raw"]
+    assert unsigned_withdraw_transaction.type() == _["bitcoin"]["withdraw"]["unsigned"]["type"]
+    assert unsigned_withdraw_transaction.fee() == _["bitcoin"]["withdraw"]["unsigned"]["fee"]
+    assert unsigned_withdraw_transaction.hash() == _["bitcoin"]["withdraw"]["unsigned"]["hash"]
+    assert unsigned_withdraw_transaction.raw() == _["bitcoin"]["withdraw"]["unsigned"]["raw"]
+    assert unsigned_withdraw_transaction.json() == _["bitcoin"]["withdraw"]["unsigned"]["json"]
+    assert unsigned_withdraw_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["withdraw"]["unsigned"]["transaction_raw"]
     )
 
-    signed_claim_transaction = unsigned_claim_transaction.sign(
-        solver=ClaimSolver(
-            root_xprivate_key=_["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
+    signed_withdraw_transaction = unsigned_withdraw_transaction.sign(
+        solver=WithdrawSolver(
+            xprivate_key=_["bitcoin"]["wallet"]["recipient"]["root_xprivate_key"],
             secret_key=_["bitcoin"]["htlc"]["secret"]["key"],
             bytecode=_["bitcoin"]["htlc"]["bytecode"],
             path=_["bitcoin"]["wallet"]["recipient"]["derivation"]["path"],
@@ -141,13 +97,13 @@ def test_bitcoin_claim_transaction():
         )
     )
 
-    assert signed_claim_transaction.type() == _["bitcoin"]["claim"]["signed"]["type"]
-    assert signed_claim_transaction.fee() == _["bitcoin"]["claim"]["signed"]["fee"]
-    assert signed_claim_transaction.hash() == _["bitcoin"]["claim"]["signed"]["hash"]
-    assert signed_claim_transaction.raw() == _["bitcoin"]["claim"]["signed"]["raw"]
-    assert signed_claim_transaction.json() == _["bitcoin"]["claim"]["signed"]["json"]
-    assert signed_claim_transaction.transaction_raw() == clean_transaction_raw(
-        transaction_raw=_["bitcoin"]["claim"]["signed"]["transaction_raw"]
+    assert signed_withdraw_transaction.type() == _["bitcoin"]["withdraw"]["signed"]["type"]
+    assert signed_withdraw_transaction.fee() == _["bitcoin"]["withdraw"]["signed"]["fee"]
+    assert signed_withdraw_transaction.hash() == _["bitcoin"]["withdraw"]["signed"]["hash"]
+    assert signed_withdraw_transaction.raw() == _["bitcoin"]["withdraw"]["signed"]["raw"]
+    assert signed_withdraw_transaction.json() == _["bitcoin"]["withdraw"]["signed"]["json"]
+    assert signed_withdraw_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["withdraw"]["signed"]["transaction_raw"]
     )
 
 
@@ -157,12 +113,7 @@ def test_bitcoin_refund_transaction():
 
     unsigned_refund_transaction.build_transaction(
         address=_["bitcoin"]["wallet"]["sender"]["address"],
-        transaction_id=_["bitcoin"]["transaction_id"],
-        amount=(
-            _["bitcoin"]["amount"] if _["bitcoin"]["unit"] == "SATOSHI" else amount_unit_converter(
-                _["bitcoin"]["amount"], f"{_['bitcoin']['unit']}2SATOSHI")
-        ),
-        max_amount=_["bitcoin"]["max_amount"]
+        transaction_hash=_["bitcoin"]["transaction_hash"]
     )
 
     assert unsigned_refund_transaction.type() == _["bitcoin"]["refund"]["unsigned"]["type"]
@@ -176,9 +127,9 @@ def test_bitcoin_refund_transaction():
 
     signed_refund_transaction = unsigned_refund_transaction.sign(
         solver=RefundSolver(
-            root_xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+            xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
             bytecode=_["bitcoin"]["htlc"]["bytecode"],
-            sequence=_["bitcoin"]["htlc"]["sequence"],
+            endtime=_["bitcoin"]["htlc"]["endtime"],
             path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
             account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
             change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],

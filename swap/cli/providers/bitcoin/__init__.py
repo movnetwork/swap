@@ -6,7 +6,7 @@ from ....cli import click
 
 from .htlc import htlc
 from .fund import fund
-from .claim import claim
+from .withdraw import withdraw
 from .refund import refund
 from .decode import decode
 from .signature import sign
@@ -22,7 +22,7 @@ def bitcoin():
 # Adding bitcoin commands
 bitcoin.add_command(htlc)
 bitcoin.add_command(fund)
-bitcoin.add_command(claim)
+bitcoin.add_command(withdraw)
 bitcoin.add_command(refund)
 bitcoin.add_command(decode)
 bitcoin.add_command(sign)

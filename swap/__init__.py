@@ -2,9 +2,9 @@
 
 
 # Swap Information's
-__version__: str = "0.3.2a3"
+__version__: str = "0.4.0"
 __license__: str = "AGPL-3.0"
-__author__: str = "Meheret Tesfaye"
+__author__: str = "Meheret Tesfaye Batu"
 __email__: str = "meherett@zoho.com"
 __description__: str = "Cross-chain atomic swap between the networks of two cryptocurrencies " \
                        "based on Hash Time Lock Contracts (HTLC's) protocol."

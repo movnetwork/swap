@@ -28,6 +28,6 @@ def test_bitcoin_cli_decode(cli_tester):
     assert decode.output != str(json.dumps(dict(
         fee=_["bitcoin"]["fund"]["unsigned"]["fee"],
         network=_["bitcoin"]["network"],
-        tx=_["bitcoin"]["fund"]["unsigned"]["json"],
+        transaction=_["bitcoin"]["fund"]["unsigned"]["json"],
         type=_["bitcoin"]["fund"]["unsigned"]["type"],
     ), indent=4)) + "\n"

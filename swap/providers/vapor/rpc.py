@@ -24,13 +24,13 @@ def get_balance(address: str, asset: Union[str, AssetNamespace] = config["asset"
 
     :param address: Vapor address.
     :type address: str
-    :param asset: Vapor asset, default to BTM asset.
+    :param asset: Vapor asset, default to ``BTM``.
     :type asset: str, vapor.assets.AssetNamespace
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 15.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: int -- Vapor asset balance (NEU amount).
@@ -67,19 +67,19 @@ def get_utxos(program: str, asset: Union[str, AssetNamespace] = config["asset"],
 
     :param program: Vapor control program.
     :type program: str
-    :param asset: Vapor asset id, defaults to BTM asset.
+    :param asset: Vapor asset id, defaults to ``BTM``.
     :type asset: str, vapor.assets.AssetNamespace
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param limit: Vapor utxo's limit, defaults to 15.
+    :param limit: Vapor utxo's limit, defaults to ``15``.
     :type limit: int
-    :param by: Sort by, defaults to amount.
+    :param by: Sort by, defaults to ``amount``.
     :type by: str
-    :param order: Sort order, defaults to desc.
+    :param order: Sort order, defaults to ``desc``.
     :type order: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: list -- Vapor unspent transaction outputs (UTXO's).
@@ -116,15 +116,15 @@ def estimate_transaction_fee(address: str, amount: int, asset: Union[str, AssetN
     :type address: str
     :param amount: Vapor amount (NEU amount).
     :type amount: int
-    :param asset: Vapor asset id, default to BTM asset.
+    :param asset: Vapor asset id, default to ``BTM``.
     :type asset: str, vapor.assets.AssetNamespace
-    :param confirmations: Vapor confirmations, default to 1.
+    :param confirmations: Vapor confirmations, default to ``1``.
     :type confirmations: int
-    :param network: Vapor network, defaults to solonet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: request timeout, default to 60.
+    :param timeout: request timeout, default to ``60``.
     :type timeout: int
 
     :returns: str -- Estimated transaction fee (NEU amount).
@@ -141,7 +141,7 @@ def estimate_transaction_fee(address: str, amount: int, asset: Union[str, AssetN
     if not is_address(address=address, network=network):
         raise AddressError(f"Invalid Vapor '{address}' {network} address.")
 
-    url = f"{config[network]['mov']}/merchant/estimate-tx-fee"
+    url = f"{config[network]['blockcenter']}/merchant/estimate-tx-fee"
     data = dict(
         asset_amounts={
             (str(asset.ID) if isinstance(asset, AssetNamespace) else asset): str(amount_unit_converter(
@@ -159,6 +159,46 @@ def estimate_transaction_fee(address: str, amount: int, asset: Union[str, AssetN
     raise APIError(response.json()["msg"], response.json()["code"])
 
 
+def account_create(xpublic_key: str, label: str = "1st address", account_index: int = 1,
+                   network: str = config["network"], headers: dict = config["headers"],
+                   timeout: int = config["timeout"]) -> dict:
+    """
+    Create account in blockcenter.
+
+    :param xpublic_key: Bytom xpublic key.
+    :type xpublic_key: str
+    :param label: Bytom limit, defaults to ``1st address``.
+    :type label: str
+    :param account_index: Account index, defaults to ``1``.
+    :type account_index: str
+    :param network: Bytom network, defaults to ``mainnet``.
+    :type network: str
+    :param headers: Request headers, default to ``common headers``.
+    :type headers: dict
+    :param timeout: request timeout, default to ``60``.
+    :type timeout: int
+
+    :returns: dict -- Bytom blockcenter guid, address and label.
+
+    >>> from swap.providers.bytom.rpc import account_create
+    >>> account_create(xpublic_key="f80a401807fde1ee5727ae032ee144e4b757e69431e68e6cd732eda3c8cd3936daedfdd0fd8f8df14e2084c7e8df4701db3062dded1c713e0aae734ac09c4afd", network="mainnet")
+    {"guid": "9ed61a9b-e7b6-4cb7-94fb-932b738e4f66", "address": "bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", "label": "1st address"}
+    """
+
+    if not is_network(network=network):
+        raise NetworkError(f"Invalid Bytom '{network}' network",
+                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+
+    url = f"{config[network]['blockcenter']}/account/create"
+    data = dict(pubkey=xpublic_key, label=label, account_index=account_index)
+    response = requests.post(
+        url=url, data=json.dumps(data), headers=headers, timeout=timeout
+    )
+    if response.status_code == 200 and response.json()["code"] == 200:
+        return response.json()["data"]
+    raise APIError(response.json()["msg"], response.json()["code"])
+
+
 def build_transaction(address: str, transaction: dict, network: str = config["network"],
                       headers: dict = config["headers"], timeout: int = config["timeout"]) -> dict:
     """
@@ -168,11 +208,11 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
     :type address: str
     :param transaction: Vapor transaction (inputs, outputs, fee, confirmations & forbid_chain_tx).
     :type transaction: dict
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor builted transaction.
@@ -206,24 +246,24 @@ def build_transaction(address: str, transaction: dict, network: str = config["ne
     return response.json()["data"][0]
 
 
-def get_transaction(transaction_id: str, network: str = config["network"],
+def get_transaction(transaction_hash: str, network: str = config["network"],
                     headers: dict = config["headers"], timeout: int = config["timeout"]) -> dict:
     """
     Get Vapor transaction detail.
 
-    :param transaction_id: Vapor transaction id.
-    :type transaction_id: str
-    :param network: Vapor network, defaults to mainnet.
+    :param transaction_hash: Vapor transaction hash/id.
+    :type transaction_hash: str
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor transaction detail.
 
     >>> from swap.providers.vapor.rpc import get_transaction
-    >>> get_transaction(transaction_id="4e91bca76db112d3a356c17366df93e364a4922993414225f65390220730d0c1", network="mainnet")
+    >>> get_transaction(transaction_hash="4e91bca76db112d3a356c17366df93e364a4922993414225f65390220730d0c1", network="mainnet")
     {'tx_id': '961d984b04214dc202fb40f4c48466d10a2813a138a31e1d2877ad3b6af0ef4c', 'timestamp': 1606993457000, 'block_hash': '440e791390f61c615b974c9292ac1d43bad67368076ef6d86a77cab22f1c2119', 'block_height': 85098064, 'trx_amount': 0, 'trx_fee': 10000000, 'status_fail': False, 'is_vote': False, 'is_cross_chain': False, 'coinbase': 0, 'size': 646, 'chain_status': 'mainnet', 'index_id': 18811685, 'mux_id': '97fdbe17d62ae8f8f2024ebc6a231183e8ce7c4e8fde5645b9a3c973f8d0d3ad', 'inputs': [{'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000, 'control_program': '00204f8f0e88d0a44b3d884b07b6dd4536518ffcbb596a91ca0e6b2f37e96463bbfc', 'address': 'vp1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07qcyvk37', 'spent_output_id': 'c30e26caef4ad3436542700c5b32a91cdf0622c60a6c8a6e11cb1c0b250bc65f', 'input_id': 'c470139ab9f9e81829e51096c57365392195ea2e90d7fb19e9eb2b309df22425', 'witness_arguments': ['db718488496e0823b1cfd9ce64f226ffc4e9debd30eac0b751aa6bd28f694908ae0c0f5d39dd6ed697cae9b0857832ffcb9989487eea81d49d5f2a1228425205', '01', '02e8032091ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2203e0a377ae4afa031d4551599d9bb7d5b27f4736d77f78cac4d476f0ffba5ae3e203a26da82ead15a80533a02696656b14b5dbfd84eb14790f2e1be5e9e45820eeb741f547a6416000000557aa888537a7cae7cac631f000000537acd9f6972ae7cac00c0'], 'decode_program': ['DUP ', 'SHA3 ', 'DATA_32 4f8f0e88d0a44b3d884b07b6dd4536518ffcbb596a91ca0e6b2f37e96463bbfc', 'EQUALVERIFY ', 'DATA_8 ffffffffffffffff', 'SWAP ', 'FALSE ', 'CHECKPREDICATE '], 'decimals': 8, 'unit': 'BTM'}, {'type': 'spend', 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 16990000, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag', 'spent_output_id': '1a7f2357f2ec272ea2d96413aee511d2077447731a799110cef97de177739181', 'input_id': '4f50c438b5006eafc547cc48128cb94d2e39430ef30f117aa85e6f30ac92ce09', 'witness_arguments': ['e31abbf90f8b20cb41f4daedc2f558dedcbc258fcfb9a36ae1f8c0b4b80f448a78d1d835adb02cc918374c71df8c02c52b425b18d14601ad11e5f0ad8eb00a07', '91ff7f525ff40874c4f47f0cab42e46e3bf53adad59adef9558ad1b6448f22e2'], 'decode_program': ['DUP ', 'HASH160 ', 'DATA_20 2cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'EQUALVERIFY ', 'TXSIGHASH ', 'SWAP ', 'CHECKSIG '], 'decimals': 8, 'unit': 'BTM'}], 'outputs': [{'type': 'control', 'id': '20c00b6f9f4fc4f22ccee6c5f8b471a72b1f514f821b1c9c3d1f3243ff011cf1', 'position': 0, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 10000, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag', 'decimals': 8, 'decode_program': ['DUP ', 'HASH160 ', 'DATA_20 2cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'EQUALVERIFY ', 'TXSIGHASH ', 'SWAP ', 'CHECKSIG '], 'unit': 'BTM'}, {'type': 'control', 'id': 'f7a36ebce7001e83510eb16c13ff0e5ef311179c25e8cf7bcb599ff8d17e23b2', 'position': 1, 'asset_id': 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'amount': 6990000, 'control_program': '00142cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'address': 'vp1q9ndylx02syfwd7npehfxz4lddhzqsve2za23ag', 'decimals': 8, 'decode_program': ['DUP ', 'HASH160 ', 'DATA_20 2cda4f99ea8112e6fa61cdd26157ed6dc408332a', 'EQUALVERIFY ', 'TXSIGHASH ', 'SWAP ', 'CHECKSIG '], 'unit': 'BTM'}], 'mov_type': ''}
     """
 
@@ -231,13 +271,48 @@ def get_transaction(transaction_id: str, network: str = config["network"],
         raise NetworkError(f"Invalid Vapor '{network}' network",
                            "choose only 'mainnet', 'solonet' or 'testnet' networks.")
 
-    url = f"{config[network]['blockmeta']}/tx/hash/{transaction_id}"
+    url = f"{config[network]['blockmeta']}/tx/hash/{transaction_hash}"
     response = requests.get(
         url=url, headers=headers, timeout=timeout
     )
     if response.status_code == 200 and response.json()["code"] == 200:
         return response.json()["data"]["transaction"]
-    raise APIError(f"Not found this '{transaction_id}' vapor transaction id.", 500)
+    raise APIError(f"Not found this '{transaction_hash}' vapor transaction id.", 500)
+
+
+def get_current_block_height(plus: int = 0, network: str = config["network"],
+                             headers: dict = config["headers"], timeout: int = config["timeout"]) -> int:
+    """
+    Get Vapor transaction detail.
+
+    :param plus: Add block number on current block height, default to ``0``.
+    :type plus: int
+    :param network: Vapor network, defaults to ``mainnet``.
+    :type network: str
+    :param headers: Request headers, default to ``common headers``.
+    :type headers: dict
+    :param timeout: Request timeout, default to ``60``.
+    :type timeout: int
+
+    :returns: int -- Vapor current block height.
+
+    >>> from swap.providers.vapor.rpc import get_current_block_height
+    >>> get_current_block_height(plus=0)
+    678722
+    """
+
+    if not is_network(network=network):
+        raise NetworkError(f"Invalid Vapor '{network}' network",
+                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+
+    url = f"{config[network]['blockmeta']}/block"
+    response = requests.get(
+        url=url, headers=headers, timeout=timeout
+    )
+    if response.status_code == 200 and response.json()["code"] == 200:
+        return int(response.json()["data"]["block"]["height"]) \
+            if plus == 0 else int(response.json()["data"]["block"]["height"]) + plus
+    raise APIError("Can't get current latest Vapor block height.")
 
 
 def find_p2wsh_utxo(transaction: dict) -> Optional[dict]:
@@ -269,11 +344,11 @@ def decode_raw(raw: str, network: str = config["network"],
 
     :param raw: Vapor transaction raw.
     :type raw: str
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Vapor decoded transaction raw.
@@ -309,11 +384,11 @@ def submit_raw(address: str, raw: str, signatures: list, network: str = config["
     :type raw: str
     :param signatures: Vapor signed massage datas.
     :type signatures: list
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: str -- Vapor submitted transaction id/hash.

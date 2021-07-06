@@ -1,0 +1,35 @@
+// Vapor Smart Contract -> Equity language
+
+/**
+ * @title Hash Time Lock Contract (HTLC)
+ *
+ * @author Meheret Tesfaye Batu <meherett@zoho.com>
+ *
+ * HTLC -> A Hash Time Lock Contract is essentially a type of payment in which two people
+ * agree to a financial arrangement where one party will pay the other party a certain amount
+ * of cryptocurrencies, such as Bitcoin or Vapor assets.
+ * However, because these contracts are Time-Locked, the receiving party only has a certain
+ * amount of time to accept the payment, otherwise the money can be returned to the sender.
+ *
+ * Hash-Locked -> A Hash locked functions like “two-factor authentication” (2FA). It requires
+ * the intended recipient to provide the correct secret passphrase to withdraw the funds.
+ *
+ * Time-Locked -> A Time locked adds a “timeout” expiration date to a payment. It requires
+ * the intended recipient to claim the funds prior to the expiry. Otherwise, the transaction
+ * defaults to enabling the original sender of funds to withdraw a refund.
+ */
+
+contract HTLC (secret_hash: Hash, recipient_public_key: PublicKey, sender_public_key: PublicKey, endblock: Integer) locks valueAmount of valueAsset {
+
+  clause withdraw (preimage: String, signature: Signature) {
+    verify sha256(preimage) == secret_hash
+    verify checkTxSig(recipient_public_key, signature)
+    unlock valueAmount of valueAsset
+  }
+
+  clause refund (signature: Signature) {
+    verify above(endblock)
+    verify checkTxSig(sender_public_key, signature)
+    unlock valueAmount of valueAsset
+  }
+}

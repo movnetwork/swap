@@ -8,49 +8,13 @@ import requests
 import json
 import datetime
 
-from ...utils import clean_transaction_raw
+from ...utils import (
+    clean_transaction_raw, get_current_timestamp
+)
 from ...exceptions import (
     NetworkError, APIError, TransactionRawError, UnitError, AddressError
 )
 from ..config import bytom as config
-
-
-def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM") -> Union[int, float]:
-    """
-    Bytom amount unit converter
-
-    :param amount: Bytom any amount.
-    :type amount: int, float
-    :param unit_from: Bytom unit convert from symbol, default to NEU2BTM.
-    :type unit_from: str
-
-    :returns: int, float -- BTM asset amount.
-
-    >>> from swap.providers.bytom.utils import amount_unit_converter
-    >>> amount_unit_converter(amount=10_000_000, unit_from="NEU2BTM")
-    0.1
-    """
-
-    if unit_from not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
-        raise UnitError(f"Invalid Bytom '{unit_from}' unit from",
-                        "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', "
-                        "'NEU2BTM' or 'NEU2mBTM' units.")
-
-    # Constant unit values
-    BTM, mBTM, NEU = (1, 1000, 100_000_000)
-
-    if unit_from == "BTM2mBTM":
-        return float((amount * mBTM) / BTM)
-    elif unit_from == "BTM2NEU":
-        return int((amount * NEU) / BTM)
-    elif unit_from == "mBTM2BTM":
-        return float((amount * BTM) / mBTM)
-    elif unit_from == "mBTM2NEU":
-        return int((amount * NEU) / mBTM)
-    elif unit_from == "NEU2BTM":
-        return float((amount * BTM) / NEU)
-    elif unit_from == "NEU2mBTM":
-        return int((amount * mBTM) / NEU)
 
 
 def get_address_type(address: str) -> Optional[str]:
@@ -63,7 +27,7 @@ def get_address_type(address: str) -> Optional[str]:
     :returns: str -- Bytom address type (P2WPKH, P2WSH).
 
     >>> from swap.providers.bytom.utils import get_address_type
-    >>> get_address_type(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7")
+    >>> get_address_type(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx")
     "p2wpkh"
     """
 
@@ -103,15 +67,15 @@ def is_address(address: str, network: Optional[str] = None, address_type: Option
 
     :param address: Bytom address.
     :type address: str
-    :param network: Bytom network, defaults to None.
+    :param network: Bytom network, defaults to ``None``.
     :type network: str
-    :param address_type: Bytom address type, defaults to None.
+    :param address_type: Bytom address type, defaults to ``None``.
     :type address_type: str
 
     :returns: bool -- Bytom valid/invalid address.
 
     >>> from swap.providers.bytom.utils import is_address
-    >>> is_address(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", network="mainnet")
+    >>> is_address(address="bm1qk9vj4jaezlcnjdckds4fkm8fwv5kawmq9qrufx", network="mainnet")
     True
     """
 
@@ -155,13 +119,93 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
-            "bytom_normal_unsigned", "bytom_normal_signed",
             "bytom_fund_unsigned", "bytom_fund_signed",
-            "bytom_claim_unsigned", "bytom_claim_signed",
+            "bytom_withdraw_unsigned", "bytom_withdraw_signed",
             "bytom_refund_unsigned", "bytom_refund_signed"
         ]
     except:
         return False
+
+
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "NEU2BTM") -> Union[int, float]:
+    """
+    Bytom amount unit converter
+
+    :param amount: Bytom any amount.
+    :type amount: int, float
+    :param unit_from: Bytom unit convert from symbol, default to ``NEU2BTM``.
+    :type unit_from: str
+
+    :returns: int, float -- BTM asset amount.
+
+    >>> from swap.providers.bytom.utils import amount_unit_converter
+    >>> amount_unit_converter(amount=10_000_000, unit_from="NEU2BTM")
+    0.1
+    """
+
+    if unit_from not in ["BTM2mBTM", "BTM2NEU", "mBTM2BTM", "mBTM2NEU", "NEU2BTM", "NEU2mBTM"]:
+        raise UnitError(f"Invalid Bytom '{unit_from}' unit from",
+                        "choose only 'BTM2mBTM', 'BTM2NEU', 'mBTM2BTM', 'mBTM2NEU', "
+                        "'NEU2BTM' or 'NEU2mBTM' units.")
+
+    # Constant unit values
+    BTM, mBTM, NEU = (
+        config["units"]["BTM"],
+        config["units"]["mBTM"],
+        config["units"]["NEU"]
+    )
+
+    if unit_from == "BTM2mBTM":
+        return float((amount * mBTM) / BTM)
+    elif unit_from == "BTM2NEU":
+        return int((amount * NEU) / BTM)
+    elif unit_from == "mBTM2BTM":
+        return float((amount * BTM) / mBTM)
+    elif unit_from == "mBTM2NEU":
+        return int((amount * NEU) / mBTM)
+    elif unit_from == "NEU2BTM":
+        return float((amount * BTM) / NEU)
+    elif unit_from == "NEU2mBTM":
+        return int((amount * mBTM) / NEU)
+
+
+def estimate_endblock(endtime: int, network: str = config["network"],
+                      headers: dict = config["headers"], timeout: int = config["timeout"]) -> int:
+    """
+    Estimate Bytom expiration block height.
+
+    :param endtime: Expiration block timestamp.
+    :type endtime: int
+    :param network: Bytom network, defaults to ``mainnet``.
+    :type network: str
+    :param headers: Request headers, default to ``common headers``.
+    :type headers: dict
+    :param timeout: Request timeout, default to ``60``.
+    :type timeout: int
+
+    :returns: str -- Estimated Vapor endblock.
+
+    >>> from swap.providers.bytom.utils import estimate_endblock
+    >>> from swap.utils import get_current_timestamp
+    >>> estimate_endblock(endtime=get_current_timestamp(plus=3600))
+    680854
+    """
+
+    if not is_network(network=network):
+        raise NetworkError(f"Invalid Bytom '{network}' network",
+                           "choose only 'mainnet', 'solonet' or 'testnet' networks.")
+    if endtime <= get_current_timestamp():
+        raise ValueError("Wrong endtime, must be in the future not current or past timestamp.")
+
+    endblock: float = (endtime - get_current_timestamp()) / config["to_create_new_block_seconds"]
+
+    url = f"{config[network]['blockmeta']}/latest-block"
+    response = requests.get(
+        url=url, headers=headers, timeout=timeout
+    )
+    if response.status_code == 200:
+        return int(response.json()["block"]["height"] + endblock)
+    raise APIError("Can't get current latest Bytom block height.")
 
 
 def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers"],
@@ -171,9 +215,9 @@ def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers
 
     :param transaction_raw: Bytom transaction raw.
     :type transaction_raw: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Decoded Bytom transaction raw.
@@ -218,9 +262,9 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
 
     :param transaction_raw: Bytom transaction raw.
     :type transaction_raw: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Bytom submitted transaction id, fee, type and date.
