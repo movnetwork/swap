@@ -1,6 +1,6 @@
 # This workflow will install Swap package dependencies, run tests and lint with a variety of Python versions.
 
-name: workflow
+name: swap
 
 on:
   push:
@@ -12,16 +12,13 @@ jobs:
   python:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@master
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.9
       uses: actions/setup-python@master
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
