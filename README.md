@@ -1,4 +1,4 @@
-<img align="right" height="132" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/swap-readme.svg">
+<img align="right" height="132" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/swap.svg">
 
 # Swap
 
@@ -16,20 +16,20 @@ It’s a brand new decentralized payment environment based on Hash Time Lock Con
 
 You can swap the following available cryptocurrencies:
 
-| Cryptocurrencies                                                                                                  | Networks                                            |
-| ----------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------: |
-| [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                               | `mainnet`, `testnet`                                |
-| [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`                                                         | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet` |
-| [Bytom](https://github.com/bytom/bytom) `BTM`, `BTC`, `ETH` ... [More Assets](https://blockmeta.com/assets)       | `mainnet`, `solonet`, `testnet`                     |
-| [Vapor](https://github.com/bytom/vapor) `BTM`, `BTC`, `ETH` ... [More Assets](https://vapor.blockmeta.com/assets) | `mainnet`, `solonet`, `testnet`                     |
-| [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`                                                           | `mainnet`, `testnet`                                |
+| Cryptocurrencies                                                                                                                                                                                                                                | Networks                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------: |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bitcoin.svg"> [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                             | `mainnet`, `testnet`                                |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bytom.svg"> [Bytom](https://github.com/bytom/bytom) `BTM`, `BTC`, `ETH` ... [More Assets](https://blockmeta.com/assets)       | `mainnet`, `solonet`, `testnet`                     |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/ethereum.svg"> [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`                                                      | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet` |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/vapor.svg"> [Vapor](https://github.com/bytom/vapor) `BTM`, `BTC`, `ETH` ... [More Assets](https://vapor.blockmeta.com/assets) | `mainnet`, `solonet`, `testnet`                     |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/xinfin.svg"> [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`                                                          | `mainnet`, `testnet`                                |
 
 
 ## What is a HTLC?
 
 A Hash Time Lock contract (HTLC) is essentially a type of payment in which two people
 agree to a financial arrangement where one party will pay the other party a certain
-amount of cryptocurrency, such as Bitcoin or Bytom assets. However, because these
+amount of cryptocurrencies, such as Bitcoin or Bytom assets. However, because these
 contracts are Time Locked, the receiving party only has a certain amount of time to
 accept the payment, otherwise the money can be returned to the sender.
 
@@ -113,13 +113,13 @@ silos, the faster the technology as a whole can begin to scale and achieve mass 
 PIP to install Swap globally, for Linux `sudo` may be required:
 
 ```
-$ pip install swap
+pip install swap
 ```
 
 If you want to run the latest version of the code, you can install from git:
 
 ```
-$ pip install git+git://github.com/meherett/swap.git
+pip install git+git://github.com/meherett/swap.git
 ```
 
 For the versions available, see the [tags on this repository](https://github.com/meherett/swap/tags).
@@ -129,7 +129,7 @@ For the versions available, see the [tags on this repository](https://github.com
 We welcome pull requests. To get started, just fork this repo, clone it locally, and run:
 
 ```
-$ pip install -e .[tests,docs] -r requirements.txt
+pip install -e .[tests,docs] -r requirements.txt
 ```
 
 ## Testing
@@ -137,7 +137,7 @@ $ pip install -e .[tests,docs] -r requirements.txt
 You can run the tests with:
 
 ```
-$ pytest
+pytest
 ```
 
 Or use `tox` to run the complete suite against the full set of build targets, or pytest to run specific 
