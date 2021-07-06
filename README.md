@@ -2,7 +2,7 @@
 
 # Swap
 
-[![Build Status](https://travis-ci.org/meherett/swap.svg?branch=master)](https://travis-ci.org/meherett/swap?branch=master)
+[![Build Status](https://travis-ci.com/meherett/swap.svg?branch=master)](https://travis-ci.com/meherett/swap?branch=master)
 [![PyPI Version](https://img.shields.io/pypi/v/swap.svg?color=blue)](https://pypi.org/project/swap)
 [![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=latest)](https://swap.readthedocs.io/en/latest/?badge=latest)
 [![PyPI Python Version](https://img.shields.io/pypi/pyversions/swap.svg)](https://pypi.org/project/swap)
@@ -151,6 +151,16 @@ documentation and other tasks is highly appreciated and useful to the project.
 There are tasks for contributors of all experience levels.
 
 For more information, see the [CONTRIBUTING.md](https://github.com/meherett/swap/blob/master/CONTRIBUTING.md) file.
+
+## Donations
+
+If You found this tool helpful consider making a donation:
+
+| Coin                          | Addresses                                  |
+| ----------------------------- | :----------------------------------------: |
+| Bitcoin `BTC`                 | 3GGNPvgbSpMHShcaZJGDXQn5wUJyTz7uoC         |
+| Ethereum `ETH`, Tether `USDT` | 0x342798bbe9731a91e0557fa8ab0bce1eae6d6ae3 |
+| Bytom `BTM`                   | bm1qhpzc42ahrsahmpranv6xddc74tk6wlrvxrw68c |
 
 ## License
 
