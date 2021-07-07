@@ -6,7 +6,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/swap.svg?color=blue)](https://pypi.org/project/swap)
 [![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=master)](https://swap.readthedocs.io)
 [![PyPI Python Version](https://img.shields.io/pypi/pyversions/swap.svg)](https://pypi.org/project/swap)
-[![Coverage Status](https://coveralls.io/repos/github/meherett/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/meherett/swap?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/movnetwork/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/movnetwork/swap?branch=master)
 
 A Python library for Cross-chain atomic swap between the networks of two cryptocurrencies. 
 Cross-chain atomic swap is the cheapest and most secured by cryptographic proof to swap cryptocurrencies. 
