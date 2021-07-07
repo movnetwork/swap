@@ -31,12 +31,6 @@ the next. If the recipient meets the deadline, then the money will be theirs, if
 fails to meet the deadline, it won’t. So, there is an often a lot at stake when it comes to
 meeting deadlines from hash Time Locked contracts, when Cryptocurrencies are being exchanged.
 
-The amount of time that the recipient has to accept the payment can vary significantly from
-one Time Locked contract to the next. If the recipient meets the deadline, then the money will
-be theirs, if he or she fails to meet the deadline, it won’t. So, there is an often a lot at
-stake when it comes to meeting deadlines from hash Time Locked contracts, when Cryptocurrencies
-are being exchanged.
-
 .. image:: static/png/Hash-Time-Locked-Contract.png
    :alt: Hash Time Locked Contract (HTLC)
 

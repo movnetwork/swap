@@ -57,12 +57,6 @@ the next. If the recipient meets the deadline, then the money will be theirs, if
 fails to meet the deadline, it won’t. So, there is an often a lot at stake when it comes to
 meeting deadlines from hash Time Locked contracts, when cryptocurrencies are being exchanged.
 
-The amount of time that the recipient has to accept the payment can vary significantly from
-one Time Locked contract to the next. If the recipient meets the deadline, then the money will
-be theirs, if he or she fails to meet the deadline, it won’t. So, there is an often a lot at
-stake when it comes to meeting deadlines from hash Time Locked contracts, when cryptocurrencies
-are being exchanged.
-
 A Hash Time Lock Contract or HTLC is a class of payments that uses Hash Locked and Time Locked
 to require that the receiver of a payment either acknowledge receiving the payment prior to a
 deadline by generating cryptographic proof of payment or forfeit the ability to claim the payment,
