@@ -192,7 +192,7 @@ class HTLC:
         if unit not in ["Ether", "Gwei", "Wei"]:
             raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'Ether', 'Gwei' or 'Wei' units.")
         return self._fee if unit == "Wei" else \
-            amount_unit_converter(amount=self._fee, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Wei2{unit}")
 
     def hash(self) -> Optional[str]:
         """
@@ -401,4 +401,4 @@ class HTLC:
             raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'Ether', 'Gwei' or 'Wei' units.")
         balance: int = get_balance(address=self.contract_address(), network=self._network)
         return balance if unit == "Wei" else \
-            amount_unit_converter(amount=balance, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=balance, unit_from=f"Wei2{unit}")

@@ -38,7 +38,7 @@ def fund(
             endtime=(get_current_timestamp() + endtime)
         )
         _amount: int = (
-            int(amount) if unit == "Wei" else amount_unit_converter(amount=amount, unit=f"{unit}2Wei")
+            int(amount) if unit == "Wei" else amount_unit_converter(amount=amount, unit_from=f"{unit}2Wei")
         )
         click.echo(
             FundTransaction(network=network).build_transaction(

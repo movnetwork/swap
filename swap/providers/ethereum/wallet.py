@@ -591,4 +591,4 @@ class Wallet(HDWallet):
             address=self.address(), network=self._network, provider=self._provider, token=self._token
         )
         return balance if unit == "Wei" else \
-            amount_unit_converter(amount=balance, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=balance, unit_from=f"Wei2{unit}")

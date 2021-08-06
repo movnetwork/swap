@@ -12,13 +12,13 @@ class FundSolver:
 
     :param xprivate_key: Ethereum sender xprivate key.
     :type xprivate_key: str
-    :param account: Ethereum derivation account, defaults to 0.
+    :param account: Ethereum derivation account, defaults to ``0``.
     :type account: int
-    :param change: Ethereum derivation change, defaults to False.
+    :param change: Ethereum derivation change, defaults to ``False``.
     :type change: bool
-    :param address: Ethereum derivation address, defaults to 0.
+    :param address: Ethereum derivation address, defaults to ``0``.
     :type address: int
-    :param path: Ethereum derivation path, defaults to None.
+    :param path: Ethereum derivation path, defaults to ``None``.
     :type path: str
 
     :returns: FundSolver -- Ethereum fund solver instance.
@@ -51,13 +51,13 @@ class WithdrawSolver:
 
     :param xprivate_key: Ethereum sender xprivate key.
     :type xprivate_key: str
-    :param account: Ethereum derivation account, defaults to 0.
+    :param account: Ethereum derivation account, defaults to ``0``.
     :type account: int
-    :param change: Ethereum derivation change, defaults to False.
+    :param change: Ethereum derivation change, defaults to ``False``.
     :type change: bool
-    :param address: Ethereum derivation address, defaults to 0.
+    :param address: Ethereum derivation address, defaults to ``0``.
     :type address: int
-    :param path: Ethereum derivation path, defaults to None.
+    :param path: Ethereum derivation path, defaults to ``None``.
     :type path: str
 
     :returns: WithdrawSolver -- Ethereum withdraw solver instance.
@@ -90,13 +90,13 @@ class RefundSolver:
 
     :param xprivate_key: Ethereum sender xprivate key.
     :type xprivate_key: str
-    :param account: Ethereum derivation account, defaults to 0.
+    :param account: Ethereum derivation account, defaults to ``0``.
     :type account: int
-    :param change: Ethereum derivation change, defaults to False.
+    :param change: Ethereum derivation change, defaults to ``False``.
     :type change: bool
-    :param address: Ethereum derivation address, defaults to 0.
+    :param address: Ethereum derivation address, defaults to ``0``.
     :type address: int
-    :param path: Ethereum derivation path, defaults to None.
+    :param path: Ethereum derivation path, defaults to ``None``.
     :type path: str
 
     :returns: RefundSolver -- Ethereum refund solver instance.

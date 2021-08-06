@@ -217,24 +217,24 @@ def submit_transaction_raw(transaction_raw: str, provider: str = config["provide
     )
 
 
-def amount_unit_converter(amount: Union[int, float], unit: str = "Wei2Ether") -> Union[int, float]:
+def amount_unit_converter(amount: Union[int, float], unit_from: str = "Wei2Ether") -> Union[int, float]:
     """
     XinFin amount unit converter.
 
     :param amount: XinFIn amount.
     :type amount: int, float
-    :param unit: XinFIn unit, default to Wei2Ether
-    :type unit: str
+    :param unit_from: XinFIn unit, default to Wei2Ether
+    :type unit_from: str
 
     :returns: int, float -- XinFin amount.
 
     >>> from swap.providers.ethereum.utils import amount_unit_converter
-    >>> amount_unit_converter(amount=100_000_000, unit="Wei2Ether")
+    >>> amount_unit_converter(amount=100_000_000, unit_from="Wei2Ether")
     0.1
     """
 
-    if unit not in ["Ether2Gwei", "Ether2Wei", "Gwei2Ether", "Gwei2Wei", "Wei2Ether", "Wei2Gwei"]:
-        raise UnitError(f"Invalid Ethereum '{unit}' unit",
+    if unit_from not in ["Ether2Gwei", "Ether2Wei", "Gwei2Ether", "Gwei2Wei", "Wei2Ether", "Wei2Gwei"]:
+        raise UnitError(f"Invalid Ethereum '{unit_from}' unit from",
                         "choose only 'Ether2Gwei', 'Ether2Wei', 'Gwei2Ether', 'Gwei2Wei', 'Wei2Ether' or 'Wei2Gwei' units.")
 
     # Constant values
@@ -244,15 +244,15 @@ def amount_unit_converter(amount: Union[int, float], unit: str = "Wei2Ether") ->
         config["units"]["Wei"]
     )
 
-    if unit == "Ether2Gwei":
+    if unit_from == "Ether2Gwei":
         return float((amount * Gwei) / Ether)
-    elif unit == "Ether2Wei":
+    elif unit_from == "Ether2Wei":
         return int((amount * Wei) / Ether)
-    elif unit == "Gwei2Ether":
+    elif unit_from == "Gwei2Ether":
         return float((amount * Ether) / Gwei)
-    elif unit == "Gwei2Wei":
+    elif unit_from == "Gwei2Wei":
         return int((amount * Wei) / Gwei)
-    elif unit == "Wei2Ether":
+    elif unit_from == "Wei2Ether":
         return float((amount * Ether) / Wei)
-    elif unit == "Wei2Gwei":
+    elif unit_from == "Wei2Gwei":
         return int((amount * Gwei) / Wei)

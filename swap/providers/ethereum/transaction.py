@@ -91,7 +91,7 @@ class Transaction:
         if unit not in ["Ether", "Gwei", "Wei"]:
             raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'Ether', 'Gwei' or 'Wei' units.")
         return self._fee if unit == "Wei" else \
-            amount_unit_converter(amount=self._fee, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Wei2{unit}")
 
     def hash(self) -> Optional[str]:
         """
@@ -293,7 +293,7 @@ class FundTransaction(Transaction):
             raise UnitError("Invalid Ethereum unit, choose only 'Ether', 'Gwei' or 'Wei' units.")
 
         _amount: Wei = Wei(
-            amount if unit == "Wei" else amount_unit_converter(amount=amount, unit=f"{unit}2Wei")
+            amount if unit == "Wei" else amount_unit_converter(amount=amount, unit_from=f"{unit}2Wei")
         )
 
         htlc_contract: Contract = self.web3.eth.contract(

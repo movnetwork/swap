@@ -74,7 +74,7 @@ class Signature(Transaction):
         if unit not in ["Ether", "Gwei", "Wei"]:
             raise UnitError(f"Invalid Ethereum '{unit}' unit", "choose only 'Ether', 'Gwei' or 'Wei' units.")
         return self._fee if unit == "Wei" else \
-            amount_unit_converter(amount=self._fee, unit=f"Wei2{unit}")
+            amount_unit_converter(amount=self._fee, unit_from=f"Wei2{unit}")
 
     def hash(self) -> Optional[str]:
         """
