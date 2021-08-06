@@ -103,7 +103,7 @@ ethereum: dict = {
             "websocket": "wss://kovan.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": None
+        "contract_address": "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17"
     },
     "rinkeby": {
         "infura": {
@@ -111,7 +111,7 @@ ethereum: dict = {
             "websocket": "wss://rinkeby.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": None
+        "contract_address": "0x126C40bf42b566e3513b1599f78070B3962f7114"
     },
     "testnet": {
         "ganache-cli": {
@@ -185,6 +185,11 @@ xinfin: dict = {
         "http": "https://rpc.xinfin.network",
         "websocket": "wss://ws.xinfin.network",
         "contract_address": "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
+    },
+    "apothem": {
+        "http": "https://rpc.apothem.network",
+        "websocket": "wss://ws.apothem.network",
+        "contract_address": "xdcDe5109BB09C1bC6dE7Ea7c856D4abf4Be99D824b"
     },
     "testnet": {
         "http": "http://localhost:8545",
