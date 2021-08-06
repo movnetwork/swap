@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pytest
+import requests
 import json
 import os
 
@@ -47,5 +48,5 @@ def test_bitcoin_utils():
         }
 
     # (REQ_ERROR) 16: mandatory-script-verify-flag-failed (Operation not valid with the current stack size)
-    with pytest.raises(APIError):
+    with pytest.raises((APIError, requests.exceptions.ConnectionError)):
         submit_transaction_raw(transaction_raw=_["bitcoin"]["fund"]["unsigned"]["transaction_raw"])

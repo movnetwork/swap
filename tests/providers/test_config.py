@@ -43,11 +43,11 @@ def test_config():
     assert ethereum["kovan"]["infura"]["http"] == "https://kovan.infura.io/v3"
     assert ethereum["kovan"]["infura"]["websocket"] == "wss://kovan.infura.io/ws/v3"
     assert ethereum["kovan"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
-    assert ethereum["kovan"]["contract_address"] is None
+    assert ethereum["kovan"]["contract_address"] == "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17"
     assert ethereum["rinkeby"]["infura"]["http"] == "https://rinkeby.infura.io/v3"
     assert ethereum["rinkeby"]["infura"]["websocket"] == "wss://rinkeby.infura.io/ws/v3"
     assert ethereum["rinkeby"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
-    assert ethereum["rinkeby"]["contract_address"] is None
+    assert ethereum["rinkeby"]["contract_address"] == "0x126C40bf42b566e3513b1599f78070B3962f7114"
     assert ethereum["testnet"]["ganache-cli"]["http"] == "http://localhost:8545"
     assert ethereum["testnet"]["ganache-cli"]["websocket"] == "wss://localhost:8545"
     assert ethereum["testnet"]["ganache-cli"]["token"] is None
@@ -125,6 +125,9 @@ def test_config():
     assert xinfin["mainnet"]["http"] == "https://rpc.xinfin.network"
     assert xinfin["mainnet"]["websocket"] == "wss://ws.xinfin.network"
     assert xinfin["mainnet"]["contract_address"] == "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
+    assert xinfin["apothem"]["http"] == "https://rpc.apothem.network"
+    assert xinfin["apothem"]["websocket"] == "wss://ws.apothem.network"
+    assert xinfin["apothem"]["contract_address"] == "xdcDe5109BB09C1bC6dE7Ea7c856D4abf4Be99D824b"
     assert xinfin["testnet"]["http"] == "http://localhost:8545"
     assert xinfin["testnet"]["websocket"] == "wss://localhost:8545"
     assert xinfin["testnet"]["contract_address"] is None
