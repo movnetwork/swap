@@ -35,7 +35,7 @@ class Wallet(HDWallet):
     :returns: Wallet -- XinFin wallet instance.
 
     .. note::
-        XinFin has only two networks, ``mainnet`` and ``testnet``.
+        XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"]):
@@ -44,7 +44,7 @@ class Wallet(HDWallet):
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
-                               "choose only 'mainnet' or 'testnet' networks.")
+                               "choose only 'mainnet', 'apothem' or 'testnet' networks.")
 
         self._network, self._provider, = network, provider
         self._hdwallet: HDWallet = HDWallet(

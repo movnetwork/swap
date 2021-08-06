@@ -36,7 +36,7 @@ class Signature(Transaction):
     :returns: Signature -- XinFin signature instance.
 
     .. note::
-        XinFin has only two networks, ``mainnet`` and ``testnet``.
+        XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"]):
@@ -251,7 +251,7 @@ class FundSignature(Signature):
     :returns: FundSignature -- XinFin fund signature instance.
 
     .. note::
-        XinFin has only two networks, ``mainnet`` and ``testnet``.
+        XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],
@@ -338,7 +338,7 @@ class WithdrawSignature(Signature):
     :returns: WithdrawSignature -- XinFin withdraw signature instance.
 
     .. note::
-        XinFin has only two networks, ``mainnet`` and ``testnet``.
+        XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"]):
@@ -424,7 +424,7 @@ class RefundSignature(Signature):
     :returns: RefundSignature -- XinFin refund signature instance.
 
     .. note::
-        XinFin has only two networks, ``mainnet`` and ``testnet``.
+        XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"]):

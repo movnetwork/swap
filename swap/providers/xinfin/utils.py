@@ -31,7 +31,7 @@ def is_network(network: str) -> bool:
     :returns: bool -- XinFin valid/invalid network.
 
     >>> from swap.providers.xinfin.utils import is_network
-    >>> is_network(network="kovan")
+    >>> is_network(network="apothem")
     True
     """
 
@@ -39,7 +39,7 @@ def is_network(network: str) -> bool:
     if not isinstance(network, str):
         raise TypeError(f"Network must be str, not '{type(network)}' type.")
 
-    return network in ["mainnet", "testnet"]
+    return network in ["mainnet", "apothem", "testnet"]
 
 
 def is_address(address: str) -> bool:

@@ -43,7 +43,7 @@ class HTLC:
     :returns: HTLC -- XinFin HTLC instance.
 
     .. note::
-        XinFin has only two networks, ``mainnet`` and ``testnet``.
+        XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, contract_address: Optional[str] = None, network: str = config["network"],
@@ -52,7 +52,7 @@ class HTLC:
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
-                               "choose only 'mainnet' or 'testnet' networks.")
+                               "choose only 'mainnet', 'apothem' or 'testnet' networks.")
 
         self._network: str = network
         self._contract_address: Optional[str] = None

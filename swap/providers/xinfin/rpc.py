@@ -45,7 +45,7 @@ def get_web3(network: str = config["network"], provider: str = config["provider"
     # Check parameter instances
     if not is_network(network=network):
         raise NetworkError(f"Invalid XinFin '{network}' network",
-                           "choose only 'mainnet' or 'testnet' networks.")
+                           "choose only 'mainnet', 'apothem' or 'testnet' networks.")
 
     if provider == "http":
         web3: Web3 = Web3(HTTPProvider(
@@ -146,7 +146,7 @@ def get_transaction_receipt(transaction_hash: str, network: str = config["networ
     {'blockHash': '0x08d711ba038b97d0622d2c08b74dd2d9d2d00492116ead11452c12688618dcbc', 'blockNumber': '0x1e93914', 'contractAddress': None, 'cumulativeGasUsed': '0x5208', 'from': 'xdc95e80fc8ef98b92fe71514168c2e4b8f0ce38169', 'gasUsed': '0x5208', 'logs': [], 'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', 'status': '0x1', 'to': 'xdc2224caa2235df8da3d2016d2ab1137d2d548a232', 'transactionHash': '0x5f4b11c11553cf040131b273c2bbc8c93d217269dd9b28393d5d0a3d623c1fcc', 'transactionIndex': '0x0'}
     """
 
-    if network == "mainnet":
+    if network in ["mainnet", "apothem"]:
         url = f"{config[network][provider]}/getTransactionReceipt"
         data = dict(
             jsonrpc="2.0", method="eth_getTransactionReceipt", params=[transaction_hash], id=1

@@ -43,7 +43,7 @@ class Transaction:
     :returns: Transaction -- XinFin transaction instance.
 
     .. note::
-        XinFin has only three networks, ``mainnet`` and ``testnet``.
+        XinFin has only three networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
     def __init__(self, network: str = config["network"], provider: str = config["provider"],
@@ -52,7 +52,7 @@ class Transaction:
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
-                               "choose only 'mainnet' or 'testnet' networks.")
+                               "choose only 'mainnet', 'apothem' or 'testnet' networks.")
 
         self._network: str = network
         self.web3: Web3 = get_web3(
