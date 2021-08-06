@@ -16,7 +16,7 @@ from swap.utils import (
 
 import json
 
-# Choose network mainnet or testnet
+# Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "ropsten"
 # Ethereum HTLC contract address
 CONTRACT_ADDRESS: str = "0xE5cb615899436A490dBde26d7880A0C2502Fc676"

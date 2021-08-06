@@ -7,7 +7,7 @@ from swap.utils import (
     generate_entropy, generate_passphrase
 )
 
-# Choose network mainnet or testnet
+# Choose network mainnet, apothem or testnet
 NETWORK: str = "mainnet"  # Default to mainnet
 # Choose strength 128, 160, 192, 224 or 256
 STRENGTH: int = 160  # Default is 128

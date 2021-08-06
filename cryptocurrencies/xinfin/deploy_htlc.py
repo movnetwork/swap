@@ -7,7 +7,7 @@ from swap.providers.xinfin.rpc import (
     submit_raw, wait_for_transaction_receipt
 )
 
-# Choose network mainnet or testnet
+# Choose network mainnet, apothem or testnet
 NETWORK: str = "mainnet"
 # XinFin private key
 PRIVATE_KEY: str = "..."

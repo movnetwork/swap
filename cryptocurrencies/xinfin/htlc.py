@@ -7,7 +7,7 @@ from swap.utils import (
 
 import json
 
-# Choose network mainnet or testnet
+# Choose network mainnet, apothem or testnet
 NETWORK: str = "mainnet"
 # XinFin HTLC contract address
 CONTRACT_ADDRESS: str = "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
