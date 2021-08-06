@@ -23,10 +23,10 @@ setup(
     license=swap.__license__,
     author=swap.__author__,
     author_email=swap.__email__,
-    url="https://github.com/meherett/swap",
+    url="https://github.com/movnetwork/swap",
     packages=find_packages(),
     keywords=[
-        "cross-chain", "atomic", "swap", "htlc", "bitcoin", "bytom", "ethereum", "vapor", "xinfin", "cryptocurrencies"
+        "cross-chain", "atomic-swap", "swap", "htlc", "bitcoin", "bytom", "ethereum", "vapor", "xinfin", "cryptocurrencies"
     ],
     entry_points={
         "console_scripts": ["swap=swap.cli.__main__:main"]
