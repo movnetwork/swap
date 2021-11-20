@@ -193,7 +193,7 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
     return response_json
 
 
-def submit_raw(raw: str, network: str = config["network"],
+def submit_raw(raw: str, network: str = config["network"], endpoint: str = "smartbit",
                headers: dict = config["headers"], timeout: int = config["timeout"]) -> str:
     """
     Submit original Bitcoin raw into blockchain.
@@ -202,6 +202,8 @@ def submit_raw(raw: str, network: str = config["network"],
     :type raw: str
     :param network: Bitcoin network, defaults to mainnet.
     :type network: str
+    :param endpoint: Bitcoin transaction submiter endpoint api name, defaults to smartbit.
+    :type endpoint: str
     :param headers: Request headers, default to common headers.
     :type headers: dict
     :param timeout: Request timeout, default to 60.
@@ -218,15 +220,31 @@ def submit_raw(raw: str, network: str = config["network"],
         raise NetworkError(f"Invalid Bitcoin '{network}' network",
                            "choose only 'mainnet' or 'testnet' networks.")
 
-    url = f"{config[network]['smartbit']}/pushtx"
-    data = dict(hex=raw)
-    response = requests.post(
-        url=url, data=json.dumps(data), headers=headers, timeout=timeout
-    )
-    response_json = response.json()
-    if "success" in response_json and not response_json["success"]:
-        raise APIError(response_json["error"]["message"], response_json["error"]["code"])
-    elif "success" in response_json and response_json["success"]:
-        return response_json["txid"]
+    if endpoint == "smartbit":
+        url = f"{config[network]['smartbit']}/pushtx"
+        data = dict(hex=raw)
+        response = requests.post(
+            url=url, data=json.dumps(data), headers=headers, timeout=timeout
+        )
+        response_json = response.json()
+        if "success" in response_json and not response_json["success"]:
+            raise APIError(response_json["error"]["message"], response_json["error"]["code"])
+        elif "success" in response_json and response_json["success"]:
+            return response_json["txid"]
+        else:
+            raise APIError("Unknown Bitcoin submit payment error.")
+    elif endpoint == "sochain":
+        url = str(config[network]['sochain']).format(links="send_tx")
+        data = dict(tx_hex=raw)
+        response = requests.post(
+            url=url, data=json.dumps(data), headers=headers, timeout=timeout
+        )
+        response_json = response.json()
+        if "status" in response_json and response_json["status"] == "success":
+            return response_json["data"]["txid"]
+        elif "status" in response_json and response_json["status"] == "fail":
+            raise APIError(response_json["data"]["tx_hex"])
+        else:
+            raise APIError("Unknown Bitcoin submit payment error.")
     else:
-        raise APIError("Unknown Bitcoin submit payment error.")
+        raise TypeError("Invalid Bitcoin endpoint api name, please choose only smartbit or sochain only.")
