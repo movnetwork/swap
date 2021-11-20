@@ -7,6 +7,7 @@ bitcoin: dict = {
     "mainnet": {
         "blockchain": "https://blockchain.info",
         "smartbit": "https://api.smartbit.com.au/v1/blockchain",
+        "sochain": "https://chain.so/api/v2/{links}/BTC",
         "blockcypher": {
             "url": "https://api.blockcypher.com/v1/btc/main",
             "token": "c6ef693d3c024088810e6fac2a1494ee"
@@ -15,6 +16,7 @@ bitcoin: dict = {
     "testnet": {
         "blockchain": "https://testnet.blockchain.info",
         "smartbit": "https://testnet-api.smartbit.com.au/v1/blockchain",
+        "sochain": "https://chain.so/api/v2/{links}/BTCTEST",
         "blockcypher": {
             "url": "https://api.blockcypher.com/v1/btc/test3",
             "token": "c6ef693d3c024088810e6fac2a1494ee"
