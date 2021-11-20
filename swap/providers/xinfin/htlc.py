@@ -9,10 +9,10 @@ from datetime import datetime
 from typing import (
     Optional, Type, Union
 )
-from pathlib import PurePosixPath
 from web3.types import Wei
 
 import json
+import sys
 import os
 
 from ...exceptions import (
@@ -73,7 +73,7 @@ class HTLC:
         )
 
         # Get current working directory path (like linux or unix path).
-        cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
+        cwd: str = os.path.dirname(sys.modules[__package__].__file__)
 
         if use_script:
             solcx = __import__("solcx")

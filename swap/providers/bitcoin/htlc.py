@@ -5,13 +5,13 @@ from btcpy.structs.script import (
     Script, ScriptBuilder, P2shScript, IfElseScript
 )
 from btcpy.structs.transaction import Locktime
-from pathlib import PurePosixPath
 from datetime import datetime
 from typing import (
     Optional, Union
 )
 
 import hashlib
+import sys
 import os
 
 from ...exceptions import (
@@ -84,7 +84,7 @@ class HTLC:
             raise AddressError(f"Invalid Bitcoin sender '{sender_address}' {self._network} address.")
 
         # Get current working directory path (like linux or unix path).
-        cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
+        cwd: str = os.path.dirname(sys.modules[__package__].__file__)
 
         with open(f"{cwd}/contracts/htlc.script", "r", encoding="utf-8") as htlc_script:
             htlc_opcode: str = htlc_script.readlines()[-1]  # HTLC OP_Code script

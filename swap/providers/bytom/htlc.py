@@ -10,13 +10,13 @@ from pybytom.wallet.tools import (
 from pybytom.script.opcode import (
     OP_FALSE, OP_DEPTH, OP_CHECKPREDICATE
 )
-from pathlib import PurePosixPath
 from equity import Equity
 from ctypes import c_int64
 from typing import (
     Optional, List, Union
 )
 
+import sys
 import os
 
 from ...exceptions import (
@@ -92,7 +92,7 @@ class HTLC:
         if use_script:
 
             # Get current working directory path (like linux or unix path).
-            cwd: str = PurePosixPath(os.path.dirname(os.path.realpath(__file__))).__str__().replace("\\", "/")
+            cwd: str = os.path.dirname(sys.modules[__package__].__file__)
 
             with open(f"{cwd}/contracts/htlc.equity", "r", encoding="utf-8") as htlc_equity_file:
                 htlc_script: str = "".join(htlc_equity_file.readlines()[-14:])
