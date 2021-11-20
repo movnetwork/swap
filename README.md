@@ -1,5 +1,3 @@
-<img align="right" height="132" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/swap.svg">
-
 # Swap
 
 [![Build Status](https://travis-ci.com/movnetwork/swap.svg?branch=master)](https://travis-ci.com/movnetwork/swap?branch=master)
@@ -154,7 +152,7 @@ If You found this tool helpful consider making a donation:
 | ----------------------------- | :----------------------------------------: |
 | Bitcoin `BTC`                 | 3GGNPvgbSpMHShcaZJGDXQn5wUJyTz7uoC         |
 | Ethereum `ETH`, Tether `USDT` | 0x342798bbe9731a91e0557fa8ab0bce1eae6d6ae3 |
-| Bytom `BTM`                   | bm1qhpzc42ahrsahmpranv6xddc74tk6wlrvxrw68c |
+| Bytom `BTM`                   | bn1qumdsfgj06ae2nav2ws24t5jzmfagz2amj5arh3 |
 
 ## License
 
