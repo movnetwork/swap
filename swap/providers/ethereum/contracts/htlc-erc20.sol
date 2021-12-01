@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.6;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "./libs/erc20.sol";
 
 /**
  * @title Hash Time Lock Contract (HTLC) ERC20.
@@ -33,14 +33,14 @@ contract HTLC_ERC20 {
         uint256 amount;
         bool withdrawn;
         bool refunded;
-        bytes32 preimage;
+        string preimage;
     }
 
     mapping (bytes32 => LockContract) locked_contracts;
 
     event log_fund (
         bytes32 indexed locked_contract_id,
-        address indexed token,
+        address token,
         bytes32 secret_hash,
         address indexed recipient,
         address indexed sender,
@@ -67,7 +67,7 @@ contract HTLC_ERC20 {
         require(have_locked_contract(locked_contract_id), "locked_contract_id does not exist");
         _;
     }
-    modifier check_secret_hash_matches (bytes32 locked_contract_id, bytes32 preimage) {
+    modifier check_secret_hash_matches (bytes32 locked_contract_id, string memory preimage) {
         require(locked_contracts[locked_contract_id].secret_hash == sha256(abi.encodePacked(preimage)), "secret hash hash does not match");
         _;
     }
@@ -127,17 +127,15 @@ contract HTLC_ERC20 {
      * @dev Called by the recipient once they know the preimage (secret key) of the secret hash.
      *
      * @param locked_contract_id of HTLC to withdraw.
-     * @param _preimage sha256(preimage) hash should equal the contract secret hash.
+     * @param preimage sha256(preimage) hash should equal the contract secret hash.
      *
      * @return bool true on success or false on failure.
      */
-    function withdraw (
-        bytes32 locked_contract_id, string memory _preimage
-    ) external is_locked_contract_exist(locked_contract_id) check_secret_hash_matches(locked_contract_id, _preimage) withdrawable(locked_contract_id) returns (bool) {
+    function withdraw (bytes32 locked_contract_id, string memory preimage) external is_locked_contract_exist (locked_contract_id) check_secret_hash_matches (locked_contract_id, preimage) withdrawable (locked_contract_id) returns (bool) {
         
         LockContract storage locked_contract = locked_contracts[locked_contract_id];
         
-        locked_contract.preimage = _preimage;
+        locked_contract.preimage = preimage;
         locked_contract.withdrawn = true;
         ERC20(locked_contract.token).transfer(
             locked_contract.recipient, locked_contract.amount
