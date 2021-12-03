@@ -4,7 +4,7 @@ from hdwallet import HDWallet
 from hdwallet.cryptocurrencies import EthereumMainnet
 from web3.types import Wei
 from typing import (
-    Optional, Union
+    Optional, Union, Tuple
 )
 
 from ...utils import is_mnemonic
@@ -16,7 +16,7 @@ from .utils import (
     is_network, amount_unit_converter
 )
 from .rpc import (
-    get_balance
+    get_balance, get_erc20_balance
 )
 
 # Default derivation path
@@ -592,3 +592,22 @@ class Wallet(HDWallet):
         )
         return balance if unit == "Wei" else \
             amount_unit_converter(amount=balance, unit_from=f"Wei2{unit}")
+
+    def erc20_balance(self, token_address: str) -> Tuple[int, str, str, int, str]:
+        """
+        Get Ethereum wallet ERC20 balance.
+
+        :param token_address: Ethereum ERC20 token address.
+        :type token_address: str
+
+        :return: tuple -- Ethereum wallet ERC20 balance.
+
+        >>> from swap.providers.ethereum.wallet import Wallet
+        >>> wallet: Wallet = Wallet(network="testnet")
+        >>> wallet.from_entropy(entropy="ed0802d701a033776811601dd6c5c4a9")
+        >>> wallet.from_path(path="m/44'/60'/0'/0/0")
+        >>> wallet.erc20_balance(token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861")
+        (99999999999999999999999999998, 18)
+        """
+
+        return get_erc20_balance(address=self.address(), token_address=token_address, network=self._network)

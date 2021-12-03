@@ -5,11 +5,13 @@ from web3.types import Wei
 from web3.providers import (
     HTTPProvider, WebsocketProvider
 )
+from web3.contract import Contract
 from pyxdc.utils import decode_transaction_raw as dtr
 from hexbytes.main import HexBytes
+from ethtoken.abi import EIP20_ABI
 from eth_typing import URI
 from typing import (
-    Optional
+    Optional, Tuple
 )
 
 import web3 as _web3
@@ -93,8 +95,8 @@ def get_balance(address: str, network: str = config["network"], provider: str = 
     :returns: Wei -- Ethereum balance (Wei).
 
     >>> from swap.providers.ethereum.rpc import get_balance
-    >>> get_balance("0x70c1eb09363603a3b6391deb2daa6d2561a62f52", "ropsten")
-    25800000
+    >>> get_balance(address="0xbaF2Fc3829B6D25739BeDC18a5A83bF519c6Fe8c", network="testnet")
+    99937915760000000000
     """
 
     # Check parameter instances
@@ -106,6 +108,49 @@ def get_balance(address: str, network: str = config["network"], provider: str = 
         to_checksum_address(address=address)
     )
     return Wei(balance)
+
+
+def get_erc20_balance(address: str, token_address: str, network: str = config["network"],
+                      provider: str = config["provider"], token: Optional[str] = None) -> Tuple[int, str, str, int, str]:
+    """
+    Get Ethereum ERC20 token balance.
+
+    :param address: Ethereum address.
+    :type address: str
+    :param token_address: Ethereum ERC20 token address.
+    :type token_address: str
+    :param network: Ethereum network, defaults to ``mainnet``.
+    :type network: str
+    :param provider: Ethereum network provider, defaults to ``http``.
+    :type provider: str
+    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
+    :type token: str
+
+    :returns: int, int -- Ethereum ERC20 token balance and decimals.
+
+    >>> from swap.providers.ethereum.rpc import get_erc20_balance
+    >>> get_erc20_balance(address="0xbaF2Fc3829B6D25739BeDC18a5A83bF519c6Fe8c", token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861", network="testnet")
+    (99999999999999999999999999998, 18)
+    """
+
+    # Check parameter instances
+    if not is_address(address=address):
+        raise AddressError(f"Invalid Ethereum '{address}' address.")
+    elif not is_address(address=token_address):
+        raise AddressError(f"Invalid Ethereum ERC20 token '{token_address}' address.")
+
+    web3: Web3 = get_web3(network=network, provider=provider, token=token)
+    erc20_token: Contract = web3.eth.contract(
+        address=to_checksum_address(address=token_address), abi=EIP20_ABI
+    )
+    name: str = erc20_token.functions.name().call()
+    symbol: str = erc20_token.functions.symbol().call()
+    decimals: int = erc20_token.functions.decimals().call()
+    balance: int = erc20_token.functions.balanceOf(
+        to_checksum_address(address=to_checksum_address(address=address))
+    ).call()
+    balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
+    return balance, name, symbol, decimals, balance_str
 
 
 def get_transaction(transaction_hash: str, network: str = config["network"], provider: str = config["provider"],
