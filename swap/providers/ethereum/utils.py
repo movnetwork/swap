@@ -219,14 +219,14 @@ def submit_transaction_raw(transaction_raw: str, provider: str = config["provide
 
 def amount_unit_converter(amount: Union[int, float], unit_from: str = "Wei2Ether") -> Union[int, float]:
     """
-    XinFin amount unit converter.
+    Ethereum amount unit converter.
 
-    :param amount: XinFIn amount.
+    :param amount: Ethereum amount.
     :type amount: int, float
-    :param unit_from: XinFIn unit, default to Wei2Ether
+    :param unit_from: Ethereum unit, default to Wei2Ether
     :type unit_from: str
 
-    :returns: int, float -- XinFin amount.
+    :returns: int, float -- Ethereum amount.
 
     >>> from swap.providers.ethereum.utils import amount_unit_converter
     >>> amount_unit_converter(amount=100_000_000, unit_from="Wei2Ether")
