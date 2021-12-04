@@ -50,7 +50,7 @@ def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, ad
             )
             # Fund signature
             fund_signature: FundSignature = FundSignature(
-                network=loaded_transaction_raw["network"]
+                network=loaded_transaction_raw["network"], erc20=loaded_transaction_raw["erc20"]
             )
             fund_signature.sign(
                 transaction_raw=transaction_raw, solver=fund_solver
@@ -67,7 +67,7 @@ def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, ad
             )
             # Withdraw signature
             withdraw_signature: WithdrawSignature = WithdrawSignature(
-                network=loaded_transaction_raw["network"]
+                network=loaded_transaction_raw["network"], erc20=loaded_transaction_raw["erc20"]
             )
             withdraw_signature.sign(
                 transaction_raw=transaction_raw, solver=withdraw_solver
@@ -84,7 +84,7 @@ def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, ad
             )
             # Refund signature
             refund_signature: RefundSignature = RefundSignature(
-                network=loaded_transaction_raw["network"]
+                network=loaded_transaction_raw["network"], erc20=loaded_transaction_raw["erc20"]
             )
             refund_signature.sign(
                 transaction_raw=transaction_raw, solver=refund_solver

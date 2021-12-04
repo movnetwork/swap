@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from binascii import unhexlify
-from ethtoken.abi import EIP20_ABI
 from eth_account.datastructures import SignedTransaction
 from web3.datastructures import AttributeDict
 from web3.contract import Contract
@@ -232,7 +231,8 @@ class Transaction:
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            erc20=self._erc20
         ))).encode()).decode())
 
 
@@ -341,7 +341,7 @@ class FundTransaction(Transaction):
             "gas": self._fee,
             "gasPrice": self.web3.eth.gas_price
         })
-        self._type = "ethereum_fund_unsigned"
+        self._type = "ethereum_erc20_fund_unsigned" if self._erc20 else "ethereum_fund_unsigned"
         return self
 
     def sign(self, solver: FundSolver) -> "FundTransaction":
@@ -383,7 +383,7 @@ class FundTransaction(Transaction):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "ethereum_fund_signed"
+        self._type = "ethereum_erc20_fund_signed" if self._erc20 else "ethereum_fund_signed"
         return self
 
 
@@ -476,7 +476,7 @@ class WithdrawTransaction(Transaction):
             "gas": self._fee,
             "gasPrice": self.web3.eth.gas_price
         })
-        self._type = "ethereum_withdraw_unsigned"
+        self._type = "ethereum_erc20_withdraw_unsigned" if self._erc20 else "ethereum_withdraw_unsigned"
         return self
 
     def sign(self, solver: WithdrawSolver) -> "WithdrawTransaction":
@@ -514,7 +514,7 @@ class WithdrawTransaction(Transaction):
             s=signed_withdraw_transaction["s"],
             v=signed_withdraw_transaction["v"]
         )
-        self._type = "ethereum_withdraw_signed"
+        self._type = "ethereum_erc20_withdraw_signed" if self._erc20 else "ethereum_withdraw_signed"
         return self
 
 
@@ -604,7 +604,7 @@ class RefundTransaction(Transaction):
             "gas": self._fee,
             "gasPrice": self.web3.eth.gas_price
         })
-        self._type = "ethereum_refund_unsigned"
+        self._type = "ethereum_erc20_refund_unsigned" if self._erc20 else "ethereum_refund_unsigned"
         return self
 
     def sign(self, solver: RefundSolver) -> "RefundTransaction":
@@ -642,5 +642,5 @@ class RefundTransaction(Transaction):
             s=signed_refund_transaction["s"],
             v=signed_refund_transaction["v"]
         )
-        self._type = "ethereum_refund_signed"
+        self._type = "ethereum_erc20_refund_signed" if self._erc20 else "ethereum_refund_signed"
         return self

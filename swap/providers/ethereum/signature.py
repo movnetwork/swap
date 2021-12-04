@@ -30,6 +30,8 @@ class Signature(Transaction):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Signature ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -41,10 +43,10 @@ class Signature(Transaction):
         Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
         self._signed_raw: Optional[str] = None
@@ -189,15 +191,27 @@ class Signature(Transaction):
 
         self._type = loaded_transaction_raw["type"]
         if loaded_transaction_raw["type"] == "ethereum_fund_unsigned":
-            return FundSignature(network=self._network).sign(
+            return FundSignature(network=self._network, erc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "ethereum_erc20_fund_unsigned":
+            return FundSignature(network=self._network, erc20=True).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
         elif loaded_transaction_raw["type"] == "ethereum_withdraw_unsigned":
-            return WithdrawSignature(network=self._network).sign(
+            return WithdrawSignature(network=self._network, erc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "ethereum_erc20_withdraw_unsigned":
+            return WithdrawSignature(network=self._network, erc20=True).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
         elif loaded_transaction_raw["type"] == "ethereum_refund_unsigned":
-            return RefundSignature(network=self._network).sign(
+            return RefundSignature(network=self._network, erc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "ethereum_erc20_refund_unsigned":
+            return RefundSignature(network=self._network, erc20=True).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
 
@@ -248,6 +262,8 @@ class FundSignature(Signature):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Fund signature ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -259,10 +275,10 @@ class FundSignature(Signature):
         Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
     def sign(self, transaction_raw: str, solver: FundSolver) -> "FundSignature":
@@ -292,7 +308,7 @@ class FundSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "ethereum_fund_unsigned":
+        if loaded_transaction_raw["type"] not in ["ethereum_fund_unsigned", "ethereum_erc20_fund_unsigned"]:
             raise TypeError(f"Invalid Ethereum fund unsigned transaction raw type, "
                             f"you can't sign '{loaded_transaction_raw['type']}' type by using fund signature.")
 
@@ -319,7 +335,7 @@ class FundSignature(Signature):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "ethereum_fund_signed"
+        self._type = "ethereum_erc20_fund_signed" if self._erc20 else "ethereum_fund_signed"
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -337,6 +353,8 @@ class WithdrawSignature(Signature):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Withdraw signature ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -348,10 +366,10 @@ class WithdrawSignature(Signature):
         Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
     def sign(self, transaction_raw: str, solver: WithdrawSolver) -> "WithdrawSignature":
@@ -381,7 +399,7 @@ class WithdrawSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "ethereum_withdraw_unsigned":
+        if loaded_transaction_raw["type"] not in ["ethereum_withdraw_unsigned", "ethereum_erc20_withdraw_unsigned"]:
             raise TypeError(f"Invalid Ethereum withdraw unsigned transaction raw type, "
                             f"you can't sign '{loaded_transaction_raw['type']}' type by using withdraw signature.")
 
@@ -408,7 +426,7 @@ class WithdrawSignature(Signature):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "ethereum_withdraw_signed"
+        self._type = "ethereum_erc20_withdraw_signed" if self._erc20 else "ethereum_withdraw_signed"
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
@@ -426,6 +444,8 @@ class RefundSignature(Signature):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Refund signature ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -437,10 +457,10 @@ class RefundSignature(Signature):
         Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
     def sign(self, transaction_raw: str, solver: RefundSolver) -> "RefundSignature":
@@ -470,7 +490,7 @@ class RefundSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "ethereum_refund_unsigned":
+        if loaded_transaction_raw["type"] not in ["ethereum_refund_unsigned", "ethereum_erc20_refund_unsigned"]:
             raise TypeError(f"Invalid Ethereum refund unsigned transaction raw type, "
                             f"you can't sign '{loaded_transaction_raw['type']}' type by using refund signature.")
 
@@ -497,7 +517,7 @@ class RefundSignature(Signature):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "ethereum_refund_signed"
+        self._type = "ethereum_erc20_refund_signed" if self._erc20 else "ethereum_refund_signed"
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,

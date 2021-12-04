@@ -128,9 +128,9 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
-            "ethereum_fund_unsigned", "ethereum_fund_signed",
-            "ethereum_withdraw_unsigned", "ethereum_withdraw_signed",
-            "ethereum_refund_unsigned", "ethereum_refund_signed"
+            "ethereum_fund_unsigned", "ethereum_fund_signed", "ethereum_erc20_fund_unsigned", "ethereum_erc20_fund_signed",
+            "ethereum_withdraw_unsigned", "ethereum_withdraw_signed", "ethereum_erc20_withdraw_unsigned", "ethereum_erc20_withdraw_signed",
+            "ethereum_refund_unsigned", "ethereum_refund_signed", "ethereum_erc20_refund_unsigned", "ethereum_erc20_refund_signed"
         ]
     except:
         return False
@@ -196,7 +196,8 @@ def submit_transaction_raw(transaction_raw: str, provider: str = config["provide
     loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
     if not loaded_transaction_raw["type"] in [
-        "ethereum_fund_signed", "ethereum_withdraw_signed", "ethereum_refund_signed"
+        "ethereum_fund_signed", "ethereum_withdraw_signed", "ethereum_refund_signed",
+        "ethereum_erc20_fund_signed", "ethereum_erc20_withdraw_signed", "ethereum_erc20_refund_signed"
     ]:
         raise TransactionRawError("Wrong Ethereum transaction raw must be signed, not unsigned transaction raw.")
 

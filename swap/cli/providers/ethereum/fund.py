@@ -50,7 +50,7 @@ def fund(
             decimals: int = get_erc20_decimals(
                 token_address=token_address, network=network
             )
-            _amount: int = amount * (10 ** decimals)
+            _amount: int = int(amount) * int(10 ** decimals)
         else:
             _htlc.build_htlc(
                 secret_hash=secret_hash,
