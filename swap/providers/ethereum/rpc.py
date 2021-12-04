@@ -126,7 +126,7 @@ def get_erc20_balance(address: str, token_address: str, network: str = config["n
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
     :type token: str
 
-    :returns: int, int -- Ethereum ERC20 token balance and decimals.
+    :returns: tuple -- Ethereum ERC20 token balance and decimals.
 
     >>> from swap.providers.ethereum.rpc import get_erc20_balance
     >>> get_erc20_balance(address="0xbaF2Fc3829B6D25739BeDC18a5A83bF519c6Fe8c", token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861", network="testnet")
@@ -151,6 +151,39 @@ def get_erc20_balance(address: str, token_address: str, network: str = config["n
     ).call()
     balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
     return balance, name, symbol, decimals, balance_str
+
+
+def get_erc20_decimals(token_address: str, network: str = config["network"],
+                       provider: str = config["provider"], token: Optional[str] = None) -> int:
+    """
+    Get Ethereum ERC20 token decimals.
+
+    :param token_address: Ethereum ERC20 token address.
+    :type token_address: str
+    :param network: Ethereum network, defaults to ``mainnet``.
+    :type network: str
+    :param provider: Ethereum network provider, defaults to ``http``.
+    :type provider: str
+    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
+    :type token: str
+
+    :returns: int -- Ethereum ERC20 token decimals.
+
+    >>> from swap.providers.ethereum.rpc import get_erc20_decimals
+    >>> get_erc20_decimals(token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861", network="testnet")
+    18
+    """
+
+    # Check parameter instances
+    if not is_address(address=token_address):
+        raise AddressError(f"Invalid Ethereum ERC20 token '{token_address}' address.")
+
+    web3: Web3 = get_web3(network=network, provider=provider, token=token)
+    erc20_token: Contract = web3.eth.contract(
+        address=to_checksum_address(address=token_address), abi=EIP20_ABI
+    )
+    decimals: int = erc20_token.functions.decimals().call()
+    return decimals
 
 
 def get_transaction(transaction_hash: str, network: str = config["network"], provider: str = config["provider"],
