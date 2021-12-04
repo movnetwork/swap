@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from typing import Optional
+
 import sys
 
 from ....cli import click
@@ -16,11 +18,13 @@ from ....providers.config import ethereum as config
               help="Set Ethereum HTLC contact address.  [default: None]")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set Ethereum network.", show_default=True)
-def refund(transaction_hash: str, address: str, contract_address: str,  network: str):
+@click.option("-e20", "--erc20", type=str, default=False,
+              help="Set Ethereum ERC20 token HTLC contract.", show_default=True)
+def refund(transaction_hash: str, address: str, contract_address: Optional[str], network: str, erc20: bool):
     try:
         click.echo(
             RefundTransaction(
-                network=network
+                network=network, erc20=erc20
             ).build_transaction(
                 address=address,
                 transaction_hash=transaction_hash,

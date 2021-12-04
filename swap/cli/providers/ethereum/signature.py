@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from typing import Optional
 from base64 import b64decode
 
 import json
@@ -30,7 +31,7 @@ from ....utils import clean_transaction_raw
               help="Set Ethereum derivation from address.", show_default=True)
 @click.option("-p", "--path", type=str, default=None,
               help="Set Ethereum derivation from path.  [default: None]", show_default=True)
-def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, address: int, path: str):
+def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, address: int, path: Optional[str]):
 
     try:
         if not is_transaction_raw(transaction_raw=transaction_raw):
