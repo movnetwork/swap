@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from binascii import unhexlify
+from ethtoken.abi import EIP20_ABI
 from eth_account.datastructures import SignedTransaction
 from web3.datastructures import AttributeDict
 from web3.contract import Contract
@@ -35,6 +36,8 @@ class Transaction:
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Transaction ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -46,14 +49,15 @@ class Transaction:
         Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
 
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid Ethereum '{network}' network",
                                "choose only 'mainnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
 
+        self._erc20: bool = erc20
         self._network: str = network
         self.web3: Web3 = get_web3(
             network=network, provider=provider, token=token
@@ -238,6 +242,8 @@ class FundTransaction(Transaction):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Fund transaction ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -249,10 +255,10 @@ class FundTransaction(Transaction):
         Do not forget to build transaction after initialize fund transaction.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
     def build_transaction(self, address: str, htlc: HTLC, amount: Union[Wei, int],
@@ -260,12 +266,12 @@ class FundTransaction(Transaction):
         """
         Build Ethereum fund transaction.
 
-        :param htlc: Ethereum HTLC instance.
-        :type htlc: ethereum.htlc.HTLC
         :param address: Ethereum sender address.
         :type address: str
-        :param amount: Ethereum amount.
-        :type amount: Wei, int
+        :param htlc: Ethereum HTLC instance.
+        :type htlc: ethereum.htlc.HTLC
+        :param amount: Ethereum amount or ERC20 amount.
+        :type amount: Wei, int, float
         :param unit: Ethereum unit, default to ``Wei``.
         :type unit: str
 
@@ -274,7 +280,7 @@ class FundTransaction(Transaction):
         >>> from swap.providers.ethereum.htlc import HTLC
         >>> from swap.providers.ethereum.transaction import FundTransaction
         >>> from swap.utils import sha256, get_current_timestamp
-        >>> htlc: HTLC = HTLC(network="mainnet")
+        >>> htlc: HTLC = HTLC(network="mainnet", erc20=False)
         >>> htlc.build_htlc(secret_hash=sha256("Hello Meheret!"), recipient_address="0xd77E0d2Eef905cfB39c3C4b952Ed278d58f96E1f", sender_address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", endtime=get_current_timestamp(plus=3600))
         >>> fund_transaction: FundTransaction = FundTransaction(network="mainnet")
         >>> fund_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", htlc=htlc, amount=100_000_000)
@@ -292,24 +298,34 @@ class FundTransaction(Transaction):
         if unit not in ["Ether", "Gwei", "Wei"]:
             raise UnitError("Invalid Ethereum unit, choose only 'Ether', 'Gwei' or 'Wei' units.")
 
-        _amount: Wei = Wei(
+        _amount: Union[Wei, int, float] = Wei(
             amount if unit == "Wei" else amount_unit_converter(amount=amount, unit_from=f"{unit}2Wei")
-        )
+        ) if not self._erc20 else amount
 
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
         )
 
-        htlc_fund_function = htlc_contract.functions.fund(
-            unhexlify(htlc.agreements["secret_hash"]),  # Secret Hash
-            htlc.agreements["recipient_address"],  # Recipient Address
-            htlc.agreements["sender_address"],  # Sender Address
-            htlc.agreements["endtime"]["timestamp"]  # Locktime Seconds
-        )
+        if self._erc20:
+            htlc_fund_function = htlc_contract.functions.fund(
+                htlc.agreements["token_address"],  # Token address
+                unhexlify(htlc.agreements["secret_hash"]),  # Secret Hash
+                htlc.agreements["recipient_address"],  # Recipient Address
+                htlc.agreements["sender_address"],  # Sender Address
+                htlc.agreements["endtime"]["timestamp"],  # Locktime Seconds
+                _amount  # Amount
+            )
+        else:
+            htlc_fund_function = htlc_contract.functions.fund(
+                unhexlify(htlc.agreements["secret_hash"]),  # Secret Hash
+                htlc.agreements["recipient_address"],  # Recipient Address
+                htlc.agreements["sender_address"],  # Sender Address
+                htlc.agreements["endtime"]["timestamp"]  # Locktime Seconds
+            )
 
         self._fee = htlc_fund_function.estimateGas({
             "from": to_checksum_address(address=address),
-            "value": _amount,
+            "value": _amount if not self._erc20 else Wei(0),
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
@@ -318,7 +334,7 @@ class FundTransaction(Transaction):
 
         self._transaction = htlc_fund_function.buildTransaction({
             "from": to_checksum_address(address=address),
-            "value": _amount,
+            "value": _amount if not self._erc20 else Wei(0),
             "nonce": self.web3.eth.get_transaction_count(
                 to_checksum_address(address=address)
             ),
@@ -377,6 +393,8 @@ class WithdrawTransaction(Transaction):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Withdraw transaction ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -388,10 +406,10 @@ class WithdrawTransaction(Transaction):
         Do not forget to build transaction after initialize withdraw transaction.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
+    def __init__(self, network: str = config["network"], erc20: bool = False, provider: str = config["provider"],
                  token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
     def build_transaction(self, transaction_hash: str, address: str, secret_key: str,
@@ -423,7 +441,7 @@ class WithdrawTransaction(Transaction):
             raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
-            contract_address=contract_address, network=self._network
+            contract_address=contract_address, network=self._network, erc20=self._erc20
         )
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
@@ -431,16 +449,16 @@ class WithdrawTransaction(Transaction):
 
         transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
-            log=transaction_receipt["logs"][0]
+            log=transaction_receipt["logs"][2]
         )
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
-        htlc_fund_function = htlc_contract.functions.withdraw(
+        htlc_withdraw_function = htlc_contract.functions.withdraw(
             locked_contract_id,  # Locked Contract ID
             secret_key  # Secret Key
         )
 
-        self._fee = htlc_fund_function.estimateGas({
+        self._fee = htlc_withdraw_function.estimateGas({
             "from": to_checksum_address(address=address),
             "value": Wei(0),
             "nonce": self.web3.eth.get_transaction_count(
@@ -449,7 +467,7 @@ class WithdrawTransaction(Transaction):
             "gasPrice": self.web3.eth.gas_price
         })
 
-        self._transaction = htlc_fund_function.buildTransaction({
+        self._transaction = htlc_withdraw_function.buildTransaction({
             "from": to_checksum_address(address=address),
             "value": Wei(0),
             "nonce": self.web3.eth.get_transaction_count(
@@ -506,6 +524,8 @@ class RefundTransaction(Transaction):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
+    :param erc20: Refund transaction ERC20 token, default to ``False``.
+    :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
     :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
@@ -517,10 +537,10 @@ class RefundTransaction(Transaction):
         Do not forget to build transaction after initialize refund transaction.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
         super().__init__(
-            network=network, provider=provider, token=token
+            network=network, erc20=erc20, provider=provider, token=token
         )
 
     def build_transaction(self, transaction_hash: str, address: str,
@@ -550,7 +570,7 @@ class RefundTransaction(Transaction):
             raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
 
         htlc: HTLC = HTLC(
-            contract_address=contract_address, network=self._network
+            contract_address=contract_address, network=self._network, erc20=self._erc20
         )
         htlc_contract: Contract = self.web3.eth.contract(
             address=htlc.contract_address(), abi=htlc.abi()
@@ -558,7 +578,7 @@ class RefundTransaction(Transaction):
 
         transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
-            log=transaction_receipt["logs"][0]
+            log=transaction_receipt["logs"][2]
         )
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
