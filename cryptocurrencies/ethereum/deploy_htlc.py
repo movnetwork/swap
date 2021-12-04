@@ -8,9 +8,9 @@ from swap.providers.ethereum.rpc import (
 )
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "ropsten"
+NETWORK: str = "testnet"
 # Ethereum private key
-PRIVATE_KEY: str = "..."
+PRIVATE_KEY: str = "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"
 
 print("=" * 10, "Deploy HTLC from Ethereum Account")
 

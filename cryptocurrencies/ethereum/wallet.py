@@ -19,6 +19,8 @@ LENGTH: int = 32  # Default is 32
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
 PASSPHRASE: str = generate_passphrase(length=LENGTH)
+# Ethereum ERC20 token address
+TOKEN_ADDRESS: str = "0xCAfC3274Ba43825fCDCcE3D3263132A399658C7D"
 
 # Initialize Ethereum wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -51,3 +53,4 @@ print("Finger Print:", wallet.finger_print())
 print("Path:", wallet.path())
 print("Address:", wallet.address())
 print("Balance:", wallet.balance(unit="Ether"), "Ether")
+print("ERC20 Balance:", wallet.erc20_balance(token_address=TOKEN_ADDRESS))

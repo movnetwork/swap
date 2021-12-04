@@ -11,11 +11,11 @@ from swap.providers.ethereum.utils import submit_transaction_raw
 import json
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "ropsten"
+NETWORK: str = "testnet"
 # Ethereum HTLC contract address
-CONTRACT_ADDRESS: str = "0xE5cb615899436A490dBde26d7880A0C2502Fc676"
-# Ethereum funded transaction hash/id
-TRANSACTION_HASH: str = "0xa42f5c441c9ba006c6abcbdbb6e1a3f21e491a9803df127958ee5acd8e17b74e"
+CONTRACT_ADDRESS: str = "0xbE91a5A2977c0395C41a0306BA4a8d1a9be74287"
+# Ethereum HTLC funded transaction hash/id
+TRANSACTION_HASH: str = "0x42badfb1a16d0686f23d309d9b0fa63bce0d6beb314e790de416fd7de36b93b2"
 # Ethereum recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # The preimage of HTLC contract
@@ -106,6 +106,6 @@ print("Withdraw Signature Transaction Raw:", signed_withdraw_signature_transacti
 assert signed_withdraw_transaction_raw == signed_withdraw_signature_transaction_raw
 
 # Submit withdraw transaction raw
-# print("\nSubmitted Withdraw Transaction:", json.dumps(submit_transaction_raw(
-#     transaction_raw=signed_withdraw_transaction_raw  # Or signed_withdraw_signature_transaction_raw
-# ), indent=4))
+print("\nSubmitted Withdraw Transaction:", json.dumps(submit_transaction_raw(
+    transaction_raw=signed_withdraw_transaction_raw  # Or signed_withdraw_signature_transaction_raw
+), indent=4))
