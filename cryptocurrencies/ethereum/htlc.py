@@ -42,10 +42,3 @@ print("HTLC Bytecode Runtime:", htlc.bytecode_runtime())
 print("HTLC OP_Code:", htlc.opcode())
 print("HTLC Contract Address:", htlc.contract_address())
 print("HTLC Balance:", htlc.balance(unit="Ether"), "Ether")
-
-print(json.dumps(dict(
-    abi=htlc.abi(),
-    bytecode=htlc.bytecode(),
-    bytecode_runtime=htlc.bytecode_runtime(),
-    contract_address=htlc.contract_address()
-)))
