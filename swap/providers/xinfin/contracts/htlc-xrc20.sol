@@ -1,6 +1,6 @@
 // XinFin Smart Contract -> Solidity language
 
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.10;
 
 import "./libs/xrc20.sol";
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC20/ERC20.sol)
+// OpenZeppelin Contracts v4.4.0 (token/ERC20/ERC20.sol) alias to XRC20 name for XinFin Protocol.
 
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.10;
 
 /**
  * @dev Provides information about the current execution context, including the
