@@ -30,6 +30,8 @@ class Signature(Transaction):
 
     :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
+    :param xrc20: Signature XRC20 token, default to ``False``.
+    :type xrc20: bool
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
 
@@ -39,7 +41,7 @@ class Signature(Transaction):
         XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
+    def __init__(self, network: str = config["network"], xrc20: bool = False, provider: str = config["provider"]):
         super().__init__(
             network=network, provider=provider
         )
@@ -186,15 +188,27 @@ class Signature(Transaction):
 
         self._type = loaded_transaction_raw["type"]
         if loaded_transaction_raw["type"] == "xinfin_fund_unsigned":
-            return FundSignature(network=self._network).sign(
+            return FundSignature(network=self._network, xrc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "xinfin_xrc20_fund_unsigned":
+            return FundSignature(network=self._network, xrc20=True).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
         elif loaded_transaction_raw["type"] == "xinfin_withdraw_unsigned":
-            return WithdrawSignature(network=self._network).sign(
+            return WithdrawSignature(network=self._network, xrc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "xinfin_xrc20_withdraw_unsigned":
+            return WithdrawSignature(network=self._network, xrc20=True).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
         elif loaded_transaction_raw["type"] == "xinfin_refund_unsigned":
-            return RefundSignature(network=self._network).sign(
+            return RefundSignature(network=self._network, xrc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "xinfin_xrc20_refund_unsigned":
+            return RefundSignature(network=self._network, xrc20=True).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
 
@@ -245,6 +259,8 @@ class FundSignature(Signature):
 
     :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
+    :param xrc20: Fund signature XRC20 token, default to ``False``.
+    :type xrc20: bool
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
 
@@ -254,10 +270,9 @@ class FundSignature(Signature):
         XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"],
-                 token: Optional[str] = None):
+    def __init__(self, network: str = config["network"], xrc20: bool = False, provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider
+            network=network, xrc20=xrc20, provider=provider
         )
 
     def sign(self, transaction_raw: str, solver: FundSolver) -> "FundSignature":
@@ -314,14 +329,15 @@ class FundSignature(Signature):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "xinfin_fund_signed"
+        self._type = "xinfin_xrc20_fund_signed" if self._xrc20 else "xinfin_fund_signed"
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            xrc20=self._xrc20
         ))).encode()).decode()
         return self
 
@@ -332,6 +348,8 @@ class WithdrawSignature(Signature):
 
     :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
+    :param xrc20: Fund signature XRC20 token, default to ``False``.
+    :type xrc20: bool
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
 
@@ -341,9 +359,9 @@ class WithdrawSignature(Signature):
         XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
+    def __init__(self, network: str = config["network"], xrc20: bool = False, provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider
+            network=network, xrc20=xrc20, provider=provider
         )
 
     def sign(self, transaction_raw: str, solver: WithdrawSolver) -> "WithdrawSignature":
@@ -400,14 +418,15 @@ class WithdrawSignature(Signature):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "xinfin_withdraw_signed"
+        self._type = "xinfin_xrc20_withdraw_signed" if self._xrc20 else "xinfin_withdraw_signed"
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            xrc20=self._xrc20
         ))).encode()).decode()
         return self
 
@@ -418,6 +437,8 @@ class RefundSignature(Signature):
 
     :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
+    :param xrc20: Fund signature XRC20 token, default to ``False``.
+    :type xrc20: bool
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
 
@@ -427,9 +448,9 @@ class RefundSignature(Signature):
         XinFin has only two networks, ``mainnet``, ``apothem`` and ``testnet``.
     """
 
-    def __init__(self, network: str = config["network"], provider: str = config["provider"]):
+    def __init__(self, network: str = config["network"], xrc20: bool = False, provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider
+            network=network, xrc20=xrc20, provider=provider
         )
 
     def sign(self, transaction_raw: str, solver: RefundSolver) -> "RefundSignature":
@@ -486,13 +507,14 @@ class RefundSignature(Signature):
             s=signed_fund_transaction["s"],
             v=signed_fund_transaction["v"]
         )
-        self._type = "xinfin_refund_signed"
+        self._type = "xinfin_xrc20_refund_signed" if self._xrc20 else "xinfin_refund_signed"
 
         self._signed_raw = b64encode(str(json.dumps(dict(
             fee=self._fee,
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            xrc20=self._xrc20
         ))).encode()).decode()
         return self

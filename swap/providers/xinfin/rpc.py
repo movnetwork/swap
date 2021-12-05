@@ -5,12 +5,14 @@ from web3.types import Wei
 from web3.providers import (
     HTTPProvider, WebsocketProvider
 )
+from web3.contract import Contract
 from web3._utils.threads import Timeout
 from pyxdc.utils import decode_transaction_raw as dtr
 from hexbytes.main import HexBytes
+from ethtoken.abi import EIP20_ABI
 from eth_typing import URI
 from typing import (
-    Optional
+    Optional, Tuple
 )
 
 import web3 as _web3
@@ -94,6 +96,77 @@ def get_balance(address: str, network: str = config["network"], provider: str = 
         to_checksum_address(address=address, prefix="0x")
     )
     return Wei(balance)
+
+
+def get_xrc20_balance(address: str, token_address: str, network: str = config["network"],
+                      provider: str = config["provider"]) -> Tuple[int, str, str, int, str]:
+    """
+    Get XinFin XRC20 token balance.
+
+    :param address: XinFin address.
+    :type address: str
+    :param token_address: XinFin XRC20 token address.
+    :type token_address: str
+    :param network: XinFin network, defaults to ``mainnet``.
+    :type network: str
+    :param provider: XinFin network provider, defaults to ``http``.
+    :type provider: str
+
+    :returns: tuple -- XinFin XRC20 token balance and decimals.
+
+    >>> from swap.providers.xinfin.rpc import get_xrc20_balance
+    >>> get_xrc20_balance(address="xdc70c1eb09363603a3b6391deb2daa6d2561a62f52", token_address="xdcDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861", network="testnet")
+    (99999999999999999999999999998, 18)
+    """
+
+    # Check parameter instances
+    if not is_address(address=address):
+        raise AddressError(f"Invalid XinFin '{address}' address.")
+    elif not is_address(address=token_address):
+        raise AddressError(f"Invalid XinFin XRC20 token '{token_address}' address.")
+
+    web3: Web3 = get_web3(network=network, provider=provider)
+    xrc20_token: Contract = web3.eth.contract(
+        address=to_checksum_address(address=token_address, prefix="0x"), abi=EIP20_ABI
+    )
+    name: str = xrc20_token.functions.name().call()
+    symbol: str = xrc20_token.functions.symbol().call()
+    decimals: int = xrc20_token.functions.decimals().call()
+    balance: int = xrc20_token.functions.balanceOf(
+        to_checksum_address(address=to_checksum_address(address=address, prefix="0x"), prefix="0x")
+    ).call()
+    balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
+    return balance, name, symbol, decimals, balance_str
+
+
+def get_xrc20_decimals(token_address: str, network: str = config["network"], provider: str = config["provider"]) -> int:
+    """
+    Get XinFin XRC20 token decimals.
+
+    :param token_address: XinFin XRC20 token address.
+    :type token_address: str
+    :param network: XinFin network, defaults to ``mainnet``.
+    :type network: str
+    :param provider: XinFin network provider, defaults to ``http``.
+    :type provider: str
+
+    :returns: int -- XinFin XRC20 token decimals.
+
+    >>> from swap.providers.xinfin.rpc import get_xrc20_decimals
+    >>> get_xrc20_decimals(token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861", network="testnet")
+    18
+    """
+
+    # Check parameter instances
+    if not is_address(address=token_address):
+        raise AddressError(f"Invalid XinFin XRC20 token '{token_address}' address.")
+
+    web3: Web3 = get_web3(network=network, provider=provider)
+    xrc20_token: Contract = web3.eth.contract(
+        address=to_checksum_address(address=token_address, prefix="0x"), abi=EIP20_ABI
+    )
+    decimals: int = xrc20_token.functions.decimals().call()
+    return decimals
 
 
 def get_transaction(transaction_hash: str, network: str = config["network"],

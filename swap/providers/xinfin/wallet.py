@@ -4,7 +4,7 @@ from hdwallet import HDWallet
 from hdwallet.cryptocurrencies import XinFinMainnet
 from web3.types import Wei
 from typing import (
-    Optional, Union
+    Optional, Union, Tuple
 )
 
 from ...utils import is_mnemonic
@@ -16,7 +16,7 @@ from .utils import (
     is_network, amount_unit_converter
 )
 from .rpc import (
-    get_balance
+    get_balance, get_xrc20_balance
 )
 
 # Default derivation path
@@ -589,3 +589,20 @@ class Wallet(HDWallet):
         )
         return balance if unit == "Wei" else \
             amount_unit_converter(amount=balance, unit_from=f"Wei2{unit}")
+
+    def xrc20_balance(self, token_address: str) -> Tuple[int, str, str, int, str]:
+        """
+        Get XinFin HTLC XRC20 balance.
+
+        :param token_address: XinFin XRC20 token address.
+        :type token_address: str
+
+        :return: tuple -- XinFin HTLC XRC20 balance and decimal.
+
+        >>> from swap.providers.xinfin.htlc import HTLC
+        >>> htlc: HTLC = HTLC(contract_address="0x94c4B5f13392AcD2A6E59C9A180758fB386631C3", network="testnet", erc20=True)
+        >>> htlc.xrc20_balance(token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861")
+        (99999999999999999999999999998, 18)
+        """
+
+        return get_xrc20_balance(address=self.address(), token_address=token_address, network=self._network)

@@ -7,7 +7,7 @@ from web3.contract import (
 from semantic_version.base import Version
 from datetime import datetime
 from typing import (
-    Optional, Type, Union
+    Optional, Type, Union, Tuple
 )
 from web3.types import Wei
 
@@ -20,7 +20,7 @@ from ...exceptions import (
 )
 from ..config import xinfin as config
 from .rpc import (
-    get_web3, get_balance
+    get_web3, get_balance, get_xrc20_balance
 )
 from .utils import (
     is_network, is_address, to_checksum_address, amount_unit_converter
@@ -35,6 +35,8 @@ class HTLC:
     :type contract_address: str
     :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
+    :param xrc20: HTLC XRC20 token, default to ``False``.
+    :type xrc20: bool
     :param provider: XinFin network provider, defaults to ``http``.
     :type provider: str
     :param use_script: Initialize HTLC by using script, default to ``False``.
@@ -47,15 +49,17 @@ class HTLC:
     """
 
     def __init__(self, contract_address: Optional[str] = None, network: str = config["network"],
-                 provider: str = config["provider"], use_script: bool = False):
+                 xrc20: bool = False, provider: str = config["provider"], use_script: bool = False):
 
         # Check parameter instances
         if not is_network(network=network):
             raise NetworkError(f"Invalid XinFin '{network}' network",
                                "choose only 'mainnet', 'apothem' or 'testnet' networks.")
 
-        self._network: str = network
         self._contract_address: Optional[str] = None
+        self._network: str = network
+        self._xrc20: bool = xrc20
+
         if contract_address:
             if not is_address(address=contract_address):
                 raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
@@ -74,22 +78,25 @@ class HTLC:
 
         # Get current working directory path (like linux or unix path).
         cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+        sol_source_name: str = "htlc-xrc20.sol" if self._xrc20 else "htlc.sol"
+        sol_source_with_class_name: str = "htlc-xrc20.sol:HTLC_XRC20" if self._xrc20 else "htlc.sol:HTLC"
+        json_source_name: str = "htlc-xrc20.json" if self._xrc20 else "htlc.json"
 
         if use_script:
             solcx = __import__("solcx")
             compiled_files: dict = solcx.compile_files(
-                source_files=[f"{cwd}/contracts/htlc.sol"],
+                source_files=[f"{cwd}/contracts/{sol_source_name}"],
                 output_values=["abi", "bin", "bin-runtime", "opcodes"],
                 solc_version=Version("0.4.25")
             )
 
-            self._abi: list = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["abi"]
-            self._bytecode: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["bin"]
-            self._bytecode_runtime: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["bin-runtime"]
-            self._opcodes: str = compiled_files[f"{cwd}/contracts/htlc.sol:HTLC"]["opcodes"]
+            self._abi: list = compiled_files[f"{cwd}/contracts/{sol_source_with_class_name}"]["abi"]
+            self._bytecode: str = compiled_files[f"{cwd}/contracts/{sol_source_with_class_name}"]["bin"]
+            self._bytecode_runtime: str = compiled_files[f"{cwd}/contracts/{sol_source_with_class_name}"]["bin-runtime"]
+            self._opcodes: str = compiled_files[f"{cwd}/contracts/{sol_source_with_class_name}"]["opcodes"]
         else:
-            with open(f"{cwd}/contracts/htlc.json", "r") as htlc_json_file:
-                compiled_file: dict = json.loads(htlc_json_file.read())
+            with open(f"{cwd}/contracts/{json_source_name}", "r") as htlc_json_file:
+                compiled_file: dict = json.loads(htlc_json_file.read())[sol_source_with_class_name]
                 htlc_json_file.close()
 
             self._abi: list = compiled_file["abi"]
@@ -272,7 +279,7 @@ class HTLC:
 
         return to_checksum_address(address=self._contract_address, prefix=prefix)
 
-    def build_htlc(self, secret_hash: str, recipient_address: str, sender_address: str, endtime: int) -> "HTLC":
+    def build_htlc(self, secret_hash: str, recipient_address: str, sender_address: str, endtime: int, token_address: Optional[str] = None) -> "HTLC":
         """
         Build XinFin Hash Time Lock Contract (HTLC).
 
@@ -284,6 +291,8 @@ class HTLC:
         :type sender_address: str
         :param endtime: Expiration block time (Seconds).
         :type endtime: int
+        :param token_address: XinFin XRC20 token address, default to ``None``.
+        :type token_address: bool
 
         :returns: HTLC -- XinFin HTLC instance.
 
@@ -295,6 +304,10 @@ class HTLC:
         """
 
         # Check parameter instances
+        if self._xrc20 and not token_address:
+            raise AddressError(f"XinFin XRC20 token address is required for HTLC ERC20 contract.")
+        if self._xrc20 and not is_address(token_address):
+            raise AddressError(f"Invalid XinFin XRC20 token '{token_address}' address.")
         if not self._contract_address:
             raise ValueError(f"HTLC contact address is required. Before build HTLC, initial contract address first.")
         if len(secret_hash) != 64:
@@ -315,6 +328,10 @@ class HTLC:
                 "timestamp": endtime
             }
         }
+        if self._xrc20:
+            self.agreements.setdefault(
+                "token_address", to_checksum_address(address=token_address, prefix="xdc")
+            )
         return self
 
     def abi(self) -> list:
@@ -401,3 +418,20 @@ class HTLC:
         balance: int = get_balance(address=self.contract_address(), network=self._network)
         return balance if unit == "Wei" else \
             amount_unit_converter(amount=balance, unit_from=f"Wei2{unit}")
+
+    def xrc20_balance(self, token_address: str) -> Tuple[int, str, str, int, str]:
+        """
+        Get XinFin HTLC XRC20 balance.
+
+        :param token_address: XinFin XRC20 token address.
+        :type token_address: str
+
+        :return: tuple -- XinFin HTLC XRC20 balance and decimal.
+
+        >>> from swap.providers.xinfin.htlc import HTLC
+        >>> htlc: HTLC = HTLC(contract_address="0x94c4B5f13392AcD2A6E59C9A180758fB386631C3", network="testnet", erc20=True)
+        >>> htlc.xrc20_balance(token_address="0xDaB6844e863bdfEE6AaFf888D2D34Bf1B7c37861")
+        (99999999999999999999999999998, 18)
+        """
+
+        return get_xrc20_balance(address=self.contract_address(), token_address=token_address, network=self._network)
