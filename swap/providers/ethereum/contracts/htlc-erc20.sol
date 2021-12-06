@@ -1,6 +1,6 @@
 // Ethereum Smart Contract -> Solidity language
 
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.10;
 
 import "./libs/erc20.sol";
 

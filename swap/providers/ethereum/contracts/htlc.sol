@@ -1,6 +1,6 @@
 // Ethereum Smart Contract -> Solidity language
 
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.10;
 
 /**
  * @title Hash Time Lock Contract (HTLC)
