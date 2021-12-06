@@ -291,7 +291,7 @@ class FundTransaction(Transaction):
         if not is_address(address=address):
             raise AddressError(f"Invalid Ethereum sender '{address}' address.")
         if not isinstance(htlc, HTLC):
-            raise TypeError("Invalid HTLC instance, only takes Ethereum HTLC class")
+            raise TypeError("Invalid Ethereum HTLC instance, only takes Ethereum HTLC class")
         if to_checksum_address(address=address) != htlc.agreements["sender_address"]:
             raise AddressError(f"Wrong Ethereum sender '{address}' address",
                                "address must be match with HTLC agreements sender address.")

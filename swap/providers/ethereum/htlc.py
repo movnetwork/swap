@@ -435,4 +435,3 @@ class HTLC:
         """
 
         return get_erc20_balance(address=self.contract_address(), token_address=token_address, network=self._network)
-

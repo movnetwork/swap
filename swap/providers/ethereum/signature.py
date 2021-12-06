@@ -342,7 +342,8 @@ class FundSignature(Signature):
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            erc20=self._erc20
         ))).encode()).decode()
         return self
 
@@ -433,7 +434,8 @@ class WithdrawSignature(Signature):
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            erc20=self._erc20
         ))).encode()).decode()
         return self
 
@@ -524,6 +526,7 @@ class RefundSignature(Signature):
             type=self._type,
             transaction=self._transaction,
             signature=self._signature,
-            network=self._network
+            network=self._network,
+            erc20=self._erc20
         ))).encode()).decode()
         return self
