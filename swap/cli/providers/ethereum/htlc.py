@@ -16,7 +16,7 @@ from ....providers.config import ethereum as config
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set Ethereum network.", show_default=True)
 @click.option("-e20", "--erc20", type=str, default=False,
-              help="Set Ethereum ERC20 token HTLC contract.", show_default=True)
+              help="Set Enable Ethereum ERC20 token contract.", show_default=True)
 @click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)
 def htlc(contract_address: str, network: str, erc20: bool, indent: int):
     try:

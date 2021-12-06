@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from typing import Optional
 from base64 import b64decode
 
 import json
@@ -30,7 +31,7 @@ from ....utils import clean_transaction_raw
               help="Set XinFin derivation from address.", show_default=True)
 @click.option("-p", "--path", type=str, default=None,
               help="Set XinFin derivation from path.  [default: None]", show_default=True)
-def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, address: int, path: str):
+def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, address: int, path: Optional[str]):
 
     try:
         if not is_transaction_raw(transaction_raw=transaction_raw):
@@ -49,7 +50,7 @@ def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, ad
             )
             # Fund signature
             fund_signature: FundSignature = FundSignature(
-                network=loaded_transaction_raw["network"]
+                network=loaded_transaction_raw["network"], xrc20=loaded_transaction_raw["xrc20"]
             )
             fund_signature.sign(
                 transaction_raw=transaction_raw, solver=fund_solver
@@ -66,7 +67,7 @@ def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, ad
             )
             # Withdraw signature
             withdraw_signature: WithdrawSignature = WithdrawSignature(
-                network=loaded_transaction_raw["network"]
+                network=loaded_transaction_raw["network"], xrc20=loaded_transaction_raw["xrc20"]
             )
             withdraw_signature.sign(
                 transaction_raw=transaction_raw, solver=withdraw_solver
@@ -83,7 +84,7 @@ def sign(xprivate_key: str, transaction_raw: str, account: int, change: bool, ad
             )
             # Refund signature
             refund_signature: RefundSignature = RefundSignature(
-                network=loaded_transaction_raw["network"]
+                network=loaded_transaction_raw["network"], xrc20=loaded_transaction_raw["xrc20"]
             )
             refund_signature.sign(
                 transaction_raw=transaction_raw, solver=refund_solver

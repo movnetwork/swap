@@ -30,7 +30,7 @@ from ....utils import get_current_timestamp
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set Ethereum network.", show_default=True)
 @click.option("-e20", "--erc20", type=str, default=False,
-              help="Set Ethereum ERC20 token HTLC contract.", show_default=True)
+              help="Set Enable Ethereum ERC20 token contract.", show_default=True)
 def fund(
     secret_hash: str, recipient_address: str, sender_address: str, endtime: int, amount: int, unit: str,
     contract_address: Optional[str], token_address: Optional[str], network: str, erc20: bool

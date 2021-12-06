@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from typing import Optional
+
 import sys
 
 from ....cli import click
@@ -17,11 +19,13 @@ from ....providers.config import xinfin as config
               help="Set XinFin HTLC contact address.  [default: None]")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set XinFin network.", show_default=True)
-def withdraw(transaction_hash: str, address: str, secret_key: str, contract_address: str,  network: str):
+@click.option("-x20", "--xrc20", type=str, default=False,
+              help="Set Enable XinFin XRC20 token contract.", show_default=True)
+def withdraw(transaction_hash: str, address: str, secret_key: str, contract_address: Optional[str], network: str, xrc20: bool):
     try:
         click.echo(
             WithdrawTransaction(
-                network=network
+                network=network, xrc20=xrc20
             ).build_transaction(
                 address=address,
                 transaction_hash=transaction_hash,
