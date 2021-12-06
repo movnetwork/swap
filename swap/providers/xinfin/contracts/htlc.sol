@@ -1,6 +1,6 @@
 // XinFin Smart Contract -> Solidity language
 
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.10;
 
 /**
  * @title Hash Time Lock Contract (HTLC)
@@ -24,8 +24,8 @@ contract HTLC {
 
     struct LockedContract {
         bytes32 secret_hash;
-        address recipient;
-        address sender;
+        address payable recipient;
+        address payable sender;
         uint endtime;
         uint amount;
         bool withdrawn;
@@ -62,7 +62,7 @@ contract HTLC {
         require(have_locked_contract(locked_contract_id), "locked_contract_id does not exist");
         _;
     }
-    modifier check_secret_hash_matches (bytes32 locked_contract_id, string preimage) {
+    modifier check_secret_hash_matches (bytes32 locked_contract_id, string memory preimage) {
         require(locked_contracts[locked_contract_id].secret_hash == sha256(abi.encodePacked(preimage)), "secret hash does not match");
         _;
     }
@@ -90,7 +90,7 @@ contract HTLC {
      *
      * @return locked_contract_id of the new HTLC.
      */
-    function fund (bytes32 secret_hash, address recipient, address sender, uint endtime) external payable fund_sent future_endtime (endtime) returns (bytes32 locked_contract_id) {
+    function fund (bytes32 secret_hash, address payable recipient, address payable sender, uint endtime) external payable fund_sent future_endtime (endtime) returns (bytes32 locked_contract_id) {
 
         require(msg.sender == sender, "msg.sender must be same with sender address");
 
@@ -119,7 +119,7 @@ contract HTLC {
      *
      * @return bool true on success or false on failure.
      */
-    function withdraw (bytes32 locked_contract_id, string preimage) external is_locked_contract_exist (locked_contract_id) check_secret_hash_matches (locked_contract_id, preimage) withdrawable (locked_contract_id) returns (bool) {
+    function withdraw (bytes32 locked_contract_id, string memory preimage) external is_locked_contract_exist (locked_contract_id) check_secret_hash_matches (locked_contract_id, preimage) withdrawable (locked_contract_id) returns (bool) {
 
         LockedContract storage locked_contract = locked_contracts[locked_contract_id];
 
@@ -165,7 +165,7 @@ contract HTLC {
      * @return id secret_hash recipient sender withdrawn refunded preimage locked HTLC contract datas.
      */
     function get_locked_contract (bytes32 locked_contract_id) public view returns (
-        bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string preimage
+        bytes32 id, bytes32 secret_hash, address recipient, address sender, uint endtime, uint amount, bool withdrawn, bool refunded, string memory preimage
     ) {
         if (have_locked_contract(locked_contract_id) == false)
             return (0, 0, address(0), address(0), 0, 0, false, false, "");

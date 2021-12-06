@@ -86,12 +86,12 @@ contract HTLC_ERC20 {
     }
 
     /**
-     * @dev Sender sets up a new Hash Time Lock Contract (HTLC) and depositing the ERC20 token coins.
+     * @dev Sender sets up a new Hash Time Lock Contract (HTLC) and depositing the ERC20 token.
      *
      * @param token ERC20 Token contract address.
      * @param secret_hash A sha256 secret hash.
-     * @param recipient Recipient account of the ETH coin.
-     * @param sender Sender account of the ETH coin.
+     * @param recipient Recipient account of the ERC20 token.
+     * @param sender Sender account of the ERC20 token.
      * @param endtime The timestamp that the lock expires at.
      * @param amount Amount of the token to lock up.
      *
