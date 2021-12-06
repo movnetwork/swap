@@ -9,7 +9,9 @@ from datetime import datetime
 from typing import (
     Optional, Type, Union, Tuple
 )
-from web3.types import Wei
+from web3.types import (
+    Wei, ChecksumAddress
+)
 
 import json
 import sys
@@ -56,19 +58,19 @@ class HTLC:
             raise NetworkError(f"Invalid XinFin '{network}' network",
                                "choose only 'mainnet', 'apothem' or 'testnet' networks.")
 
-        self._contract_address: Optional[str] = None
+        self._contract_address: Optional[str, ChecksumAddress] = None
         self._network: str = network
         self._xrc20: bool = xrc20
 
         if contract_address:
             if not is_address(address=contract_address):
                 raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
-            self._contract_address: str = to_checksum_address(
+            self._contract_address: ChecksumAddress = to_checksum_address(
                 address=contract_address, prefix="0x"
             )
-        elif config[self._network]["contract_address"]:
-            self._contract_address: str = to_checksum_address(
-                address=config[self._network]["contract_address"], prefix="0x"
+        elif config[self._network]["contract_addresses"]["htlc_xrc20" if self._xrc20 else "htlc"]:
+            self._contract_address: ChecksumAddress = to_checksum_address(
+                address=config[self._network]["contract_addresses"]["htlc_xrc20" if self._xrc20 else "htlc"], prefix="0x"
             )
 
         self.agreements: Optional[dict] = None
@@ -87,7 +89,7 @@ class HTLC:
             compiled_files: dict = solcx.compile_files(
                 source_files=[f"{cwd}/contracts/{sol_source_name}"],
                 output_values=["abi", "bin", "bin-runtime", "opcodes"],
-                solc_version=Version("0.4.25")
+                solc_version=Version("0.8.10")
             )
 
             self._abi: list = compiled_files[f"{cwd}/contracts/{sol_source_with_class_name}"]["abi"]
@@ -256,14 +258,14 @@ class HTLC:
 
         return self._signed_transaction["rawTransaction"].hex() if self._signed_transaction else None
 
-    def contract_address(self, prefix: str = "xdc") -> str:
+    def contract_address(self, prefix: str = "xdc") -> Union[str, ChecksumAddress]:
         """
         Get XinFin HTLC contract address.
 
         :param prefix: XinFin address prefix, default to ``xdc``.
         :type prefix: str
 
-        :returns: ChecksumAddress -- XinFin HTLC contract address.
+        :returns: str, ChecksumAddress -- XinFin HTLC contract address.
 
         >>> from swap.providers.xinfin.htlc import HTLC
         >>> htlc: HTLC = HTLC(contract_address="xdcdE06b10c67765c8C0b9F64E0eF423b45Eb86b8e7", network="testnet")

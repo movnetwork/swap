@@ -60,19 +60,19 @@ class HTLC:
             raise NetworkError(f"Invalid Ethereum '{network}' network",
                                "choose only 'mainnet', 'ropsten', 'kovan', 'rinkeby' or 'testnet' networks.")
 
-        self._contract_address: Optional[str] = None
+        self._contract_address: Optional[str, ChecksumAddress] = None
         self._network: str = network
         self._erc20: bool = erc20
 
         if contract_address:
             if not is_address(address=contract_address):
                 raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
-            self._contract_address: str = to_checksum_address(
+            self._contract_address: ChecksumAddress = to_checksum_address(
                 address=contract_address
             )
-        elif config[self._network]["contract_address"]:
-            self._contract_address: str = to_checksum_address(
-                address=config[self._network]["contract_address"]
+        elif config[self._network]["contract_addresses"]["htlc_erc20" if self._erc20 else "htlc"]:
+            self._contract_address: ChecksumAddress = to_checksum_address(
+                address=config[self._network]["contract_addresses"]["htlc_erc20" if self._erc20 else "htlc"]
             )
 
         self.agreements: Optional[dict] = None

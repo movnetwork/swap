@@ -9,7 +9,6 @@ from web3.contract import Contract
 from web3._utils.threads import Timeout
 from pyxdc.utils import decode_transaction_raw as dtr
 from hexbytes.main import HexBytes
-from ethtoken.abi import EIP20_ABI
 from eth_typing import URI
 from typing import (
     Optional, Tuple
@@ -18,6 +17,8 @@ from typing import (
 import web3 as _web3
 import requests
 import json
+import sys
+import os
 
 from ...exceptions import (
     AddressError, NetworkError, APIError
@@ -125,18 +126,30 @@ def get_xrc20_balance(address: str, token_address: str, network: str = config["n
     elif not is_address(address=token_address):
         raise AddressError(f"Invalid XinFin XRC20 token '{token_address}' address.")
 
+    # Get current working directory path (like linux or unix path).
+    cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+    with open(f"{cwd}/contracts/libs/xrc20.json", "r") as xrc20_json_file:
+        xrc20_contract_data: dict = json.loads(xrc20_json_file.read())["xrc20.sol:XRC20"]
+        xrc20_json_file.close()
+
     web3: Web3 = get_web3(network=network, provider=provider)
     xrc20_token: Contract = web3.eth.contract(
-        address=to_checksum_address(address=token_address, prefix="0x"), abi=EIP20_ABI
+        address=to_checksum_address(
+            address=token_address, prefix="0x"
+        ),
+        abi=xrc20_contract_data["abi"]
     )
-    name: str = xrc20_token.functions.name().call()
-    symbol: str = xrc20_token.functions.symbol().call()
-    decimals: int = xrc20_token.functions.decimals().call()
-    balance: int = xrc20_token.functions.balanceOf(
-        to_checksum_address(address=to_checksum_address(address=address, prefix="0x"), prefix="0x")
-    ).call()
-    balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
-    return balance, name, symbol, decimals, balance_str
+    try:
+        name:   str = xrc20_token.functions.name().call()
+        symbol: str = xrc20_token.functions.symbol().call()
+        decimals: int = xrc20_token.functions.decimals().call()
+        balance: int = xrc20_token.functions.balanceOf(
+            to_checksum_address(address=to_checksum_address(address=address, prefix="0x"), prefix="0x")
+        ).call()
+        balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
+        return balance, name, symbol, decimals, balance_str
+    except _web3.exceptions.BadFunctionCallOutput:
+        return 0, "", "", 0, ".0"
 
 
 def get_xrc20_decimals(token_address: str, network: str = config["network"], provider: str = config["provider"]) -> int:
@@ -161,9 +174,18 @@ def get_xrc20_decimals(token_address: str, network: str = config["network"], pro
     if not is_address(address=token_address):
         raise AddressError(f"Invalid XinFin XRC20 token '{token_address}' address.")
 
+    # Get current working directory path (like linux or unix path).
+    cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+    with open(f"{cwd}/contracts/libs/xrc20.json", "r") as xrc20_json_file:
+        xrc20_contract_data: dict = json.loads(xrc20_json_file.read())["xrc20.sol:XRC20"]
+        xrc20_json_file.close()
+
     web3: Web3 = get_web3(network=network, provider=provider)
     xrc20_token: Contract = web3.eth.contract(
-        address=to_checksum_address(address=token_address, prefix="0x"), abi=EIP20_ABI
+        address=to_checksum_address(
+            address=token_address, prefix="0x"
+        ),
+        abi=xrc20_contract_data["abi"]
     )
     decimals: int = xrc20_token.functions.decimals().call()
     return decimals

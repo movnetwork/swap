@@ -43,7 +43,7 @@ class Signature(Transaction):
 
     def __init__(self, network: str = config["network"], xrc20: bool = False, provider: str = config["provider"]):
         super().__init__(
-            network=network, provider=provider
+            network=network, xrc20=xrc20, provider=provider
         )
 
         self._signed_raw: Optional[str] = None
@@ -302,7 +302,7 @@ class FundSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "xinfin_fund_unsigned":
+        if loaded_transaction_raw["type"] not in ["xinfin_fund_unsigned", "xinfin_xrc20_fund_unsigned"]:
             raise TypeError(f"Invalid XinFin fund unsigned transaction raw type, "
                             f"you can't sign '{loaded_transaction_raw['type']}' type by using fund signature.")
 
@@ -391,7 +391,7 @@ class WithdrawSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "xinfin_withdraw_unsigned":
+        if loaded_transaction_raw["type"] not in ["xinfin_withdraw_unsigned", "xinfin_xrc20_withdraw_unsigned"]:
             raise TypeError(f"Invalid XinFin withdraw unsigned transaction raw type, "
                             f"you can't sign '{loaded_transaction_raw['type']}' type by using withdraw signature.")
 
@@ -480,7 +480,7 @@ class RefundSignature(Signature):
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
-        if not loaded_transaction_raw["type"] == "xinfin_refund_unsigned":
+        if loaded_transaction_raw["type"] not in ["xinfin_refund_unsigned", "xinfin_xrc20_refund_unsigned"]:
             raise TypeError(f"Invalid XinFin refund unsigned transaction raw type, "
                             f"you can't sign '{loaded_transaction_raw['type']}' type by using refund signature.")
 

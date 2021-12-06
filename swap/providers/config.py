@@ -89,7 +89,10 @@ ethereum: dict = {
             "websocket": "wss://mainnet.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": None
+        "contract_addresses": {
+            "htlc": None,
+            "htlc_xrc20": None
+        }
     },
     "ropsten": {
         "infura": {
@@ -97,7 +100,10 @@ ethereum: dict = {
             "websocket": "wss://ropsten.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": "0xE5cb615899436A490dBde26d7880A0C2502Fc676"
+        "contract_addresses": {
+            "htlc": "0xE5cb615899436A490dBde26d7880A0C2502Fc676",
+            "htlc_xrc20": None
+        }
     },
     "kovan": {
         "infura": {
@@ -105,7 +111,10 @@ ethereum: dict = {
             "websocket": "wss://kovan.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17"
+        "contract_addresses": {
+            "htlc": "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17",
+            "htlc_xrc20": None
+        }
     },
     "rinkeby": {
         "infura": {
@@ -113,7 +122,10 @@ ethereum: dict = {
             "websocket": "wss://rinkeby.infura.io/ws/v3",
             "token": "4414fea5f7454211956b1627621450b4"
         },
-        "contract_address": "0x126C40bf42b566e3513b1599f78070B3962f7114"
+        "contract_addresses": {
+            "htlc": "0x126C40bf42b566e3513b1599f78070B3962f7114",
+            "htlc_xrc20": None
+        }
     },
     "testnet": {
         "ganache-cli": {
@@ -121,7 +133,10 @@ ethereum: dict = {
             "websocket": "wss://localhost:8545",
             "token": None
         },
-        "contract_address": None
+        "contract_addresses": {
+            "htlc": None,
+            "htlc_xrc20": None
+        }
     },
     "path": "m/44'/60'/0'/0/0",
     "bip44_path": "m/44'/60'/{account}'/{change}/{address}",
@@ -186,17 +201,26 @@ xinfin: dict = {
     "mainnet": {
         "http": "https://rpc.xinfin.network",
         "websocket": "wss://ws.xinfin.network",
-        "contract_address": "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
+        "contract_addresses": {
+            "htlc": "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B",
+            "htlc_xrc20": "xdcC8E8De7999D74bdD71e1cDC00025867F34c50b89"
+        }
     },
     "apothem": {
         "http": "https://rpc.apothem.network",
         "websocket": "wss://ws.apothem.network",
-        "contract_address": "xdcDe5109BB09C1bC6dE7Ea7c856D4abf4Be99D824b"
+        "contract_addresses": {
+            "htlc": "xdcDe5109BB09C1bC6dE7Ea7c856D4abf4Be99D824b",
+            "htlc_xrc20": "xdcC8E8De7999D74bdD71e1cDC00025867F34c50b89"
+        }
     },
     "testnet": {
         "http": "http://localhost:8545",
         "websocket": "wss://localhost:8545",
-        "contract_address": None
+        "contract_addresses": {
+            "htlc": None,
+            "htlc_xrc20": None
+        }
     },
     "path": "m/44'/550'/0'/0/0",
     "bip44_path": "m/44'/550'/{account}'/{change}/{address}",

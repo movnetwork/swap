@@ -15,6 +15,9 @@ from typing import (
 )
 
 import web3 as _web3
+import json
+import sys
+import os
 
 from ...exceptions import (
     AddressError, NetworkError
@@ -139,18 +142,28 @@ def get_erc20_balance(address: str, token_address: str, network: str = config["n
     elif not is_address(address=token_address):
         raise AddressError(f"Invalid Ethereum ERC20 token '{token_address}' address.")
 
+    # Get current working directory path (like linux or unix path).
+    cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+    with open(f"{cwd}/contracts/libs/erc20.json", "r") as erc20_json_file:
+        erc20_contract_data: dict = json.loads(erc20_json_file.read())["erc20.sol:ERC20"]
+        erc20_json_file.close()
+
     web3: Web3 = get_web3(network=network, provider=provider, token=token)
     erc20_token: Contract = web3.eth.contract(
-        address=to_checksum_address(address=token_address), abi=EIP20_ABI
+        address=to_checksum_address(address=token_address),
+        abi=erc20_contract_data["abi"]
     )
-    name: str = erc20_token.functions.name().call()
-    symbol: str = erc20_token.functions.symbol().call()
-    decimals: int = erc20_token.functions.decimals().call()
-    balance: int = erc20_token.functions.balanceOf(
-        to_checksum_address(address=to_checksum_address(address=address))
-    ).call()
-    balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
-    return balance, name, symbol, decimals, balance_str
+    try:
+        name: str = erc20_token.functions.name().call()
+        symbol: str = erc20_token.functions.symbol().call()
+        decimals: int = erc20_token.functions.decimals().call()
+        balance: int = erc20_token.functions.balanceOf(
+            to_checksum_address(address=to_checksum_address(address=address))
+        ).call()
+        balance_str: str = str(balance)[:-decimals] + "." + str(balance)[-decimals:]
+        return balance, name, symbol, decimals, balance_str
+    except _web3.exceptions.BadFunctionCallOutput:
+        return 0, "", "", 0, ".0"
 
 
 def get_erc20_decimals(token_address: str, network: str = config["network"],
@@ -178,9 +191,16 @@ def get_erc20_decimals(token_address: str, network: str = config["network"],
     if not is_address(address=token_address):
         raise AddressError(f"Invalid Ethereum ERC20 token '{token_address}' address.")
 
+    # Get current working directory path (like linux or unix path).
+    cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+    with open(f"{cwd}/contracts/libs/erc20.json", "r") as erc20_json_file:
+        erc20_contract_data: dict = json.loads(erc20_json_file.read())["erc20.sol:ERC20"]
+        erc20_json_file.close()
+
     web3: Web3 = get_web3(network=network, provider=provider, token=token)
     erc20_token: Contract = web3.eth.contract(
-        address=to_checksum_address(address=token_address), abi=EIP20_ABI
+        address=to_checksum_address(address=token_address),
+        abi=erc20_contract_data["abi"]
     )
     decimals: int = erc20_token.functions.decimals().call()
     return decimals

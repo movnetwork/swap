@@ -299,7 +299,7 @@ class FundTransaction(Transaction):
         ) if not self._xrc20 else amount
 
         htlc_contract: Contract = self.web3.eth.contract(
-            address=self.web3.toChecksumAddress(htlc.contract_address(prefix="0x")), abi=htlc.abi()
+            address=htlc.contract_address(prefix="0x"), abi=htlc.abi()
         )
 
         if self._xrc20:
