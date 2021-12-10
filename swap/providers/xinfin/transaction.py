@@ -444,7 +444,7 @@ class WithdrawTransaction(Transaction):
             transaction_hash=transaction_hash, network=self._network
         )).__attribute_dict__()
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
-            log=transaction_receipt["logs"][2]
+            log=transaction_receipt["logs"][2 if self._xrc20 else 0]
         )
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
@@ -572,7 +572,7 @@ class RefundTransaction(Transaction):
             transaction_hash=transaction_hash, network=self._network
         )).__attribute_dict__()
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
-            log=transaction_receipt["logs"][2]
+            log=transaction_receipt["logs"][2 if self._xrc20 else 0]
         )
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]

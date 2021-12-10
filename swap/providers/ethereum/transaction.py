@@ -449,7 +449,7 @@ class WithdrawTransaction(Transaction):
 
         transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
-            log=transaction_receipt["logs"][2]
+            log=transaction_receipt["logs"][2 if self._erc20 else 0]
         )
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
@@ -578,7 +578,7 @@ class RefundTransaction(Transaction):
 
         transaction_receipt: AttributeDict = self.web3.eth.get_transaction_receipt(transaction_hash)
         log_fund: AttributeDict = htlc_contract.events.log_fund().processLog(
-            log=transaction_receipt["logs"][2]
+            log=transaction_receipt["logs"][2 if self._erc20 else 0]
         )
 
         locked_contract_id: str = log_fund["args"]["locked_contract_id"]
