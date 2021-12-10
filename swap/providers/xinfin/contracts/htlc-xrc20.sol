@@ -5,13 +5,13 @@ pragma solidity ^0.8.10;
 import "./libs/xrc20.sol";
 
 /**
- * @title Hash Time Lock Contract (HTLC) XRC20.
+ * @title Hash Time Lock Contract (HTLC) XRC20
  *
  * @author Meheret Tesfaye Batu <meherett@zoho.com>
  *
  * HTLC -> A Hash Time Lock Contract is essentially a type of payment in which two people
  * agree to a financial arrangement where one party will pay the other party a certain amount
- * of cryptocurrencies, such as Bitcoin or Ethereum assets.
+ * of cryptocurrencies, such as Bitcoin or XinFin assets.
  * However, because these contracts are Time-Locked, the receiving party only has a certain
  * amount of time to accept the payment, otherwise the money can be returned to the sender.
  *

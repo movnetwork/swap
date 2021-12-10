@@ -5,7 +5,7 @@ pragma solidity ^0.8.10;
 import "./libs/erc20.sol";
 
 /**
- * @title Hash Time Lock Contract (HTLC) ERC20.
+ * @title Hash Time Lock Contract (HTLC) ERC20
  *
  * @author Meheret Tesfaye Batu <meherett@zoho.com>
  *
