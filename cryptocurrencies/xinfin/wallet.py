@@ -19,6 +19,8 @@ LENGTH: int = 32  # Default is 32
 ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
 PASSPHRASE: str = generate_passphrase(length=LENGTH)
+# XinFin XRC20 token address
+TOKEN_ADDRESS: str = "xdc66C65B18bb5E528a127dCfb7E36a54e3db893733"
 
 # Initialize XinFin wallet
 wallet: Wallet = Wallet(network=NETWORK)
@@ -51,3 +53,4 @@ print("Finger Print:", wallet.finger_print())
 print("Path:", wallet.path())
 print("Address:", wallet.address())
 print("Balance:", wallet.balance(unit="XDC"), "XDC")
+print("XRC20 Balance:", wallet.xrc20_balance(token_address=TOKEN_ADDRESS))

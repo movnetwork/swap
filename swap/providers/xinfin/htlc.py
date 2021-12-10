@@ -64,7 +64,7 @@ class HTLC:
 
         if contract_address:
             if not is_address(address=contract_address):
-                raise AddressError(f"Invalid Ethereum HTLC contract '{contract_address}' address.")
+                raise AddressError(f"Invalid XinFin HTLC contract '{contract_address}' address.")
             self._contract_address: ChecksumAddress = to_checksum_address(
                 address=contract_address, prefix="0x"
             )

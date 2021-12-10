@@ -12,7 +12,7 @@ NETWORK: str = "apothem"
 # Deploy new XinFin HTLC XRC20 protocol
 XRC20: bool = True
 # XinFin private key
-PRIVATE_KEY: str = "8a4bc8131e99a5d1064cdbca6949aa2ec16152967b19f2cee3096daefd5ca857"
+PRIVATE_KEY: str = "..."
 
 print("=" * 10, "Deploy new HTLC XRC20 Contract from XinFin Account")
 

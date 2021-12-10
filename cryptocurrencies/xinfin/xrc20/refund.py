@@ -108,6 +108,6 @@ print("XRC20 Refund Signature Transaction Raw:", signed_refund_signature_transac
 assert signed_refund_transaction_raw == signed_refund_signature_transaction_raw
 
 # Submit XRC20 refund transaction raw
-print("\nSubmitted XRC20 Refund Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_refund_transaction_raw  # Or signed_refund_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted XRC20 Refund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_refund_transaction_raw  # Or signed_refund_signature_transaction_raw
+# ), indent=4))

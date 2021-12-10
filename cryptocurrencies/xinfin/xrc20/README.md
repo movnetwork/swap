@@ -67,7 +67,7 @@ Options:
 
 **Contract Address** _(str)_ -> xdc4C909fdd6c30f5B4c4d48938C161637B2767d714 **[required]**<br/>
 **Network** _(str)_ -> apothem **[default: `mainnet`]**<br/>
-**XRC20** _(bool)_ -> True **[default: `True`]**<br/>
+**XRC20** _(bool)_ -> True **[default: `False`]**<br/>
 
 > **Returns** _(dict)_ -> XinFin Hash Time Lock Contract (HTLC) bytecode and contract address.
 

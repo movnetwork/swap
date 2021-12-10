@@ -11,11 +11,11 @@ from swap.providers.xinfin.utils import submit_transaction_raw
 import json
 
 # Choose network mainnet, apothem or testnet
-NETWORK: str = "mainnet"
+NETWORK: str = "apothem"
 # XinFin HTLC contract address
-CONTRACT_ADDRESS: str = "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
+CONTRACT_ADDRESS: str = "xdc959c04329fa6B45d0250A2315673e4F952218BdE"
 # XinFin funded transaction hash/id
-TRANSACTION_HASH: str = "0x0cfc885274ad38ff880f0c682e5ccae7f5101d5209f5599b41645612bafaa56a"
+TRANSACTION_HASH: str = "0x6106b658d80d23235d113f52f26f54d3ba632ac11530e5e716a1a04a3177b9b7"
 # XinFin sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 

@@ -111,6 +111,6 @@ print("XRC20 Withdraw Signature Transaction Raw:", signed_withdraw_signature_tra
 assert signed_withdraw_transaction_raw == signed_withdraw_signature_transaction_raw
 
 # Submit XRC20 withdraw transaction raw
-print("\nSubmitted XRC20 Withdraw Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_withdraw_transaction_raw  # Or signed_withdraw_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted XRC20 Withdraw Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_withdraw_transaction_raw  # Or signed_withdraw_signature_transaction_raw
+# ), indent=4))

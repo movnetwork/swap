@@ -8,11 +8,11 @@ from swap.providers.xinfin.rpc import (
 )
 
 # Choose network mainnet, apothem or testnet
-NETWORK: str = "mainnet"
+NETWORK: str = "apothem"
 # XinFin private key
 PRIVATE_KEY: str = "..."
 
-print("=" * 10, "Deploy HTLC from XinFin Account")
+print("=" * 10, "Deploy new HTLC Contract from XinFin Account")
 
 # Initialize XinFin wallet
 wallet: Wallet = Wallet(network=NETWORK)

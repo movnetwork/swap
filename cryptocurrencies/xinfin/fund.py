@@ -17,9 +17,9 @@ from swap.utils import (
 import json
 
 # Choose network mainnet, apothem or testnet
-NETWORK: str = "mainnet"
+NETWORK: str = "apothem"
 # XinFin HTLC contract address
-CONTRACT_ADDRESS: str = "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
+CONTRACT_ADDRESS: str = "xdc959c04329fa6B45d0250A2315673e4F952218BdE"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # XinFin sender wallet mnemonic
@@ -29,7 +29,7 @@ RECIPIENT_ADDRESS: str = "xdcf8D43806260CFc6cC79fB408BA1897054667F81C"
 # Expiration block timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # XinFin fund amount
-AMOUNT: int = amount_unit_converter(1, "XDC2Wei")
+AMOUNT: int = amount_unit_converter(25, "XDC2Wei")
 
 print("=" * 10, "Sender XinFin Account")
 

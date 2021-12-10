@@ -142,6 +142,6 @@ print("XRC20 Fund Signature Transaction Raw:", signed_fund_signature_transaction
 assert signed_fund_transaction_raw == signed_fund_signature_transaction_raw
 
 # Submit XRC20 fund transaction raw
-print("\nSubmitted XRC20 Fund Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted XRC20 Fund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
+# ), indent=4))
