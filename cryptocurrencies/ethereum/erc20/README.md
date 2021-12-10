@@ -132,7 +132,6 @@ Options:
 **Sender Address** _(str)_ -> 0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C **[required]**<br/>
 **Endtime** _(int)_ -> 36000 **[required]**<br/>
 **Amount** _(int, float)_ -> 0.1 **[required]**<br/>
-**Unit** _(str)_ -> Ether **[default: `Wei`]**<br/>
 **Contract Address** _(str)_ -> 0xf1903D56b808c6480550F4972d250e1B3e968193 **[required]**<br/>
 **Token Address** _(str)_ -> 0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40 **[required]**<br/>
 **Network** _(str)_ -> testnet **[default: `mainnet`]**<br/>

@@ -17,7 +17,7 @@ ERC20: bool = True
 # Ethereum HTLC ERC20 contract address
 CONTRACT_ADDRESS: str = "0xf1903D56b808c6480550F4972d250e1B3e968193"
 # Ethereum HTLC ERC20 funded transaction hash/id
-TRANSACTION_HASH: str = "0xf840fd02697aa3d1a991d66efae74c41f0dd6d29892df985b2bbbb157c3bb8df"
+TRANSACTION_HASH: str = "0x1bfa55975dedf774be7511535181abcf52b594aa76363af4b1483f5490046919"
 # Ethereum recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Ethereum ERC20 token address
@@ -89,8 +89,8 @@ print("Signed ERC20 Withdraw Transaction Raw:", signed_withdraw_transaction_raw)
 
 print("=" * 10, "ERC20 Withdraw Signature")
 
-# Initialize withdraw signature
-withdraw_signature: WithdrawSignature = WithdrawSignature(network=NETWORK)
+# Initialize ERC20 withdraw signature
+withdraw_signature: WithdrawSignature = WithdrawSignature(network=NETWORK, erc20=ERC20)
 # Sign unsigned ERC20 withdraw transaction raw
 withdraw_signature.sign(
     transaction_raw=unsigned_withdraw_transaction_raw,

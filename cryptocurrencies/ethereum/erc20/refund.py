@@ -86,8 +86,8 @@ print("Signed ERC20 Refund Transaction Raw:", signed_refund_transaction_raw)
 
 print("=" * 10, "ERC20 Refund Signature")
 
-# Initialize refund signature
-refund_signature: RefundSignature = RefundSignature(network=NETWORK)
+# Initialize ERC20 refund signature
+refund_signature: RefundSignature = RefundSignature(network=NETWORK, erc20=ERC20)
 # Sign unsigned ERC20 refund transaction raw
 refund_signature.sign(
     transaction_raw=unsigned_refund_transaction_raw,

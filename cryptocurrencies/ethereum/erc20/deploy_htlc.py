@@ -9,7 +9,7 @@ from swap.providers.ethereum.rpc import (
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "testnet"
-# Deploy Ethereum HTLC ERC20
+# Deploy new Ethereum HTLC ERC20 protocol.
 ERC20: bool = True
 # Ethereum private key
 PRIVATE_KEY: str = "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"

@@ -32,7 +32,7 @@ ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # XinFin XRC20 token address
 TOKEN_ADDRESS: str = "xdcd66dA17A97a91445A2B89805e9fa4B0ff649BF49"
 # XinFin XRC20 token fund amount
-AMOUNT: int = 15 * (10 ** get_xrc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
+AMOUNT: int = 25 * (10 ** get_xrc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
 
 print("=" * 10, "Sender XinFin Account")
 

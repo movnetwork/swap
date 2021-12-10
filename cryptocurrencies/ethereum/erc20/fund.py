@@ -32,7 +32,7 @@ ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # Ethereum ERC20 token address
 TOKEN_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
 # Ethereum ERC20 token fund amount
-AMOUNT: int = 5 * (10 ** get_erc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
+AMOUNT: int = 25 * (10 ** get_erc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
 
 print("=" * 10, "Sender Ethereum Account")
 
@@ -96,6 +96,8 @@ print("Unsigned ERC20 Fund Transaction Type:", unsigned_fund_transaction.type())
 
 unsigned_fund_transaction_raw: str = unsigned_fund_transaction.transaction_raw()
 print("Unsigned ERC20 Fund Transaction Raw:", unsigned_fund_transaction_raw)
+
+exit()
 
 print("=" * 10, "Signed ERC20 Fund Transaction")
 
