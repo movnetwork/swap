@@ -307,7 +307,7 @@ class HTLC:
 
         # Check parameter instances
         if self._xrc20 and not token_address:
-            raise AddressError(f"XinFin XRC20 token address is required for HTLC ERC20 contract.")
+            raise AddressError(f"XinFin XRC20 token address is required for HTLC XRC20 contract.")
         if self._xrc20 and not is_address(token_address):
             raise AddressError(f"Invalid XinFin XRC20 token '{token_address}' address.")
         if not self._contract_address:

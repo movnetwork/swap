@@ -211,7 +211,7 @@ xinfin: dict = {
         "websocket": "wss://ws.apothem.network",
         "contract_addresses": {
             "htlc": "xdcDe5109BB09C1bC6dE7Ea7c856D4abf4Be99D824b",
-            "htlc_xrc20": "xdcC8E8De7999D74bdD71e1cDC00025867F34c50b89"
+            "htlc_xrc20": "xdc4C909fdd6c30f5B4c4d48938C161637B2767d714"
         }
     },
     "testnet": {
