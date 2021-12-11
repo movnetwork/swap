@@ -23,11 +23,11 @@ def get_balance(address: str, network: str = config["network"],
 
     :param address: Bitcoin address.
     :type address: str
-    :param network: Bitcoin network, defaults to mainnet.
+    :param network: Bitcoin network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: int -- Bitcoin balance (Satoshi amount).
@@ -58,15 +58,15 @@ def get_utxos(address: str, network: str = config["network"], include_script: bo
 
     :param address: Bitcoin address.
     :type address: str
-    :param network: Bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to ``mainnet``.
     :type network: str
-    :param include_script: Bitcoin include script, defaults to True.
+    :param include_script: Bitcoin include script, defaults to ``True``.
     :type include_script: bool
-    :param limit: Bitcoin utxo's limit, defaults to 15.
+    :param limit: Bitcoin utxo's limit, defaults to ``15``.
     :type limit: int
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
     :returns: list -- Bitcoin unspent transaction outputs (UTXO's).
 
@@ -101,11 +101,11 @@ def get_transaction(transaction_hash: str, network: str = config["network"],
 
     :param transaction_hash: Bitcoin transaction hash/id.
     :type transaction_hash: str
-    :param network: Bitcoin network, defaults to testnet.
+    :param network: Bitcoin network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Bitcoin transaction detail.
@@ -158,13 +158,13 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
 
     :param raw: Bitcoin transaction raw.
     :type raw: str
-    :param network: Bitcoin network, defaults to mainnet.
+    :param network: Bitcoin network, defaults to ``mainnet``.
     :type network: str
-    :param offline: Offline decode, defaults to True.
+    :param offline: Offline decode, defaults to ``True``.
     :type offline: bool
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Bitcoin decoded transaction raw.
@@ -193,20 +193,20 @@ def decode_raw(raw: str, network: str = config["network"], offline: bool = True,
     return response_json
 
 
-def submit_raw(raw: str, network: str = config["network"], endpoint: str = "smartbit",
+def submit_raw(raw: str, network: str = config["network"], endpoint: str = "sochain",
                headers: dict = config["headers"], timeout: int = config["timeout"]) -> str:
     """
     Submit original Bitcoin raw into blockchain.
 
     :param raw: Bitcoin transaction raw.
     :type raw: str
-    :param network: Bitcoin network, defaults to mainnet.
+    :param network: Bitcoin network, defaults to ``mainnet``.
     :type network: str
-    :param endpoint: Bitcoin transaction submiter endpoint api name, defaults to smartbit.
+    :param endpoint: Bitcoin transaction submiter endpoint api name, defaults to ``sochain``.
     :type endpoint: str
-    :param headers: Request headers, default to common headers.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
-    :param timeout: Request timeout, default to 60.
+    :param timeout: Request timeout, default to ``60``.
     :type timeout: int
 
     :returns: dict -- Bitcoin submitted transaction id/hash.

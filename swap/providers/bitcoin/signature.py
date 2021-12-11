@@ -21,7 +21,7 @@ from ...exceptions import (
 )
 from ..config import bitcoin as config
 from .solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from .utils import (
     is_transaction_raw, is_network, amount_unit_converter
@@ -167,17 +167,17 @@ class Signature:
             raise ValueError("Type is none, sign unsigned transaction raw first.")
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, WithdrawSolver, RefundSolver]) \
-            -> Union["FundSignature", "WithdrawSignature", "RefundSignature"]:
+    def sign(self, transaction_raw: str, solver: Union[NormalSolver, FundSolver, WithdrawSolver, RefundSolver]) \
+            -> Union["NormalSignature", "FundSignature", "WithdrawSignature", "RefundSignature"]:
         """
         Sign unsigned transaction raw.
 
         :param transaction_raw: Bitcoin unsigned transaction raw.
         :type transaction_raw: str
         :param solver: Bitcoin solver
-        :type solver: bitcoin.solver.FundSolver, bitcoin.solver.WithdrawSolver, bitcoin.solver.RefundSolver
+        :type solver: bitcoin.solver.NormalSolver, bitcoin.solver.FundSolver, bitcoin.solver.WithdrawSolver, bitcoin.solver.RefundSolver
 
-        :returns: FundSignature, WithdrawSignature, RefundSignature -- Bitcoin signature instance.
+        :returns: NormalSignature, FundSignature, WithdrawSignature, RefundSignature -- Bitcoin signature instance.
 
         >>> from swap.providers.bitcoin.signature import Signature
         >>> from swap.providers.bitcoin.solver import FundSolver
@@ -196,7 +196,13 @@ class Signature:
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
         self._type = loaded_transaction_raw["type"]
-        if loaded_transaction_raw["type"] == "bitcoin_fund_unsigned":
+        if loaded_transaction_raw["type"] == "bitcoin_normal_unsigned":
+            return NormalSignature(
+                network=self._network, version=self._version
+            ).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "bitcoin_fund_unsigned":
             return FundSignature(
                 network=self._network, version=self._version
             ).sign(
@@ -236,13 +242,97 @@ class Signature:
         return clean_transaction_raw(self._signed_raw)
 
 
+class NormalSignature(Signature):
+    """
+    Bitcoin Normal signature.
+
+    :param network: Bitcoin network, defaults to ``mainnet``.
+    :type network: str
+    :param version: Bitcoin transaction version, defaults to ``2``.
+    :type version: int
+
+    :returns: NormalSignature -- Bitcoin normal signature instance.
+    """
+
+    def __init__(self, network: str = config["network"], version: int = config["version"]):
+        super().__init__(network=network, version=version)
+
+    def sign(self, transaction_raw: str, solver: NormalSolver) -> "NormalSignature":
+        """
+        Sign unsigned normal transaction raw.
+
+        :param transaction_raw: Bitcoin unsigned normal transaction raw.
+        :type transaction_raw: str
+        :param solver: Bitcoin normal solver.
+        :type solver: bitcoin.solver.NormalSolver
+
+        :returns: NormalSignature -- Bitcoin normal signature instance.
+
+        >>> from swap.providers.bitcoin.signature import NormalSignature
+        >>> from swap.providers.bitcoin.solver import NormalSolver
+        >>> unsigned_normal_transaction_raw = "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTA4MjVlMDBiYTU5NmFiMTExMjZjZDg5MjAzYjg4MmJjZTYwYTdkYjAxOWU1MTIxNzA1NmM0NzFmNTEwY2ZkODUwMDAwMDAwMDAwZmZmZmZmZmYwMjEwMjcwMDAwMDAwMDAwMDAxN2E5MTQ0Njk1MTI3YjFkMTdjNDU0ZjRiYWU5YzQxY2I4ZTNjZGI1ZTg5ZDI0ODdlYTVjMDEwMDAwMDAwMDAwMTk3NmE5MTQzM2VjYWIzZDY3ZjBlMmJkZTQzZTUyZjQxZWMxZWNiZGM3M2YxMWY4ODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJ2YWx1ZSI6IDEwMDAwMCwgInR4X291dHB1dF9uIjogMCwgInNjcmlwdCI6ICI3NmE5MTQzM2VjYWIzZDY3ZjBlMmJkZTQzZTUyZjQxZWMxZWNiZGM3M2YxMWY4ODhhYyJ9XSwgIm5ldHdvcmsiOiAidGVzdG5ldCIsICJ0eXBlIjogImJpdGNvaW5fZnVuZF91bnNpZ25lZCJ9"
+        >>> normal_solver: NormalSolver = NormalSolver(xprivate_key="tprv8ZgxMBicQKsPeMHMJAc6uWGYiGqi1MVM2ybmzXL2TAoDpQe85uyDpdT7mv7Nhdu5rTCBEKLZsd9KyP2LQZJzZTvgVQvENArgU8e6DoYBiXf")
+        >>> normal_signature: NormalSignature = NormalSignature(network="testnet")
+        >>> normal_signature.sign(transaction_raw=unsigned_normal_transaction_raw, solver=normal_solver)
+        <swap.providers.bitcoin.signature.NormalSignature object at 0x0409DAF0>
+        """
+
+        if not is_transaction_raw(transaction_raw=transaction_raw):
+            raise TransactionRawError("Invalid Bitcoin unsigned transaction raw.")
+
+        transaction_raw = clean_transaction_raw(transaction_raw)
+        decoded_transaction_raw = b64decode(transaction_raw.encode())
+        loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+
+        if not loaded_transaction_raw["type"] == "bitcoin_normal_unsigned":
+            raise TypeError(f"Invalid Bitcoin normal unsigned transaction raw type, "
+                            f"you can't sign {loaded_transaction_raw['type']} type by using normal signature.")
+
+        # Check parameter instances
+        if not isinstance(solver, NormalSolver):
+            raise TypeError(f"Solver must be Bitcoin NormalSolver, not {type(solver).__name__} type.")
+
+        # Set transaction fee, type, network and transaction
+        self._fee, self._type, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+            loaded_transaction_raw["network"], MutableTransaction.unhexlify(loaded_transaction_raw["raw"])
+        )
+
+        # Organize outputs
+        outputs = []
+        for output in loaded_transaction_raw["outputs"]:
+            outputs.append(TxOut(
+                value=output["value"],
+                n=output["tx_output_n"],
+                script_pubkey=Script.unhexlify(
+                    hex_string=output["script"]
+                )
+            ))
+
+        # Sign normal transaction
+        self._transaction.spend(
+            txouts=outputs,
+            solvers=[solver.solve(network=self._network) for _ in outputs]
+        )
+
+        # Encode normal transaction raw
+        self._type = "bitcoin_normal_signed"
+        self._signed_raw = b64encode(str(json.dumps(dict(
+            raw=self._transaction.hexlify(),
+            fee=self._fee,
+            network=self._network,
+            type=self._type
+        ))).encode()).decode()
+        return self
+
+
 class FundSignature(Signature):
     """
     Bitcoin Fund signature.
 
-    :param network: Bitcoin network, defaults to mainnet.
+    :param network: Bitcoin network, defaults to ``mainnet``.
     :type network: str
-    :param version: Bitcoin transaction version, defaults to 2.
+    :param version: Bitcoin transaction version, defaults to ``2``.
     :type version: int
 
     :returns: FundSignature -- Bitcoin fund signature instance.

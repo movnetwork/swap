@@ -123,7 +123,7 @@ class Wallet(HDWallet):
         self._hdwallet.from_seed(seed=seed)
         return self
 
-    def from_root_xprivate_key(self, xprivate_key: str, strict: bool = True) -> "Wallet":
+    def from_xprivate_key(self, xprivate_key: str, strict: bool = True) -> "Wallet":
         """
         Master from Root XPrivate Key.
 
@@ -140,10 +140,10 @@ class Wallet(HDWallet):
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_root_xprivate_key(xprivate_key=xprivate_key, strict=strict)
+        self._hdwallet.from_xprivate_key(xprivate_key=xprivate_key, strict=strict)
         return self
 
-    def from_root_xpublic_key(self, xpublic_key: str, strict: bool = True) -> "Wallet":
+    def from_xpublic_key(self, xpublic_key: str, strict: bool = True) -> "Wallet":
         """
         Master from Root XPublic Key.
 
@@ -156,47 +156,11 @@ class Wallet(HDWallet):
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_root_xpublic_key(xpublic_key="tpubD6NzVbkrYhZ4XpK9BpGhJuvfHJMeAggFcHCZH3NKsSbcetttiJnp184yx2cp2uJyapPQLt7LGTLUZvnKWbdgKBkvnfYjab9sH4wBmEpTZhJ")
+        >>> wallet.from_xpublic_key(xpublic_key="tpubD6NzVbkrYhZ4XpK9BpGhJuvfHJMeAggFcHCZH3NKsSbcetttiJnp184yx2cp2uJyapPQLt7LGTLUZvnKWbdgKBkvnfYjab9sH4wBmEpTZhJ")
         <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_root_xpublic_key(xpublic_key=xpublic_key, strict=strict)
-        return self
-
-    def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
-        """
-        Initialize wallet from root xprivate key.
-
-        :param xprivate_key: Bitcoin root xprivate key.
-        :type xprivate_key: str
-
-        :returns: Wallet -- Bitcoin instance.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_xprivate_key(xprivate_key="tprv8kqWVfMdSgo9WhUAxbmL6GNW4ivePvEZBu8QiiRfMXbVDgnHx16vndnAsv7Uds4iFvjMpdJiB6q6hhh753fRb89XFjHGjYJ8BsMZGv3RTKz")
-        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
-        """
-
-        self._hdwallet.from_xprivate_key(xprivate_key=xprivate_key)
-        return self
-
-    def from_xpublic_key(self, xpublic_key: str) -> "Wallet":
-        """
-        Initialize wallet from XPrivate key.
-
-        :param xpublic_key: Bitcoin XPrivate key.
-        :type xpublic_key: str
-
-        :returns: Wallet -- Bitcoin instance.
-
-        >>> from swap.providers.bitcoin.wallet import Wallet
-        >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_xprivate_key(xprivate_key="tpubDHXYe5Psb4UpQAVxrFRvVg2cdkSaZFRTmCjC1ETxmoPt4B34aPvWy8Q343tUsTaCQCiSJVpzgyP1NQ3mffY7oF6u6cJ6Csx3AhgFFLVoUBu")
-        <swap.providers.bitcoin.wallet.Wallet object at 0x040DA268>
-        """
-
-        self._hdwallet.from_xpublic_key(xpublic_key=xpublic_key)
+        self._hdwallet.from_xpublic_key(xpublic_key=xpublic_key, strict=strict)
         return self
 
     def from_wif(self, wif: str) -> "Wallet":

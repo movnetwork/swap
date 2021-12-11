@@ -40,6 +40,7 @@ print("Public Key:", recipient_wallet.public_key())
 print("Path:", recipient_wallet.path())
 print("Address:", recipient_wallet.address())
 print("Balance:", recipient_wallet.balance(unit="BTC"), "BTC")
+print("UTXO's:", recipient_wallet.utxos())
 
 print("=" * 10, "Unsigned Withdraw Transaction")
 
@@ -94,7 +95,7 @@ withdraw_signature.sign(
 print("Withdraw Signature Fee:", withdraw_signature.fee(unit="Satoshi"), "Satoshi")
 print("Withdraw Signature Hash:", withdraw_signature.hash())
 print("Withdraw Signature Main Raw:", withdraw_signature.raw())
-# print("Withdraw Signature Json:", json.dumps(withdraw_signature.json(), indent=4))
+print("Withdraw Signature Json:", json.dumps(withdraw_signature.json(), indent=4))
 print("Withdraw Signature Type:", withdraw_signature.type())
 
 signed_withdraw_signature_transaction_raw: str = withdraw_signature.transaction_raw()

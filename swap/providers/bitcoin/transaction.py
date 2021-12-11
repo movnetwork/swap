@@ -26,7 +26,7 @@ from .utils import (
     _build_inputs, _build_outputs, get_address_hash, amount_unit_converter
 )
 from .solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from .rpc import (
     get_transaction, get_utxos, find_p2sh_utxo
@@ -166,6 +166,192 @@ class Transaction:
         return self._datas
 
 
+class NormalTransaction(Transaction):
+    """
+    Bitcoin Normal transaction.
+
+    :param network: Bitcoin network, defaults to ``mainnet``.
+    :type network: str
+    :param version: Bitcoin transaction version, defaults to ``2``.
+    :type version: int
+
+    :returns: NormalTransaction -- Bitcoin normal transaction instance.
+
+    .. warning::
+        Do not forget to build transaction after initialize normal transaction.
+    """
+
+    def __init__(self, network: str = config["network"], version: int = config["version"]):
+        super().__init__(network=network, version=version)
+
+        self._utxos: Optional[list] = None
+        self._previous_transaction_indexes: Optional[list] = None
+        self._interest: Optional[int] = None
+
+    def build_transaction(self, address: str, recipients: dict, unit: str = config["unit"],
+                          locktime: int = config["locktime"]) -> "NormalTransaction":
+        """
+        Build Bitcoin normal transaction.
+
+        :param address: Bitcoin sender address.
+        :type address: str
+        :param recipients: Recipients Bitcoin address and amount.
+        :type recipients: dict
+        :param unit: Bitcoin unit, default to ``Satoshi``.
+        :type unit: str
+        :param locktime: Bitcoin transaction lock time, defaults to ``0``.
+        :type locktime: int
+
+        :returns: NormalTransaction -- Bitcoin normal transaction instance.
+
+        >>> from swap.providers.bitcoin.transaction import NormalTransaction
+        >>> normal_transaction: NormalTransaction = NormalTransaction(network="testnet")
+        >>> normal_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", recipients={"2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae": 10000000}, locktime=0)
+        <swap.providers.bitcoin.transaction.NormalTransaction object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not is_address(address, self._network):
+            raise AddressError(f"Invalid Bitcoin sender '{address}' {self._network} address.")
+        if unit not in ["BTC", "mBTC", "Satoshi"]:
+            raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'Satoshi' units.")
+
+        self._address, outputs, self._amount = (
+            address, [], (
+                sum(recipients.values()) if unit == "Satoshi" else
+                amount_unit_converter(
+                    amount=sum(recipients.values()), unit_from=f"{unit}2Satoshi"
+                )
+            )
+        )
+        # Get Sender UTXO's
+        self._utxos = get_utxos(
+            address=self._address, network=self._network
+        )
+        # Outputs action
+        for _address, _amount in recipients.items():
+            if not is_address(_address, self._network):
+                raise AddressError(f"Invalid Bitcoin recipients '{_address}' {self._network} address.")
+            outputs.append(TxOut(
+                value=int(_amount), n=len(outputs),
+                script_pubkey=get_address_hash(
+                    address=_address, script=True
+                )
+            ))
+        # Get previous transaction indexes
+        self._previous_transaction_indexes, max_amount = _get_previous_transaction_indexes(
+            utxos=self._utxos, amount=self._amount, transaction_output=len(outputs)
+        )
+        # Build transaction inputs
+        inputs, amount = _build_inputs(
+            utxos=self._utxos, previous_transaction_indexes=self._previous_transaction_indexes
+        )
+        # Calculate the fee
+        self._fee = fee_calculator(len(inputs), len(outputs))
+
+        if amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's", "you don't have enough amount."
+            )
+        elif amount < (self._amount + self._fee):
+            raise BalanceError(
+                f"You don't have enough amount to pay '{self._fee}' Satoshi fee",
+                f"you can spend maximum '{amount - self._fee}' Satoshi amount."
+            )
+
+        return_amount: int = int(amount - (self._amount + self._fee))
+        if return_amount != 0:
+            outputs.append(TxOut(
+                value=return_amount, n=len(outputs),
+                script_pubkey=get_address_hash(
+                    address=self._address, script=True
+                )
+            ))
+
+        # Build mutable transaction
+        self._transaction = MutableTransaction(
+            version=self._version, ins=inputs, outs=outputs, locktime=Locktime(locktime)
+        )
+        # Set transaction type
+        self._type = "bitcoin_normal_unsigned"
+        return self
+
+    def sign(self, solver: NormalSolver) -> "NormalTransaction":
+        """
+        Sign Bitcoin normal transaction.
+
+        :param solver: Bitcoin normal solver.
+        :type solver: bitcoin.solver.NormalSolver
+
+        :returns: NormalTransaction -- Bitcoin normal transaction instance.
+
+        >>> from swap.providers.bitcoin.transaction import NormalTransaction
+        >>> from swap.providers.bitcoin.solver import NormalSolver
+        >>> from swap.providers.bitcoin.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet: Wallet = Wallet(network="testnet").from_entropy(entropy="72fee73846f2d1a5807dc8c953bf79f1").from_path(path=DEFAULT_PATH)
+        >>> normal_solver: NormalSolver = NormalSolver(xprivate_key=sender_wallet.root_xprivate_key())
+        >>> normal_transaction: NormalTransaction = NormalTransaction(network="testnet").build_transaction(address=sender_wallet.address(), recipients={"2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae": 10000000})
+        >>> normal_transaction.sign(solver=normal_solver)
+        <swap.providers.bitcoin.transaction.NormalTransaction object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not isinstance(solver, NormalSolver):
+            raise TypeError(f"Solver must be Bitcoin NormalSolver, not {type(solver).__name__} type.")
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
+
+        # Organize outputs
+        outputs = _build_outputs(
+            utxos=self._utxos, previous_transaction_indexes=self._previous_transaction_indexes
+        )
+        # Sign normal transaction
+        self._transaction.spend(
+            txouts=outputs,
+            solvers=[solver.solve(network=self._network) for _ in outputs]
+        )
+        # Set transaction type
+        self._type = "bitcoin_normal_signed"
+        return self
+
+    def transaction_raw(self) -> str:
+        """
+        Get Bitcoin normal transaction raw.
+
+        :returns: str -- Bitcoin normal transaction raw.
+
+        >>> from swap.providers.bitcoin.transaction import NormalTransaction
+        >>> normal_transaction: NormalTransaction = NormalTransaction(network="testnet")
+        >>> normal_transaction.build_transaction(address="mkFWGt4hT11XS8dJKzzRFsTrqjjAwZfQAC", recipients={"2N6kHwQy6Ph5EdKNgzGrcW2WhGHKGfmP5ae": 10000000})
+        >>> normal_transaction.transaction_raw()
+        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        """
+
+        # Check parameter instances
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
+
+        # Encode normal transaction raw
+        if self._type == "bitcoin_normal_signed":
+            return clean_transaction_raw(b64encode(str(json.dumps(dict(
+                raw=self._transaction.hexlify(),
+                fee=self._fee,
+                network=self._network,
+                type=self._type
+            ))).encode()).decode())
+        return clean_transaction_raw(b64encode(str(json.dumps(dict(
+            fee=self._fee,
+            raw=self._transaction.hexlify(),
+            outputs=_build_outputs(
+                utxos=self._utxos,
+                previous_transaction_indexes=self._previous_transaction_indexes,
+                only_dict=True
+            ),
+            network=self._network,
+            type=self._type
+        ))).encode()).decode())
+
+
 class FundTransaction(Transaction):
     """
     Bitcoin Fund transaction.
@@ -228,8 +414,8 @@ class FundTransaction(Transaction):
         if unit not in ["BTC", "mBTC", "Satoshi"]:
             raise UnitError("Invalid Bitcoin unit, choose only 'BTC', 'mBTC' or 'Satoshi' units.")
 
-        self._address, self._htlc, self._amount = (
-            address, htlc, (
+        self._address, outputs, self._htlc, self._amount = (
+            address, [], htlc, (
                 amount if unit == "Satoshi" else
                 amount_unit_converter(
                     amount=amount, unit_from=f"{unit}2Satoshi"
@@ -241,6 +427,13 @@ class FundTransaction(Transaction):
         self._utxos = get_utxos(
             address=self._address, network=self._network
         )
+        # Outputs action
+        outputs.append(TxOut(
+            value=self._amount, n=0,
+            script_pubkey=get_address_hash(
+                address=self._htlc.contract_address(), script=True
+            )
+        ))
         # Get previous transaction indexes
         self._previous_transaction_indexes, max_amount = _get_previous_transaction_indexes(
             utxos=self._utxos, amount=self._amount, transaction_output=2
@@ -252,19 +445,17 @@ class FundTransaction(Transaction):
         # Calculate the fee
         self._fee = fee_calculator(len(inputs), 2)
 
-        if amount < (self._amount + self._fee):
+        if amount < self._amount:
             raise BalanceError(
-                "Insufficient spend UTXO's",
-                f"You don't have enough amount to pay '{self._fee}' Satoshi fee."
+                "Insufficient spend UTXO's", "you don't have enough amount."
+            )
+        elif amount < (self._amount + self._fee):
+            raise BalanceError(
+                f"You don't have enough amount to pay '{self._fee}' Satoshi fee",
+                f"you can spend maximum '{amount - self._fee}' Satoshi amount."
             )
 
         return_amount: int = int(amount - (self._amount + self._fee))
-        outputs: list = [TxOut(
-            value=self._amount, n=0,
-            script_pubkey=get_address_hash(
-                address=self._htlc.contract_address(), script=True
-            )
-        )]
         if return_amount != 0:
             outputs.append(TxOut(
                 value=return_amount, n=len(outputs),
@@ -318,7 +509,6 @@ class FundTransaction(Transaction):
             txouts=outputs,
             solvers=[solver.solve(network=self._network) for _ in outputs]
         )
-
         # Set transaction type
         self._type = "bitcoin_fund_signed"
         return self
