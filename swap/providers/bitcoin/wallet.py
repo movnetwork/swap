@@ -33,7 +33,7 @@ class Wallet(HDWallet):
     :param use_default_path: Use default derivation path, defaults to ``False``.
     :type use_default_path: bool
 
-    :returns: Wallet -- Bitcoin instance.
+    :returns: Wallet -- Bitcoin wallet instance.
 
     .. note::
         Bitcoin has only two networks, ``mainnet`` and ``mainnet``.
@@ -58,7 +58,7 @@ class Wallet(HDWallet):
 
     def from_entropy(self, entropy: str, language: str = "english", passphrase: Optional[str] = None) -> "Wallet":
         """
-        Initialize wallet from entropy.
+        Master from Entropy.
 
         :param entropy: Bitcoin entropy.
         :type entropy: str
@@ -67,7 +67,7 @@ class Wallet(HDWallet):
         :param passphrase: Bitcoin passphrase, default to None.
         :type passphrase: str
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -81,7 +81,7 @@ class Wallet(HDWallet):
     def from_mnemonic(self, mnemonic: str, language: Optional[str] = None,
                       passphrase: Optional[str] = None) -> "Wallet":
         """
-        Initialize wallet from mnemonic.
+        Master from Mnemonic.
 
         :param mnemonic: Bitcoin mnemonic.
         :type mnemonic: str
@@ -90,7 +90,7 @@ class Wallet(HDWallet):
         :param passphrase: Bitcoin passphrase, default to None.
         :type passphrase: str
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -107,12 +107,12 @@ class Wallet(HDWallet):
 
     def from_seed(self, seed: str) -> "Wallet":
         """
-        Initialize wallet from seed.
+        Master from Seed.
 
         :param seed: Bitcoin seed.
         :type seed: str
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -127,12 +127,12 @@ class Wallet(HDWallet):
         """
         Master from Root XPrivate Key.
 
-        :param xprivate_key: Bitcoin XPrivate key.
+        :param xprivate_key: Bitcoin root xprivate key.
         :type xprivate_key: str
         :param strict: Strict for must be root xprivate key, default to ``True``.
         :type strict: bool
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -147,12 +147,12 @@ class Wallet(HDWallet):
         """
         Master from Root XPublic Key.
 
-        :param xpublic_key: Bitcoin XPublic key.
+        :param xpublic_key: Bitcoin root xpublic key.
         :type xpublic_key: str
         :param strict: Strict for must be root xprivate key, default to ``True``.
         :type strict: bool
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -165,12 +165,12 @@ class Wallet(HDWallet):
 
     def from_wif(self, wif: str) -> "Wallet":
         """
-        Initialize wallet from wallet important format (WIF).
+        Master from Wallet Important Format (WIF).
 
-        :param wif: Bitcoin important format.
+        :param wif: Bitcoin wallet important format.
         :type wif: str
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -183,12 +183,12 @@ class Wallet(HDWallet):
 
     def from_private_key(self, private_key) -> "Wallet":
         """
-        Initialize wallet from private key.
+        Master from Private Key.
 
         :param private_key: Bitcoin private key.
         :type private_key: str
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
@@ -201,12 +201,12 @@ class Wallet(HDWallet):
 
     def from_path(self, path: str) -> "Wallet":
         """
-        Drive Bitcoin from path.
+        Drive Bitcoin wallet from path.
 
-        :param path: Bitcoin path.
+        :param path: Bitcoin derivation path.
         :type path: str
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet", use_default_path=False)
@@ -222,12 +222,12 @@ class Wallet(HDWallet):
         """
         Drive Bitcoin from index.
 
-        :param index: Bitcoin index.
+        :param index: Bitcoin derivation index.
         :type index: int
-        :param hardened: Use harden, default to False.
+        :param hardened: Use harden, default to ``False``.
         :type hardened: bool
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet", use_default_path=False)
@@ -247,7 +247,7 @@ class Wallet(HDWallet):
         """
         Clean derivation Bitcoin.
 
-        :returns: Wallet -- Bitcoin instance.
+        :returns: Wallet -- Bitcoin wallet instance.
 
         >>> from swap.providers.bitcoin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")

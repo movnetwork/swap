@@ -53,7 +53,7 @@ class Wallet(HDWallet):
 
     def from_entropy(self, entropy: str, language: str = "english", passphrase: Optional[str] = None) -> "Wallet":
         """
-        Initialize wallet from entropy.
+        Master from Entropy.
 
         :param entropy: XinFin wallet entropy.
         :type entropy: str
@@ -76,7 +76,7 @@ class Wallet(HDWallet):
     def from_mnemonic(self, mnemonic: str, language: Optional[str] = None,
                       passphrase: Optional[str] = None) -> "Wallet":
         """
-        Initialize wallet from mnemonic.
+        Master from Mnemonic.
 
         :param mnemonic: XinFin wallet mnemonic.
         :type mnemonic: str
@@ -102,7 +102,7 @@ class Wallet(HDWallet):
 
     def from_seed(self, seed: str) -> "Wallet":
         """
-        Initialize wallet from seed.
+        Master from Seed.
 
         :param seed: XinFin wallet seed.
         :type seed: str
@@ -118,11 +118,11 @@ class Wallet(HDWallet):
         self._hdwallet.from_seed(seed=seed)
         return self
 
-    def from_root_xprivate_key(self, xprivate_key: str, strict: bool = True) -> "Wallet":
+    def from_xprivate_key(self, xprivate_key: str, strict: bool = True) -> "Wallet":
         """
-        Initialize wallet from root xprivate key.
+        Master from Root XPrivate Key.
 
-        :param xprivate_key: XinFin wallet root xprivate key.
+        :param xprivate_key: XinFin root xprivate key.
         :type xprivate_key: str
         :param strict: Strict for must be root xprivate key, default to ``True``.
         :type strict: bool
@@ -131,34 +131,36 @@ class Wallet(HDWallet):
 
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_root_xprivate_key(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
+        >>> wallet.from_xprivate_key(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_root_xprivate_key(xprivate_key=xprivate_key, strict=strict)
+        self._hdwallet.from_xprivate_key(xprivate_key=xprivate_key, strict=strict)
         return self
 
-    def from_xprivate_key(self, xprivate_key: str) -> "Wallet":
+    def from_xpublic_key(self, xpublic_key: str, strict: bool = True) -> "Wallet":
         """
-        Initialize wallet from xprivate key.
+        Master from Root XPublic Key.
 
-        :param xprivate_key: XinFin wallet xprivate key.
-        :type xprivate_key: str
+        :param xpublic_key: XinFin root xpublic key.
+        :type xpublic_key: str
+        :param strict: Strict for must be root xprivate key, default to ``True``.
+        :type strict: bool
 
         :returns: Wallet -- XinFin wallet instance.
 
         >>> from swap.providers.xinfin.wallet import Wallet
         >>> wallet: Wallet = Wallet(network="testnet")
-        >>> wallet.from_xprivate_key(xprivate_key="xprvA3QFrUVTkKpfRhqjgPq897uDFAYtt9VhMdDuZVbPboVf9uPMcMmr7W8sTsrd8nFCsVGSBCpGC3jreRpu8Zs1xsG5U98GZL24AqXYNPuo1rg")
+        >>> wallet.from_xpublic_key(xpublic_key="xpub661MyMwAqRbcG28HjdHc6zbHxBFzBJBC4ecFvVKBXXqiucEBe5wirgQ9hzY2WQMjnurVjJbTjMWRskHi7jnSRkJdj4oRu4Vdh7Ln1F83mLJ")
         <swap.providers.xinfin.wallet.Wallet object at 0x040DA268>
         """
 
-        self._hdwallet.from_xprivate_key(xprivate_key=xprivate_key)
+        self._hdwallet.from_xpublic_key(xpublic_key=xpublic_key, strict=strict)
         return self
 
     def from_wif(self, wif: str) -> "Wallet":
         """
-        Initialize wallet from wallet important format (WIF).
+        Master from Wallet Important Format (WIF).
 
         :param wif: XinFin wallet important format.
         :type wif: str
@@ -176,9 +178,9 @@ class Wallet(HDWallet):
 
     def from_private_key(self, private_key) -> "Wallet":
         """
-        Initialize wallet from private key.
+        Master from Private Key.
 
-        :param private_key: XinFin wallet private key.
+        :param private_key: XinFin private key.
         :type private_key: str
 
         :returns: Wallet -- XinFin wallet instance.
@@ -196,7 +198,7 @@ class Wallet(HDWallet):
         """
         Drive XinFin wallet from path.
 
-        :param path: XinFin wallet path.
+        :param path: XinFin derivation path.
         :type path: str
 
         :returns: Wallet -- XinFin wallet instance.
@@ -215,7 +217,7 @@ class Wallet(HDWallet):
         """
         Drive XinFin wallet from index.
 
-        :param index: XinFin wallet index.
+        :param index: XinFin derivation index.
         :type index: int
         :param hardened: Use hardened index, default to ``False``.
         :type hardened: bool
