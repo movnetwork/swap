@@ -16,16 +16,16 @@ import json
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
-    AddressError, NetworkError, UnitError
+    AddressError, BalanceError, NetworkError, UnitError
 )
 from ..config import bytom as config
 from .assets import AssetNamespace
 from .htlc import HTLC
 from .rpc import (
-    estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
+    get_balance, estimate_transaction_fee, build_transaction, find_p2wsh_utxo, decode_raw, get_transaction
 )
 from .solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from .utils import (
     amount_unit_converter, is_network, is_address
@@ -36,7 +36,7 @@ class Transaction(BytomTransaction):
     """
     Bytom Transaction.
 
-    :param network: Bytom network, defaults to mainnet.
+    :param network: Bytom network, defaults to ``mainnet``.
     :type network: str
 
     :returns: Transaction -- Bytom transaction instance.
@@ -238,6 +238,201 @@ class Transaction(BytomTransaction):
         return self._signatures
 
 
+class NormalTransaction(Transaction):
+    """
+    Bytom Normal transaction.
+
+    :param network: Bytom network, defaults to ``mainnet``.
+    :type network: str
+
+    :returns: NormalTransaction -- Bytom normal transaction instance.
+
+    .. warning::
+        Do not forget to build transaction after initialize normal transaction.
+    """
+
+    def __init__(self, network: str = config["network"]):
+        super().__init__(network)
+
+    def build_transaction(self, address: str, recipients: dict, asset: Union[str, AssetNamespace] = config["asset"],
+                          unit: str = config["unit"]) -> "NormalTransaction":
+        """
+        Build Bytom normal transaction.
+
+        :param address: Bytom sender wallet address.
+        :type address: str
+        :param recipients: Recipients Bytom address and amount.
+        :type recipients: dict
+        :param asset: Bytom asset id, defaults to ``BTM``.
+        :type asset: str, bytom.assets.AssetNamespace
+        :param unit: Bytom unit, default to ``NEU``.
+        :type unit: str
+
+        :returns: NormalTransaction -- Bytom normal transaction instance.
+
+        >>> from swap.providers.bytom.transaction import NormalTransaction
+        >>> normal_transaction: NormalTransaction = NormalTransaction(network="mainnet")
+        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", recipients={"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        <swap.providers.bytom.transaction.NormalTransaction object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not is_address(address, self._network):
+            raise AddressError(f"Invalid Bytom sender '{address}' {self._network} address.")
+        if unit not in ["BTM", "mBTM", "NEU"]:
+            raise UnitError("Invalid Bytom unit, choose only 'BTM', 'mBTM' or 'NEU' units.")
+
+        # Set address, fee and confirmations
+        self._address, self._asset, self._confirmations, inputs, outputs, self._amount = (
+            address, (str(asset.ID) if isinstance(asset, AssetNamespace) else asset),
+            config["confirmations"], [], [], (
+                sum(recipients.values()) if unit == "NEU" else
+                amount_unit_converter(
+                    amount=sum(recipients.values()), unit_from=f"{unit}2NEU"
+                )
+            )
+        )
+
+        amount: int = get_balance(self._address, self._asset)
+        if amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's", "you don't have enough amount."
+            )
+        self._fee = estimate_transaction_fee(
+            address=self._address,
+            amount=self._amount,
+            asset=self._asset,
+            confirmations=self._confirmations,
+            network=self._network
+        )
+        if amount < (self._amount + self._fee):
+            raise BalanceError(
+                f"You don't have enough amount to pay '{self._fee}' NEU fee",
+                f"you can spend maximum '{amount - self._fee}' NEU amount."
+            )
+
+        # Outputs action
+        for _address, _amount in recipients.items():
+            if not is_address(_address, self._network):
+                raise AddressError(f"Invalid Bytom recipients '{_address}' {self._network} address.")
+            outputs.append(control_address(
+                asset=self._asset, address=_address, amount=_amount, vapor=False
+            ))
+
+        # Build transaction
+        self._transaction = build_transaction(
+            address=self._address,
+            transaction=dict(
+                fee=str(amount_unit_converter(
+                    amount=self._fee, unit_from="NEU2BTM"
+                )),
+                confirmations=self._confirmations,
+                inputs=[
+                    spend_wallet(
+                        asset=self._asset, amount=self._amount
+                    )
+                ],
+                outputs=outputs
+            ),
+            network=self._network
+        )
+
+        # Set transaction type
+        self._type = "bytom_normal_unsigned"
+        return self
+
+    def sign(self, solver: NormalSolver) -> "NormalTransaction":
+        """
+        Sign Bytom normal transaction.
+
+        :param solver: Bytom normal solver.
+        :type solver: bytom.solver.NormalSolver
+
+        :returns: NormalTransaction -- Bytom normal transaction instance.
+
+        >>> from swap.providers.bytom.transaction import NormalTransaction
+        >>> from swap.providers.bytom.solver import NormalSolver
+        >>> from swap.providers.bytom.wallet import Wallet, DEFAULT_PATH
+        >>> sender_wallet: Wallet = Wallet(network="mainnet").from_entropy(entropy="72fee73846f2d1a5807dc8c953bf79f1").from_path(path=DEFAULT_PATH)
+        >>> normal_solver: NormalSolver = NormalSolver(xprivate_key=sender_wallet.xprivate_key())
+        >>> normal_transaction: NormalTransaction = NormalTransaction(network="mainnet")
+        >>> normal_transaction.build_transaction(address=sender_wallet.address(), recipients={"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> normal_transaction.sign(solver=normal_solver)
+        <swap.providers.bytom.transaction.NormalTransaction object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not isinstance(solver, NormalSolver):
+            raise TypeError(f"Solver must be Bytom NormalSolver, not {type(solver).__name__} type.")
+
+        # Setting sender wallet
+        wallet, path, indexes = solver.solve()
+        # Clean derivation indexes/path
+        wallet.clean_derivation()
+        # Signing normal transaction
+        for unsigned in self.unsigned_datas(detail=True):
+            signed_data = []
+            unsigned_datas = unsigned["datas"]
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif path:
+                wallet.from_path(path)
+            elif indexes:
+                wallet.from_indexes(indexes)
+            for unsigned_data in unsigned_datas:
+                signed_data.append(wallet.sign(unsigned_data))
+            self._signatures.append(signed_data)
+            wallet.clean_derivation()
+
+        # Set transaction type
+        self._type = "bytom_normal_signed"
+        return self
+
+    def transaction_raw(self) -> str:
+        """
+        Get Bytom normal transaction raw.
+
+        :returns: str -- Bytom normal transaction raw.
+
+        >>> from swap.providers.bytom.transaction import NormalTransaction
+        >>> normal_transaction: NormalTransaction = NormalTransaction("mainnet")
+        >>> normal_transaction.build_transaction(address="bm1q9ndylx02syfwd7npehfxz4lddhzqsve2fu6vc7", recipients={"bm1qf78sazxs539nmzztq7md63fk2x8lew6ed2gu5rnt9um7jerrh07q3yf5q8": 10000000}, asset="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        >>> normal_transaction.transaction_raw()
+        "eyJmZWUiOiA2NzgsICJyYXciOiAiMDIwMDAwMDAwMTJjMzkyMjE3NDgzOTA2ZjkwMmU3M2M0YmMxMzI4NjRkZTU4MTUzNzcyZDc5MjY4OTYwOTk4MTYyMjY2NjM0YmUwMTAwMDAwMDAwZmZmZmZmZmYwMmU4MDMwMDAwMDAwMDAwMDAxN2E5MTQ5NzE4OTRjNThkODU5ODFjMTZjMjA1OWQ0MjJiY2RlMGIxNTZkMDQ0ODdhNjI5MDAwMDAwMDAwMDAwMTk3NmE5MTQ2YmNlNjVlNThhNTBiOTc5ODk5MzBlOWE0ZmYxYWMxYTc3NTE1ZWYxODhhYzAwMDAwMDAwIiwgIm91dHB1dHMiOiBbeyJhbW91bnQiOiAxMjM0MCwgIm4iOiAxLCAic2NyaXB0IjogIjc2YTkxNDZiY2U2NWU1OGE1MGI5Nzk4OTkzMGU5YTRmZjFhYzFhNzc1MTVlZjE4OGFjIn1dLCAidHlwZSI6ICJiaXRjb2luX2Z1bmRfdW5zaWduZWQifQ"
+        """
+
+        # Check transaction
+        if self._transaction is None:
+            raise ValueError("Transaction is none, build transaction first.")
+
+        # Encode normal transaction raw
+        if self._type == "bytom_normal_signed":
+            return clean_transaction_raw(b64encode(str(json.dumps(dict(
+                fee=self._fee,
+                address=self._address,
+                raw=self.raw(),
+                hash=self.hash(),
+                unsigned_datas=self.unsigned_datas(
+                    detail=False
+                ),
+                signatures=self.signatures(),
+                network=self._network,
+                type=self._type,
+            ))).encode()).decode())
+        return clean_transaction_raw(b64encode(str(json.dumps(dict(
+            fee=self._fee,
+            address=self._address,
+            raw=self.raw(),
+            hash=self.hash(),
+            unsigned_datas=self.unsigned_datas(
+                detail=False
+            ),
+            signatures=[],
+            network=self._network,
+            type=self._type,
+        ))).encode()).decode())
+
+
 class FundTransaction(Transaction):
     """
     Bytom Fund transaction.
@@ -256,7 +451,7 @@ class FundTransaction(Transaction):
 
         self._contract_address: Optional[str] = None
 
-    def build_transaction(self, address: str, htlc: HTLC, amount: int, asset: Union[str, AssetNamespace] = config["asset"],
+    def build_transaction(self, address: str, htlc: HTLC, amount: Union[int, float], asset: Union[str, AssetNamespace] = config["asset"],
                           unit: str = config["unit"]) -> "FundTransaction":
         """
         Build Bytom fund transaction.
@@ -301,6 +496,11 @@ class FundTransaction(Transaction):
             )
         )
 
+        amount: int = get_balance(self._address, self._asset)
+        if amount < self._amount:
+            raise BalanceError(
+                "Insufficient spend UTXO's", "you don't have enough amount."
+            )
         self._fee = estimate_transaction_fee(
             address=self._address,
             amount=self._amount,
@@ -308,6 +508,11 @@ class FundTransaction(Transaction):
             confirmations=self._confirmations,
             network=self._network
         )
+        if amount < (self._amount + self._fee):
+            raise BalanceError(
+                f"You don't have enough amount to pay '{self._fee}' NEU fee",
+                f"you can spend maximum '{amount - self._fee}' NEU amount."
+            )
 
         # Build transaction
         self._transaction = build_transaction(

@@ -16,7 +16,7 @@ from ...exceptions import (
 from ..config import vapor as config
 from .transaction import Transaction
 from .solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from .rpc import decode_raw
 from .utils import (
@@ -28,7 +28,7 @@ class Signature(Transaction):
     """
     Vapor Signature.
 
-    :param network: Vapor network, defaults to mainnet.
+    :param network: Vapor network, defaults to ``mainnet``.
     :type network: str
 
     :returns: Signature -- Vapor signature instance.
@@ -160,8 +160,8 @@ class Signature(Transaction):
             raise ValueError("Type is none, sign unsigned transaction raw first.")
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, WithdrawSolver, RefundSolver]) \
-            -> Union["FundSignature", "WithdrawSignature", "RefundSignature"]:
+    def sign(self, transaction_raw: str, solver: Union[NormalSolver, FundSolver, WithdrawSolver, RefundSolver]) \
+            -> Union["NormalSignature", "FundSignature", "WithdrawSignature", "RefundSignature"]:
         """
         Sign unsigned transaction raw.
 
@@ -170,7 +170,7 @@ class Signature(Transaction):
         :param solver: Vapor solver
         :type solver: vapor.solver.NormalSolver, vapor.solver.FundSolver, vapor.solver.WithdrawSolver, vapor.solver.RefundSolver
 
-        :returns: FundSignature, WithdrawSignature, RefundSignature -- Vapor signature instance.
+        :returns: NormalSignature, FundSignature, WithdrawSignature, RefundSignature -- Vapor signature instance.
 
         >>> from swap.providers.vapor.signature import Signature
         >>> from swap.providers.vapor.solver import FundSolver
@@ -189,7 +189,11 @@ class Signature(Transaction):
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
         self._type = loaded_transaction_raw["type"]
-        if loaded_transaction_raw["type"] == "vapor_fund_unsigned":
+        if loaded_transaction_raw["type"] == "vapor_normal_unsigned":
+            return NormalSignature(network=self._network).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "vapor_fund_unsigned":
             return FundSignature(network=self._network).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
@@ -263,6 +267,96 @@ class Signature(Transaction):
         if self._signed_raw is None:
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
         return clean_transaction_raw(self._signed_raw)
+
+
+class NormalSignature(Signature):
+    """
+    Vapor Normal signature.
+
+    :param network: Vapor network, defaults to ``mainnet``.
+    :type network: str
+
+    :returns: NormalSignature -- Vapor normal signature instance.
+    """
+
+    def __init__(self, network: str = config["network"]):
+        super().__init__(network=network)
+
+    def sign(self, transaction_raw: str, solver: NormalSolver) -> "NormalSignature":
+        """
+        Sign unsigned normal transaction raw.
+
+        :param transaction_raw: Vapor unsigned normal transaction raw.
+        :type transaction_raw: str
+        :param solver: Vapor normal solver.
+        :type solver: vapor.solver.NormalSolver
+
+        :returns: NormalSignature -- Vapor normal signature instance.
+
+        >>> from swap.providers.vapor.signature import NormalSignature
+        >>> from swap.providers.vapor.solver import NormalSolver
+        >>> unsigned_normal_transaction_raw: str = "eyJmZWUiOiAxMDAwMDAwMCwgImFkZHJlc3MiOiAiYm0xcTluZHlseDAyc3lmd2Q3bnBlaGZ4ejRsZGRoenFzdmUyZnU2dmM3IiwgInJhdyI6ICIwNzAxMDAwMjAxNWYwMTVkODJlNjVmOTY0ZDNjMzUzMjU0OGRmZGU5Mzg0NjJmNTY2Yzk1ZDNjOTBlNmEzYTE4MmEwYjNiZGFlNDZhYTc5MGZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY4MDg2ZjIwMzAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAxNWYwMTVkMDcwZDBlYjIyZDMyYjgyZDNkMmYzZmM0YmFmYjdhODVmNTIyOWY3ZmQ4OTA0MmQyZmYzMjU3Mzc1ZTQzZDNlYmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmOGY1Zjc0ZjAxMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMjIwMTIwOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMjAyMDE0NmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmY5MDRlMDEyMjAwMjA0ZjhmMGU4OGQwYTQ0YjNkODg0YjA3YjZkZDQ1MzY1MThmZmNiYjU5NmE5MWNhMGU2YjJmMzdlOTY0NjNiYmZjMDAwMTNjZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmQ4YjhmODUyMDExNjAwMTQyY2RhNGY5OWVhODExMmU2ZmE2MWNkZDI2MTU3ZWQ2ZGM0MDgzMzJhMDAiLCAiaGFzaCI6ICI1MGIzMzZhYjZlMDU1ZDlkNGQ2NWE5ZjIyOTViNTMyNzBhYmQzODE2YzIzYmE0Yzk1NDg0MWYzOTlhYTc3MmQ1IiwgInVuc2lnbmVkX2RhdGFzIjogW3siZGF0YXMiOiBbImY3ZDNhYTE4YjI5NWNkYTZmMmIxMTMyYzQyMzE5MzNjYzkyZjNiYWNhNzA1OTc0YzVkZTM3OGY5YjY5NWYwZTIiXSwgInB1YmxpY19rZXkiOiAiOTFmZjdmNTI1ZmY0MDg3NGM0ZjQ3ZjBjYWI0MmU0NmUzYmY1M2FkYWQ1OWFkZWY5NTU4YWQxYjY0NDhmMjJlMiIsICJuZXR3b3JrIjogIm1haW5uZXQiLCAicGF0aCI6ICJtLzQ0LzE1My8xLzAvMSJ9LCB7ImRhdGFzIjogWyJjYTYxNWJhMmM3MjllNDYzZmJmNzlhMTE0MTkxNzYyNjFiMWJmNmJlNDQ4MTMzMzVkMmIyNTZlOGE3YmJjZWVlIl0sICJwdWJsaWNfa2V5IjogIjkxZmY3ZjUyNWZmNDA4NzRjNGY0N2YwY2FiNDJlNDZlM2JmNTNhZGFkNTlhZGVmOTU1OGFkMWI2NDQ4ZjIyZTIiLCAibmV0d29yayI6ICJtYWlubmV0IiwgInBhdGgiOiAibS80NC8xNTMvMS8wLzEifV0sICJzaWduYXR1cmVzIjogW10sICJuZXR3b3JrIjogIm1haW5uZXQiLCAidHlwZSI6ICJieXRvbV9mdW5kX3Vuc2lnbmVkIn0"
+        >>> sender_xprivate_key: str = "205b15f70e253399da90b127b074ea02904594be9d54678207872ec1ba31ee51ef4490504bd2b6f997113671892458830de09518e6bd5958d5d5dd97624cfa4b"
+        >>> normal_solver: NormalSolver = NormalSolver(sender_xprivate_key)
+        >>> normal_signature: NormalSignature = NormalSignature("mainnet")
+        >>> normal_signature.sign(unsigned_normal_transaction_raw, normal_solver)
+        <swap.providers.vapor.signature.NormalSignature object at 0x0409DAF0>
+        """
+
+        if not is_transaction_raw(transaction_raw=transaction_raw):
+            raise TransactionRawError("Invalid Vapor unsigned transaction raw.")
+
+        transaction_raw = clean_transaction_raw(transaction_raw)
+        decoded_transaction_raw = b64decode(transaction_raw.encode())
+        loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+
+        if not loaded_transaction_raw["type"] == "vapor_normal_unsigned":
+            raise TypeError(f"Invalid Vapor normal unsigned transaction raw type, "
+                            f"you can't sign {loaded_transaction_raw['type']} type by using normal signature.")
+
+        # Check parameter instances
+        if not isinstance(solver, NormalSolver):
+            raise TypeError(f"Solver must be Vapor NormalSolver, not {type(solver).__name__} type.")
+
+        # Set transaction, fee, type and network
+        self._fee, self._type, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+            loaded_transaction_raw["network"], loaded_transaction_raw
+        )
+
+        # Set recipient wallet
+        wallet, path, indexes = solver.solve()
+        # Clean derivation indexes/path
+        wallet.clean_derivation()
+        # Sign normal transaction
+        for unsigned in self.unsigned_datas():
+            signed_data = list()
+            unsigned_datas = unsigned["datas"]
+            if unsigned["path"]:
+                wallet.from_path(unsigned["path"])
+            elif path:
+                wallet.from_path(path)
+            elif indexes:
+                wallet.from_indexes(indexes)
+            for unsigned_data in unsigned_datas:
+                signed_data.append(wallet.sign(unsigned_data))
+            self._signatures.append(signed_data)
+            wallet.clean_derivation()
+
+        # Set transaction type
+        self._type = "vapor_normal_signed"
+        # Encode normal transaction raw
+        self._signed_raw = b64encode(str(json.dumps(dict(
+            fee=self._fee,
+            address=self._transaction["address"],
+            raw=self.raw(),
+            hash=self.hash(),
+            unsigned_datas=self.unsigned_datas(),
+            signatures=self.signatures(),
+            network=self._network,
+            type=self._type
+        ))).encode()).decode()
+        return self
 
 
 class FundSignature(Signature):

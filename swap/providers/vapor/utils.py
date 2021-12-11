@@ -119,6 +119,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
+            "vapor_normal_unsigned", "vapor_normal_signed",
             "vapor_fund_unsigned", "vapor_fund_signed",
             "vapor_withdraw_unsigned", "vapor_withdraw_signed",
             "vapor_refund_unsigned", "vapor_refund_signed"

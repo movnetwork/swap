@@ -119,6 +119,7 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
+            "bytom_normal_unsigned", "bytom_normal_signed",
             "bytom_fund_unsigned", "bytom_fund_signed",
             "bytom_withdraw_unsigned", "bytom_withdraw_signed",
             "bytom_refund_unsigned", "bytom_refund_signed"
@@ -178,7 +179,7 @@ def estimate_endblock(endtime: int, network: str = config["network"],
     :type endtime: int
     :param network: Bytom network, defaults to ``mainnet``.
     :type network: str
-    :param headers: Request headers, default to ``common headers``.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
     :param timeout: Request timeout, default to ``60``.
     :type timeout: int
@@ -215,7 +216,7 @@ def decode_transaction_raw(transaction_raw: str, headers: dict = config["headers
 
     :param transaction_raw: Bytom transaction raw.
     :type transaction_raw: str
-    :param headers: Request headers, default to ``common headers``.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
     :param timeout: Request timeout, default to ``60``.
     :type timeout: int
@@ -262,7 +263,7 @@ def submit_transaction_raw(transaction_raw: str, headers: dict = config["headers
 
     :param transaction_raw: Bytom transaction raw.
     :type transaction_raw: str
-    :param headers: Request headers, default to ``common headers``.
+    :param headers: Request headers, default to ``common-headers``.
     :type headers: dict
     :param timeout: Request timeout, default to ``60``.
     :type timeout: int
