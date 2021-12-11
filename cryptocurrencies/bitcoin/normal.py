@@ -37,7 +37,6 @@ print("Private Key:", sender_wallet.private_key())
 print("Public Key:", sender_wallet.public_key())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance(unit="BTC"), "BTC")
-print("UTXO's:", sender_wallet.utxos())
 
 print("=" * 10, "Unsigned Normal Transaction")
 

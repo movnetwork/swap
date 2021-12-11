@@ -40,7 +40,6 @@ print("Public Key:", sender_wallet.public_key())
 print("Path:", sender_wallet.path())
 print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance(unit="BTC"), "BTC")
-print("UTXO's:", sender_wallet.utxos())
 
 print("=" * 10, "Unsigned Refund Transaction")
 

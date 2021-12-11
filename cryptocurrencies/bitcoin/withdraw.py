@@ -40,7 +40,6 @@ print("Public Key:", recipient_wallet.public_key())
 print("Path:", recipient_wallet.path())
 print("Address:", recipient_wallet.address())
 print("Balance:", recipient_wallet.balance(unit="BTC"), "BTC")
-print("UTXO's:", recipient_wallet.utxos())
 
 print("=" * 10, "Unsigned Withdraw Transaction")
 
