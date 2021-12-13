@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 
-from ethtoken.abi import EIP20_ABI
 from web3.contract import Contract
 from web3 import Web3
 
 from swap.providers.ethereum.wallet import Wallet
-from swap.providers.ethereum.utils import to_checksum_address
+from swap.providers.ethereum.utils import (
+    to_checksum_address, get_erc20_data
+)
 from swap.providers.ethereum.rpc import (
     get_web3, get_erc20_decimals, submit_raw, wait_for_transaction_receipt
 )
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "ropsten"
 # Ethereum HTLC ERC20 Contract address
-CONTRACT_ADDRESS: str = "0xf1903D56b808c6480550F4972d250e1B3e968193"
+CONTRACT_ADDRESS: str = "0x761c47A8dc8178d55aE14b661abf26cc0B599bc6"
 # Ethereum private key
 PRIVATE_KEY: str = "cf4c2fb2b88a556c211d5fe79335dcee6dd11403bbbc5b47a530e9cf56ee3aee"
 # Ethereum ERC20 token address
-TOKEN_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
+TOKEN_ADDRESS: str = "0xa6f89f08cC9d112870E2561F1A8D750681DB59f1"
 # Ethereum ERC20 token approve amount
-AMOUNT: int = 25 * (10 ** get_erc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
+AMOUNT: int = 39 * (10 ** get_erc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
 
 print("=" * 10, "Sender Ethereum Account")
 
@@ -38,7 +39,7 @@ print("ERC20 Balance:", wallet.erc20_balance(token_address=TOKEN_ADDRESS))
 web3: Web3 = get_web3(network=NETWORK)
 # Initialize Ethereum ERC20 token contract
 erc20_token: Contract = web3.eth.contract(
-    address=to_checksum_address(address=TOKEN_ADDRESS), abi=EIP20_ABI
+    address=to_checksum_address(address=TOKEN_ADDRESS), abi=get_erc20_data("abi")
 )
 
 print("=" * 10, "Approve HTLC ERC20 address and Set amount")

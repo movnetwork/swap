@@ -20,7 +20,7 @@ ENTROPY: str = generate_entropy(strength=STRENGTH)
 # Generate new passphrase
 PASSPHRASE: str = generate_passphrase(length=LENGTH)
 # Ethereum ERC20 token address
-TOKEN_ADDRESS: str = "0xCAfC3274Ba43825fCDCcE3D3263132A399658C7D"
+TOKEN_ADDRESS: str = "0xa6f89f08cC9d112870E2561F1A8D750681DB59f1"
 
 # Initialize Ethereum wallet
 wallet: Wallet = Wallet(network=NETWORK)

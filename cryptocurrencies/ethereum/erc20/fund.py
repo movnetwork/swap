@@ -16,11 +16,11 @@ from swap.utils import (
 import json
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "ropsten"
 # Enable Ethereum HTLC ERC20
 ERC20: bool = True
 # Ethereum HTLC ERC20 contract address
-CONTRACT_ADDRESS: str = "0xf1903D56b808c6480550F4972d250e1B3e968193"
+CONTRACT_ADDRESS: str = "0x761c47A8dc8178d55aE14b661abf26cc0B599bc6"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Ethereum sender wallet mnemonic
@@ -30,7 +30,7 @@ RECIPIENT_ADDRESS: str = "0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94"
 # Expiration block timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # Ethereum ERC20 token address
-TOKEN_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
+TOKEN_ADDRESS: str = "0xa6f89f08cC9d112870E2561F1A8D750681DB59f1"
 # Ethereum ERC20 token fund amount
 AMOUNT: int = 25 * (10 ** get_erc20_decimals(token_address=TOKEN_ADDRESS, network=NETWORK))
 
@@ -97,8 +97,6 @@ print("Unsigned ERC20 Fund Transaction Type:", unsigned_fund_transaction.type())
 unsigned_fund_transaction_raw: str = unsigned_fund_transaction.transaction_raw()
 print("Unsigned ERC20 Fund Transaction Raw:", unsigned_fund_transaction_raw)
 
-exit()
-
 print("=" * 10, "Signed ERC20 Fund Transaction")
 
 # Initialize fund solver
@@ -144,6 +142,6 @@ print("ERC20 Fund Signature Transaction Raw:", signed_fund_signature_transaction
 assert signed_fund_transaction_raw == signed_fund_signature_transaction_raw
 
 # Submit ERC20 fund transaction raw
-print("\nSubmitted ERC20 Fund Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted ERC20 Fund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
+# ), indent=4))

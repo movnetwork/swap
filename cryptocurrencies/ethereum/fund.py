@@ -17,9 +17,9 @@ from swap.utils import (
 import json
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "ropsten"
 # Ethereum HTLC contract address
-CONTRACT_ADDRESS: str = "0xbE91a5A2977c0395C41a0306BA4a8d1a9be74287"
+CONTRACT_ADDRESS: str = "0x0cc7C744f96729B7f60B12B36A4B9504191CD458"
 # Secret key hash
 SECRET_HASH: str = sha256("Hello Meheret!")
 # Ethereum sender wallet mnemonic
@@ -136,6 +136,6 @@ print("Fund Signature Transaction Raw:", signed_fund_signature_transaction_raw)
 assert signed_fund_transaction_raw == signed_fund_signature_transaction_raw
 
 # Submit fund transaction raw
-print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted Fund Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_fund_transaction_raw  # Or signed_fund_signature_transaction_raw
+# ), indent=4))

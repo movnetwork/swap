@@ -11,17 +11,17 @@ from swap.providers.ethereum.utils import submit_transaction_raw
 import json
 
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
-NETWORK: str = "testnet"
+NETWORK: str = "ropsten"
 # Enable Ethereum HTLC ERC20
 ERC20: bool = True
 # Ethereum HTLC ERC20 contract address
-CONTRACT_ADDRESS: str = "0xf1903D56b808c6480550F4972d250e1B3e968193"
+CONTRACT_ADDRESS: str = "0x761c47A8dc8178d55aE14b661abf26cc0B599bc6"
 # Ethereum HTLC ERC20 funded transaction hash/id
-TRANSACTION_HASH: str = "0x1bfa55975dedf774be7511535181abcf52b594aa76363af4b1483f5490046919"
+TRANSACTION_HASH: str = "0x5632da77014ddfeafa25eae677ce20edf7e0625f07e2db26b1293510c4d63f15"
 # Ethereum recipient wallet mnemonic
 RECIPIENT_MNEMONIC: str = "hint excuse upgrade sleep easily deputy erase cluster section other ugly limit"
 # Ethereum ERC20 token address
-TOKEN_ADDRESS: str = "0xeaEaC81da5E386E8Ca4De1e64d40a10E468A5b40"
+TOKEN_ADDRESS: str = "0xa6f89f08cC9d112870E2561F1A8D750681DB59f1"
 # The preimage of HTLC ERC20 contract
 SECRET_KEY: str = "Hello Meheret!"
 
@@ -111,6 +111,6 @@ print("ERC20 Withdraw Signature Transaction Raw:", signed_withdraw_signature_tra
 assert signed_withdraw_transaction_raw == signed_withdraw_signature_transaction_raw
 
 # Submit ERC20 withdraw transaction raw
-print("\nSubmitted ERC20 Withdraw Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_withdraw_transaction_raw  # Or signed_withdraw_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted ERC20 Withdraw Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_withdraw_transaction_raw  # Or signed_withdraw_signature_transaction_raw
+# ), indent=4))

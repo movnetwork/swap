@@ -13,9 +13,9 @@ import json
 # Choose network mainnet, ropsten, kovan, rinkeby or testnet
 NETWORK: str = "ropsten"
 # Ethereum HTLC contract address
-CONTRACT_ADDRESS: str = "0xE5cb615899436A490dBde26d7880A0C2502Fc676"
+CONTRACT_ADDRESS: str = "0x0cc7C744f96729B7f60B12B36A4B9504191CD458"
 # Ethereum funded transaction hash/id
-TRANSACTION_HASH: str = "0xa42f5c441c9ba006c6abcbdbb6e1a3f21e491a9803df127958ee5acd8e17b74e"
+TRANSACTION_HASH: str = "0xae1f06ecb41a3f8d39c5af9b7bd1321eec6b8f8469c5252f1c2717af4ee01544"
 # Ethereum sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 
