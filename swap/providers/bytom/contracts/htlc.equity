@@ -1,4 +1,4 @@
-// Bytom Smart Contract -> Equity language
+// SPDX-License-Identifier: AGPL-3.0
 
 /**
  * @title Hash Time Lock Contract (HTLC)

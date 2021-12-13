@@ -1,4 +1,4 @@
-// Bitcoin Low-level script (OP_Code) language
+// SPDX-License-Identifier: AGPL-3.0
 
 /**
  * @title Hash Time Lock Contract (HTLC)
