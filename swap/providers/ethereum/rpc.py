@@ -8,7 +8,6 @@ from web3.providers import (
 from web3.contract import Contract
 from pyxdc.utils import decode_transaction_raw as dtr
 from hexbytes.main import HexBytes
-from ethtoken.abi import EIP20_ABI
 from eth_typing import URI
 from typing import (
     Optional, Tuple

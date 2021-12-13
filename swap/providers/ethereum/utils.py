@@ -10,6 +10,8 @@ from typing import (
 )
 
 import json
+import sys
+import os
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
@@ -128,12 +130,22 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
+            "ethereum_normal_unsigned", "ethereum_normal_signed", "ethereum_erc20_normal_unsigned", "ethereum_erc20_normal_signed",
             "ethereum_fund_unsigned", "ethereum_fund_signed", "ethereum_erc20_fund_unsigned", "ethereum_erc20_fund_signed",
             "ethereum_withdraw_unsigned", "ethereum_withdraw_signed", "ethereum_erc20_withdraw_unsigned", "ethereum_erc20_withdraw_signed",
             "ethereum_refund_unsigned", "ethereum_refund_signed", "ethereum_erc20_refund_unsigned", "ethereum_erc20_refund_signed"
         ]
     except:
         return False
+
+
+def get_erc20_data(key: str) -> dict:
+    # Get current working directory path (like linux or unix path).
+    cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+    with open(f"{cwd}/contracts/libs/erc20.json", "r") as erc20_json_file:
+        erc20_data: dict = json.loads(erc20_json_file.read())["erc20.sol:ERC20"]
+        erc20_json_file.close()
+    return erc20_data[key]
 
 
 def decode_transaction_raw(transaction_raw: str) -> dict:
@@ -196,8 +208,10 @@ def submit_transaction_raw(transaction_raw: str, provider: str = config["provide
     loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
     if not loaded_transaction_raw["type"] in [
-        "ethereum_fund_signed", "ethereum_withdraw_signed", "ethereum_refund_signed",
-        "ethereum_erc20_fund_signed", "ethereum_erc20_withdraw_signed", "ethereum_erc20_refund_signed"
+        "ethereum_normal_signed", "ethereum_erc20_normal_signed",
+        "ethereum_fund_signed", "ethereum_erc20_fund_signed",
+        "ethereum_withdraw_signed", "ethereum_erc20_withdraw_signed",
+        "ethereum_refund_signed", "ethereum_erc20_refund_signed"
     ]:
         raise TransactionRawError("Wrong Ethereum transaction raw must be signed, not unsigned transaction raw.")
 

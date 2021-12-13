@@ -16,7 +16,7 @@ from ...exceptions import (
 from ..config import ethereum as config
 from .transaction import Transaction
 from .solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from .wallet import Wallet
 from .utils import (
@@ -162,17 +162,17 @@ class Signature(Transaction):
 
         return self._type
 
-    def sign(self, transaction_raw: str, solver: Union[FundSolver, WithdrawSolver, RefundSolver]) -> \
-            Union["FundSignature", "WithdrawSignature", "RefundSignature"]:
+    def sign(self, transaction_raw: str, solver: Union[NormalSolver, FundSolver, WithdrawSolver, RefundSolver]) -> \
+            Union["NormalSignature", "FundSignature", "WithdrawSignature", "RefundSignature"]:
         """
         Sign Ethereum unsigned transaction raw.
 
         :param transaction_raw: Ethereum unsigned transaction raw.
         :type transaction_raw: str
         :param solver: Ethereum solver.
-        :type solver: ethereum.solver.FundSolver, ethereum.solver.WithdrawSolver, ethereum.solver.RefundSolver
+        :type solver: ethereum.solver.NormalSolver, ethereum.solver.FundSolver, ethereum.solver.WithdrawSolver, ethereum.solver.RefundSolver
 
-        :returns: FundSignature, WithdrawSignature, RefundSignature -- Ethereum signature instance.
+        :returns: NormalSignature, FundSignature, WithdrawSignature, RefundSignature -- Ethereum signature instance.
 
         >>> from swap.providers.ethereum.signature import Signature
         >>> from swap.providers.ethereum.solver import FundSolver
@@ -190,7 +190,15 @@ class Signature(Transaction):
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
         self._type = loaded_transaction_raw["type"]
-        if loaded_transaction_raw["type"] == "ethereum_fund_unsigned":
+        if loaded_transaction_raw["type"] == "ethereum_normal_unsigned":
+            return NormalSignature(network=self._network, erc20=False).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "ethereum_erc20_normal_unsigned":
+            return NormalSignature(network=self._network, erc20=True).sign(
+                transaction_raw=transaction_raw, solver=solver
+            )
+        elif loaded_transaction_raw["type"] == "ethereum_fund_unsigned":
             return FundSignature(network=self._network, erc20=False).sign(
                 transaction_raw=transaction_raw, solver=solver
             )
@@ -254,6 +262,98 @@ class Signature(Transaction):
         if self._signed_raw is None:
             raise ValueError("Transaction is none, sign unsigned transaction raw first.")
         return clean_transaction_raw(self._signed_raw)
+
+
+class NormalSignature(Signature):
+    """
+    Ethereum Normal signature.
+
+    :param network: Ethereum network, defaults to ``mainnet``.
+    :type network: str
+    :param erc20: Normal signature ERC20 token, default to ``False``.
+    :type erc20: bool
+    :param provider: Ethereum network provider, defaults to ``http``.
+    :type provider: str
+    :param token: Infura API endpoint token, defaults to ``4414fea5f7454211956b1627621450b4``.
+    :type token: str
+
+    :returns: NormalSignature -- Ethereum normal signature instance.
+
+    .. note::
+        Ethereum has only five networks, ``mainnet``, ``ropsten``, ``kovan``, ``rinkeby`` and ``testnet``.
+    """
+
+    def __init__(self, network: str = config["network"], erc20: bool = False,
+                 provider: str = config["provider"], token: Optional[str] = None):
+        super().__init__(
+            network=network, erc20=erc20, provider=provider, token=token
+        )
+
+    def sign(self, transaction_raw: str, solver: NormalSolver) -> "NormalSignature":
+        """
+        Sign Ethereum unsigned normal transaction raw.
+
+        :param transaction_raw: Ethereum unsigned normal transaction raw.
+        :type transaction_raw: str
+        :param solver: Ethereum solver.
+        :type solver: ethereum.solver.NormalSolver
+
+        :returns: NormalSignature -- Ethereum normal signature instance.
+
+        >>> from swap.providers.ethereum.signature import NormalSignature
+        >>> from swap.providers.ethereum.solver import NormalSolver
+        >>> normal_signature: NormalSignature = NormalSignature(network="mainnet")
+        >>> normal_solver: NormalSolver = NormalSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj")
+        >>> normal_signature.sign(transaction_raw="eyJmZWUiOiAxMzg0NDgsICJ0cmFuc2FjdGlvbiI6IHsiY2hhaW5JZCI6IDEzMzcsICJmcm9tIjogIjB4NjllMDRmZTE2YzlBNkE4MzA3NkIzYzJkYzRiNEJjMjFiNWQ5QTIwQyIsICJ2YWx1ZSI6IDMwMDAwMDAwMDAwMDAwMDAwMDAsICJub25jZSI6IDEsICJnYXMiOiAxMzg0NDgsICJnYXNQcmljZSI6IDIwMDAwMDAwMDAwLCAidG8iOiAiMHhlYUVhQzgxZGE1RTM4NkU4Q2E0RGUxZTY0ZDQwYTEwRTQ2OEE1YjQwIiwgImRhdGEiOiAiMHhmNGZkMzA2MjNhMjZkYTgyZWFkMTVhODA1MzNhMDI2OTY2NTZiMTRiNWRiZmQ4NGViMTQ3OTBmMmUxYmU1ZTllNDU4MjBlZWIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBkNzdlMGQyZWVmOTA1Y2ZiMzljM2M0Yjk1MmVkMjc4ZDU4Zjk2ZTFmMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjllMDRmZTE2YzlhNmE4MzA3NmIzYzJkYzRiNGJjMjFiNWQ5YTIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNjBjZTRiNzIifSwgInNpZ25hdHVyZSI6IG51bGwsICJuZXR3b3JrIjogInRlc3RuZXQiLCAidHlwZSI6ICJldGhlcmV1bV9mdW5kX3Vuc2lnbmVkIn0", solver=normal_solver)
+        <swap.providers.ethereum.signature.NormalSignature object at 0x0409DAF0>
+        """
+
+        # Check parameter instances
+        if not is_transaction_raw(transaction_raw=transaction_raw):
+            raise TransactionRawError("Invalid Ethereum unsigned transaction raw.")
+
+        transaction_raw = clean_transaction_raw(transaction_raw)
+        decoded_transaction_raw = b64decode(transaction_raw.encode())
+        loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
+
+        if loaded_transaction_raw["type"] not in ["ethereum_normal_unsigned", "ethereum_erc20_normal_unsigned"]:
+            raise TypeError(f"Invalid Ethereum normal unsigned transaction raw type, "
+                            f"you can't sign '{loaded_transaction_raw['type']}' type by using normal signature.")
+
+        # Check parameter instances
+        if not isinstance(solver, NormalSolver):
+            raise TypeError(f"Solver must be Ethereum NormalSolver, not '{type(solver).__name__}' type.")
+
+        # Set transaction, fee, type and network
+        self._fee, self._type, self._network, self._transaction = (
+            loaded_transaction_raw["fee"], loaded_transaction_raw["type"],
+            loaded_transaction_raw["network"], loaded_transaction_raw["transaction"]
+        )
+
+        wallet: Wallet = solver.solve()
+        signed_normal_transaction: SignedTransaction = self.web3.eth.account.sign_transaction(
+            transaction_dict=self._transaction,
+            private_key=wallet.private_key()
+        )
+
+        self._signature = dict(
+            hash=signed_normal_transaction["hash"].hex(),
+            rawTransaction=signed_normal_transaction["rawTransaction"].hex(),
+            r=signed_normal_transaction["r"],
+            s=signed_normal_transaction["s"],
+            v=signed_normal_transaction["v"]
+        )
+        self._type = "ethereum_erc20_normal_signed" if self._erc20 else "ethereum_normal_signed"
+
+        self._signed_raw = b64encode(str(json.dumps(dict(
+            fee=self._fee,
+            type=self._type,
+            transaction=self._transaction,
+            signature=self._signature,
+            network=self._network,
+            erc20=self._erc20
+        ))).encode()).decode()
+        return self
 
 
 class FundSignature(Signature):
