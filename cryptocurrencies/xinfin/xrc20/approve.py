@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from ethtoken.abi import EIP20_ABI
 from web3.contract import Contract
 from web3 import Web3
 
 from swap.providers.xinfin.wallet import Wallet
-from swap.providers.xinfin.utils import to_checksum_address
+from swap.providers.xinfin.utils import (
+    to_checksum_address, get_xrc20_data
+)
 from swap.providers.xinfin.rpc import (
     get_web3, get_xrc20_decimals, submit_raw, wait_for_transaction_receipt
 )
@@ -38,7 +39,7 @@ print("XRC20 Balance:", wallet.xrc20_balance(token_address=TOKEN_ADDRESS))
 web3: Web3 = get_web3(network=NETWORK)
 # Initialize XinFin XRC20 token contract
 xrc20_token: Contract = web3.eth.contract(
-    address=to_checksum_address(address=TOKEN_ADDRESS, prefix="0x"), abi=EIP20_ABI
+    address=to_checksum_address(address=TOKEN_ADDRESS, prefix="0x"), abi=get_xrc20_data("abi")
 )
 
 print("=" * 10, "Approve HTLC XRC20 address and Set amount")

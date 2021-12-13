@@ -244,7 +244,7 @@ class NormalTransaction(Transaction):
 
     :param network: Ethereum network, defaults to ``mainnet``.
     :type network: str
-    :param erc20: Fund transaction ERC20 token, default to ``False``.
+    :param erc20: Normal transaction ERC20 token, default to ``False``.
     :type erc20: bool
     :param provider: Ethereum network provider, defaults to ``http``.
     :type provider: str
@@ -290,7 +290,7 @@ class NormalTransaction(Transaction):
         if unit not in ["Ether", "Gwei", "Wei"]:
             raise UnitError("Invalid Ethereum unit, choose only 'Ether', 'Gwei' or 'Wei' units.")
         if len(recipient.items()) > 1:
-            raise ValueError("You can't broadcast for multiple addresses, only for one address.")
+            raise ValueError("You can't broadcast for multiple addresses on this version, only for one address.")
 
         # Set address, fee and confirmations
         recipient_address, amount = list(recipient.items())[0]

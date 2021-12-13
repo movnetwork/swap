@@ -14,6 +14,8 @@ from web3 import Web3
 from typing import Union
 
 import json
+import sys
+import os
 
 from ...utils import clean_transaction_raw
 from ...exceptions import (
@@ -135,12 +137,22 @@ def is_transaction_raw(transaction_raw: str) -> bool:
         decoded_transaction_raw = b64decode(transaction_raw.encode())
         loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
         return loaded_transaction_raw["type"] in [
+            "xinfin_normal_unsigned", "xinfin_normal_signed", "xinfin_xrc20_normal_unsigned", "xinfin_xrc20_normal_signed",
             "xinfin_fund_unsigned", "xinfin_fund_signed", "xinfin_xrc20_fund_unsigned", "xinfin_xrc20_fund_signed",
             "xinfin_withdraw_unsigned", "xinfin_withdraw_signed", "xinfin_xrc20_withdraw_unsigned", "xinfin_xrc20_withdraw_signed",
             "xinfin_refund_unsigned", "xinfin_refund_signed", "xinfin_xrc20_refund_unsigned", "xinfin_xrc20_refund_signed"
         ]
     except:
         return False
+
+
+def get_xrc20_data(key: str) -> dict:
+    # Get current working directory path (like linux or unix path).
+    cwd: str = os.path.dirname(sys.modules[__package__].__file__)
+    with open(f"{cwd}/contracts/libs/xrc20.json", "r") as xrc20_json_file:
+        xrc20_data: dict = json.loads(xrc20_json_file.read())["xrc20.sol:XRC20"]
+        xrc20_json_file.close()
+    return xrc20_data[key]
 
 
 def decode_transaction_raw(transaction_raw: str) -> dict:
@@ -200,8 +212,10 @@ def submit_transaction_raw(transaction_raw: str, provider: str = config["provide
     loaded_transaction_raw = json.loads(decoded_transaction_raw.decode())
 
     if not loaded_transaction_raw["type"] in [
-        "xinfin_fund_signed", "xinfin_withdraw_signed", "xinfin_refund_signed",
-        "xinfin_xrc20_fund_signed", "xinfin_xrc20_withdraw_signed", "xinfin_xrc20_refund_signed"
+        "xinfin_normal_signed", "xinfin_xrc20_normal_signed",
+        "xinfin_fund_signed", "xinfin_xrc20_fund_signed",
+        "xinfin_withdraw_signed", "xinfin_xrc20_withdraw_signed",
+        "xinfin_refund_signed", "xinfin_xrc20_refund_signed"
     ]:
         raise TransactionRawError("Wrong XinFin transaction raw must be signed, not unsigned transaction raw.")
 
