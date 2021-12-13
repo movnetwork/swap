@@ -91,7 +91,7 @@ ethereum: dict = {
         },
         "contract_addresses": {
             "htlc": None,
-            "htlc_xrc20": None
+            "htlc_erc20": None
         }
     },
     "ropsten": {
@@ -101,8 +101,8 @@ ethereum: dict = {
             "token": "4414fea5f7454211956b1627621450b4"
         },
         "contract_addresses": {
-            "htlc": "0xE5cb615899436A490dBde26d7880A0C2502Fc676",
-            "htlc_xrc20": None
+            "htlc": "0x0cc7C744f96729B7f60B12B36A4B9504191CD458",
+            "htlc_erc20": "0x761c47A8dc8178d55aE14b661abf26cc0B599bc6"
         }
     },
     "kovan": {
@@ -112,8 +112,8 @@ ethereum: dict = {
             "token": "4414fea5f7454211956b1627621450b4"
         },
         "contract_addresses": {
-            "htlc": "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17",
-            "htlc_xrc20": None
+            "htlc": "0xf3c7CD43F2f87958E708E00780EBDf87292Ad37E",
+            "htlc_erc20": "0x32a05649778bc96958bF804835C9e8eC9678e283"
         }
     },
     "rinkeby": {
@@ -123,8 +123,8 @@ ethereum: dict = {
             "token": "4414fea5f7454211956b1627621450b4"
         },
         "contract_addresses": {
-            "htlc": "0x126C40bf42b566e3513b1599f78070B3962f7114",
-            "htlc_xrc20": None
+            "htlc": "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17",
+            "htlc_erc20": "0xe0d3155c9DC0ADdCDA71E7ef15c689AeCC8Dfc28"
         }
     },
     "testnet": {
@@ -135,7 +135,7 @@ ethereum: dict = {
         },
         "contract_addresses": {
             "htlc": None,
-            "htlc_xrc20": None
+            "htlc_erc20": None
         }
     },
     "path": "m/44'/60'/0'/0/0",
