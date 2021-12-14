@@ -19,7 +19,8 @@ def test_bitcoin_cli_submit(cli_tester):
         cli_main, [
             "bitcoin",
             "submit",
-            "--transaction-raw", _["bitcoin"]["refund"]["unsigned"]["transaction_raw"]
+            "--transaction-raw", _["bitcoin"]["refund"]["unsigned"]["transaction_raw"],
+            "--endpoint", "smartbit"
         ]
     )
     assert submit.exit_code == 0

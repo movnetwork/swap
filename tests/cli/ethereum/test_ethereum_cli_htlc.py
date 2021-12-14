@@ -28,5 +28,6 @@ def test_ethereum_cli_htlc(cli_tester):
     assert htlc.output == str(json.dumps(dict(
         abi=_["ethereum"]["htlc"]["abi"],
         bytecode=_["ethereum"]["htlc"]["bytecode"],
+        bytecode_runtime=_["ethereum"]["htlc"]["bytecode_runtime"],
         contract_address=_["ethereum"]["htlc"]["contract_address"]
     ), indent=4)) + "\n"

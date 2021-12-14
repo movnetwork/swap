@@ -28,5 +28,6 @@ def test_xinfin_cli_htlc(cli_tester):
     assert htlc.output == str(json.dumps(dict(
         abi=_["xinfin"]["htlc"]["abi"],
         bytecode=_["xinfin"]["htlc"]["bytecode"],
+        bytecode_runtime=_["xinfin"]["htlc"]["bytecode_runtime"],
         contract_address=_["xinfin"]["htlc"]["contract_address"]
     ), indent=4)) + "\n"
