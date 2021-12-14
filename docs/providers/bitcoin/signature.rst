@@ -9,6 +9,11 @@ Bitcoin signature.
 .. autoclass:: Signature
    :members:
 
+NormalSignature
+---------------
+.. autoclass:: NormalSignature
+   :members:
+
 FundSignature
 -------------
 .. autoclass:: FundSignature

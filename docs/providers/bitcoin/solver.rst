@@ -6,6 +6,11 @@ Bitcoin solver.
 
 .. automodule:: swap.providers.bitcoin.solver
 
+NormalSolver
+------------
+.. autoclass:: NormalSolver
+   :members:
+
 FundSolver
 ----------
 .. autoclass:: FundSolver

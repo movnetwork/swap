@@ -6,6 +6,11 @@ XinFin solver.
 
 .. automodule:: swap.providers.xinfin.solver
 
+NormalSolver
+------------
+.. autoclass:: NormalSolver
+   :members:
+
 FundSolver
 ----------
 .. autoclass:: FundSolver

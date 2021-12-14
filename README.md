@@ -1,3 +1,5 @@
+<img align="right" height="132" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/swap.svg">
+
 # Swap
 
 [![Build Status](https://travis-ci.com/movnetwork/swap.svg?branch=master)](https://travis-ci.com/movnetwork/swap?branch=master)
@@ -14,13 +16,13 @@ It’s a brand new decentralized payment environment based on Hash Time Lock Con
 
 You can swap the following available cryptocurrencies:
 
-| Cryptocurrencies                                                                                                                                                                                                                                | Networks                                            |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------: |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bitcoin.svg"> [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                             | `mainnet`, `testnet`                                 |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bytom.svg"> [Bytom](https://github.com/bytom/bytom) `BTM`, `BTC`, `ETH` ... [More Assets](https://blockmeta.com/assets)       | `mainnet`, `solonet`, `testnet`                      |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/ethereum.svg"> [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`                                                      | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet`  |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/vapor.svg"> [Vapor](https://github.com/bytom/vapor) `BTM`, `BTC`, `ETH` ... [More Assets](https://vapor.blockmeta.com/assets) | `mainnet`, `solonet`, `testnet`                      |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/xinfin.svg"> [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`                                                          | `mainnet`, `apothem`, `testnet`                      |
+| Cryptocurrencies                                                                                                                                                                                                                                                   | Networks                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------: |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bitcoin.svg"> [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                                                 | `mainnet`, `testnet`                                |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bytom.svg"> [Bytom v1.0](https://github.com/bytom/bytom) `BTM` - [Assets](https://classic.blockmeta.com/assets)                                   | `mainnet`, `solonet`, `testnet`                     |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/ethereum.svg"> [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`, `ERC20` - [Tokens](https://etherscan.io/tokens)                         | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet` |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/vapor.svg"> [Vapor](https://github.com/bytom/vapor) `BTM` - [Assets](https://vapor.blockmeta.com/assets)                                          | `mainnet`, `solonet`, `testnet`                     |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/xinfin.svg"> [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`, `XRC20` - [Tokens](https://explorer.xinfin.network/tokens/xrc20)            | `mainnet`, `apothem`, `testnet`                     |
 
 
 ## What is a HTLC?

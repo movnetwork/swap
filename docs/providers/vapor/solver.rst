@@ -6,6 +6,11 @@ Vapor solver.
 
 .. automodule:: swap.providers.vapor.solver
 
+NormalSolver
+------------
+.. autoclass:: NormalSolver
+   :members:
+
 FundSolver
 ----------
 .. autoclass:: FundSolver

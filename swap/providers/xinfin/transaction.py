@@ -276,7 +276,7 @@ class NormalTransaction(Transaction):
 
         >>> from swap.providers.xinfin.transaction import NormalTransaction
         >>> normal_transaction: NormalTransaction = NormalTransaction(network="testnet")
-        >>> normal_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", recipient={"0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94": 100_000_000})
+        >>> normal_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", recipient={"xdcf8D43806260CFc6cC79fB408BA1897054667F81C": 100_000_000})
         <swap.providers.xinfin.transaction.FundTransaction object at 0x0409DAF0>
         """
 
@@ -355,7 +355,7 @@ class NormalTransaction(Transaction):
         >>> from swap.providers.xinfin.transaction import NormalTransaction
         >>> from swap.providers.xinfin.solver import NormalSolver
         >>> normal_transaction: NormalTransaction = NormalTransaction(network="testnet")
-        >>> normal_transaction.build_transaction(address="0x69e04fe16c9A6A83076B3c2dc4b4Bc21b5d9A20C", recipient={"0x1954C47a5D75bdDA53578CEe5D549bf84b8c6B94": 100_000_000})
+        >>> normal_transaction.build_transaction(address="xdc2224caA2235DF8Da3D2016d2AB1137D2d548A232", recipient={"xdcf8D43806260CFc6cC79fB408BA1897054667F81C": 100_000_000})
         >>> normal_solver: NormalSolver = NormalSolver(xprivate_key="xprv9s21ZrQH143K3Y3pdbkbjreZQ9RVmqTLhRgf86uZyCJk2ou36YdUJt5frjwihGWmV1fQEDioiGZXWXUbHLy3kQf5xmhvhp8dZ2tfn6tgGUj", address=0)
         >>> normal_transaction.sign(solver=normal_solver)
         <swap.providers.xinfin.transaction.FundTransaction object at 0x0409DAF0>

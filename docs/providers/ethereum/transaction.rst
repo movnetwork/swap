@@ -9,6 +9,11 @@ Ethereum transaction in blockchain network.
 .. autoclass:: Transaction
    :members:
 
+NormalTransaction
+-----------------
+.. autoclass:: NormalTransaction
+   :members:
+
 FundTransaction
 ---------------
 .. autoclass:: FundTransaction

@@ -6,6 +6,11 @@ Bytom solver.
 
 .. automodule:: swap.providers.bytom.solver
 
+NormalSolver
+------------
+.. autoclass:: NormalSolver
+   :members:
+
 FundSolver
 ----------
 .. autoclass:: FundSolver

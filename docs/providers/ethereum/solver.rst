@@ -6,6 +6,11 @@ Ethereum solver.
 
 .. automodule:: swap.providers.ethereum.solver
 
+NormalSolver
+------------
+.. autoclass:: NormalSolver
+   :members:
+
 FundSolver
 ----------
 .. autoclass:: FundSolver
