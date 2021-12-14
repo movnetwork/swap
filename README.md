@@ -1,4 +1,4 @@
-<img align="right" height="132" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/swap.svg">
+<img align="right" height="132" src="https://raw.githubusercontent.com/movnetwork/swap/master/docs/static/svg/readme/swap.svg">
 
 # Swap
 
@@ -7,6 +7,8 @@
 [![Documentation Status](https://readthedocs.org/projects/swap/badge/?version=master)](https://swap.readthedocs.io)
 [![PyPI Python Version](https://img.shields.io/pypi/pyversions/swap.svg)](https://pypi.org/project/swap)
 [![Coverage Status](https://coveralls.io/repos/github/movnetwork/swap/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/movnetwork/swap?branch=master)
+[![PyPI License](https://img.shields.io/pypi/l/swap?color=black)](https://pypi.org/project/swap)
+
 
 A Python library for Cross-chain atomic swap between the networks of two cryptocurrencies. 
 Cross-chain atomic swap is the cheapest and most secured by cryptographic proof to swap cryptocurrencies. 
@@ -16,13 +18,13 @@ It’s a brand new decentralized payment environment based on Hash Time Lock Con
 
 You can swap the following available cryptocurrencies:
 
-| Cryptocurrencies                                                                                                                                                                                                                                                   | Networks                                            |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------: |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bitcoin.svg"> [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                                                 | `mainnet`, `testnet`                                |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/bytom.svg"> [Bytom v1.0](https://github.com/bytom/bytom) `BTM` - [Assets](https://classic.blockmeta.com/assets)                                   | `mainnet`, `solonet`, `testnet`                     |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/ethereum.svg"> [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`, `ERC20` - [Tokens](https://etherscan.io/tokens)                         | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet` |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/vapor.svg"> [Vapor](https://github.com/bytom/vapor) `BTM` - [Assets](https://vapor.blockmeta.com/assets)                                          | `mainnet`, `solonet`, `testnet`                     |
-| <img align="left" height="25" src="https://raw.githubusercontent.com/meherett/swap/master/docs/static/svg/readme/xinfin.svg"> [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`, `XRC20` - [Tokens](https://explorer.xinfin.network/tokens/xrc20)            | `mainnet`, `apothem`, `testnet`                     |
+| Cryptocurrencies                                                                                                                                                                                                                                               | Networks                                            |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------: |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/movnetwork/swap/master/docs/static/svg/readme/bitcoin.svg"> [Bitcoin](https://github.com/bitcoin/bitcoin) `BTC`                                                                           | `mainnet`, `testnet`                                |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/movnetwork/swap/master/docs/static/svg/readme/bytom.svg"> [Bytom v1.0](https://github.com/bytom/bytom) `BTM` - [More Assets](https://classic.blockmeta.com/assets)                        | `mainnet`, `solonet`, `testnet`                     |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/movnetwork/swap/master/docs/static/svg/readme/ethereum.svg"> [Ethereum](https://github.com/ethereum/go-ethereum) `ETH`, `ERC20` - [More Tokens](https://etherscan.io/tokens)              | `mainnet`, `ropsten`, `kovan`, `rinkeby`, `testnet` |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/movnetwork/swap/master/docs/static/svg/readme/vapor.svg"> [Vapor](https://github.com/bytom/vapor) `BTM` - [More Assets](https://vapor.blockmeta.com/assets)                               | `mainnet`, `solonet`, `testnet`                     |
+| <img align="left" height="25" src="https://raw.githubusercontent.com/movnetwork/swap/master/docs/static/svg/readme/xinfin.svg"> [XinFin](https://github.com/XinFinOrg/XDPoSChain) `XDC`, `XRC20` - [More Tokens](https://explorer.xinfin.network/tokens/xrc20) | `mainnet`, `apothem`, `testnet`                     |
 
 
 ## What is a HTLC?
