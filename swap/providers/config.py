@@ -45,7 +45,7 @@ bitcoin: dict = {
 bytom: dict = {
     "mainnet": {
         "bytom-core": "http://localhost:9888",
-        "blockmeta": "https://blockmeta.com/api/v3",
+        "blockmeta": "https://classic.blockmeta.com/api/v3",
         "blockcenter": "https://ex.movapi.com/bytom/v3"
     },
     "solonet": {
