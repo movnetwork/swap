@@ -15,7 +15,7 @@ from ....providers.config import xinfin as config
               help="Set XinFin HTLC contact address.  [default: None]")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set XinFin network.", show_default=True)
-@click.option("-x20", "--xrc20", type=str, default=False,
+@click.option("-x20", "--xrc20", type=bool, default=False,
               help="Set Enable XinFin XRC20 token contract.", show_default=True)
 @click.option("-i", "--indent", type=int, default=4, help="Set json indent.", show_default=True)
 def htlc(contract_address: str, network: str, xrc20: bool, indent: int):

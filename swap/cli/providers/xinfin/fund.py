@@ -29,7 +29,7 @@ from ....utils import get_current_timestamp
               help="Set XinFin XRC20 token address.  [default: None]")
 @click.option("-n", "--network", type=str, default=config["network"],
               help="Set XinFin network.", show_default=True)
-@click.option("-x20", "--xrc20", type=str, default=False,
+@click.option("-x20", "--xrc20", type=bool, default=False,
               help="Set Enable XinFin XRC20 token contract.", show_default=True)
 def fund(
     secret_hash: str, recipient_address: str, sender_address: str, endtime: int, amount: int, unit: str,
