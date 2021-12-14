@@ -29,7 +29,7 @@ RECIPIENT_ADDRESS: str = "xdcf8D43806260CFc6cC79fB408BA1897054667F81C"
 # Expiration block timestamp
 ENDTIME: int = get_current_timestamp(plus=3600)  # 1 hour
 # XinFin fund amount
-AMOUNT: int = amount_unit_converter(25, "XDC2Wei")
+AMOUNT: int = amount_unit_converter(0.1, "XDC2Wei")
 
 print("=" * 10, "Sender XinFin Account")
 

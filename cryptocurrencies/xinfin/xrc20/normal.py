@@ -43,11 +43,11 @@ print("Address:", sender_wallet.address())
 print("Balance:", sender_wallet.balance(unit="XDC"), "XDC")
 print("XRC20 Balance:", sender_wallet.xrc20_balance(token_address=TOKEN_ADDRESS))
 
-print("=" * 10, "Unsigned Normal Transaction")
+print("=" * 10, "Unsigned XRC20 Normal Transaction")
 
-# Initialize normal transaction
+# Initialize XRC20 normal transaction
 unsigned_normal_transaction: NormalTransaction = NormalTransaction(network=NETWORK, xrc20=XRC20)
-# Build normal transaction
+# Build XRC20 normal transaction
 unsigned_normal_transaction.build_transaction(
     address=sender_wallet.address(), recipient=RECIPIENT, token_address=TOKEN_ADDRESS
 )
@@ -62,7 +62,7 @@ print("Unsigned XRC20 Normal Transaction Type:", unsigned_normal_transaction.typ
 unsigned_normal_transaction_raw: str = unsigned_normal_transaction.transaction_raw()
 print("Unsigned XRC20 Normal Transaction Raw:", unsigned_normal_transaction_raw)
 
-print("=" * 10, "Signed Normal Transaction")
+print("=" * 10, "Signed XRC20 Normal Transaction")
 
 # Initialize normal solver
 normal_solver: NormalSolver = NormalSolver(
@@ -70,43 +70,43 @@ normal_solver: NormalSolver = NormalSolver(
     path=sender_wallet.path()
 )
 
-# Sing unsigned normal transaction
+# Sing unsigned XRC20 normal transaction
 signed_normal_transaction: NormalTransaction = unsigned_normal_transaction.sign(solver=normal_solver)
 
-print("Signed Normal Transaction Fee:", signed_normal_transaction.fee())
-print("Signed Normal Transaction Hash:", signed_normal_transaction.hash())
-print("Signed Normal Transaction Main Raw:", signed_normal_transaction.raw())
-# print("Signed Normal Transaction Json:", json.dumps(signed_normal_transaction.json(), indent=4))
-print("Signed Normal Transaction Signature:", json.dumps(signed_normal_transaction.signature(), indent=4))
-print("Signed Normal Transaction Type:", signed_normal_transaction.type())
+print("Signed XRC20 Normal Transaction Fee:", signed_normal_transaction.fee())
+print("Signed XRC20 Normal Transaction Hash:", signed_normal_transaction.hash())
+print("Signed XRC20 Normal Transaction Main Raw:", signed_normal_transaction.raw())
+# print("Signed XRC20 Normal Transaction Json:", json.dumps(signed_normal_transaction.json(), indent=4))
+print("Signed XRC20 Normal Transaction Signature:", json.dumps(signed_normal_transaction.signature(), indent=4))
+print("Signed XRC20 Normal Transaction Type:", signed_normal_transaction.type())
 
 signed_normal_transaction_raw: str = signed_normal_transaction.transaction_raw()
-print("Signed Normal Transaction Raw:", signed_normal_transaction_raw)
+print("Signed XRC20 Normal Transaction Raw:", signed_normal_transaction_raw)
 
-print("=" * 10, "Normal Signature")
+print("=" * 10, "XRC20 Normal Signature")
 
-# Initialize normal signature
+# Initialize XRC20 normal signature
 normal_signature: NormalSignature = NormalSignature(network=NETWORK, xrc20=XRC20)
-# Sign unsigned normal transaction raw
+# Sign unsigned XRC20 normal transaction raw
 normal_signature.sign(
     transaction_raw=unsigned_normal_transaction_raw,
     solver=normal_solver
 )
 
-print("Normal Signature Fee:", normal_signature.fee())
-print("Normal Signature Hash:", normal_signature.hash())
-print("Normal Signature Raw:", normal_signature.raw())
-# print("Normal Signature Json:", json.dumps(normal_signature.json(), indent=4))
-print("Normal Signature Signature:", json.dumps(normal_signature.signature(), indent=4))
-print("Normal Signature Type:", normal_signature.type())
+print("XRC20 Normal Signature Fee:", normal_signature.fee())
+print("XRC20 Normal Signature Hash:", normal_signature.hash())
+print("XRC20 Normal Signature Raw:", normal_signature.raw())
+# print("XRC20 Normal Signature Json:", json.dumps(normal_signature.json(), indent=4))
+print("XRC20 Normal Signature Signature:", json.dumps(normal_signature.signature(), indent=4))
+print("XRC20 Normal Signature Type:", normal_signature.type())
 
 signed_normal_signature_transaction_raw: str = normal_signature.transaction_raw()
-print("Normal Signature Transaction Raw:", signed_normal_signature_transaction_raw)
+print("XRC20 Normal Signature Transaction Raw:", signed_normal_signature_transaction_raw)
 
 # Check both signed normal transaction raws are equal
 assert signed_normal_transaction_raw == signed_normal_signature_transaction_raw
 
-# Submit normal transaction raw
-# print("\nSubmitted Normal Transaction:", json.dumps(submit_transaction_raw(
+# Submit XRC20 normal transaction raw
+# print("\nSubmitted XRC20 Normal Transaction:", json.dumps(submit_transaction_raw(
 #     transaction_raw=signed_normal_transaction_raw  # Or signed_normal_signature_transaction_raw
 # ), indent=4))

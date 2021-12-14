@@ -13,7 +13,7 @@ from swap.providers.xinfin.utils import (
 import json
 
 # Choose network mainnet, apothem or testnet
-NETWORK: str = "mainnet"
+NETWORK: str = "apothem"
 # XinFin sender wallet mnemonic
 SENDER_MNEMONIC: str = "unfair divorce remind addict add roof park clown build renew illness fault"
 # XinFin recipient address and amount
@@ -103,6 +103,6 @@ print("Normal Signature Transaction Raw:", signed_normal_signature_transaction_r
 assert signed_normal_transaction_raw == signed_normal_signature_transaction_raw
 
 # Submit normal transaction raw
-print("\nSubmitted Normal Transaction:", json.dumps(submit_transaction_raw(
-    transaction_raw=signed_normal_transaction_raw  # Or signed_normal_signature_transaction_raw
-), indent=4))
+# print("\nSubmitted Normal Transaction:", json.dumps(submit_transaction_raw(
+#     transaction_raw=signed_normal_transaction_raw  # Or signed_normal_signature_transaction_raw
+# ), indent=4))
