@@ -4,7 +4,7 @@ import json
 import os
 
 from swap.providers.bytom.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 
 # Test Values
@@ -13,6 +13,19 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_bytom_normal_solver():
+
+    normal_solver = NormalSolver(
+        xprivate_key=_["bytom"]["wallet"]["sender"]["xprivate_key"],
+        path=_["bytom"]["wallet"]["sender"]["derivation"]["path"],
+        account=_["bytom"]["wallet"]["sender"]["derivation"]["account"],
+        change=_["bytom"]["wallet"]["sender"]["derivation"]["change"],
+        address=_["bytom"]["wallet"]["sender"]["derivation"]["address"]
+    )
+
+    assert isinstance(normal_solver.solve(network=_["bytom"]["network"]), tuple)
 
 
 def test_bytom_fund_solver():

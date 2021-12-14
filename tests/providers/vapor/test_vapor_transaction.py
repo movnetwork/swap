@@ -5,10 +5,10 @@ import os
 
 from swap.providers.vapor.htlc import HTLC
 from swap.providers.vapor.transaction import (
-    FundTransaction, WithdrawTransaction, RefundTransaction
+    NormalTransaction, FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.vapor.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.providers.vapor.utils import amount_unit_converter
 from swap.utils import clean_transaction_raw
@@ -19,6 +19,52 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_vapor_normal_transaction():
+
+    unsigned_normal_transaction = NormalTransaction(network=_["vapor"]["network"])
+
+    unsigned_normal_transaction.build_transaction(
+        address=_["vapor"]["wallet"]["sender"]["address"],
+        recipients={
+            _["vapor"]["wallet"]["recipient"]["address"]: _["vapor"]["amount"]
+        },
+        asset=_["vapor"]["asset"],
+        unit=_["vapor"]["unit"]
+    )
+
+    assert unsigned_normal_transaction.type() == _["vapor"]["normal"]["unsigned"]["type"]
+    assert unsigned_normal_transaction.fee() == _["vapor"]["normal"]["unsigned"]["fee"]
+    assert unsigned_normal_transaction.hash() == _["vapor"]["normal"]["unsigned"]["hash"]
+    assert unsigned_normal_transaction.raw() == _["vapor"]["normal"]["unsigned"]["raw"]
+    # assert unsigned_normal_transaction.json() == _["vapor"]["normal"]["unsigned"]["json"]
+    assert unsigned_normal_transaction.unsigned_datas() == _["vapor"]["normal"]["unsigned"]["unsigned_datas"]
+    assert unsigned_normal_transaction.signatures() == _["vapor"]["normal"]["unsigned"]["signatures"]
+    assert unsigned_normal_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["vapor"]["normal"]["unsigned"]["transaction_raw"]
+    )
+
+    signed_normal_transaction = unsigned_normal_transaction.sign(
+        solver=NormalSolver(
+            xprivate_key=_["vapor"]["wallet"]["sender"]["xprivate_key"],
+            path=_["vapor"]["wallet"]["sender"]["derivation"]["path"],
+            account=_["vapor"]["wallet"]["sender"]["derivation"]["account"],
+            change=_["vapor"]["wallet"]["sender"]["derivation"]["change"],
+            address=_["vapor"]["wallet"]["sender"]["derivation"]["address"]
+        )
+    )
+
+    assert signed_normal_transaction.type() == _["vapor"]["normal"]["signed"]["type"]
+    assert signed_normal_transaction.fee() == _["vapor"]["normal"]["signed"]["fee"]
+    assert signed_normal_transaction.hash() == _["vapor"]["normal"]["signed"]["hash"]
+    assert signed_normal_transaction.raw() == _["vapor"]["normal"]["signed"]["raw"]
+    # assert signed_normal_transaction.json() == _["vapor"]["normal"]["signed"]["json"]
+    assert signed_normal_transaction.unsigned_datas() == _["vapor"]["normal"]["signed"]["unsigned_datas"]
+    assert signed_normal_transaction.signatures() == _["vapor"]["normal"]["signed"]["signatures"]
+    assert signed_normal_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["vapor"]["normal"]["signed"]["transaction_raw"]
+    )
 
 
 def test_vapor_fund_transaction():

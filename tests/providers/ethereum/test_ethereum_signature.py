@@ -4,10 +4,10 @@ import json
 import os
 
 from swap.providers.ethereum.signature import (
-    Signature, FundSignature, WithdrawSignature, RefundSignature
+    Signature, NormalSignature, FundSignature, WithdrawSignature, RefundSignature
 )
 from swap.providers.ethereum.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import clean_transaction_raw
 
@@ -17,6 +17,47 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_ethereum_normal_signature():
+
+    unsigned_normal_transaction_raw = _["ethereum"]["normal"]["unsigned"]["transaction_raw"]
+
+    normal_solver = NormalSolver(
+        xprivate_key=_["ethereum"]["wallet"]["sender"]["root_xprivate_key"],
+        path=_["ethereum"]["wallet"]["sender"]["derivation"]["path"],
+        account=_["ethereum"]["wallet"]["sender"]["derivation"]["account"],
+        change=_["ethereum"]["wallet"]["sender"]["derivation"]["change"],
+        address=_["ethereum"]["wallet"]["sender"]["derivation"]["address"]
+    )
+
+    signature = Signature(network=_["ethereum"]["network"]).sign(
+        transaction_raw=unsigned_normal_transaction_raw,
+        solver=normal_solver
+    )
+
+    assert signature.type() == _["ethereum"]["normal"]["signed"]["type"]
+    assert signature.fee() == _["ethereum"]["normal"]["signed"]["fee"]
+    assert signature.hash() == _["ethereum"]["normal"]["signed"]["hash"]
+    assert signature.raw() == _["ethereum"]["normal"]["signed"]["raw"]
+    assert signature.json() == _["ethereum"]["normal"]["signed"]["json"]
+    assert signature.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["ethereum"]["normal"]["signed"]["transaction_raw"]
+    )
+
+    normal_signature = NormalSignature(network=_["ethereum"]["network"]).sign(
+        transaction_raw=unsigned_normal_transaction_raw,
+        solver=normal_solver
+    )
+
+    assert normal_signature.type() == _["ethereum"]["normal"]["signed"]["type"]
+    assert normal_signature.fee() == _["ethereum"]["normal"]["signed"]["fee"]
+    assert normal_signature.hash() == _["ethereum"]["normal"]["signed"]["hash"]
+    assert normal_signature.raw() == _["ethereum"]["normal"]["signed"]["raw"]
+    assert normal_signature.json() == _["ethereum"]["normal"]["signed"]["json"]
+    assert normal_signature.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["ethereum"]["normal"]["signed"]["transaction_raw"]
+    )
 
 
 def test_ethereum_fund_signature():

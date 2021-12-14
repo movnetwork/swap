@@ -126,7 +126,7 @@ def test_ethereum_wallet_from_root_xprivate_key():
 
     wallet = Wallet(network=_["ethereum"]["network"])
 
-    wallet.from_root_xprivate_key(
+    wallet.from_xprivate_key(
         xprivate_key=_["ethereum"]["wallet"]["sender"]["root_xprivate_key"]
     )
 
@@ -153,37 +153,6 @@ def test_ethereum_wallet_from_root_xprivate_key():
     assert wallet.finger_print() == _["ethereum"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() == _["ethereum"]["wallet"]["sender"]["derivation"]["path"]
     assert wallet.address() == _["ethereum"]["wallet"]["sender"]["address"]
-
-    # assert isinstance(wallet.balance(), int)
-
-
-def test_ethereum_wallet_from_xprivate_key():
-
-    wallet = Wallet(network=_["ethereum"]["network"])
-
-    wallet.from_xprivate_key(
-        xprivate_key=_["ethereum"]["wallet"]["recipient"]["xprivate_key"]
-    )
-
-    assert wallet.entropy() is None
-    assert wallet.mnemonic() is None
-    assert wallet.language() is None
-    assert wallet.passphrase() is None
-    assert wallet.seed() is None
-    assert wallet.root_xprivate_key() is None
-    assert wallet.root_xpublic_key() is None
-    assert wallet.xprivate_key() == _["ethereum"]["wallet"]["recipient"]["xprivate_key"]
-    assert wallet.xpublic_key() == _["ethereum"]["wallet"]["recipient"]["xpublic_key"]
-    assert wallet.uncompressed() == _["ethereum"]["wallet"]["recipient"]["uncompressed"]
-    assert wallet.compressed() == _["ethereum"]["wallet"]["recipient"]["compressed"]
-    assert wallet.chain_code() == _["ethereum"]["wallet"]["recipient"]["chain_code"]
-    assert wallet.private_key() == _["ethereum"]["wallet"]["recipient"]["private_key"]
-    assert wallet.public_key() == _["ethereum"]["wallet"]["recipient"]["public_key"]
-    assert wallet.wif() == _["ethereum"]["wallet"]["recipient"]["wif"]
-    assert wallet.hash() == _["ethereum"]["wallet"]["recipient"]["hash"]
-    assert wallet.finger_print() == _["ethereum"]["wallet"]["recipient"]["finger_print"]
-    assert wallet.path() is None
-    assert wallet.address() == _["ethereum"]["wallet"]["recipient"]["address"]
 
     # assert isinstance(wallet.balance(), int)
 

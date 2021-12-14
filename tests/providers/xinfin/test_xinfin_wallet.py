@@ -126,7 +126,7 @@ def test_xinfin_wallet_from_root_xprivate_key():
 
     wallet = Wallet(network=_["xinfin"]["network"])
 
-    wallet.from_root_xprivate_key(
+    wallet.from_xprivate_key(
         xprivate_key=_["xinfin"]["wallet"]["sender"]["root_xprivate_key"]
     )
 
@@ -153,37 +153,6 @@ def test_xinfin_wallet_from_root_xprivate_key():
     assert wallet.finger_print() == _["xinfin"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() == _["xinfin"]["wallet"]["sender"]["derivation"]["path"]
     assert wallet.address() == _["xinfin"]["wallet"]["sender"]["address"]
-
-    # assert isinstance(wallet.balance(), int)
-
-
-def test_xinfin_wallet_from_xprivate_key():
-
-    wallet = Wallet(network=_["xinfin"]["network"])
-
-    wallet.from_xprivate_key(
-        xprivate_key=_["xinfin"]["wallet"]["recipient"]["xprivate_key"]
-    )
-
-    assert wallet.entropy() is None
-    assert wallet.mnemonic() is None
-    assert wallet.language() is None
-    assert wallet.passphrase() is None
-    assert wallet.seed() is None
-    assert wallet.root_xprivate_key() is None
-    assert wallet.root_xpublic_key() is None
-    assert wallet.xprivate_key() == _["xinfin"]["wallet"]["recipient"]["xprivate_key"]
-    assert wallet.xpublic_key() == _["xinfin"]["wallet"]["recipient"]["xpublic_key"]
-    assert wallet.uncompressed() == _["xinfin"]["wallet"]["recipient"]["uncompressed"]
-    assert wallet.compressed() == _["xinfin"]["wallet"]["recipient"]["compressed"]
-    assert wallet.chain_code() == _["xinfin"]["wallet"]["recipient"]["chain_code"]
-    assert wallet.private_key() == _["xinfin"]["wallet"]["recipient"]["private_key"]
-    assert wallet.public_key() == _["xinfin"]["wallet"]["recipient"]["public_key"]
-    assert wallet.wif() == _["xinfin"]["wallet"]["recipient"]["wif"]
-    assert wallet.hash() == _["xinfin"]["wallet"]["recipient"]["hash"]
-    assert wallet.finger_print() == _["xinfin"]["wallet"]["recipient"]["finger_print"]
-    assert wallet.path() is None
-    assert wallet.address() == _["xinfin"]["wallet"]["recipient"]["address"]
 
     # assert isinstance(wallet.balance(), int)
 

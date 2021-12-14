@@ -5,10 +5,10 @@ import os
 
 from swap.providers.xinfin.htlc import HTLC
 from swap.providers.xinfin.transaction import (
-    FundTransaction, WithdrawTransaction, RefundTransaction
+    NormalTransaction, FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.xinfin.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import get_current_timestamp
 
@@ -18,6 +18,45 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_xinfin_normal_transaction():
+
+    unsigned_normal_transaction = NormalTransaction(network=_["xinfin"]["network"])
+
+    unsigned_normal_transaction.build_transaction(
+        address=_["xinfin"]["wallet"]["sender"]["address"],
+        recipient={
+            _["xinfin"]["wallet"]["recipient"]["address"]: _["xinfin"]["amount"]
+        },
+        unit=_["xinfin"]["unit"]
+    )
+
+    assert unsigned_normal_transaction.type() == _["xinfin"]["normal"]["unsigned"]["type"]
+    assert unsigned_normal_transaction.fee() == _["xinfin"]["normal"]["unsigned"]["fee"]
+    assert unsigned_normal_transaction.hash() == _["xinfin"]["normal"]["unsigned"]["hash"]
+    assert unsigned_normal_transaction.raw() == _["xinfin"]["normal"]["unsigned"]["raw"]
+    assert isinstance(unsigned_normal_transaction.json(), dict)
+    assert unsigned_normal_transaction.signature() == _["xinfin"]["normal"]["unsigned"]["signature"]
+    assert isinstance(unsigned_normal_transaction.transaction_raw(), str)
+
+    signed_normal_transaction = unsigned_normal_transaction.sign(
+        solver=NormalSolver(
+            xprivate_key=_["xinfin"]["wallet"]["sender"]["root_xprivate_key"],
+            path=_["xinfin"]["wallet"]["sender"]["derivation"]["path"],
+            account=_["xinfin"]["wallet"]["sender"]["derivation"]["account"],
+            change=_["xinfin"]["wallet"]["sender"]["derivation"]["change"],
+            address=_["xinfin"]["wallet"]["sender"]["derivation"]["address"]
+        )
+    )
+
+    assert signed_normal_transaction.type() == _["xinfin"]["normal"]["signed"]["type"]
+    assert signed_normal_transaction.fee() == _["xinfin"]["normal"]["signed"]["fee"]
+    assert isinstance(signed_normal_transaction.hash(), str)
+    assert isinstance(signed_normal_transaction.raw(), str)
+    assert isinstance(signed_normal_transaction.json(), dict)
+    assert isinstance(signed_normal_transaction.signature(), dict)
+    assert isinstance(signed_normal_transaction.transaction_raw(), str)
 
 
 def test_xinfin_fund_transaction():

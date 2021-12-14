@@ -31,43 +31,9 @@ def test_config():
     assert bitcoin["headers"]["content-type"] == "application/json; charset=utf-8"
     assert bitcoin["headers"]["accept"] == "application/json"
 
-    assert isinstance(ethereum, dict)
-    assert ethereum["mainnet"]["infura"]["http"] == "https://mainnet.infura.io/v3"
-    assert ethereum["mainnet"]["infura"]["websocket"] == "wss://mainnet.infura.io/ws/v3"
-    assert ethereum["mainnet"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
-    assert ethereum["mainnet"]["contract_address"] is None
-    assert ethereum["ropsten"]["infura"]["http"] == "https://ropsten.infura.io/v3"
-    assert ethereum["ropsten"]["infura"]["websocket"] == "wss://ropsten.infura.io/ws/v3"
-    assert ethereum["ropsten"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
-    assert ethereum["ropsten"]["contract_address"] == "0xE5cb615899436A490dBde26d7880A0C2502Fc676"
-    assert ethereum["kovan"]["infura"]["http"] == "https://kovan.infura.io/v3"
-    assert ethereum["kovan"]["infura"]["websocket"] == "wss://kovan.infura.io/ws/v3"
-    assert ethereum["kovan"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
-    assert ethereum["kovan"]["contract_address"] == "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17"
-    assert ethereum["rinkeby"]["infura"]["http"] == "https://rinkeby.infura.io/v3"
-    assert ethereum["rinkeby"]["infura"]["websocket"] == "wss://rinkeby.infura.io/ws/v3"
-    assert ethereum["rinkeby"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
-    assert ethereum["rinkeby"]["contract_address"] == "0x126C40bf42b566e3513b1599f78070B3962f7114"
-    assert ethereum["testnet"]["ganache-cli"]["http"] == "http://localhost:8545"
-    assert ethereum["testnet"]["ganache-cli"]["websocket"] == "wss://localhost:8545"
-    assert ethereum["testnet"]["ganache-cli"]["token"] is None
-    assert ethereum["testnet"]["contract_address"] is None
-    assert ethereum["path"] == "m/44'/60'/0'/0/0"
-    assert ethereum["bip44_path"] == "m/44'/60'/{account}'/{change}/{address}"
-    assert ethereum["units"]["Ether"] == 1
-    assert ethereum["units"]["Gwei"] == 1_000_000_000
-    assert ethereum["units"]["Wei"] == 1_000_000_000_000_000_000
-    assert ethereum["provider"] == "http"
-    assert ethereum["network"] == "mainnet"
-    assert ethereum["unit"] == "Wei"
-    assert ethereum["timeout"] == 60
-    assert ethereum["headers"]["user-agent"] == f"Swap User-Agent {__version__}"
-    assert ethereum["headers"]["content-type"] == "application/json; charset=utf-8"
-    assert ethereum["headers"]["accept"] == "application/json"
-
     assert isinstance(bytom, dict)
     assert bytom["mainnet"]["bytom-core"] == "http://localhost:9888"
-    assert bytom["mainnet"]["blockmeta"] == "https://blockmeta.com/api/v3"
+    assert bytom["mainnet"]["blockmeta"] == "https://classic.blockmeta.com/api/v3"
     assert bytom["mainnet"]["blockcenter"] == "https://ex.movapi.com/bytom/v3"
     assert bytom["solonet"]["bytom-core"] == "http://localhost:9888"
     assert bytom["solonet"]["blockmeta"] is None
@@ -92,6 +58,45 @@ def test_config():
     assert bytom["headers"]["user-agent"] == f"Swap User-Agent {__version__}"
     assert bytom["headers"]["content-type"] == "application/json; charset=utf-8"
     assert bytom["headers"]["accept"] == "application/json"
+
+    assert isinstance(ethereum, dict)
+    assert ethereum["mainnet"]["infura"]["http"] == "https://mainnet.infura.io/v3"
+    assert ethereum["mainnet"]["infura"]["websocket"] == "wss://mainnet.infura.io/ws/v3"
+    assert ethereum["mainnet"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
+    assert ethereum["mainnet"]["contract_addresses"]["htlc"] is None
+    assert ethereum["mainnet"]["contract_addresses"]["htlc_erc20"] is None
+    assert ethereum["ropsten"]["infura"]["http"] == "https://ropsten.infura.io/v3"
+    assert ethereum["ropsten"]["infura"]["websocket"] == "wss://ropsten.infura.io/ws/v3"
+    assert ethereum["ropsten"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
+    assert ethereum["ropsten"]["contract_addresses"]["htlc"] == "0x0cc7C744f96729B7f60B12B36A4B9504191CD458"
+    assert ethereum["ropsten"]["contract_addresses"]["htlc_erc20"] == "0x761c47A8dc8178d55aE14b661abf26cc0B599bc6"
+    assert ethereum["kovan"]["infura"]["http"] == "https://kovan.infura.io/v3"
+    assert ethereum["kovan"]["infura"]["websocket"] == "wss://kovan.infura.io/ws/v3"
+    assert ethereum["kovan"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
+    assert ethereum["kovan"]["contract_addresses"]["htlc"] == "0xf3c7CD43F2f87958E708E00780EBDf87292Ad37E"
+    assert ethereum["kovan"]["contract_addresses"]["htlc_erc20"] == "0x32a05649778bc96958bF804835C9e8eC9678e283"
+    assert ethereum["rinkeby"]["infura"]["http"] == "https://rinkeby.infura.io/v3"
+    assert ethereum["rinkeby"]["infura"]["websocket"] == "wss://rinkeby.infura.io/ws/v3"
+    assert ethereum["rinkeby"]["infura"]["token"] == "4414fea5f7454211956b1627621450b4"
+    assert ethereum["rinkeby"]["contract_addresses"]["htlc"] == "0xB00370e1F88C86Ef6Fc81B380E0c7fC1dcbceD17"
+    assert ethereum["rinkeby"]["contract_addresses"]["htlc_erc20"] == "0xe0d3155c9DC0ADdCDA71E7ef15c689AeCC8Dfc28"
+    assert ethereum["testnet"]["ganache-cli"]["http"] == "http://localhost:8545"
+    assert ethereum["testnet"]["ganache-cli"]["websocket"] == "wss://localhost:8545"
+    assert ethereum["testnet"]["ganache-cli"]["token"] is None
+    assert ethereum["testnet"]["contract_addresses"]["htlc"] is None
+    assert ethereum["testnet"]["contract_addresses"]["htlc_erc20"] is None
+    assert ethereum["path"] == "m/44'/60'/0'/0/0"
+    assert ethereum["bip44_path"] == "m/44'/60'/{account}'/{change}/{address}"
+    assert ethereum["units"]["Ether"] == 1
+    assert ethereum["units"]["Gwei"] == 1_000_000_000
+    assert ethereum["units"]["Wei"] == 1_000_000_000_000_000_000
+    assert ethereum["provider"] == "http"
+    assert ethereum["network"] == "mainnet"
+    assert ethereum["unit"] == "Wei"
+    assert ethereum["timeout"] == 60
+    assert ethereum["headers"]["user-agent"] == f"Swap User-Agent {__version__}"
+    assert ethereum["headers"]["content-type"] == "application/json; charset=utf-8"
+    assert ethereum["headers"]["accept"] == "application/json"
 
     assert isinstance(vapor, dict)
     assert vapor["mainnet"]["vapor-core"] == "http://localhost:9889"
@@ -124,13 +129,16 @@ def test_config():
     assert isinstance(xinfin, dict)
     assert xinfin["mainnet"]["http"] == "https://rpc.xinfin.network"
     assert xinfin["mainnet"]["websocket"] == "wss://ws.xinfin.network"
-    assert xinfin["mainnet"]["contract_address"] == "xdc656869af3Ec1E8b2982Fc370A0526541C0Ceb90B"
+    assert xinfin["mainnet"]["contract_addresses"]["htlc"] == "xdc1C2F24F4E2427aD43df9c20521B88C78A32Bafb2"
+    assert xinfin["mainnet"]["contract_addresses"]["htlc_xrc20"] == "xdcC8E8De7999D74bdD71e1cDC00025867F34c50b89"
     assert xinfin["apothem"]["http"] == "https://rpc.apothem.network"
     assert xinfin["apothem"]["websocket"] == "wss://ws.apothem.network"
-    assert xinfin["apothem"]["contract_address"] == "xdcDe5109BB09C1bC6dE7Ea7c856D4abf4Be99D824b"
+    assert xinfin["apothem"]["contract_addresses"]["htlc"] == "xdc959c04329fa6B45d0250A2315673e4F952218BdE"
+    assert xinfin["apothem"]["contract_addresses"]["htlc_xrc20"] == "xdc4C909fdd6c30f5B4c4d48938C161637B2767d714"
     assert xinfin["testnet"]["http"] == "http://localhost:8545"
     assert xinfin["testnet"]["websocket"] == "wss://localhost:8545"
-    assert xinfin["testnet"]["contract_address"] is None
+    assert xinfin["testnet"]["contract_addresses"]["htlc"] is None
+    assert xinfin["testnet"]["contract_addresses"]["htlc_xrc20"] is None
     assert xinfin["path"] == "m/44'/550'/0'/0/0"
     assert xinfin["bip44_path"] == "m/44'/550'/{account}'/{change}/{address}"
     assert xinfin["units"]["XDC"] == 1

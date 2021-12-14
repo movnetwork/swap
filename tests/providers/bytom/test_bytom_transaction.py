@@ -5,10 +5,10 @@ import os
 
 from swap.providers.bytom.htlc import HTLC
 from swap.providers.bytom.transaction import (
-    FundTransaction, WithdrawTransaction, RefundTransaction
+    NormalTransaction, FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.bytom.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import clean_transaction_raw
 
@@ -18,6 +18,52 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_bytom_normal_transaction():
+
+    unsigned_normal_transaction = NormalTransaction(network=_["bytom"]["network"])
+
+    unsigned_normal_transaction.build_transaction(
+        address=_["bytom"]["wallet"]["sender"]["address"],
+        recipients={
+            _["bytom"]["wallet"]["recipient"]["address"]: _["bytom"]["amount"]
+        },
+        asset=_["bytom"]["asset"],
+        unit=_['bytom']['unit']
+    )
+
+    assert unsigned_normal_transaction.type() == _["bytom"]["normal"]["unsigned"]["type"]
+    assert unsigned_normal_transaction.fee() == _["bytom"]["normal"]["unsigned"]["fee"]
+    assert unsigned_normal_transaction.hash() == _["bytom"]["normal"]["unsigned"]["hash"]
+    assert unsigned_normal_transaction.raw() == _["bytom"]["normal"]["unsigned"]["raw"]
+    # assert unsigned_normal_transaction.json() == _["bytom"]["normal"]["unsigned"]["json"]
+    assert unsigned_normal_transaction.unsigned_datas() == _["bytom"]["normal"]["unsigned"]["unsigned_datas"]
+    assert unsigned_normal_transaction.signatures() == _["bytom"]["normal"]["unsigned"]["signatures"]
+    assert unsigned_normal_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bytom"]["normal"]["unsigned"]["transaction_raw"]
+    )
+
+    signed_normal_transaction = unsigned_normal_transaction.sign(
+        solver=NormalSolver(
+            xprivate_key=_["bytom"]["wallet"]["sender"]["xprivate_key"],
+            path=_["bytom"]["wallet"]["sender"]["derivation"]["path"],
+            account=_["bytom"]["wallet"]["sender"]["derivation"]["account"],
+            change=_["bytom"]["wallet"]["sender"]["derivation"]["change"],
+            address=_["bytom"]["wallet"]["sender"]["derivation"]["address"]
+        )
+    )
+
+    assert signed_normal_transaction.type() == _["bytom"]["normal"]["signed"]["type"]
+    assert signed_normal_transaction.fee() == _["bytom"]["normal"]["signed"]["fee"]
+    assert signed_normal_transaction.hash() == _["bytom"]["normal"]["signed"]["hash"]
+    assert signed_normal_transaction.raw() == _["bytom"]["normal"]["signed"]["raw"]
+    # assert signed_normal_transaction.json() == _["bytom"]["normal"]["signed"]["json"]
+    assert signed_normal_transaction.unsigned_datas() == _["bytom"]["normal"]["signed"]["unsigned_datas"]
+    assert signed_normal_transaction.signatures() == _["bytom"]["normal"]["signed"]["signatures"]
+    assert signed_normal_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bytom"]["normal"]["signed"]["transaction_raw"]
+    )
 
 
 def test_bytom_fund_transaction():

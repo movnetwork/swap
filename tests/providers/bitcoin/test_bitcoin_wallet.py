@@ -129,7 +129,7 @@ def test_bitcoin_wallet_from_root_xprivate_key():
 
     wallet = Wallet(network=_["bitcoin"]["network"])
 
-    wallet.from_root_xprivate_key(
+    wallet.from_xprivate_key(
         xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"]
     )
 
@@ -156,38 +156,6 @@ def test_bitcoin_wallet_from_root_xprivate_key():
     assert wallet.finger_print() == _["bitcoin"]["wallet"]["sender"]["finger_print"]
     assert wallet.path() == _["bitcoin"]["wallet"]["sender"]["derivation"]["path"]
     assert wallet.address() == _["bitcoin"]["wallet"]["sender"]["address"]
-
-    # assert isinstance(wallet.balance(), int)
-    # assert isinstance(wallet.utxos(), list)
-
-
-def test_bitcoin_wallet_from_xprivate_key():
-
-    wallet = Wallet(network=_["bitcoin"]["network"])
-
-    wallet.from_xprivate_key(
-        xprivate_key=_["bitcoin"]["wallet"]["recipient"]["xprivate_key"]
-    )
-
-    assert wallet.entropy() is None
-    assert wallet.mnemonic() is None
-    assert wallet.language() is None
-    assert wallet.passphrase() is None
-    assert wallet.seed() is None
-    assert wallet.root_xprivate_key() is None
-    assert wallet.root_xpublic_key() is None
-    assert wallet.xprivate_key() == _["bitcoin"]["wallet"]["recipient"]["xprivate_key"]
-    assert wallet.xpublic_key() == _["bitcoin"]["wallet"]["recipient"]["xpublic_key"]
-    assert wallet.uncompressed() == _["bitcoin"]["wallet"]["recipient"]["uncompressed"]
-    assert wallet.compressed() == _["bitcoin"]["wallet"]["recipient"]["compressed"]
-    assert wallet.chain_code() == _["bitcoin"]["wallet"]["recipient"]["chain_code"]
-    assert wallet.private_key() == _["bitcoin"]["wallet"]["recipient"]["private_key"]
-    assert wallet.public_key() == _["bitcoin"]["wallet"]["recipient"]["public_key"]
-    assert wallet.wif() == _["bitcoin"]["wallet"]["recipient"]["wif"]
-    assert wallet.hash() == _["bitcoin"]["wallet"]["recipient"]["hash"]
-    assert wallet.finger_print() == _["bitcoin"]["wallet"]["recipient"]["finger_print"]
-    assert wallet.path() is None
-    assert wallet.address() == _["bitcoin"]["wallet"]["recipient"]["address"]
 
     # assert isinstance(wallet.balance(), int)
     # assert isinstance(wallet.utxos(), list)

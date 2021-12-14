@@ -4,7 +4,7 @@ import json
 import os
 
 from swap.providers.vapor.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 
 # Test Values
@@ -13,6 +13,19 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_vapor_normal_solver():
+
+    normal_solver = NormalSolver(
+        xprivate_key=_["vapor"]["wallet"]["sender"]["xprivate_key"],
+        path=_["vapor"]["wallet"]["sender"]["derivation"]["path"],
+        account=_["vapor"]["wallet"]["sender"]["derivation"]["account"],
+        change=_["vapor"]["wallet"]["sender"]["derivation"]["change"],
+        address=_["vapor"]["wallet"]["sender"]["derivation"]["address"]
+    )
+
+    assert isinstance(normal_solver.solve(network=_["vapor"]["network"]), tuple)
 
 
 def test_vapor_fund_solver():

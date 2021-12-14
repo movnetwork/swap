@@ -10,15 +10,15 @@ from swap.providers.xinfin.solver import (
 
 # Test Values
 base_path = os.path.dirname(__file__)
-file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
+file_path = os.path.abspath(os.path.join(base_path, "..", "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
 
 
-def test_xinfin_normal_solver():
+def test_xinfin_xrc20_normal_solver():
 
-    normal_solver = NormalSolver(
+    xrc20_normal_solver = NormalSolver(
         xprivate_key=_["xinfin"]["wallet"]["sender"]["root_xprivate_key"],
         path=_["xinfin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["xinfin"]["wallet"]["sender"]["derivation"]["account"],
@@ -26,12 +26,12 @@ def test_xinfin_normal_solver():
         address=_["xinfin"]["wallet"]["sender"]["derivation"]["address"]
     )
 
-    assert isinstance(normal_solver.solve(network=_["xinfin"]["network"]), Wallet)
+    assert isinstance(xrc20_normal_solver.solve(network=_["xinfin"]["network"]), Wallet)
 
 
-def test_xinfin_fund_solver():
+def test_xinfin_xrc20_fund_solver():
 
-    fund_solver = FundSolver(
+    xrc20_fund_solver = FundSolver(
         xprivate_key=_["xinfin"]["wallet"]["sender"]["root_xprivate_key"],
         path=_["xinfin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["xinfin"]["wallet"]["sender"]["derivation"]["account"],
@@ -39,12 +39,12 @@ def test_xinfin_fund_solver():
         address=_["xinfin"]["wallet"]["sender"]["derivation"]["address"]
     )
 
-    assert isinstance(fund_solver.solve(network=_["xinfin"]["network"]), Wallet)
+    assert isinstance(xrc20_fund_solver.solve(network=_["xinfin"]["network"]), Wallet)
 
 
-def test_xinfin_withdraw_solver():
+def test_xinfin_xrc20_withdraw_solver():
 
-    withdraw_solver = WithdrawSolver(
+    xrc20_withdraw_solver = WithdrawSolver(
         xprivate_key=_["xinfin"]["wallet"]["recipient"]["root_xprivate_key"],
         path=_["xinfin"]["wallet"]["recipient"]["derivation"]["path"],
         account=_["xinfin"]["wallet"]["recipient"]["derivation"]["account"],
@@ -52,12 +52,12 @@ def test_xinfin_withdraw_solver():
         address=_["xinfin"]["wallet"]["recipient"]["derivation"]["address"]
     )
 
-    assert isinstance(withdraw_solver.solve(network=_["xinfin"]["network"]), Wallet)
+    assert isinstance(xrc20_withdraw_solver.solve(network=_["xinfin"]["network"]), Wallet)
 
 
-def test_xinfin_refund_solver():
+def test_xinfin_xrc20_refund_solver():
 
-    refund_solver = RefundSolver(
+    xrc20_refund_solver = RefundSolver(
         xprivate_key=_["xinfin"]["wallet"]["sender"]["root_xprivate_key"],
         path=_["xinfin"]["wallet"]["sender"]["derivation"]["path"],
         account=_["xinfin"]["wallet"]["sender"]["derivation"]["account"],
@@ -65,4 +65,4 @@ def test_xinfin_refund_solver():
         address=_["xinfin"]["wallet"]["sender"]["derivation"]["address"]
     )
 
-    assert isinstance(refund_solver.solve(network=_["xinfin"]["network"]), Wallet)
+    assert isinstance(xrc20_refund_solver.solve(network=_["xinfin"]["network"]), Wallet)

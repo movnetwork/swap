@@ -5,10 +5,10 @@ import os
 
 from swap.providers.ethereum.htlc import HTLC
 from swap.providers.ethereum.transaction import (
-    FundTransaction, WithdrawTransaction, RefundTransaction
+    NormalTransaction, FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.ethereum.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import get_current_timestamp
 
@@ -18,6 +18,45 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_ethereum_normal_transaction():
+
+    unsigned_normal_transaction = NormalTransaction(network=_["ethereum"]["network"])
+
+    unsigned_normal_transaction.build_transaction(
+        address=_["ethereum"]["wallet"]["sender"]["address"],
+        recipient={
+            _["ethereum"]["wallet"]["recipient"]["address"]: _["ethereum"]["amount"]
+        },
+        unit=_["ethereum"]["unit"]
+    )
+
+    assert unsigned_normal_transaction.type() == _["ethereum"]["normal"]["unsigned"]["type"]
+    assert unsigned_normal_transaction.fee() == _["ethereum"]["normal"]["unsigned"]["fee"]
+    assert unsigned_normal_transaction.hash() == _["ethereum"]["normal"]["unsigned"]["hash"]
+    assert unsigned_normal_transaction.raw() == _["ethereum"]["normal"]["unsigned"]["raw"]
+    assert isinstance(unsigned_normal_transaction.json(), dict)
+    assert unsigned_normal_transaction.signature() == _["ethereum"]["normal"]["unsigned"]["signature"]
+    assert isinstance(unsigned_normal_transaction.transaction_raw(), str)
+
+    signed_normal_transaction = unsigned_normal_transaction.sign(
+        solver=NormalSolver(
+            xprivate_key=_["ethereum"]["wallet"]["sender"]["root_xprivate_key"],
+            path=_["ethereum"]["wallet"]["sender"]["derivation"]["path"],
+            account=_["ethereum"]["wallet"]["sender"]["derivation"]["account"],
+            change=_["ethereum"]["wallet"]["sender"]["derivation"]["change"],
+            address=_["ethereum"]["wallet"]["sender"]["derivation"]["address"]
+        )
+    )
+
+    assert signed_normal_transaction.type() == _["ethereum"]["normal"]["signed"]["type"]
+    assert signed_normal_transaction.fee() == _["ethereum"]["normal"]["signed"]["fee"]
+    assert isinstance(signed_normal_transaction.hash(), str)
+    assert isinstance(signed_normal_transaction.raw(), str)
+    assert isinstance(signed_normal_transaction.json(), dict)
+    assert isinstance(signed_normal_transaction.signature(), dict)
+    assert isinstance(signed_normal_transaction.transaction_raw(), str)
 
 
 def test_ethereum_fund_transaction():

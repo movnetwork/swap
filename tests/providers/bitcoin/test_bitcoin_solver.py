@@ -8,7 +8,7 @@ import json
 import os
 
 from swap.providers.bitcoin.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 
 # Test Values
@@ -17,6 +17,19 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_bitcoin_normal_solver():
+
+    normal_solver = NormalSolver(
+        xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+        path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
+        account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
+        change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
+        address=_["bitcoin"]["wallet"]["sender"]["derivation"]["address"]
+    )
+
+    assert isinstance(normal_solver.solve(network=_["bitcoin"]["network"]), P2pkhSolver)
 
 
 def test_bitcoin_fund_solver():

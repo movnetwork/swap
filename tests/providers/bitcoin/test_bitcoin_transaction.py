@@ -5,10 +5,10 @@ import os
 
 from swap.providers.bitcoin.htlc import HTLC
 from swap.providers.bitcoin.transaction import (
-    FundTransaction, WithdrawTransaction, RefundTransaction
+    NormalTransaction, FundTransaction, WithdrawTransaction, RefundTransaction
 )
 from swap.providers.bitcoin.solver import (
-    FundSolver, WithdrawSolver, RefundSolver
+    NormalSolver, FundSolver, WithdrawSolver, RefundSolver
 )
 from swap.utils import clean_transaction_raw
 
@@ -18,6 +18,47 @@ file_path = os.path.abspath(os.path.join(base_path, "..", "..", "values.json"))
 values = open(file_path, "r")
 _ = json.loads(values.read())
 values.close()
+
+
+def test_bitcoin_normal_transaction():
+
+    unsigned_normal_transaction = NormalTransaction(network=_["bitcoin"]["network"])
+
+    unsigned_normal_transaction.build_transaction(
+        address=_["bitcoin"]["wallet"]["sender"]["address"],
+        recipients={
+            _["bitcoin"]["wallet"]["recipient"]["address"]: _["bitcoin"]["amount"]
+        },
+        unit=_["bitcoin"]["unit"]
+    )
+
+    assert unsigned_normal_transaction.type() == _["bitcoin"]["normal"]["unsigned"]["type"]
+    assert unsigned_normal_transaction.fee() == _["bitcoin"]["normal"]["unsigned"]["fee"]
+    assert unsigned_normal_transaction.hash() == _["bitcoin"]["normal"]["unsigned"]["hash"]
+    assert unsigned_normal_transaction.raw() == _["bitcoin"]["normal"]["unsigned"]["raw"]
+    assert unsigned_normal_transaction.json() == _["bitcoin"]["normal"]["unsigned"]["json"]
+    assert unsigned_normal_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["normal"]["unsigned"]["transaction_raw"]
+    )
+
+    signed_normal_transaction = unsigned_normal_transaction.sign(
+        solver=NormalSolver(
+            xprivate_key=_["bitcoin"]["wallet"]["sender"]["root_xprivate_key"],
+            path=_["bitcoin"]["wallet"]["sender"]["derivation"]["path"],
+            account=_["bitcoin"]["wallet"]["sender"]["derivation"]["account"],
+            change=_["bitcoin"]["wallet"]["sender"]["derivation"]["change"],
+            address=_["bitcoin"]["wallet"]["sender"]["derivation"]["address"]
+        )
+    )
+
+    assert signed_normal_transaction.type() == _["bitcoin"]["normal"]["signed"]["type"]
+    assert signed_normal_transaction.fee() == _["bitcoin"]["normal"]["signed"]["fee"]
+    assert signed_normal_transaction.hash() == _["bitcoin"]["normal"]["signed"]["hash"]
+    assert signed_normal_transaction.raw() == _["bitcoin"]["normal"]["signed"]["raw"]
+    assert signed_normal_transaction.json() == _["bitcoin"]["normal"]["signed"]["json"]
+    assert signed_normal_transaction.transaction_raw() == clean_transaction_raw(
+        transaction_raw=_["bitcoin"]["normal"]["signed"]["transaction_raw"]
+    )
 
 
 def test_bitcoin_fund_transaction():
