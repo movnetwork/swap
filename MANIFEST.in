@@ -5,11 +5,19 @@ include tox.ini
 
 include swap/providers/bitcoin/contracts/htlc.script
 include swap/providers/bytom/contracts/htlc.equity
+include swap/providers/ethereum/contracts/libs/erc20.json
+include swap/providers/ethereum/contracts/libs/erc20.sol
 include swap/providers/ethereum/contracts/htlc.json
 include swap/providers/ethereum/contracts/htlc.sol
+include swap/providers/ethereum/contracts/htlc-erc20.json
+include swap/providers/ethereum/contracts/htlc-erc20.sol
 include swap/providers/vapor/contracts/htlc.equity
+include swap/providers/xinfin/contracts/libs/xrc20.json
+include swap/providers/xinfin/contracts/libs/xrc20.sol
 include swap/providers/xinfin/contracts/htlc.json
 include swap/providers/xinfin/contracts/htlc.sol
+include swap/providers/xinfin/contracts/htlc-xrc20.json
+include swap/providers/xinfin/contracts/htlc-xrc20.sol
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
