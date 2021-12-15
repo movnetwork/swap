@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Swap Information's
-__version__: str = "0.4.2a3"
+__version__: str = "0.5.0"
 __license__: str = "AGPL-3.0"
 __author__: str = "Meheret Tesfaye Batu"
 __email__: str = "meherett@zoho.com"
