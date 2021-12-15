@@ -406,7 +406,7 @@ def submit_raw(address: str, raw: str, signatures: list, network: str = config["
         raise NetworkError(f"Invalid Bytom '{network}' network",
                            "choose only 'mainnet', 'solonet' or 'testnet' networks.")
 
-    url = f"{config[network]['blockcenter']['v3']}/merchant/submit-payment"
+    url = f"{config[network]['blockcenter']}/merchant/submit-payment"
     data = dict(raw_transaction=raw, signatures=signatures)
     params = dict(address=address)
     response = requests.post(
