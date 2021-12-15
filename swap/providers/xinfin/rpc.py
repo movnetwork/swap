@@ -300,29 +300,29 @@ def wait_for_transaction_receipt(transaction_hash: str, network: str = config["n
     return txn_receipt
 
 
-def decode_raw(transaction_raw: str) -> dict:
+def decode_raw(raw: str) -> dict:
     """
     Decode original XinFin raw into blockchain.
 
-    :param transaction_raw: XinFin transaction raw.
-    :type transaction_raw: str
+    :param raw: XinFin transaction raw.
+    :type raw: str
 
     :returns: dict -- XinFin decoded transaction hash.
 
     >>> from swap.providers.xinfin.rpc import decode_raw
-    >>> decode_raw(transaction_raw="0xf86c02840ee6b280825208943e0a9b2ee8f8341a1aead3e7531d75f1e395f24b8901236efcbcbb340000801ba03084982e4a9dd897d3cc1b2c8cc2d1b106b9d302eb23f6fae7d0e57e53e043f8a0116f13f9ab385f6b53e7821b3335ced924a1ceb88303347cd0af4aa75e6bfb73")
+    >>> decode_raw(raw="0xf86c02840ee6b280825208943e0a9b2ee8f8341a1aead3e7531d75f1e395f24b8901236efcbcbb340000801ba03084982e4a9dd897d3cc1b2c8cc2d1b106b9d302eb23f6fae7d0e57e53e043f8a0116f13f9ab385f6b53e7821b3335ced924a1ceb88303347cd0af4aa75e6bfb73")
     {'hash': '0x04b3bfb804f2b3329555c6f3a17a794b3f099b6435a9cf58c78609ed93853907', 'from': '0x3769F63e3b694cD2e973e28af59bdFd751303273', 'to': '0x3e0a9B2Ee8F8341A1aEaD3E7531d75f1e395F24b', 'nonce': 2, 'gas': 21000, 'gas_price': 250000000, 'value': 21000000000000000000, 'data': '0x', 'chain_id': -4, 'r': '0x3084982e4a9dd897d3cc1b2c8cc2d1b106b9d302eb23f6fae7d0e57e53e043f8', 's': '0x116f13f9ab385f6b53e7821b3335ced924a1ceb88303347cd0af4aa75e6bfb73', 'v': 27}
     """
 
-    return dtr(transaction_raw=transaction_raw)
+    return dtr(transaction_raw=raw)
 
 
-def submit_raw(transaction_raw: str, network: str = config["network"], provider: str = config["provider"]) -> str:
+def submit_raw(raw: str, network: str = config["network"], provider: str = config["provider"]) -> str:
     """
     Submit original XinFin raw into blockchain.
 
-    :param transaction_raw: XinFin transaction raw.
-    :type transaction_raw: str
+    :param raw: XinFin transaction raw.
+    :type raw: str
     :param network: XinFin network, defaults to ``mainnet``.
     :type network: str
     :param provider: XinFin network provider, defaults to ``http``.
@@ -331,10 +331,10 @@ def submit_raw(transaction_raw: str, network: str = config["network"], provider:
     :returns: str -- XinFin submitted transaction hash/id.
 
     >>> from swap.providers.xinfin.rpc import submit_raw
-    >>> submit_raw(transaction_raw="0xf86c02840ee6b280825208943e0a9b2ee8f8341a1aead3e7531d75f1e395f24b8901236efcbcbb340000801ba03084982e4a9dd897d3cc1b2c8cc2d1b106b9d302eb23f6fae7d0e57e53e043f8a0116f13f9ab385f6b53e7821b3335ced924a1ceb88303347cd0af4aa75e6bfb73", network="testnet")
+    >>> submit_raw(raw="0xf86c02840ee6b280825208943e0a9b2ee8f8341a1aead3e7531d75f1e395f24b8901236efcbcbb340000801ba03084982e4a9dd897d3cc1b2c8cc2d1b106b9d302eb23f6fae7d0e57e53e043f8a0116f13f9ab385f6b53e7821b3335ced924a1ceb88303347cd0af4aa75e6bfb73", network="testnet")
     "0x04b3bfb804f2b3329555c6f3a17a794b3f099b6435a9cf58c78609ed93853907"
     """
 
     web3: Web3 = get_web3(network=network, provider=provider)
-    transaction_hash: HexBytes = web3.eth.send_raw_transaction(transaction_raw)
+    transaction_hash: HexBytes = web3.eth.send_raw_transaction(raw)
     return transaction_hash.hex()
