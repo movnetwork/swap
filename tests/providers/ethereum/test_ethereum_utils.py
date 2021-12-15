@@ -6,7 +6,7 @@ import os
 
 from swap.exceptions import TransactionRawError
 from swap.providers.ethereum.utils import (
-    is_network, is_address, is_transaction_raw,
+    is_network, is_address, is_transaction_raw, get_erc20_data,
     decode_transaction_raw, submit_transaction_raw
 )
 
@@ -28,6 +28,11 @@ def test_ethereum_utils():
 
     assert is_transaction_raw(transaction_raw=_["ethereum"]["fund"]["unsigned"]["transaction_raw"])
     assert not is_transaction_raw(transaction_raw="unknown")
+
+    assert isinstance(get_erc20_data("abi"), list)
+    assert isinstance(get_erc20_data("bin"), str)
+    assert isinstance(get_erc20_data("bin-runtime"), str)
+    assert isinstance(get_erc20_data("opcodes"), str)
 
     assert decode_transaction_raw(transaction_raw=_["ethereum"]["fund"]["unsigned"]["transaction_raw"]) == \
         {
